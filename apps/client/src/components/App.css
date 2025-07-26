@@ -1,0 +1,94 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+.logo.gitlab {
+  height: 2.5rem;
+}
+
+.source-code-link {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  & img {
+    padding-right: 1rem;
+    vertical-align: middle;
+  }
+  & a {
+    font-weight: 400;
+  }
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .logo.react {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.source-code-link,
+.card,
+.technologies,
+#root > h1 {
+  padding: 0;
+  margin: 0;
+}
+
+#root > h1 {
+  margin-bottom: 1rem;
+}
+
+.card {
+  & .chat {
+    & .messages {
+      /* still means `.card .chat` */
+      text-align: left;
+      padding: 1em;
+
+      & li {
+        list-style: none;
+      }
+    }
+
+    & form {
+      display: flex;
+      align-items: stretch;
+      justify-content: flex-start;
+      flex-wrap: nowrap;
+    }
+  }
+}
+
+.read-the-docs {
+  color: #888;
+}
