@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start:dev": "npm run dev:relay & npm run dev",
     "dev": "vite",
     "dev:relay": "relay-compiler --watch",
     "relay": "relay-compiler",

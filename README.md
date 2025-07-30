@@ -5,7 +5,7 @@ This repository contains a full-stack chat application built with:
 - **Client**: Vite, React, Relay
 - **Server**: NestJS, GraphQL (Apollo), TypeORM
 - **Database**: PostgreSQL
-- **Dev tooling**: Relay Compiler, Docker Compose (Postgres), Dockerfiles for production, Trunk.io for code quality, Apollo Sandbox for GraphQL development/testing
+- **Dev tooling**: Relay Compiler, Docker Compose (Postgres), Dockerfile for production, Trunk.io for code quality, Apollo Sandbox for GraphQL development/testing
 
 You’ll run the server exposing a GraphQL API at `/graphql` (`/api/graphql` on production) and a WebSocket endpoint for subscriptions, and the client will fetch data and subscribe to real-time updates.
 
@@ -72,55 +72,57 @@ By default this creates:
 - Database: `chatdb`
 - User: `chatuser` / Password: `chatpass`
 
+---
+
 ### 2. Environment Variables
 
 `.env.development` in both `apps/client/` and `apps/server/`:
 
-`apps/server/.env.development`
-
 ```ini
 DATABASE_HOST=localhost
 ```
-
-`apps/client/.env.development`
 
 ```ini
 VITE_GRAPHQL_HTTP=http://localhost:3000/graphql
 VITE_GRAPHQL_WS=ws://localhost:3000/graphql
 ```
 
-### 3. Run the Server
+---
+
+### 3. Install dependencies
+
+At the **repo root**, run:
 
 ```bash
-cd apps/server
+# If you add or update deps:
+npm i --legacy-peer-deps
+
+# Otherwise (day‑to‑day / CI), to get a clean, lockfile‑exact install:
 npm ci --legacy-peer-deps
-npm run start:dev   # or `nest start --watch`
 ```
 
-- GraphQL API: `http://localhost:3000/graphql`
-- Subscriptions WS: `ws://localhost:3000/graphql`
-- Apollo Sandbox: Browse to `http://localhost:3000/graphql` for sandboxing
+This will install **all** workspace packages (`apps/server` and `apps/client`) and generate your lockfile (or update it, or leave it unchanged if you choose to run ```ci```).
 
-### 4. Generate Relay Artifacts
+---
 
-In a separate terminal:
+### 4. Run everything in one command
 
-```bash
-cd apps/client
-npm ci
-npm run relay        # one-off generation
-# or for watch mode (IMPORTANT!!!: for me watchman breaks relay on Windows. only uninstalling watchman will fix project. try it out. If watchman does not work only manual relay run will work):
-npm run dev:relay
-```
-
-### 5. Run the Client
+Still at the **repo root**, simply:
 
 ```bash
-cd apps/client
 npm run dev
 ```
 
-Browse to `http://localhost:5173`. You should see the chat UI.
+This uses Turborepo to concurrently start:
+
+- **Server** in watch mode (`start:dev`)  
+- **Relay compiler** in watch mode (`relay:dev`)  
+- **Vite dev server** (`dev`)
+
+Once it’s up:
+
+- GraphQL API & WS Subscriptions → `http://localhost:3000/graphql`  
+- React UI → `http://localhost:5173`
 
 ---
 
