@@ -1,0 +1,18 @@
+{
+    "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush.schema.json",
+    "rushVersion": "5.157.0",
+    "pnpmVersion": "10.13.1",
+    "nodeSupportedVersionRange": ">=18.0.0",
+    "projects": [
+        {
+            "packageName": "client",
+            "projectFolder": "apps/client",
+            "reviewCategory": "applications"
+        },
+        {
+            "packageName": "server",
+            "projectFolder": "apps/server",
+            "reviewCategory": "applications"
+        }
+    ]
+}

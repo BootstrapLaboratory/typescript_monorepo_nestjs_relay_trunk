@@ -22,7 +22,9 @@ You’ll run the server exposing a GraphQL API at `/graphql` (`/api/graphql` on 
 - **PostgreSQL** – relational database
 - **graphql-ws** – WebSocket GraphQL transport
 - **Docker** / **Docker Compose** – containerized local development
-- **Trunk.io** - DevEx (Developer Experience) platform that uses autonomous, agentic AI to help you detect and root cause problems – before they block your team.
+- **Microsoft Rush** – monorepo dependency + version management (change-file driven releases)
+- **Nx** – task runner & build cache for fast, “affected-only” dev/CI workflows
+- **Trunk.io** - DevEx platform (autonomous AI code-quality checks)
 
 ---
 
@@ -94,41 +96,33 @@ VITE_GRAPHQL_WS=ws://localhost:3000/graphql
 At the **repo root**, run:
 
 ```bash
-# If you add or update deps:
-npm i --legacy-peer-deps
-
-# Otherwise (day‑to‑day / CI), to get a clean, lockfile‑exact install:
-npm ci --legacy-peer-deps
+npm i
 ```
 
-This will install **all** workspace packages (`apps/server` and `apps/client`) and generate your lockfile (or update it, or leave it unchanged if you choose to run ```ci```).
+This will invoke the `postinstall` hook (which runs `rush install`) and set up all project dependencies.
 
 ---
 
 ### 4. Run everything in one command
 
-Still at the **repo root**, simply:
+From the **repo root**, run:
 
 ```bash
 npm run dev
 ```
 
-This uses Turborepo to concurrently start:
+This calls NX to run all `start:dev` targets in parallel and launches the NX Dev UI, where you can monitor logs, see build-caching metrics, and more.
 
-- **Server** in watch mode (`start:dev`)  
-- **Relay compiler** in watch mode (`relay:dev`)  
-- **Vite dev server** (`dev`)
+Once the servers are up:
 
-Once it’s up:
-
-- GraphQL API & WS Subscriptions → `http://localhost:3000/graphql`  
-- React UI → `http://localhost:5173`
+- **GraphQL API & WS Subscriptions** → <http://localhost:3000/graphql>
+- **React UI** → <http://localhost:5173>
 
 ---
 
 ## Code Quality
 
-We are using Trunk.io to automate Code Quality checkings.
+We are using Trunk.io to automate Code Quality checks.
 
 ```bash
 trunk --help
@@ -162,7 +156,7 @@ trunk check -a -y
 
 ## Production Build
 
-Both client and server have Dockerfiles:
+Both client and server have Dockerfile:
 
 - **Server**: multi-stage build → Node dist → run `node dist/main.js`
 - **Client**: multi-stage build → Nginx static serve of `dist/`
@@ -174,14 +168,13 @@ Adjust ports and environment variables as needed for your deployment environment
 ## Tips
 
 - Ensure **Watchman** is installed for Relay’s watch mode on macOS/Linux.
-- If you change GraphQL schema on the server, re-run `npm run relay` so the client’s type definitions stay in sync.
+- If you change GraphQL schema in the server app, re-run `npm run relay` in client app so the client’s type definitions stay in sync (this happens automatically, if you start dev environment using 'npm run dev' in project's root).
 - To reset the database, stop Postgres and remove the volume:
 
   ```bash
   docker-compose down
+  docker volume rm client_postgres_data
+  docker-compose up -d
   ```
-
-docker volume rm client_postgres_data
-docker-compose up -d
 
 Happy coding!

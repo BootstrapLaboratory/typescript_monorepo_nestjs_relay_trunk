@@ -1,9 +1,13 @@
 {
     "cSpell.words": [
+        "automapper",
         "chatdb",
         "chatpass",
         "chatuser",
         "gitlab",
-        "nestjs"
+        "nestjs",
+        "njsproj",
+        "ntvs",
+        "postgres"
     ]
 }

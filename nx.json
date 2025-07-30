@@ -1,0 +1,20 @@
+{
+    "npmScope": "typescript_nestjs_relay_trunk",
+    "implicitDependencies": {
+        "package.json": "*"
+    },
+    "tasksRunnerOptions": {
+        "default": {
+            "runner": "@nrwl/workspace/tasks-runners/default",
+            "options": {
+                "cacheableOperations": [
+                    "build",
+                    "start:dev",
+                    "test",
+                    "lint"
+                ],
+                "parallel": 8
+            }
+        }
+    }
+}

@@ -2,17 +2,22 @@
   "name": "typescript_nestjs_relay_trunk_monorepo",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "apps/*"
-  ],
-  "packageManager": "npm@11.4.2",
-    "engines": {
-    "node": ">=18"
+  "engines": {
+    "node": ">=20"
   },
   "scripts": {
-    "dev": "turbo start:dev"
+    "dev": "nx run-many --target=start:dev --all",
+    "rush": "rush",
+    "rush:install": "rush install",
+    "rush:update": "rush update",
+    "rush:build": "rush build",
+    "rush:version": "rush version",
+    "rush:publish": "rush publish",
+    "postinstall": "rush install && echo '\n\n' && echo '┌───────────────────────────────┐' && echo -n '| ' && chalk -n bold magenta \"🎉  Dev mode ready!  🎉\" && echo '       |' && echo -n '| ' && chalk -n bold cyan \"Run 'npm run dev' to start\" && echo '    |' && echo '└───────────────────────────────┘' && echo '\n'"
   },
   "devDependencies": {
-    "turbo": "^2.5.5"
+    "@microsoft/rush": "^5.157.0",
+    "chalk-cli": "^6.0.0",
+    "nx": "^21.3.10"
   }
 }

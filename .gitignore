@@ -22,5 +22,10 @@ dist-ssr
 # Relay
 **/__generated__
 
-# Turbo
-.turbo/
+# Rush
+**/.rush/
+/common/temp/
+/common/temp*/   # includes npm-tmp, npm-cache, pnpm-store
+
+# NX
+.nx/
