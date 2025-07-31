@@ -8,6 +8,7 @@
         "nestjs",
         "njsproj",
         "ntvs",
-        "postgres"
+        "postgres",
+        "rushstack"
     ]
 }

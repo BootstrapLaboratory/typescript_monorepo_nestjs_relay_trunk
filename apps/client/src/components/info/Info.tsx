@@ -5,6 +5,7 @@ import gitlabLogo from "./assets/gitlab.svg";
 import trunkLogo from "./assets/trunk.png";
 import apolloLogo from "./assets/apollo.svg";
 import viteLogo from "/vite.svg";
+import rushStackLogo from "./assets/rushstack.svg"
 
 const HTTP_ENDPOINT = import.meta.env.VITE_GRAPHQL_HTTP!;
 
@@ -43,6 +44,9 @@ export function Header() {
         </a>
         <a href="https://nestjs.com/" target="_blank">
           <img src={nestLogo} className="logo nestjs" alt="NestJS logo" />
+        </a>
+        <a href="https://rushstack.io/" target="_blank">
+          <img src={rushStackLogo} className="logo rushstack" alt="Rush logo" />
         </a>
         <a href="https://trunk.io/" target="_blank">
           <img src={trunkLogo} className="logo trunk_io" alt="Trunk.io logo" />

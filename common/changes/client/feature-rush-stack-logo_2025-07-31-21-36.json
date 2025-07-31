@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "client",
+      "comment": "Added Rush stack logo and link",
+      "type": "patch"
+    }
+  ],
+  "packageName": "client"
+}
