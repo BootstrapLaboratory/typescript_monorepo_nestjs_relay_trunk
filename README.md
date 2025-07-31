@@ -22,6 +22,7 @@ You’ll run the server exposing a GraphQL API at `/graphql` (`/api/graphql` on 
 - **PostgreSQL** – relational database
 - **graphql-ws** – WebSocket GraphQL transport
 - **Docker** / **Docker Compose** – containerized local development
+- **Nx** – task runner & build cache for fast, “affected-only” dev/CI workflows
 - **Trunk.io** - DevEx (Developer Experience) platform that uses autonomous, agentic AI to help you detect and root cause problems – before they block your team.
 
 ---
@@ -95,10 +96,10 @@ At the **repo root**, run:
 
 ```bash
 # If you add or update deps:
-npm i --legacy-peer-deps
+npm i
 
 # Otherwise (day‑to‑day / CI), to get a clean, lockfile‑exact install:
-npm ci --legacy-peer-deps
+npm ci
 ```
 
 This will install **all** workspace packages (`apps/server` and `apps/client`) and generate your lockfile (or update it, or leave it unchanged if you choose to run ```ci```).
@@ -107,22 +108,18 @@ This will install **all** workspace packages (`apps/server` and `apps/client`) a
 
 ### 4. Run everything in one command
 
-Still at the **repo root**, simply:
+From the **repo root**, run:
 
 ```bash
 npm run dev
 ```
 
-This uses Turborepo to concurrently start:
+This calls NX to run all `start:dev` targets in parallel and launches the NX Dev UI, where you can monitor logs, see build-caching metrics, and more.
 
-- **Server** in watch mode (`start:dev`)  
-- **Relay compiler** in watch mode (`relay:dev`)  
-- **Vite dev server** (`dev`)
+Once the servers are up:
 
-Once it’s up:
-
-- GraphQL API & WS Subscriptions → `http://localhost:3000/graphql`  
-- React UI → `http://localhost:5173`
+- **GraphQL API & WS Subscriptions** → <http://localhost:3000/graphql>
+- **React UI** → <http://localhost:5173>
 
 ---
 
