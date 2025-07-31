@@ -7,12 +7,14 @@
         {
             "packageName": "client",
             "projectFolder": "apps/client",
-            "reviewCategory": "applications"
+            "reviewCategory": "applications",
+            "versionPolicyName": "apps"
         },
         {
             "packageName": "server",
             "projectFolder": "apps/server",
-            "reviewCategory": "applications"
+            "reviewCategory": "applications",
+            "versionPolicyName": "apps"
         }
     ]
 }
