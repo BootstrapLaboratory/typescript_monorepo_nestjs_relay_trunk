@@ -1,0 +1,55 @@
+name: "Restore & Install Rush/Nx"
+description: "Restore caches and run npm ci + rush install"
+runs:
+  using: "composite"
+  steps:
+    - name: Restore Root deps from cache
+      uses: actions/cache/restore@v4
+      id: root_cache
+      with:
+        path: node_modules
+        key: npm-lockfile-${{ hashFiles('package-lock.json') }}
+
+    - name: Restore Rush deps from cache
+      uses: actions/cache/restore@v4
+      id: rush_cache
+      with:
+        path: |
+          common/temp/node_modules
+          common/temp/pnpm-store
+        key: rush2-${{ hashFiles('common/config/rush/pnpm-lock.yaml') }}
+
+    - name: Install Root deps (Rush & Nx only)
+      if: steps.root_cache.outputs.cache-hit != 'true'
+      run: |
+        echo "Root deps cache miss"
+        npm ci --ignore-scripts
+      shell: bash
+
+    - name: Save Root deps in cache
+      uses: actions/cache/save@v4
+      if: steps.root_cache.outputs.cache-hit != 'true'
+      with:
+        path: node_modules
+        key: npm-lockfile-${{ hashFiles('package-lock.json') }}
+
+    - name: Rush cache status
+      if: steps.rush_cache.outputs.cache-hit != 'true'
+      run: |
+        echo Rush deps cache miss
+      shell: bash
+
+    - name: Install Rush deps (need to do this even when cache is available to initialize Rush properly)
+      run: |
+        echo "Install Rush deps (need to do this even when cache is available to initialize Rush properly)" >> /dev/null
+        npx rush install --max-install-attempts 1
+      shell: bash
+
+    - name: Save Rush deps in cache
+      uses: actions/cache/save@v4
+      if: steps.rush_cache.outputs.cache-hit != 'true'
+      with:
+        path: |
+          common/temp/node_modules
+          common/temp/pnpm-store
+        key: rush2-${{ hashFiles('common/config/rush/pnpm-lock.yaml') }}

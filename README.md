@@ -177,4 +177,4 @@ Adjust ports and environment variables as needed for your deployment environment
   docker-compose up -d
   ```
 
-Happy coding!
+Happy coding! 🤘💪🤣😍❤

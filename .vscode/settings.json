@@ -4,6 +4,7 @@
         "chatdb",
         "chatpass",
         "chatuser",
+        "github",
         "gitlab",
         "nestjs",
         "njsproj",

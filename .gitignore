@@ -19,9 +19,6 @@ dist-ssr
 *.sln
 *.sw?
 
-# Relay
-**/__generated__
-
 # Rush
 **/.rush/
 /common/temp/

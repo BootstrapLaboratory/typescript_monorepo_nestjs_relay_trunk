@@ -1,0 +1,116 @@
+name: monorepo-ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  NODE_VERSION: "24" # your runtime
+  # NPM_REGISTRY: "https://npm.mycorp.local/" # internal registry
+  NX_CACHE_URL: ${{ secrets.NX_REMOTE_CACHE }} # e.g. Nx Cloud token
+
+jobs:
+  # ----------------- 1. Build & test only affected packages -----------------
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: Setup NodeJS version ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies with caching
+        uses: ./.github/actions/cached-install
+
+      - name: Nx affected build+test (remote cache)
+        run: |
+          npx nx run-many -t test build
+        env:
+          NX_CLOUD_AUTH_TOKEN: ${{ env.NX_CACHE_URL }}
+
+  # # ----------------- 3. Version bump & changelog (merge-only) -----------
+  # version:
+  #   if: github.ref == 'refs/heads/main' # only on main
+  #   needs: build-test
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with: { fetch-depth: 0 }
+
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: ${{ env.NODE_VERSION }}
+  #         registry-url: ${{ env.NPM_REGISTRY }}
+  #         always-auth: true
+  #         scope: "@myorg"
+
+  #     - name: Rush install
+  #       run: npm ci && npx rush install
+
+  #     # Apply change-files, bump versions, update CHANGELOG, tag
+  #     - name: Rush version & commit
+  #       run: |
+  #         git config user.name  "CI Bot"
+  #         git config user.email "ci@mycorp.local"
+  #         npx rush version -b --commit --publish --target-branch origin/main
+  #         git push --follow-tags origin HEAD:main
+
+  # # ----------------- 4. Publish library packages -----------------
+  # publish:
+  #   needs: version
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with: { fetch-depth: 0 }
+
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: ${{ env.NODE_VERSION }}
+  #         registry-url: ${{ env.NPM_REGISTRY }}
+  #         always-auth: true
+  #         scope: "@myorg"
+  #         token: ${{ secrets.NPM_TOKEN }}
+
+  #     - name: Rush install
+  #       run: npm ci && npx rush install
+
+  #     - name: Rush publish to internal registry
+  #       run: |
+  #         # Publishes only packages with new versions from step 3
+  #         npx rush publish --apply --publish \
+  #                          --registry $NPM_REGISTRY \
+  #                          --add-commit-info \
+  #                          --include-all
+
+  # # ----------------- 5. Re-build & deploy updated apps --------------
+  # deploy-apps:
+  #   needs: publish
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       app: [client, server]
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with: { fetch-depth: 0 }
+
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: ${{ env.NODE_VERSION }}
+  #         registry-url: ${{ env.NPM_REGISTRY }}
+
+  #     - name: Rush install (picks up freshly-published libs)
+  #       run: npm ci && npx rush install
+
+  #     - name: Nx build app image
+  #       run: |
+  #         npx nx run ${{ matrix.app }}:build
+  #         # containerize if desired
+  #         docker build -t mycorp/${{ matrix.app }}:${{ github.sha }} apps/${{ matrix.app }}
+  #         docker push mycorp/${{ matrix.app }}:${{ github.sha }}
+
+  #     - name: Deploy
+  #       run: ./scripts/deploy-${{ matrix.app }}.sh mycorp/${{ matrix.app }}:${{ github.sha }}
