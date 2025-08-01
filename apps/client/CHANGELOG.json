@@ -1,0 +1,17 @@
+{
+  "name": "client",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "client_v0.0.1",
+      "date": "Fri, 01 Aug 2025 06:24:02 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Added Rush stack logo and link"
+          }
+        ]
+      }
+    }
+  ]
+}
