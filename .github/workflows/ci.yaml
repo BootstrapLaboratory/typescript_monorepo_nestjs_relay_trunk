@@ -28,7 +28,7 @@ jobs:
 
       - name: Nx affected build+test (remote cache)
         run: |
-          npx nx run-many -t test build
+          npx nx run-many -t lint test build
         env:
           NX_CLOUD_AUTH_TOKEN: ${{ env.NX_CACHE_URL }}
 

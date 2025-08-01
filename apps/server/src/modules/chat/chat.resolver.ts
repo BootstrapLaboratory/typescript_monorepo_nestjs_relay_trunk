@@ -7,11 +7,11 @@ import { ChatService } from './chat.service';
 
 const pubSub = new PubSub();
 
-@Resolver((of) => Message)
+@Resolver(() => Message)
 export class ChatResolver {
   constructor(private readonly chatService: ChatService) {}
 
-  @Query((returns) => Message)
+  @Query(() => Message)
   async getMessage(@Args('id') id: string): Promise<Message> {
     const Message = await this.chatService.findOneById(id);
     if (!Message) {
@@ -20,26 +20,26 @@ export class ChatResolver {
     return Message;
   }
 
-  @Query((returns) => [Message])
+  @Query(() => [Message])
   getMessages(): Promise<Message[]> {
     return this.chatService.findAll();
   }
 
-  @Mutation((returns) => Message)
+  @Mutation(() => Message)
   async addMessage(
     @Args('newMessageData') newMessageData: NewMessageInput,
   ): Promise<Message> {
     const Message = await this.chatService.create(newMessageData);
-    pubSub.publish('MessageAdded', { MessageAdded: Message });
+    void pubSub.publish('MessageAdded', { MessageAdded: Message });
     return Message;
   }
 
-  @Mutation((returns) => Boolean)
+  @Mutation(() => Boolean)
   async removeMessage(@Args('id') id: number) {
     return this.chatService.remove(id);
   }
 
-  @Subscription((returns) => Message)
+  @Subscription(() => Message)
   MessageAdded() {
     return pubSub.asyncIterableIterator('MessageAdded');
   }

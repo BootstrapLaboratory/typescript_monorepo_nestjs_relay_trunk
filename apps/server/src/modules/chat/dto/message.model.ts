@@ -3,7 +3,7 @@ import { AutoMap } from '@automapper/classes';
 
 @ObjectType({ description: 'chat message' })
 export class Message {
-  @Field((type) => ID)
+  @Field(() => ID)
   @AutoMap()
   id: string;
 

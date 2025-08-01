@@ -1,5 +1,5 @@
 // src/modules/chat/message.profile.ts
-import { createMapper, createMap, Mapper } from '@automapper/core';
+import { createMapper, createMap } from '@automapper/core';
 import { classes } from '@automapper/classes';
 import { MessageEntity } from '../entities/message.entity';
 import { Message } from '../dto/message.model';
