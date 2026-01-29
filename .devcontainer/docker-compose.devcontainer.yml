@@ -1,0 +1,17 @@
+services:
+  devcontainer:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    # userns_mode: keep-id
+    user: root
+    volumes:
+      - .:/workspace:rw,Z
+      # - typescript_monorepo_nestjs_relay_trunk-home:/home/vscode:rw,Z
+    environment:
+      # trunk-ignore(trufflehog/Postgres)
+      # trunk-ignore(checkov/CKV_SECRET_4)
+      DATABASE_URL: postgres://chatuser:chatpass@postgres:5432/chatdb
+    depends_on:
+      - postgres
+    command: sleep infinity

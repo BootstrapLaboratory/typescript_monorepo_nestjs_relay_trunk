@@ -1,9 +1,12 @@
 {
   "name": "bootstraplaboratory.template.typescript_monorepo_nestjs_relay_trunk",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": ".."
-  },
+  "dockerComposeFile": [
+    "../docker-compose.localdb.yml",
+    "docker-compose.devcontainer.yml"
+  ],
+  "service": "devcontainer",
+  "remoteUser": "root",
+  "runServices": ["postgres", "pgadmin"],
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "version": "24.13.0"
@@ -27,12 +30,9 @@
   },
   "forwardPorts": [],
   "postStartCommand": "",
-  "containerUser": "vscode",
-  "runArgs": ["--userns=keep-id"],
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,Z",
+  "containerUser": "root",
+  // "runArgs": ["--userns=keep-id"],
   "workspaceFolder": "/workspace",
-  "mounts": [
-    "source=${localWorkspaceFolderBasename}-home,target=/home/vscode,type=volume"
-  ],
+  "mounts": ["source=home,target=/root,type=volume"],
   "postCreateCommand": "bash -lc 'bash /workspace/.devcontainer/postCreate.sh'"
 }

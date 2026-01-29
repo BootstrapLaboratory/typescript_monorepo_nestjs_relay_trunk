@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: chatdb
+      POSTGRES_USER: chatuser
+      POSTGRES_PASSWORD: chatpass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    restart: always
+    environment:
+      # change these to something secure (for dev you can keep simple)
+      PGADMIN_DEFAULT_EMAIL: admin@localhost.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - 8888:80
+    volumes:
+      # Persist pgAdmin settings & connections
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+
+volumes:
+  pgadmin_data:
+  postgres_data:
