@@ -1,0 +1,38 @@
+{
+  "name": "bootstraplaboratory.template.typescript_monorepo_nestjs_relay_trunk",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "24.13.0"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.formatOnSave": true
+      },
+      "extensions": [
+        "eamodio.gitlens",
+        "ms-azuretools.vscode-containers",
+        "jebbs.plantuml",
+        "openai.chatgpt",
+        "trunk.io",
+        "meta.relay",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  },
+  "forwardPorts": [],
+  "postStartCommand": "",
+  "containerUser": "vscode",
+  "runArgs": ["--userns=keep-id"],
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,Z",
+  "workspaceFolder": "/workspace",
+  "mounts": [
+    "source=${localWorkspaceFolderBasename}-home,target=/home/vscode,type=volume"
+  ],
+  "postCreateCommand": "bash -lc 'bash /workspace/.devcontainer/postCreate.sh'"
+}

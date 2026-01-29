@@ -1,0 +1,30 @@
+FROM mcr.microsoft.com/devcontainers/javascript-node:24
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD bash -lc 'true'
+
+# Установить необходимые пакеты
+
+# trunk-ignore(hadolint/DL3008)
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      plantuml \
+      graphviz \
+      default-jre-headless \
+      libxcrypt-compat \
+ && rm -rf /var/lib/apt/lists/*
+
+# Force Java headless for everything (safe in devcontainer)
+ENV JAVA_TOOL_OPTIONS="-Djava.awt.headless=true"
+
+# Make plantuml always headless (avoid X11 in containers)
+RUN cat > /usr/local/bin/plantuml <<'EOF' \
+ && chmod +x /usr/local/bin/plantuml
+#!/usr/bin/env bash
+unset DISPLAY
+exec /usr/bin/plantuml "$@"
+EOF
+
+WORKDIR /workspace
+RUN if ! id -u vscode >/dev/null 2>&1; then useradd -m vscode; fi
+USER vscode
