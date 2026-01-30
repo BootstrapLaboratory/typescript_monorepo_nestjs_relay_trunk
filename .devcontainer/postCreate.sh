@@ -22,3 +22,38 @@ HISTFILESIZE=20000
 # END devcontainer bash-history
 EOF
 fi
+
+# Add a colorful prompt and ls colors (idempotent)
+if ! grep -q "BEGIN devcontainer prompt-colors" "$BASHRC" 2>/dev/null; then
+  cat >> "$BASHRC" <<'EOF'
+
+# BEGIN devcontainer prompt-colors
+if [[ $- == *i* ]]; then
+  if command -v dircolors >/dev/null 2>&1; then
+    eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    alias grep='grep --color=auto'
+  fi
+
+  if command -v tput >/dev/null 2>&1; then
+    c_reset="$(tput sgr0)"
+    c_user="$(tput setaf 10)"
+    c_host="$(tput setaf 12)"
+    c_path="$(tput setaf 6)"
+    c_root="$(tput setaf 9)"
+    if [ "$(id -u)" -eq 0 ]; then
+      PS1="${c_root}\\u@\\h ${c_path}\\w${c_reset}# "
+    else
+      PS1="${c_user}\\u@\\h ${c_path}\\w${c_reset}$ "
+    fi
+  else
+    if [ "$(id -u)" -eq 0 ]; then
+      PS1='\[\e[31m\]\u@\h \[\e[36m\]\w\[\e[0m\]# '
+    else
+      PS1='\[\e[32m\]\u@\h \[\e[36m\]\w\[\e[0m\]$ '
+    fi
+  fi
+fi
+# END devcontainer prompt-colors
+EOF
+fi
