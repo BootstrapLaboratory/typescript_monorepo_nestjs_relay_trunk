@@ -13,11 +13,11 @@
     "rush:build": "rush build",
     "rush:version": "rush version",
     "rush:publish": "rush publish",
-    "postinstall": "rush install && echo '\n\n' && echo '┌───────────────────────────────┐' && echo -n '| ' && chalk -n bold magenta \"🎉  Dev mode ready!  🎉\" && echo '       |' && echo -n '| ' && chalk -n bold cyan \"Run 'npm run dev' to start\" && echo '    |' && echo '└───────────────────────────────┘' && echo '\n'"
+    "postinstall": "if [ -f common/config/rush/pnpm-lock.yaml ]; then rush install; else rush update; fi && echo '\n\n' && echo '┌───────────────────────────────┐' && echo -n '| ' && chalk -n bold magenta \"🎉  Dev mode ready!  🎉\" && echo '       |' && echo -n '| ' && chalk -n bold cyan \"Run 'npm run dev' to start\" && echo '    |' && echo '└───────────────────────────────┘' && echo '\n'"
   },
   "devDependencies": {
-    "@microsoft/rush": "^5.157.0",
+    "@microsoft/rush": "^5.166.0",
     "chalk-cli": "^6.0.0",
-    "nx": "^21.3.10"
+    "nx": "^22.4.3"
   }
 }

@@ -2,14 +2,10 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-"""
-Date custom scalar type
-"""
+"""Date custom scalar type"""
 scalar Date
 
-"""
-chat message
-"""
+"""chat message"""
 type Message {
   author: String
   body: String!
