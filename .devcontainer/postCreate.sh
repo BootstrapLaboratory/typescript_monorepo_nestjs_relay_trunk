@@ -57,3 +57,23 @@ fi
 # END devcontainer prompt-colors
 EOF
 fi
+
+# Enable bash completion + common aliases (idempotent)
+if ! grep -q "BEGIN devcontainer bash-completion" "$BASHRC" 2>/dev/null; then
+  cat >> "$BASHRC" <<'EOF'
+
+# BEGIN devcontainer bash-completion
+if [[ $- == *i* ]]; then
+  if [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  elif [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  fi
+
+  alias ll='ls -alF --color=auto'
+  alias la='ls -A --color=auto'
+  alias l='ls -CF --color=auto'
+fi
+# END devcontainer bash-completion
+EOF
+fi

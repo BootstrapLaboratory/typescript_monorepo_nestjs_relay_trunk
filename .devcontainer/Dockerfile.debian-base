@@ -8,6 +8,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
 # trunk-ignore(hadolint/DL3008)
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
+      bash-completion \
       plantuml \
       graphviz \
       default-jre-headless \
