@@ -19,6 +19,7 @@
       },
       "extensions": [
         "eamodio.gitlens",
+        "pflannery.vscode-versionlens",
         "ms-azuretools.vscode-containers",
         "jebbs.plantuml",
         "openai.chatgpt",

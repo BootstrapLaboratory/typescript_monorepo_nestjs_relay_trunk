@@ -77,3 +77,5 @@ fi
 # END devcontainer bash-completion
 EOF
 fi
+
+npm i
