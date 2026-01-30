@@ -5,7 +5,7 @@ import gitlabLogo from "./assets/gitlab.svg";
 import trunkLogo from "./assets/trunk.png";
 import apolloLogo from "./assets/apollo.svg";
 import viteLogo from "/vite.svg";
-import rushStackLogo from "./assets/rushstack.svg"
+import rushStackLogo from "./assets/rushstack.svg";
 
 const HTTP_ENDPOINT = import.meta.env.VITE_GRAPHQL_HTTP!;
 

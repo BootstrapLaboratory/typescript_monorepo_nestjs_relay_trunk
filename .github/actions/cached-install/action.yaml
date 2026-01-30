@@ -1,7 +1,7 @@
-name: "Restore & Install Rush/Nx"
-description: "Restore caches and run npm ci + rush install"
+name: Restore & Install Rush/Nx
+description: Restore caches and run npm ci + rush install
 runs:
-  using: "composite"
+  using: composite
   steps:
     - name: Restore Root deps from cache
       uses: actions/cache/restore@v4
