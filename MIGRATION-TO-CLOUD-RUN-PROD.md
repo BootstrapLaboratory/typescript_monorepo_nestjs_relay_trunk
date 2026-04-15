@@ -141,9 +141,9 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 ### Environment Variables
 
-- [ ] Replace hard-coded DB settings in [apps/server/src/app.module.ts](/workspace/apps/server/src/app.module.ts:38) with environment-driven config
-- [ ] Support `DATABASE_URL` as the primary production database setting
-- [ ] Add explicit SSL configuration for Neon
+- [x] Replace hard-coded DB settings in [apps/server/src/app.module.ts](/workspace/apps/server/src/app.module.ts:38) with environment-driven config
+- [x] Support `DATABASE_URL` as the primary production database setting
+- [x] Add explicit SSL configuration for Neon
 - [ ] Add environment variables for:
   - `DATABASE_URL`
   - `DATABASE_URL_DIRECT` if needed for migrations or non-pooled direct access
@@ -152,24 +152,24 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
   - `PORT`
   - `PUBSUB_DRIVER`
   - `REDIS_URL`
-- [ ] Keep local `.env.development` support working in the devcontainer
+- [x] Keep local `.env.development` support working in the devcontainer
 - [ ] Keep production env vars separate from local env vars
-- [ ] Ensure local development env vars include Redis configuration
+- [x] Ensure local development env vars include Redis configuration
 
 ### TypeORM Setup
 
-- [ ] Refactor TypeORM config into a reusable config factory instead of keeping all settings inline in `AppModule`
+- [x] Refactor TypeORM config into a reusable config factory instead of keeping all settings inline in `AppModule`
 - [ ] Create a TypeORM `DataSource` file for CLI-based migrations
-- [ ] Remove `synchronize: true` from production behavior
-- [ ] Keep `synchronize` only for local development if you still want that convenience
+- [x] Remove `synchronize: true` from production behavior
+- [x] Keep `synchronize` only for local development if you still want that convenience
 
 ### App Safety
 
-- [ ] Restrict CORS in [apps/server/src/main.ts](/workspace/apps/server/src/main.ts:14) to the frontend origin instead of `*`
+- [x] Restrict CORS in [apps/server/src/main.ts](/workspace/apps/server/src/main.ts:14) to the frontend origin instead of `*`
 - [ ] Add a simple health endpoint for deployment smoke tests and uptime checks
-- [ ] Confirm the server binds correctly on `0.0.0.0` for container runtime compatibility
-- [ ] Add graceful shutdown handling so WebSocket connections and DB pool close cleanly
-- [ ] Keep local development CORS behavior convenient enough for the devcontainer flow
+- [x] Confirm the server binds correctly on `0.0.0.0` for container runtime compatibility
+- [x] Add graceful shutdown handling so WebSocket connections and DB pool close cleanly
+- [x] Keep local development CORS behavior convenient enough for the devcontainer flow
 
 ## Phase 2: Replace In-Memory Pub/Sub With Shared Pub/Sub
 
@@ -204,10 +204,10 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 ### Local Dev Strategy
 
-- [ ] Add a local Redis service to [docker-compose.localdb.yml](/workspace/.devcontainer/docker-compose.localdb.yml:1)
-- [ ] Wire the devcontainer to start Redis together with PostgreSQL
-- [ ] Add local Redis env vars for the backend
-- [ ] Make Redis the default pub/sub driver in the devcontainer
+- [x] Add a local Redis service to [docker-compose.localdb.yml](/workspace/.devcontainer/docker-compose.localdb.yml:1)
+- [x] Wire the devcontainer to start Redis together with PostgreSQL
+- [x] Add local Redis env vars for the backend
+- [x] Make Redis the default pub/sub driver in the devcontainer
 - [ ] Keep `npm run dev` working in the devcontainer with PostgreSQL and Redis running together
 - [ ] If `memory` mode is kept, ensure it is not the normal devcontainer path
 
@@ -329,7 +329,7 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 - [ ] Create a Redis instance suitable for hobby-scale pub/sub traffic
 - [ ] Capture the production `REDIS_URL`
 - [ ] Verify the Redis provider region is acceptable for Europe-bound latency
-- [ ] Define the matching local Redis connection shape used in the devcontainer
+- [x] Define the matching local Redis connection shape used in the devcontainer
 
 ### Secrets
 
@@ -419,10 +419,10 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 These are the most likely repo touchpoints for this migration:
 
-- [ ] [apps/server/src/app.module.ts](/workspace/apps/server/src/app.module.ts:1)
+- [x] [apps/server/src/app.module.ts](/workspace/apps/server/src/app.module.ts:1)
   - move TypeORM config out of hard-coded inline production settings
   - disable production sync
-- [ ] [apps/server/src/main.ts](/workspace/apps/server/src/main.ts:1)
+- [x] [apps/server/src/main.ts](/workspace/apps/server/src/main.ts:1)
   - tighten CORS
   - add shutdown handling if needed
 - [ ] [apps/server/src/modules/chat/chat.resolver.ts](/workspace/apps/server/src/modules/chat/chat.resolver.ts:1)
@@ -439,7 +439,7 @@ These are the most likely repo touchpoints for this migration:
 - [ ] [apps/client/.env.production](/workspace/apps/client/.env.production:1)
   - switch to generated Cloud Run API URL first
   - support later move to `api.example.com`
-- [ ] [apps/server/.env.development](/workspace/apps/server/.env.development:1)
+- [x] [apps/server/.env.development](/workspace/apps/server/.env.development:1)
   - keep local devcontainer database flow working
   - add local Redis config
 - [ ] [apps/client/.env.development](/workspace/apps/client/.env.development:1)
@@ -448,7 +448,7 @@ These are the most likely repo touchpoints for this migration:
   - add a real backend production container build
 - [ ] `.github/workflows/...`
   - add GitHub Actions CI/CD pipeline
-- [ ] `docker-compose.localdb.yml` and `.devcontainer/...` if local parity updates are needed
+- [x] `docker-compose.localdb.yml` and `.devcontainer/...` if local parity updates are needed
   - preserve the existing devcontainer behavior
   - add Redis as part of the standard local stack
 

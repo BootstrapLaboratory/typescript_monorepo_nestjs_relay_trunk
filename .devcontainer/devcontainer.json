@@ -6,7 +6,7 @@
   ],
   "service": "devcontainer",
   "remoteUser": "root",
-  "runServices": ["postgres", "pgadmin"],
+  "runServices": ["postgres", "redis", "pgadmin"],
   // "features": {
   //   "ghcr.io/devcontainers/features/node:1": {
   //     "version": "24.13.0"

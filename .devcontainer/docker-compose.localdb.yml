@@ -9,6 +9,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: redis-server --save "" --appendonly no
+
   pgadmin:
     image: dpage/pgadmin4:latest
     restart: always
@@ -16,8 +21,8 @@ services:
       # change these to something secure (for dev you can keep simple)
       PGADMIN_DEFAULT_EMAIL: admin@localhost.com
       PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - 8888:80
+    # ports:
+    #   - 8888:80
     volumes:
       # Persist pgAdmin settings & connections
       - pgadmin_data:/var/lib/pgadmin
