@@ -64,6 +64,25 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## Database migrations
+
+```bash
+# inspect pending migrations
+$ npm run migration:show
+
+# create an empty migration file
+$ npm run migration:create
+
+# generate a migration from schema changes
+$ npm run migration:generate
+
+# run pending migrations
+$ npm run migration:run
+
+# revert the last migration
+$ npm run migration:revert
+```
+
 ## Run tests
 
 ```bash

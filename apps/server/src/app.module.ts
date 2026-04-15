@@ -12,6 +12,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 
 /* internal modules */
+import { getEnvFilePaths } from './config/env-paths';
 import { ChatModule } from './modules/chat/chat.module';
 import { getDatabaseConfig } from './config/database.config';
 
@@ -19,7 +20,7 @@ import { getDatabaseConfig } from './config/database.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [`.env.${process.env.NODE_ENV ?? 'development'}`, '.env'],
+      envFilePath: getEnvFilePaths(),
       ignoreEnvFile: process.env.NODE_ENV === 'production',
     }),
     ChatModule,

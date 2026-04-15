@@ -208,8 +208,8 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 - [x] Wire the devcontainer to start Redis together with PostgreSQL
 - [x] Add local Redis env vars for the backend
 - [x] Make Redis the default pub/sub driver in the devcontainer
-- [ ] Keep `npm run dev` working in the devcontainer with PostgreSQL and Redis running together
-- [ ] If `memory` mode is kept, ensure it is not the normal devcontainer path
+- [x] Keep `npm run dev` working in the devcontainer with PostgreSQL and Redis running together
+- [x] If `memory` mode is kept, ensure it is not the normal devcontainer path
 
 ### Scale-Out Validation
 
@@ -251,9 +251,9 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 ### Migration Baseline
 
-- [ ] Create an initial migration for the `message` table
-- [ ] Document the command used to generate and run migrations
-- [ ] Add scripts in [apps/server/package.json](/workspace/apps/server/package.json:8) for:
+- [x] Create an initial migration for the `message` table
+- [x] Document the command used to generate and run migrations
+- [x] Add scripts in [apps/server/package.json](/workspace/apps/server/package.json:8) for:
   - `migration:generate`
   - `migration:run`
   - `migration:revert`
@@ -429,9 +429,9 @@ These are the most likely repo touchpoints for this migration:
   - replace in-memory pub/sub usage
 - [x] `apps/server/src/modules/chat/...`
   - add shared pub/sub service implementation
-- [ ] [apps/server/package.json](/workspace/apps/server/package.json:1)
+- [x] [apps/server/package.json](/workspace/apps/server/package.json:1)
   - add migration scripts
-- [ ] `apps/server/src/database/...`
+- [x] `apps/server/src/database/...`
   - add TypeORM DataSource and migrations
 - [ ] [apps/client/src/main.tsx](/workspace/apps/client/src/main.tsx:1)
   - support absolute production HTTP and WS URLs
@@ -466,9 +466,9 @@ The migration is complete when all of the following are true:
 - [ ] Main branch deploys backend and frontend automatically
 - [ ] Smoke tests verify query, mutation, and subscription after deploy
 - [ ] Costs are capped with low max instances and no always-on resources unless explicitly chosen
-- [ ] The project still works in the devcontainer without requiring cloud services
-- [ ] `npm run dev` still works locally in the devcontainer after the migration changes
-- [ ] The devcontainer standard stack includes both PostgreSQL and Redis
+- [x] The project still works in the devcontainer without requiring cloud services
+- [x] `npm run dev` still works locally in the devcontainer after the migration changes
+- [x] The devcontainer standard stack includes both PostgreSQL and Redis
 
 ## Suggested Implementation Order
 
