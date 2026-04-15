@@ -1,15 +1,16 @@
 import { NotFoundException } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
-import { PubSub } from 'graphql-subscriptions';
 import { NewMessageInput } from './dto/new-message.input';
 import { Message } from './dto/message.model';
+import { ChatPubSubService } from './chat-pubsub.service';
 import { ChatService } from './chat.service';
-
-const pubSub = new PubSub();
 
 @Resolver(() => Message)
 export class ChatResolver {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(
+    private readonly chatService: ChatService,
+    private readonly chatPubSubService: ChatPubSubService,
+  ) {}
 
   @Query(() => Message)
   async getMessage(@Args('id') id: string): Promise<Message> {
@@ -30,7 +31,7 @@ export class ChatResolver {
     @Args('newMessageData') newMessageData: NewMessageInput,
   ): Promise<Message> {
     const Message = await this.chatService.create(newMessageData);
-    void pubSub.publish('MessageAdded', { MessageAdded: Message });
+    await this.chatPubSubService.publishMessageAdded(Message);
     return Message;
   }
 
@@ -41,6 +42,6 @@ export class ChatResolver {
 
   @Subscription(() => Message)
   MessageAdded() {
-    return pubSub.asyncIterableIterator('MessageAdded');
+    return this.chatPubSubService.messageAddedIterator();
   }
 }

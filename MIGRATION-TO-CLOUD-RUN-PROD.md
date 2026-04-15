@@ -175,30 +175,30 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 ### Code Shape
 
-- [ ] Remove the module-level `new PubSub()` in [apps/server/src/modules/chat/chat.resolver.ts](/workspace/apps/server/src/modules/chat/chat.resolver.ts:8)
-- [ ] Introduce a `PubSubService` abstraction with methods like:
+- [x] Remove the module-level `new PubSub()` in [apps/server/src/modules/chat/chat.resolver.ts](/workspace/apps/server/src/modules/chat/chat.resolver.ts:8)
+- [x] Introduce a `PubSubService` abstraction with methods like:
   - `publishMessageAdded`
   - `subscribeMessageAdded`
-- [ ] Inject the shared pub/sub service into the resolver instead of using a process-local singleton
-- [ ] Support at least these drivers behind the abstraction:
+- [x] Inject the shared pub/sub service into the resolver instead of using a process-local singleton
+- [x] Support at least these drivers behind the abstraction:
   - `redis` for standard local devcontainer development
   - `redis` for production
   - optional `memory` fallback only if still useful for tests or emergency debugging
 
 ### Delivery Behavior
 
-- [ ] Publish events only after the message has been saved successfully
+- [x] Publish events only after the message has been saved successfully
 - [ ] Ensure every Cloud Run instance can receive events published by any other instance
-- [ ] Add reconnect behavior for the shared pub/sub client
+- [x] Add reconnect behavior for the shared pub/sub client
 - [ ] Log subscription disconnects and reconnects for debugging
 - [ ] Keep local subscriptions working through Redis in the devcontainer
 
 ### Chosen Production Strategy: Redis
 
-- [ ] Add a Redis client and a Redis-backed pub/sub implementation
-- [ ] Use separate publisher and subscriber connections
-- [ ] Keep per-instance in-memory fanout only for connected local WebSocket clients
-- [ ] Use Redis only as the cross-instance event bus
+- [x] Add a Redis client and a Redis-backed pub/sub implementation
+- [x] Use separate publisher and subscriber connections
+- [x] Keep per-instance in-memory fanout only for connected local WebSocket clients
+- [x] Use Redis only as the cross-instance event bus
 - [ ] Provision a low-cost or free Redis provider suitable for hobby traffic
 - [ ] Store `REDIS_URL` as a backend secret for Cloud Run
 
@@ -425,9 +425,9 @@ These are the most likely repo touchpoints for this migration:
 - [x] [apps/server/src/main.ts](/workspace/apps/server/src/main.ts:1)
   - tighten CORS
   - add shutdown handling if needed
-- [ ] [apps/server/src/modules/chat/chat.resolver.ts](/workspace/apps/server/src/modules/chat/chat.resolver.ts:1)
+- [x] [apps/server/src/modules/chat/chat.resolver.ts](/workspace/apps/server/src/modules/chat/chat.resolver.ts:1)
   - replace in-memory pub/sub usage
-- [ ] `apps/server/src/modules/chat/...`
+- [x] `apps/server/src/modules/chat/...`
   - add shared pub/sub service implementation
 - [ ] [apps/server/package.json](/workspace/apps/server/package.json:1)
   - add migration scripts
