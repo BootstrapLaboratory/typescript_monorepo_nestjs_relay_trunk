@@ -1,7 +1,7 @@
 {
   "name": "bootstraplaboratory.template.typescript_monorepo_nestjs_relay_trunk",
   "dockerComposeFile": [
-    "../docker-compose.localdb.yml",
+    "docker-compose.localdb.yml",
     "docker-compose.devcontainer.yml"
   ],
   "service": "devcontainer",
