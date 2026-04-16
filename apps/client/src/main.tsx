@@ -20,17 +20,40 @@ import {
 } from "graphql-ws";
 import type { RelayObservable } from "relay-runtime/lib/network/RelayObservable";
 
-// These two always come from import.meta.env
-const HTTP_ENDPOINT = import.meta.env.VITE_GRAPHQL_HTTP!;
-const WS_PATH = import.meta.env.VITE_GRAPHQL_WS!;
+const HTTP_CONFIG = import.meta.env.VITE_GRAPHQL_HTTP!;
+const WS_CONFIG = import.meta.env.VITE_GRAPHQL_WS!;
 
-// In dev, use exactly VITE_GRAPHQL_WS.
-// In prod, build from window.location.
-const WS_ENDPOINT = import.meta.env.DEV
-  ? WS_PATH
-  : `${window.location.protocol === "https:" ? "wss" : "ws"}://` +
-    window.location.host +
-    WS_PATH;
+function isAbsoluteUrl(value: string): boolean {
+  return /^[a-z][a-z\d+\-.]*:\/\//i.test(value);
+}
+
+function resolveHttpEndpoint(endpoint: string): string {
+  if (isAbsoluteUrl(endpoint)) {
+    return endpoint;
+  }
+
+  if (import.meta.env.DEV) {
+    return endpoint;
+  }
+
+  return new URL(endpoint, window.location.origin).toString();
+}
+
+function resolveWsEndpoint(endpoint: string): string {
+  if (isAbsoluteUrl(endpoint)) {
+    return endpoint;
+  }
+
+  if (import.meta.env.DEV) {
+    return endpoint;
+  }
+
+  const wsOrigin = `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}`;
+  return new URL(endpoint, wsOrigin).toString();
+}
+
+const HTTP_ENDPOINT = resolveHttpEndpoint(HTTP_CONFIG);
+const WS_ENDPOINT = resolveWsEndpoint(WS_CONFIG);
 
 const wsClient = createClient({
   url: WS_ENDPOINT,

@@ -221,21 +221,21 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 ### Environment Variable Model
 
-- [ ] Stop assuming production API calls are same-origin `/api/graphql`
-- [ ] Replace [.env.production](/workspace/apps/client/.env.production:1) with production values that can be absolute URLs
-- [ ] Support:
+- [x] Stop assuming production API calls are same-origin `/api/graphql`
+- [x] Replace [.env.production](/workspace/apps/client/.env.production:1) with production values that can be absolute URLs
+- [x] Support:
   - initial frontend -> backend:
     - `VITE_GRAPHQL_HTTP=<Cloud Run generated HTTPS URL>/graphql`
     - `VITE_GRAPHQL_WS=<Cloud Run generated WSS URL>/graphql`
   - future custom-domain frontend -> backend:
     - `VITE_GRAPHQL_HTTP=https://api.example.com/graphql`
     - `VITE_GRAPHQL_WS=wss://api.example.com/graphql`
-- [ ] Preserve current local development URLs for the devcontainer
+- [x] Preserve current local development URLs for the devcontainer
 
 ### Client Runtime Logic
 
-- [ ] Update [apps/client/src/main.tsx](/workspace/apps/client/src/main.tsx:23) so production supports absolute WebSocket URLs
-- [ ] Keep local development behavior working exactly as it does now
+- [x] Update [apps/client/src/main.tsx](/workspace/apps/client/src/main.tsx:23) so production supports absolute WebSocket URLs
+- [x] Keep local development behavior working exactly as it does now
 - [ ] Add retry and reconnect settings to the `graphql-ws` client
 - [ ] Handle temporary disconnects cleanly after Cloud Run instance restarts or cold starts
 
@@ -433,10 +433,9 @@ These are the most likely repo touchpoints for this migration:
   - add migration scripts
 - [x] `apps/server/src/database/...`
   - add TypeORM DataSource and migrations
-- [ ] [apps/client/src/main.tsx](/workspace/apps/client/src/main.tsx:1)
+- [x] [apps/client/src/main.tsx](/workspace/apps/client/src/main.tsx:1)
   - support absolute production HTTP and WS URLs
-  - add reconnect behavior
-- [ ] [apps/client/.env.production](/workspace/apps/client/.env.production:1)
+- [x] [apps/client/.env.production](/workspace/apps/client/.env.production:1)
   - switch to generated Cloud Run API URL first
   - support later move to `api.example.com`
 - [x] [apps/server/.env.development](/workspace/apps/server/.env.development:1)
