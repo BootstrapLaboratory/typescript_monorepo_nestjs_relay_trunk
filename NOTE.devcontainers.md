@@ -1,6 +1,8 @@
 # Dev Containers + Podman (Fedora) Notes
 
 This repo currently uses a multi-container Dev Container (Compose) with Postgres + pgAdmin.
+It is now also prepared to use a host rootless Podman socket from inside the
+devcontainer through the Docker CLI.
 On Fedora with rootless Podman + SELinux there are tradeoffs between:
 
 - running the devcontainer as `root` vs `vscode`
@@ -8,6 +10,36 @@ On Fedora with rootless Podman + SELinux there are tradeoffs between:
 - keeping files writable on a bind mount (usually requires `:Z` on SELinux)
 
 Below are three supported approaches. I haven't picked one yet.
+
+## Current Repo Setup
+
+The active devcontainer build is [`.devcontainer/Dockerfile.debian-base`](/workspace/.devcontainer/Dockerfile.debian-base:1).
+
+The repo now prepares Docker-compatible access to a host rootless Podman socket like this:
+
+- installs the official Docker CLI packages from Docker's Debian repository:
+  - `docker-ce-cli`
+  - `docker-buildx-plugin`
+  - `docker-compose-plugin`
+- mounts the host `${XDG_RUNTIME_DIR}` into the devcontainer at `/run/host-user-runtime`
+- exports `DOCKER_HOST=unix:///run/host-user-runtime/podman/podman.sock`
+- does **not** install or run a Docker daemon inside the devcontainer
+
+Manual host steps are still required:
+
+- enable the user Podman socket on the host:
+  - `systemctl --user enable --now podman.socket`
+- make sure VS Code inherits `XDG_RUNTIME_DIR` from your login session
+- rebuild/reopen the devcontainer after the image change
+
+Quick verification inside the devcontainer after rebuild:
+
+- `docker version`
+- `docker info`
+- `docker ps`
+- `docker compose version`
+
+If `XDG_RUNTIME_DIR` is not visible to the Dev Containers extension launch environment, the bind mount will not resolve correctly. In that case, launch VS Code from a shell that has the correct session environment or adjust your local VS Code launch environment before reopening the container.
 
 ## Option A: Pod + root (simplest / most stable on Podman)
 

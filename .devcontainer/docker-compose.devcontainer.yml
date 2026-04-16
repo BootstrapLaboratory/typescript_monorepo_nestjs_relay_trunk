@@ -13,6 +13,7 @@ services:
       # trunk-ignore(checkov/CKV_SECRET_4)
       DATABASE_URL: postgres://chatuser:chatpass@postgres:5432/chatdb
       REDIS_URL: redis://redis:6379
+      DOCKER_HOST: unix:///run/host-user-runtime/podman/podman.sock
     depends_on:
       - postgres
       - redis

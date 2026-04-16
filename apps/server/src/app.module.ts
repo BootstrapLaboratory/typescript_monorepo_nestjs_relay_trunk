@@ -12,6 +12,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 
 /* internal modules */
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { getEnvFilePaths } from './config/env-paths';
 import { ChatModule } from './modules/chat/chat.module';
 import { getDatabaseConfig } from './config/database.config';
@@ -45,5 +47,7 @@ import { getDatabaseConfig } from './config/database.config';
       useFactory: () => getDatabaseConfig(),
     }),
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

@@ -1,52 +1,35 @@
+# syntax=docker/dockerfile:1
+
 # trunk-ignore-all(checkov/CKV_DOCKER_2)
 # trunk-ignore-all(checkov/CKV_DOCKER_3)
-# ------------------------------------------------------
-# Multi-stage Dockerfile for NestJS production build
-# ------------------------------------------------------
 
-# 1. Build stage
-FROM node:22-alpine AS builder
+FROM node:24-bookworm-slim AS builder
 
-# Set working directory
-WORKDIR /usr/src/app
+ENV CI=1
+WORKDIR /workspace
 
-# Copy package manifests
-COPY package.json package-lock.json ./
-
-# Install dependencies
-RUN npm ci --legacy-peer-deps
-
-# Copy the rest of the source code
 COPY . .
 
-# Build the NestJS application
-RUN npm run build
+# Install the root Rush/Nx tooling without triggering the root postinstall.
+RUN npm ci --ignore-scripts
 
+# Install and link the monorepo dependencies the same way CI/dev use them.
+RUN npx rush install --max-install-attempts 1
 
-# 2. Production stage
-FROM node:22-alpine AS production
+# Build the backend, then create a pruned deployment bundle for runtime.
+RUN npx nx run server:build
+RUN npx rush deploy -p server -s server -t /workspace/common/deploy/server --overwrite
 
-# Set working directory
-WORKDIR /usr/src/app
+FROM node:24-bookworm-slim AS runtime
 
-# Copy package manifests (only production deps)
-COPY package.json package-lock.json ./
+ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+ENV PORT=3000
+WORKDIR /app
 
-# Install only production dependencies
-RUN npm ci --omit=dev --legacy-peer-deps
+COPY --from=builder /workspace/common/deploy/server/ /app/
 
-# Copy compiled output from build stage
-COPY --from=builder /usr/src/app/dist ./dist
-
-# (Optional) Copy any static assets if needed
-# COPY --from=builder /usr/src/app/public ./public
-
-# Expose the application port (adjust if different)
+WORKDIR /app/apps/server
 EXPOSE 3000
 
-# Set environment to production
-ENV NODE_ENV=production
-ENV DATABASE_HOST=postgres
-
-# Start the application
 CMD ["node", "dist/main.js"]

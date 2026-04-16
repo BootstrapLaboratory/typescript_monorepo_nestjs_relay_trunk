@@ -63,18 +63,18 @@ Required local strategy:
 - the primary dev and prod pub/sub path should be the same
 - `memory` pub/sub may remain only as an optional fallback for tests or emergency local debugging, not as the standard development path
 
-## Current Repo Constraints
+## Current Repo Status
 
-These are the repo details that directly affect the migration:
+These are the repo details that now matter for the remaining migration work:
 
-- Backend subscriptions are enabled in [apps/server/src/app.module.ts](/workspace/apps/server/src/app.module.ts:26).
-- Subscription events are currently process-local because of `const pubSub = new PubSub()` in [apps/server/src/modules/chat/chat.resolver.ts](/workspace/apps/server/src/modules/chat/chat.resolver.ts:8).
-- Database credentials and database name are hard-coded in [apps/server/src/app.module.ts](/workspace/apps/server/src/app.module.ts:38).
-- `synchronize: true` is enabled in [apps/server/src/app.module.ts](/workspace/apps/server/src/app.module.ts:46), which is not safe for production.
-- CORS currently allows all origins in [apps/server/src/main.ts](/workspace/apps/server/src/main.ts:14).
-- The client production config assumes same-origin `/api/graphql` in [apps/client/.env.production](/workspace/apps/client/.env.production:1).
-- The client production WebSocket URL builder assumes `VITE_GRAPHQL_WS` is a path, not an absolute URL, in [apps/client/src/main.tsx](/workspace/apps/client/src/main.tsx:29).
-- The current app-level Dockerfiles are not ready to use as-is for Cloud Run from this monorepo layout.
+- Backend subscriptions are enabled in [apps/server/src/app.module.ts](/workspace/apps/server/src/app.module.ts:28).
+- Subscription events now flow through Redis-backed shared pub/sub via [apps/server/src/modules/chat/chat-pubsub.service.ts](/workspace/apps/server/src/modules/chat/chat-pubsub.service.ts:1) when `PUBSUB_DRIVER=redis`.
+- Database configuration is environment-driven in [apps/server/src/config/database.config.ts](/workspace/apps/server/src/config/database.config.ts:1), with `DATABASE_URL` and optional `DATABASE_URL_DIRECT` support.
+- Production schema sync is disabled by env-driven config, and TypeORM migrations now live under [apps/server/src/database](/workspace/apps/server/src/database).
+- CORS is environment-driven in [apps/server/src/main.ts](/workspace/apps/server/src/main.ts:15).
+- The client production config supports absolute HTTP and WebSocket API URLs through [apps/client/src/main.tsx](/workspace/apps/client/src/main.tsx:23) and [apps/client/.env.production](/workspace/apps/client/.env.production:1).
+- A dedicated health endpoint now exists at [apps/server/src/app.controller.ts](/workspace/apps/server/src/app.controller.ts:1) for startup smoke checks.
+- The backend now has a monorepo-aware Cloud Run container build in [apps/server/Dockerfile](/workspace/apps/server/Dockerfile:1) plus GitHub Actions workflows under [.github/workflows](/workspace/.github/workflows).
 
 ## Recommended Production Architecture
 
@@ -144,7 +144,7 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 - [x] Replace hard-coded DB settings in [apps/server/src/app.module.ts](/workspace/apps/server/src/app.module.ts:38) with environment-driven config
 - [x] Support `DATABASE_URL` as the primary production database setting
 - [x] Add explicit SSL configuration for Neon
-- [ ] Add environment variables for:
+- [x] Add environment variables for:
   - `DATABASE_URL`
   - `DATABASE_URL_DIRECT` if needed for migrations or non-pooled direct access
   - `CORS_ORIGIN`
@@ -153,20 +153,20 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
   - `PUBSUB_DRIVER`
   - `REDIS_URL`
 - [x] Keep local `.env.development` support working in the devcontainer
-- [ ] Keep production env vars separate from local env vars
+- [x] Keep production env vars separate from local env vars
 - [x] Ensure local development env vars include Redis configuration
 
 ### TypeORM Setup
 
 - [x] Refactor TypeORM config into a reusable config factory instead of keeping all settings inline in `AppModule`
-- [ ] Create a TypeORM `DataSource` file for CLI-based migrations
+- [x] Create a TypeORM `DataSource` file for CLI-based migrations
 - [x] Remove `synchronize: true` from production behavior
 - [x] Keep `synchronize` only for local development if you still want that convenience
 
 ### App Safety
 
 - [x] Restrict CORS in [apps/server/src/main.ts](/workspace/apps/server/src/main.ts:14) to the frontend origin instead of `*`
-- [ ] Add a simple health endpoint for deployment smoke tests and uptime checks
+- [x] Add a simple health endpoint for deployment smoke tests and uptime checks
 - [x] Confirm the server binds correctly on `0.0.0.0` for container runtime compatibility
 - [x] Add graceful shutdown handling so WebSocket connections and DB pool close cleanly
 - [x] Keep local development CORS behavior convenient enough for the devcontainer flow
@@ -260,26 +260,26 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 ### Deployment Rule
 
-- [ ] Make production schema changes happen through migrations only
-- [ ] Run migrations in CI/CD before or during deploy
-- [ ] Fail deployment if migrations fail
+- [x] Make production schema changes happen through migrations only
+- [x] Run migrations in CI/CD before or during deploy
+- [x] Fail deployment if migrations fail
 
 ## Phase 5: Create Production Container Build For The Backend
 
 ### Container Build
 
-- [ ] Create a dedicated Cloud Run backend Dockerfile that works from the monorepo root
-- [ ] Ensure the build installs only what the backend needs
-- [ ] Build the Nest app in CI, then package the runtime image cleanly
-- [ ] Avoid relying on the current app Dockerfiles until they are fixed or replaced
-- [ ] Ensure the production container build does not break the devcontainer workflow
+- [x] Create a dedicated Cloud Run backend Dockerfile that works from the monorepo root
+- [x] Ensure the build installs only what the backend needs
+- [x] Build the Nest app in CI, then package the runtime image cleanly
+- [x] Avoid relying on the current app Dockerfiles until they are fixed or replaced
+- [x] Ensure the production container build does not break the devcontainer workflow
 
 ### Backend Runtime Requirements
 
-- [ ] Ensure the container starts with `NODE_ENV=production`
-- [ ] Ensure `PORT` is honored
-- [ ] Ensure the image includes only runtime dependencies in the final stage
-- [ ] Add a lightweight startup smoke check in CI
+- [x] Ensure the container starts with `NODE_ENV=production`
+- [x] Ensure `PORT` is honored
+- [x] Ensure the image includes only runtime dependencies in the final stage
+- [x] Add a lightweight startup smoke check in CI
 
 ## Phase 6: Create Frontend Deployment Flow
 
@@ -367,20 +367,20 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 ### Pull Request Pipeline
 
-- [ ] Install dependencies
-- [ ] Run lint
-- [ ] Run tests
-- [ ] Build server
-- [ ] Build client
-- [ ] Optionally run a container build validation for the backend image
-- [ ] Validate that the project still builds and runs in a local-style configuration compatible with the devcontainer assumptions
+- [x] Install dependencies
+- [x] Run lint
+- [x] Run tests
+- [x] Build server
+- [x] Build client
+- [x] Optionally run a container build validation for the backend image
+- [x] Validate that the project still builds and runs in a local-style configuration compatible with the devcontainer assumptions
 
 ### Main Branch Deploy Pipeline
 
-- [ ] Build backend image
-- [ ] Push image to Artifact Registry
-- [ ] Run database migrations
-- [ ] Deploy backend to Cloud Run
+- [x] Build backend image
+- [x] Push image to Artifact Registry
+- [x] Run database migrations
+- [x] Deploy backend to Cloud Run
 - [ ] Trigger frontend deployment or allow host auto-deploy from main
 - [ ] Run smoke tests against the deployed environment
 
@@ -443,13 +443,14 @@ These are the most likely repo touchpoints for this migration:
   - add local Redis config
 - [ ] [apps/client/.env.development](/workspace/apps/client/.env.development:1)
   - keep local devcontainer API URLs working
-- [ ] `Dockerfile` or `deploy/cloudrun/...`
+- [x] `Dockerfile` or `deploy/cloudrun/...`
   - add a real backend production container build
-- [ ] `.github/workflows/...`
+- [x] `.github/workflows/...`
   - add GitHub Actions CI/CD pipeline
 - [x] `docker-compose.localdb.yml` and `.devcontainer/...` if local parity updates are needed
   - preserve the existing devcontainer behavior
   - add Redis as part of the standard local stack
+  - prepare host Podman socket passthrough so local backend image validation can run from the devcontainer when the host exposes a rootless Podman API socket
 
 ## Done Definition
 
@@ -457,11 +458,11 @@ The migration is complete when all of the following are true:
 
 - [ ] Frontend is deployed on a static host and served over HTTPS
 - [ ] Backend is deployed on Cloud Run and reachable over HTTPS
-- [ ] Backend uses environment-driven config only
-- [ ] Database schema is managed by migrations, not `synchronize`
+- [x] Backend uses environment-driven config only
+- [x] Database schema is managed by migrations, not `synchronize`
 - [ ] Shared pub/sub works across multiple Cloud Run instances
 - [ ] WebSocket subscriptions reconnect cleanly after restart or cold start
-- [ ] CI validates builds and tests on every change
+- [x] CI validates builds and tests on every change
 - [ ] Main branch deploys backend and frontend automatically
 - [ ] Smoke tests verify query, mutation, and subscription after deploy
 - [ ] Costs are capped with low max instances and no always-on resources unless explicitly chosen
@@ -471,12 +472,12 @@ The migration is complete when all of the following are true:
 
 ## Suggested Implementation Order
 
-- [ ] 1. Production-safe env config and migration setup
-- [ ] 2. Client absolute URL support
-- [ ] 3. Shared pub/sub implementation with `redis` for both local devcontainer and production
-- [ ] 4. Backend Cloud Run container build
+- [x] 1. Production-safe env config and migration setup
+- [x] 2. Client absolute URL support
+- [x] 3. Shared pub/sub implementation with `redis` for both local devcontainer and production
+- [x] 4. Backend Cloud Run container build
 - [ ] 5. Cloud resource provisioning
-- [ ] 6. GitHub Actions CI/CD pipeline
+- [x] 6. GitHub Actions CI/CD pipeline
 - [ ] 7. Multi-instance validation
 
 ## Notes
