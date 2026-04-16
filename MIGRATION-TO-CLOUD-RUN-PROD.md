@@ -305,6 +305,8 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 ### Google Cloud
 
+- [x] Add a provisioning runbook and helper scripts for GCP bootstrap and secret wiring
+- [x] Add a shared deployment env-file workflow so provisioning scripts can load common Cloud Run variables from `deploy/cloudrun/.env`
 - [ ] Create a Google Cloud project
 - [ ] Enable:
   - Cloud Run
@@ -445,6 +447,7 @@ These are the most likely repo touchpoints for this migration:
   - keep local devcontainer API URLs working
 - [x] `Dockerfile` or `deploy/cloudrun/...`
   - add a real backend production container build
+  - add provisioning helper scripts and manual runbooks for Google Cloud, Secret Manager, Neon, Redis, and GitHub Actions wiring
 - [x] `.github/workflows/...`
   - add GitHub Actions CI/CD pipeline
 - [x] `docker-compose.localdb.yml` and `.devcontainer/...` if local parity updates are needed

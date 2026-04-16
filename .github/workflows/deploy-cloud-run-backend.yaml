@@ -33,6 +33,7 @@ jobs:
       vars.GCP_SERVICE_ACCOUNT != '' &&
       vars.GCP_ARTIFACT_REGISTRY_REPOSITORY != '' &&
       vars.CLOUD_RUN_SERVICE != '' &&
+      vars.CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT != '' &&
       vars.CLOUD_RUN_CORS_ORIGIN != ''
     runs-on: ubuntu-latest
     permissions:
@@ -127,7 +128,8 @@ jobs:
             REDIS_URL=REDIS_URL:latest
           flags: >-
             --port=3000
-            --allow-unauthenticated
+            --service-account=${{ vars.CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT }}
+            --no-invoker-iam-check
             --min-instances=0
             --max-instances=3
             --concurrency=20

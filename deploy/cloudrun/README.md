@@ -20,6 +20,36 @@ result only in the Buildx cache instead of loading a runnable local image tag.
 The CI workflows still use the simpler standard-Docker build path because
 GitHub Actions runs against a regular Docker daemon.
 
+## Cloud provisioning
+
+For the real Google Cloud, Neon, Redis, Secret Manager, and GitHub Actions
+setup, use the provisioning runbook:
+
+- [PROVISIONING.md](PROVISIONING.md)
+- [GCP_GUIDE.md](GCP_GUIDE.md)
+- [NEON-UPSTASH-GUIDE.md](NEON-UPSTASH-GUIDE.md)
+
+Helper scripts:
+
+- [load-env.sh](load-env.sh)
+- [bootstrap-gcp.sh](bootstrap-gcp.sh)
+- [sync-secrets.sh](sync-secrets.sh)
+- [configure-github-vars.sh](configure-github-vars.sh)
+
+Quick automation map:
+
+- Google Cloud project, IAM, Artifact Registry, and Workload Identity: [bootstrap-gcp.sh](bootstrap-gcp.sh)
+- Secret Manager secrets and secret access bindings: [sync-secrets.sh](sync-secrets.sh)
+- GitHub repository variables: [configure-github-vars.sh](configure-github-vars.sh)
+- Cloud Run image build, migrations, and deploy: [../../.github/workflows/deploy-cloud-run-backend.yaml](../../.github/workflows/deploy-cloud-run-backend.yaml)
+- Neon and Upstash resource creation: still manual, documented in [NEON-UPSTASH-GUIDE.md](NEON-UPSTASH-GUIDE.md)
+
+The provisioning scripts automatically load variables from:
+
+- [deploy/cloudrun/.env](.env)
+- [deploy/cloudrun/.env.example](.env.example)
+- `deploy/cloudrun/.env.local` if you want a second local override file
+
 ## GitHub Actions configuration
 
 The Cloud Run deployment workflow expects these GitHub repository variables:
@@ -29,6 +59,7 @@ The Cloud Run deployment workflow expects these GitHub repository variables:
 - `GCP_SERVICE_ACCOUNT`
 - `GCP_ARTIFACT_REGISTRY_REPOSITORY`
 - `CLOUD_RUN_SERVICE`
+- `CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT`
 - `CLOUD_RUN_CORS_ORIGIN`
 
 The workflow uses `europe-west4` by default for both the Cloud Run region and

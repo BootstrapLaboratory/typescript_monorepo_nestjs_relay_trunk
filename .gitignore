@@ -3,10 +3,13 @@ logs
 *.log
 npm-debug.log*
 
-node_modules
+node_modules/
 dist
 dist-ssr
 *.local
+gha-creds-*.json
+deploy/cloudrun/.env
+deploy/cloudrun/.env.local
 
 # Editor directories and files
 .vscode/*
