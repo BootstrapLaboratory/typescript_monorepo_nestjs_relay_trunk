@@ -27,7 +27,7 @@ export RUNTIME_SERVICE_ACCOUNT_ID="cloud-run-runtime"
 2. Bootstrap Google Cloud:
 
 ```bash
-bash deploy/cloudrun/bootstrap-gcp.sh
+bash bootstrap-gcp.sh
 ```
 
 3. Manually create Neon in the Neon console:
@@ -59,7 +59,7 @@ export RUNTIME_SERVICE_ACCOUNT_EMAIL="cloud-run-runtime@${PROJECT_ID}.iam.gservi
 export DATABASE_URL="replace-with-neon-pooled-url"
 export DATABASE_URL_DIRECT="replace-with-neon-direct-url"
 
-bash deploy/cloudrun/sync-secrets.sh
+bash sync-secrets.sh
 ```
 
 6. Set GitHub repository variables.
@@ -74,7 +74,7 @@ export CLOUD_RUN_SERVICE="${CLOUD_RUN_SERVICE}"
 export CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT="${RUNTIME_SERVICE_ACCOUNT_EMAIL}"
 export CLOUD_RUN_CORS_ORIGIN="http://localhost:5173"
 
-bash deploy/cloudrun/configure-github-vars.sh
+bash configure-github-vars.sh
 ```
 
 7. Trigger the GitHub Actions workflow:
