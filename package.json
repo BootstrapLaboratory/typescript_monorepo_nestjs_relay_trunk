@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev": "nx run-many --target=start:dev --all",
+    "client:build:pages": "bash deploy/cloudflare-pages/build-client.sh",
     "server:image:build:local": "docker buildx build --pull --load -f apps/server/Dockerfile -t local/server-cloudrun:dev .",
     "rush": "rush",
     "rush:install": "rush install",

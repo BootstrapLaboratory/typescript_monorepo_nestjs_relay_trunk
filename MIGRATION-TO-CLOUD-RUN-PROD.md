@@ -283,6 +283,10 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 ## Phase 6: Create Frontend Deployment Flow
 
+### Repo Prep
+
+- [x] Add a Cloudflare Pages deployment runbook and repo-root build helper for the frontend
+
 ### Static Hosting
 
 - [ ] Configure `Cloudflare Pages` to build `apps/client`
@@ -450,6 +454,9 @@ These are the most likely repo touchpoints for this migration:
 - [x] `Dockerfile` or `deploy/cloudrun/...`
   - add a real backend production container build
   - add provisioning helper scripts and manual runbooks for Google Cloud, Secret Manager, Neon, Redis, and GitHub Actions wiring
+- [x] `deploy/cloudflare-pages/...`
+  - add a Cloudflare Pages deployment runbook for the frontend
+  - add a repo-root build helper suitable for the monorepo client build
 - [x] `.github/workflows/...`
   - add GitHub Actions CI/CD pipeline
 - [x] `docker-compose.localdb.yml` and `.devcontainer/...` if local parity updates are needed
