@@ -121,6 +121,12 @@ https://<project-name>.pages.dev
 Use that generated `*.pages.dev` URL first. Custom domains such as
 `app.example.com` can be added later.
 
+Where to find it in Cloudflare:
+
+- `Workers & Pages` -> your Pages project -> `Deployments`
+- open the latest production deployment and use the provided production URL
+- Cloudflare's Pages docs also note that the project name is assigned as the `*.pages.dev` subdomain
+
 ## References
 
 - Cloudflare Pages build configuration:

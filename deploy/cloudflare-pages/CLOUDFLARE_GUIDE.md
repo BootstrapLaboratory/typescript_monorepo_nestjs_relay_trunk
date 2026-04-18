@@ -133,6 +133,7 @@ Notes:
 
 - the project name becomes the base for the generated `*.pages.dev` hostname
 - the production branch should match the branch you want to publish as the live frontend
+- Cloudflare's Pages docs note that the `Project name` value is assigned as your `*.pages.dev` subdomain
 
 ## 5. Configure Build Settings
 
@@ -229,6 +230,22 @@ https://<project-name>.pages.dev
 ```
 
 This generated `*.pages.dev` URL is the correct first production frontend URL for this migration.
+
+Where to find it in the dashboard:
+
+1. Open `Workers & Pages`.
+2. Select your Pages project.
+3. Open `Deployments`.
+4. Open the latest production deployment.
+5. Use the production URL shown there.
+
+In many cases, if your project name is `beltapp`, the URL will be:
+
+```text
+https://beltapp.pages.dev
+```
+
+But the dashboard deployment link is the safest source of truth.
 
 ## 9. Update Backend CORS After The First Pages Deploy
 

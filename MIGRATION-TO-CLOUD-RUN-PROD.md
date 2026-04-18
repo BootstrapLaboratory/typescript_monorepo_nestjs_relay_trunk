@@ -289,11 +289,11 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 ### Static Hosting
 
-- [ ] Configure `Cloudflare Pages` to build `apps/client`
-- [ ] Set production env vars on the frontend host:
+- [x] Configure `Cloudflare Pages` to build `apps/client`
+- [x] Set production env vars on the frontend host:
   - `VITE_GRAPHQL_HTTP`
   - `VITE_GRAPHQL_WS`
-- [ ] Use the generated `*.pages.dev` URL for the initial production rollout
+- [x] Use the generated `*.pages.dev` URL for the initial production rollout
 - [ ] Make preview deployments point to either:
   - a shared dev API
   - a preview API
@@ -302,8 +302,8 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 ### Routing
 
 - [ ] Confirm SPA routing works on the chosen host
-- [ ] Confirm the frontend can call the Cloud Run API over HTTPS
-- [ ] Confirm WebSocket upgrade to the API host works from the deployed frontend origin
+- [x] Confirm the frontend can call the Cloud Run API over HTTPS
+- [x] Confirm WebSocket upgrade to the API host works from the deployed frontend origin
 
 ## Phase 7: Provision Cloud Resources
 
@@ -346,7 +346,7 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 - [x] Store non-secret backend deploy config in GitHub repository variables / Cloud Run env:
   - `CORS_ORIGIN`
   - `PUBSUB_DRIVER`
-- [ ] Store frontend env vars in the frontend hosting provider
+- [x] Store frontend env vars in the frontend hosting provider
 
 ## Phase 8: Configure Cloud Run Service
 
@@ -363,12 +363,13 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 - [x] Use the generated `run.app` URL for the first rollout
 - [ ] Add `api.example.com` later
-- [ ] Confirm CORS matches the real frontend origin
-- [ ] Confirm WebSocket upgrades work through the Cloud Run domain and custom domain
+- [x] Confirm CORS matches the real frontend origin
+- [x] Confirm WebSocket upgrades work through the Cloud Run domain
+- [ ] Confirm WebSocket upgrades work through the custom domain
 
 ### Runtime Validation
 
-- [ ] Deploy one instance and validate GraphQL query, mutation, and subscription
+- [x] Deploy one instance and validate GraphQL query, mutation, and subscription
 - [ ] Scale to multiple instances and validate cross-instance subscription fanout
 
 ## Phase 9: Build The CI/CD Pipeline
@@ -389,15 +390,15 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 - [x] Push image to Artifact Registry
 - [x] Run database migrations
 - [x] Deploy backend to Cloud Run
-- [ ] Trigger frontend deployment or allow host auto-deploy from main
+- [x] Trigger frontend deployment or allow host auto-deploy from main
 - [ ] Run smoke tests against the deployed environment
 
 ### Smoke Tests
 
-- [ ] HTTP health check passes
-- [ ] GraphQL `getMessages` query succeeds
-- [ ] GraphQL `addMessage` mutation succeeds
-- [ ] Subscription receives a newly created message
+- [x] HTTP health check passes
+- [x] GraphQL `getMessages` query succeeds
+- [x] GraphQL `addMessage` mutation succeeds
+- [x] Subscription receives a newly created message
 
 ## Phase 10: Observability And Operations
 
@@ -468,15 +469,15 @@ These are the most likely repo touchpoints for this migration:
 
 The migration is complete when all of the following are true:
 
-- [ ] Frontend is deployed on a static host and served over HTTPS
+- [x] Frontend is deployed on a static host and served over HTTPS
 - [x] Backend is deployed on Cloud Run and reachable over HTTPS
 - [x] Backend uses environment-driven config only
 - [x] Database schema is managed by migrations, not `synchronize`
 - [ ] Shared pub/sub works across multiple Cloud Run instances
 - [ ] WebSocket subscriptions reconnect cleanly after restart or cold start
 - [x] CI validates builds and tests on every change
-- [ ] Main branch deploys backend and frontend automatically
-- [ ] Smoke tests verify query, mutation, and subscription after deploy
+- [x] Main branch deploys backend and frontend automatically
+- [x] Smoke tests verify query, mutation, and subscription after deploy
 - [x] Costs are capped with low max instances and no always-on resources unless explicitly chosen
 - [x] The project still works in the devcontainer without requiring cloud services
 - [x] `npm run dev` still works locally in the devcontainer after the migration changes
