@@ -41,6 +41,14 @@ RUN apt-get update \
       google-cloud-cli \
  && rm -rf /var/lib/apt/lists/*
 
+# HOME's .bashrc
+COPY bashrc_additions.sh /tmp/bashrc_additions.sh
+RUN install -d -m 0755 /usr/local/share/devcontainer \
+ && cat /etc/skel/.bashrc /tmp/bashrc_additions.sh > /usr/local/share/devcontainer/bashrc \
+ && chown root:root /usr/local/share/devcontainer/bashrc \
+ && chmod 0644 /usr/local/share/devcontainer/bashrc \
+ && rm -f /tmp/bashrc_additions.sh
+
 # Force Java headless for everything (safe in devcontainer)
 ENV JAVA_TOOL_OPTIONS="-Djava.awt.headless=true"
 
