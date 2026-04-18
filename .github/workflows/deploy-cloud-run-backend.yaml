@@ -5,14 +5,14 @@ on:
   push:
     branches: [main]
     paths:
-      - ".github/workflows/deploy-cloud-run-backend.yaml"
-      - ".github/actions/cached-install/**"
-      - "apps/server/**"
-      - "common/**"
-      - "package.json"
-      - "package-lock.json"
-      - "rush.json"
-      - "nx.json"
+      - .github/workflows/deploy-cloud-run-backend.yaml
+      - .github/actions/cached-install/**
+      - apps/server/**
+      - common/**
+      - package.json
+      - package-lock.json
+      - rush.json
+      - nx.json
 
 permissions:
   contents: read
@@ -57,10 +57,13 @@ jobs:
           version: ">= 416.0.0"
           project_id: ${{ vars.GCP_PROJECT_ID }}
 
-      - name: Confirm required Secret Manager entries exist
+      - name: Confirm required Secret Manager entries are readable
         run: |
           for secret_name in DATABASE_URL DATABASE_URL_DIRECT REDIS_URL; do
-            gcloud secrets describe "${secret_name}" \
+            # Validate the latest version can be accessed with the
+            # Secret Manager Secret Accessor role granted by sync-secrets.sh.
+            gcloud secrets versions access latest \
+              --secret "${secret_name}" \
               --project "${{ vars.GCP_PROJECT_ID }}" \
               > /dev/null
           done
