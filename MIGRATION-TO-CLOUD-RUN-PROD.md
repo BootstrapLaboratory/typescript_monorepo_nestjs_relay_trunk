@@ -199,8 +199,8 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 - [x] Use separate publisher and subscriber connections
 - [x] Keep per-instance in-memory fanout only for connected local WebSocket clients
 - [x] Use Redis only as the cross-instance event bus
-- [ ] Provision a low-cost or free Redis provider suitable for hobby traffic
-- [ ] Store `REDIS_URL` as a backend secret for Cloud Run
+- [x] Provision a low-cost or free Redis provider suitable for hobby traffic
+- [x] Store `REDIS_URL` as a backend secret for Cloud Run
 
 ### Local Dev Strategy
 
@@ -307,55 +307,57 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 - [x] Add a provisioning runbook and helper scripts for GCP bootstrap and secret wiring
 - [x] Add a shared deployment env-file workflow so provisioning scripts can load common Cloud Run variables from `deploy/cloudrun/.env`
-- [ ] Create a Google Cloud project
-- [ ] Enable:
+- [x] Create a Google Cloud project
+- [x] Enable:
   - Cloud Run
   - Artifact Registry
   - Secret Manager
   - Cloud Build if used
-- [ ] Create Artifact Registry repository for backend images
-- [ ] Create service account for deployment
-- [ ] Grant least-privilege IAM roles to CI
+- [x] Create Artifact Registry repository for backend images
+- [x] Create service account for deployment
+- [x] Grant least-privilege IAM roles to CI
 
 ### Neon
 
-- [ ] Create Neon project and database
-- [ ] Create the Neon project in `aws-eu-central-1`
+- [x] Create Neon project and database
+- [x] Create the Neon project in `aws-eu-central-1`
 - [ ] Create least-privilege app user
-- [ ] Store connection string securely
-- [ ] Choose direct or pooled connection mode intentionally
+- [x] Store connection string securely
+- [x] Choose direct or pooled connection mode intentionally
 - [ ] Keep Cloud Run instance count low enough to avoid excessive DB connections
 
 ### Redis
 
-- [ ] Create a Redis instance suitable for hobby-scale pub/sub traffic
-- [ ] Capture the production `REDIS_URL`
-- [ ] Verify the Redis provider region is acceptable for Europe-bound latency
+- [x] Create a Redis instance suitable for hobby-scale pub/sub traffic
+- [x] Capture the production `REDIS_URL`
+- [x] Verify the Redis provider region is acceptable for Europe-bound latency
 - [x] Define the matching local Redis connection shape used in the devcontainer
 
 ### Secrets
 
-- [ ] Store backend secrets in Secret Manager or Cloud Run secrets:
+- [x] Store sensitive backend connection values in Secret Manager:
   - `DATABASE_URL`
+  - `DATABASE_URL_DIRECT`
+  - `REDIS_URL`
+- [x] Store non-secret backend deploy config in GitHub repository variables / Cloud Run env:
   - `CORS_ORIGIN`
   - `PUBSUB_DRIVER`
-  - `REDIS_URL` if used
 - [ ] Store frontend env vars in the frontend hosting provider
 
 ## Phase 8: Configure Cloud Run Service
 
 ### Deployment Settings
 
-- [ ] Set public access if the API is meant to be public
-- [ ] Set request timeout high enough for long-lived WebSocket connections
-- [ ] Set `min instances = 0` to stay close to free-tier usage
-- [ ] Set `max instances` to a low number to control cost and DB connection count
-- [ ] Set concurrency intentionally rather than leaving it unreviewed
-- [ ] Deploy the service specifically to `europe-west4`
+- [x] Set public access if the API is meant to be public
+- [x] Set request timeout high enough for long-lived WebSocket connections
+- [x] Set `min instances = 0` to stay close to free-tier usage
+- [x] Set `max instances` to a low number to control cost and DB connection count
+- [x] Set concurrency intentionally rather than leaving it unreviewed
+- [x] Deploy the service specifically to `europe-west4`
 
 ### Networking
 
-- [ ] Use the generated `run.app` URL for the first rollout
+- [x] Use the generated `run.app` URL for the first rollout
 - [ ] Add `api.example.com` later
 - [ ] Confirm CORS matches the real frontend origin
 - [ ] Confirm WebSocket upgrades work through the Cloud Run domain and custom domain
@@ -460,7 +462,7 @@ These are the most likely repo touchpoints for this migration:
 The migration is complete when all of the following are true:
 
 - [ ] Frontend is deployed on a static host and served over HTTPS
-- [ ] Backend is deployed on Cloud Run and reachable over HTTPS
+- [x] Backend is deployed on Cloud Run and reachable over HTTPS
 - [x] Backend uses environment-driven config only
 - [x] Database schema is managed by migrations, not `synchronize`
 - [ ] Shared pub/sub works across multiple Cloud Run instances
@@ -468,7 +470,7 @@ The migration is complete when all of the following are true:
 - [x] CI validates builds and tests on every change
 - [ ] Main branch deploys backend and frontend automatically
 - [ ] Smoke tests verify query, mutation, and subscription after deploy
-- [ ] Costs are capped with low max instances and no always-on resources unless explicitly chosen
+- [x] Costs are capped with low max instances and no always-on resources unless explicitly chosen
 - [x] The project still works in the devcontainer without requiring cloud services
 - [x] `npm run dev` still works locally in the devcontainer after the migration changes
 - [x] The devcontainer standard stack includes both PostgreSQL and Redis
@@ -479,7 +481,7 @@ The migration is complete when all of the following are true:
 - [x] 2. Client absolute URL support
 - [x] 3. Shared pub/sub implementation with `redis` for both local devcontainer and production
 - [x] 4. Backend Cloud Run container build
-- [ ] 5. Cloud resource provisioning
+- [x] 5. Cloud resource provisioning
 - [x] 6. GitHub Actions CI/CD pipeline
 - [ ] 7. Multi-instance validation
 
