@@ -14,11 +14,11 @@ import {
   type Disposable,
 } from "relay-runtime";
 import {
-  createClient,
   type FormattedExecutionResult,
   type Sink,
 } from "graphql-ws";
 import type { RelayObservable } from "relay-runtime/lib/network/RelayObservable";
+import { createRealtimeGraphqlWsClient } from "./realtime-connection";
 
 const HTTP_CONFIG = import.meta.env.VITE_GRAPHQL_HTTP!;
 const WS_CONFIG = import.meta.env.VITE_GRAPHQL_WS!;
@@ -55,9 +55,7 @@ function resolveWsEndpoint(endpoint: string): string {
 const HTTP_ENDPOINT = resolveHttpEndpoint(HTTP_CONFIG);
 const WS_ENDPOINT = resolveWsEndpoint(WS_CONFIG);
 
-const wsClient = createClient({
-  url: WS_ENDPOINT,
-});
+const wsClient = createRealtimeGraphqlWsClient(WS_ENDPOINT);
 
 const fetchGraphQL: FetchFunction = async (request, variables) => {
   const resp = await fetch(HTTP_ENDPOINT, {

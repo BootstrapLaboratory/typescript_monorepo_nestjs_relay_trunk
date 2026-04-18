@@ -190,7 +190,7 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 - [x] Publish events only after the message has been saved successfully
 - [x] Ensure every Cloud Run instance can receive events published by any other instance
 - [x] Add reconnect behavior for the shared pub/sub client
-- [ ] Log subscription disconnects and reconnects for debugging
+- [x] Log subscription disconnects and reconnects for debugging
 - [ ] Keep local subscriptions working through Redis in the devcontainer
 
 ### Chosen Production Strategy: Redis
@@ -236,16 +236,16 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 - [x] Update [apps/client/src/main.tsx](/workspace/apps/client/src/main.tsx:23) so production supports absolute WebSocket URLs
 - [x] Keep local development behavior working exactly as it does now
-- [ ] Add retry and reconnect settings to the `graphql-ws` client
-- [ ] Handle temporary disconnects cleanly after Cloud Run instance restarts or cold starts
+- [x] Add retry and reconnect settings to the `graphql-ws` client
+- [x] Handle temporary disconnects cleanly after Cloud Run instance restarts or cold starts
 
 ### Subscription UX
 
-- [ ] Prevent duplicate message insertion in the Relay store updater if reconnect causes replay or race conditions
-- [ ] Decide how the UI should behave during reconnect:
-  - silent retry
-  - status banner
-  - disabled send button on disconnect
+- [x] Prevent duplicate message insertion in the Relay store updater if reconnect causes replay or race conditions
+- [x] Decide how the UI should behave during reconnect:
+  - retry automatically with backoff
+  - show a status banner while live updates are unavailable
+  - disable sending while live updates are reconnecting or disconnected
 
 ## Phase 4: Add Database Migrations
 

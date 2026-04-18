@@ -5,6 +5,11 @@ import MessageAddForm from "./MessageAddForm";
 import { useMemo } from "react";
 import type { ChatMessageAddedSubscription } from "./__generated__/ChatMessageAddedSubscription.graphql";
 import type { GraphQLSubscriptionConfig } from "relay-runtime";
+import { appendRootFieldRecordIfMissing } from "./store";
+import {
+  getRealtimeConnectionMessage,
+  useRealtimeConnectionState,
+} from "../../realtime-connection";
 
 export default function Chat() {
   const data = useLazyLoadQuery<ChatQuery>(
@@ -20,9 +25,17 @@ export default function Chat() {
   );
 
   const messages = data?.getMessages?.filter((m) => m != null);
+  const realtimeConnectionState = useRealtimeConnectionState();
+  const realtimeConnectionMessage =
+    getRealtimeConnectionMessage(realtimeConnectionState);
+  const disableSendBecauseLiveUpdatesAreRecovering =
+    realtimeConnectionState.status === "retrying" ||
+    realtimeConnectionState.status === "disconnected";
 
-  const subscriptionConfig: GraphQLSubscriptionConfig<ChatMessageAddedSubscription> =
-    {
+  const subscriptionConfig = useMemo<
+    GraphQLSubscriptionConfig<ChatMessageAddedSubscription>
+  >(
+    () => ({
       subscription: graphql`
         subscription ChatMessageAddedSubscription {
           MessageAdded {
@@ -31,33 +44,39 @@ export default function Chat() {
           }
         }
       `,
-      variables: {}, // now {} is the exact type Record<PropertyKey,never>
+      variables: {},
       updater: (store) => {
-        const root = store.getRoot();
-        const existing = root.getLinkedRecords("getMessages") ?? [];
-        const incoming = store.getRootField("MessageAdded");
-        if (incoming) {
-          root.setLinkedRecords([...existing, incoming], "getMessages");
-        }
+        appendRootFieldRecordIfMissing(store, "MessageAdded", "getMessages");
       },
-    };
-  const subscriptionConfigMemo = useMemo(
-    () => subscriptionConfig,
-    [], // empty deps → same object forever
+    }),
+    [],
   );
 
-  useSubscription<ChatMessageAddedSubscription>(subscriptionConfigMemo);
+  useSubscription<ChatMessageAddedSubscription>(subscriptionConfig);
 
   return (
     <div className="card">
       <div className="chat">
         <h1>Anonymous Chat</h1>
+        {realtimeConnectionMessage ? (
+          <p
+            className={`chat-status chat-status--${realtimeConnectionState.status}`}
+            role="status"
+            aria-live="polite"
+          >
+            {realtimeConnectionMessage}
+          </p>
+        ) : null}
         <ul className="messages">
           {messages.map((msg) => (
             <MessageItem key={msg.id} message={msg} />
           ))}
         </ul>
-        <MessageAddForm />
+        <MessageAddForm
+          disableBecauseLiveUpdatesAreRecovering={
+            disableSendBecauseLiveUpdatesAreRecovering
+          }
+        />
       </div>
     </div>
   );

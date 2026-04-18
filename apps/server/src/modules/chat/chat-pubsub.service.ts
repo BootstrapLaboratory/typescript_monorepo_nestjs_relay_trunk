@@ -77,6 +77,14 @@ export class ChatPubSubService implements OnModuleInit, OnModuleDestroy {
         return;
       }
 
+      this.logger.log(
+        JSON.stringify({
+          event: 'chat_pubsub_deliver',
+          channel,
+          driver: this.driver,
+          messageId: parsedPayload.MessageAdded.id,
+        }),
+      );
       void this.localPubSub.publish(MESSAGE_ADDED_EVENT, parsedPayload);
     });
 
@@ -107,10 +115,26 @@ export class ChatPubSubService implements OnModuleInit, OnModuleDestroy {
         MESSAGE_ADDED_CHANNEL,
         JSON.stringify(payload),
       );
+      this.logger.log(
+        JSON.stringify({
+          event: 'chat_pubsub_publish',
+          channel: MESSAGE_ADDED_CHANNEL,
+          driver: this.driver,
+          messageId: message.id,
+        }),
+      );
       return;
     }
 
     await this.localPubSub.publish(MESSAGE_ADDED_EVENT, payload);
+    this.logger.log(
+      JSON.stringify({
+        event: 'chat_pubsub_publish',
+        channel: MESSAGE_ADDED_EVENT,
+        driver: this.driver,
+        messageId: message.id,
+      }),
+    );
   }
 
   messageAddedIterator(): AsyncIterableIterator<MessageAddedPayload> {

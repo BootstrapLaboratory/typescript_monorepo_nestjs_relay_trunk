@@ -1,8 +1,15 @@
 import { useState } from "react";
 import type { MessageAddFormAddMessageMutation } from "./__generated__/MessageAddFormAddMessageMutation.graphql";
 import { graphql, useMutation } from "react-relay";
+import { appendRootFieldRecordIfMissing } from "./store";
 
-export default function MessageAddForm() {
+type MessageAddFormProps = {
+  disableBecauseLiveUpdatesAreRecovering?: boolean;
+};
+
+export default function MessageAddForm({
+  disableBecauseLiveUpdatesAreRecovering = false,
+}: MessageAddFormProps) {
   // Set up the mutation
   const [commitAddMessage, isInFlight] =
     useMutation<MessageAddFormAddMessageMutation>(graphql`
@@ -30,9 +37,15 @@ export default function MessageAddForm() {
           body,
         },
       },
+      updater: (store) => {
+        appendRootFieldRecordIfMissing(store, "addMessage", "getMessages");
+      },
     });
     setBody("");
   };
+
+  const isSubmitDisabled =
+    isInFlight || disableBecauseLiveUpdatesAreRecovering;
 
   return (
     <form onSubmit={onSubmit}>
@@ -49,9 +62,14 @@ export default function MessageAddForm() {
         onChange={(e) => setBody(e.target.value)}
         required
       />
-      <button type="submit" disabled={isInFlight}>
-        Send
+      <button type="submit" disabled={isSubmitDisabled}>
+        {disableBecauseLiveUpdatesAreRecovering ? "Reconnecting..." : "Send"}
       </button>
+      {disableBecauseLiveUpdatesAreRecovering ? (
+        <p className="chat-form-note" role="status" aria-live="polite">
+          Sending is paused while the live connection recovers.
+        </p>
+      ) : null}
     </form>
   );
 }

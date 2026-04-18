@@ -70,6 +70,29 @@
 
 .card {
   & .chat {
+    & .chat-status {
+      margin: 0 0 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      text-align: left;
+    }
+
+    & .chat-status--connecting {
+      background: rgba(59, 130, 246, 0.16);
+      color: #bfdbfe;
+    }
+
+    & .chat-status--retrying {
+      background: rgba(245, 158, 11, 0.16);
+      color: #fde68a;
+    }
+
+    & .chat-status--disconnected {
+      background: rgba(239, 68, 68, 0.16);
+      color: #fecaca;
+    }
+
     & .messages {
       /* still means `.card .chat` */
       text-align: left;
@@ -84,7 +107,17 @@
       display: flex;
       align-items: stretch;
       justify-content: flex-start;
-      flex-wrap: nowrap;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    & .chat-form-note {
+      margin: 0;
+      flex-basis: 100%;
+      align-self: center;
+      font-size: 0.9rem;
+      text-align: left;
+      color: #fbbf24;
     }
   }
 }
