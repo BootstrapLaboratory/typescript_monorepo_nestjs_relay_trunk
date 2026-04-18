@@ -32,13 +32,11 @@ function getDatabaseUrl(preferDirectUrl = false): string | undefined {
   return process.env.DATABASE_URL;
 }
 
-function getBaseDatabaseOptions(
-  options: {
-    preferDirectUrl?: boolean;
-    synchronize: boolean;
-    includeMigrations?: boolean;
-  },
-): DataSourceOptions {
+function getBaseDatabaseOptions(options: {
+  preferDirectUrl?: boolean;
+  synchronize: boolean;
+  includeMigrations?: boolean;
+}): DataSourceOptions {
   const baseConfig: DataSourceOptions = {
     type: 'postgres',
     entities: [MessageEntity],

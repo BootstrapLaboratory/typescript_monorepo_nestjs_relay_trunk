@@ -119,9 +119,7 @@ function initializeBrowserNetworkListeners(): void {
 
 export function createRealtimeGraphqlWsClient(url: string): Client {
   initializeBrowserNetworkListeners();
-  let wsClient: Client;
-
-  wsClient = createClient({
+  const wsClient: Client = createClient({
     url,
     lazy: true,
     keepAlive: HEARTBEAT_INTERVAL_MS,

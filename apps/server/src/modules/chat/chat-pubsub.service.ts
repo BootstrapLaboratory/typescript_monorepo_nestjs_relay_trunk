@@ -145,10 +145,7 @@ export class ChatPubSubService implements OnModuleInit, OnModuleDestroy {
 
   private attachRedisLogging(client: Redis, role: string): void {
     client.on('error', (error) => {
-      this.logger.error(
-        `Redis ${role} error: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`Redis ${role} error: ${error.message}`, error.stack);
     });
 
     client.on('reconnecting', () => {
