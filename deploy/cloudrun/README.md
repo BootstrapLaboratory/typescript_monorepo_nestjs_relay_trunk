@@ -25,6 +25,7 @@ GitHub Actions runs against a regular Docker daemon.
 For the real Google Cloud, Neon, Redis, Secret Manager, and GitHub Actions
 setup, use the provisioning runbook:
 
+- [AUTOMATED_PROVISIONING_GUIDE.md](AUTOMATED_PROVISIONING_GUIDE.md)
 - [PROVISIONING.md](PROVISIONING.md)
 - [GCP_GUIDE.md](GCP_GUIDE.md)
 - [NEON-UPSTASH-GUIDE.md](NEON-UPSTASH-GUIDE.md)

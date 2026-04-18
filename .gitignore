@@ -8,8 +8,6 @@ dist
 dist-ssr
 *.local
 gha-creds-*.json
-deploy/cloudrun/.env
-deploy/cloudrun/.env.local
 
 # Editor directories and files
 .vscode/*
