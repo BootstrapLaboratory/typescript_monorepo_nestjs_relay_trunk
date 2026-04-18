@@ -188,7 +188,7 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 ### Delivery Behavior
 
 - [x] Publish events only after the message has been saved successfully
-- [ ] Ensure every Cloud Run instance can receive events published by any other instance
+- [x] Ensure every Cloud Run instance can receive events published by any other instance
 - [x] Add reconnect behavior for the shared pub/sub client
 - [ ] Log subscription disconnects and reconnects for debugging
 - [ ] Keep local subscriptions working through Redis in the devcontainer
@@ -213,9 +213,9 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 ### Scale-Out Validation
 
-- [ ] Verify that two backend instances both receive events correctly
-- [ ] Verify that a message created on instance A is delivered to subscribers connected to instance B
-- [ ] Remove any reliance on sticky sessions after shared pub/sub works
+- [x] Verify that two backend instances both receive events correctly
+- [x] Verify that a message created on instance A is delivered to subscribers connected to instance B
+- [x] Remove any reliance on sticky sessions after shared pub/sub works
 
 ## Phase 3: Make The Client Work With Separate Frontend And API Hosts
 
@@ -370,7 +370,7 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 ### Runtime Validation
 
 - [x] Deploy one instance and validate GraphQL query, mutation, and subscription
-- [ ] Scale to multiple instances and validate cross-instance subscription fanout
+- [x] Scale to multiple instances and validate cross-instance subscription fanout
 
 ## Phase 9: Build The CI/CD Pipeline
 
@@ -473,7 +473,7 @@ The migration is complete when all of the following are true:
 - [x] Backend is deployed on Cloud Run and reachable over HTTPS
 - [x] Backend uses environment-driven config only
 - [x] Database schema is managed by migrations, not `synchronize`
-- [ ] Shared pub/sub works across multiple Cloud Run instances
+- [x] Shared pub/sub works across multiple Cloud Run instances
 - [ ] WebSocket subscriptions reconnect cleanly after restart or cold start
 - [x] CI validates builds and tests on every change
 - [x] Main branch deploys backend and frontend automatically
@@ -491,7 +491,7 @@ The migration is complete when all of the following are true:
 - [x] 4. Backend Cloud Run container build
 - [x] 5. Cloud resource provisioning
 - [x] 6. GitHub Actions CI/CD pipeline
-- [ ] 7. Multi-instance validation
+- [x] 7. Multi-instance validation
 
 ## Notes
 

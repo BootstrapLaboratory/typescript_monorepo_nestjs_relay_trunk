@@ -36,6 +36,7 @@ Helper scripts:
 - [bootstrap-gcp.sh](bootstrap-gcp.sh)
 - [sync-secrets.sh](sync-secrets.sh)
 - [configure-github-vars.sh](configure-github-vars.sh)
+- [validate-multi-instance.sh](validate-multi-instance.sh)
 
 Quick automation map:
 
@@ -44,6 +45,7 @@ Quick automation map:
 - GitHub repository variables: [configure-github-vars.sh](configure-github-vars.sh)
 - Cloud Run image build, migrations, and deploy: [../../.github/workflows/deploy-cloud-run-backend.yaml](../../.github/workflows/deploy-cloud-run-backend.yaml)
 - Neon and Upstash resource creation: still manual, documented in [NEON-UPSTASH-GUIDE.md](NEON-UPSTASH-GUIDE.md)
+- Temporary scale-up and cross-instance fanout validation: [validate-multi-instance.sh](validate-multi-instance.sh)
 
 The provisioning scripts automatically load variables from:
 
