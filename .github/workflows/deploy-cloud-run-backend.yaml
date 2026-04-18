@@ -78,12 +78,13 @@ jobs:
 
       - name: Load direct database URL for migrations
         run: |
+          delimiter="$(uuidgen)"
           {
-            echo "DATABASE_URL_DIRECT<<EOF"
+            echo "DATABASE_URL_DIRECT<<${delimiter}"
             gcloud secrets versions access latest \
               --secret=DATABASE_URL_DIRECT \
               --project "${{ vars.GCP_PROJECT_ID }}"
-            echo "EOF"
+            printf '\n%s\n' "${delimiter}"
           } >> "${GITHUB_ENV}"
 
       - name: Run production database migrations
