@@ -5,10 +5,12 @@ import { appendRootFieldRecordIfMissing } from "./store";
 
 type MessageAddFormProps = {
   disableBecauseLiveUpdatesAreRecovering?: boolean;
+  liveUpdatesUnavailableMessage?: string | null;
 };
 
 export default function MessageAddForm({
   disableBecauseLiveUpdatesAreRecovering = false,
+  liveUpdatesUnavailableMessage = null,
 }: MessageAddFormProps) {
   // Set up the mutation
   const [commitAddMessage, isInFlight] =
@@ -63,11 +65,12 @@ export default function MessageAddForm({
         required
       />
       <button type="submit" disabled={isSubmitDisabled}>
-        {disableBecauseLiveUpdatesAreRecovering ? "Reconnecting..." : "Send"}
+        {disableBecauseLiveUpdatesAreRecovering ? "Waiting..." : "Send"}
       </button>
       {disableBecauseLiveUpdatesAreRecovering ? (
         <p className="chat-form-note" role="status" aria-live="polite">
-          Sending is paused while the live connection recovers.
+          {liveUpdatesUnavailableMessage ??
+            "Sending is paused while live updates are unavailable."}
         </p>
       ) : null}
     </form>

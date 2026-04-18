@@ -29,6 +29,7 @@ export default function Chat() {
   const realtimeConnectionMessage =
     getRealtimeConnectionMessage(realtimeConnectionState);
   const disableSendBecauseLiveUpdatesAreRecovering =
+    !realtimeConnectionState.browserOnline ||
     realtimeConnectionState.status === "retrying" ||
     realtimeConnectionState.status === "disconnected";
 
@@ -76,6 +77,7 @@ export default function Chat() {
           disableBecauseLiveUpdatesAreRecovering={
             disableSendBecauseLiveUpdatesAreRecovering
           }
+          liveUpdatesUnavailableMessage={realtimeConnectionMessage}
         />
       </div>
     </div>

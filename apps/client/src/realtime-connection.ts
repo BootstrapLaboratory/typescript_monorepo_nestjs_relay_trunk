@@ -13,6 +13,7 @@ export type GraphqlWsConnectionState = {
   attempt: number;
   closeCode: number | null;
   detail: string | null;
+  browserOnline: boolean;
 };
 
 type CloseLike = {
@@ -28,7 +29,11 @@ let connectionState: GraphqlWsConnectionState = {
   attempt: 0,
   closeCode: null,
   detail: null,
+  browserOnline:
+    typeof navigator === "undefined" ? true : Boolean(navigator.onLine),
 };
+
+let browserNetworkListenersInitialized = false;
 
 function emitConnectionStateChange(): void {
   for (const listener of listeners) {
@@ -62,7 +67,34 @@ function isFatalCloseCode(code: number | undefined): boolean {
   return typeof code === "number" && FATAL_CLOSE_CODES.has(code);
 }
 
+function initializeBrowserNetworkListeners(): void {
+  if (
+    browserNetworkListenersInitialized ||
+    typeof window === "undefined" ||
+    typeof navigator === "undefined"
+  ) {
+    return;
+  }
+
+  browserNetworkListenersInitialized = true;
+
+  const syncBrowserNetworkState = () => {
+    setConnectionState({
+      browserOnline: Boolean(navigator.onLine),
+      detail: navigator.onLine
+        ? connectionState.detail
+        : "The browser is offline.",
+    });
+  };
+
+  window.addEventListener("offline", syncBrowserNetworkState);
+  window.addEventListener("online", syncBrowserNetworkState);
+  syncBrowserNetworkState();
+}
+
 export function createRealtimeGraphqlWsClient(url: string): Client {
+  initializeBrowserNetworkListeners();
+
   return createClient({
     url,
     lazy: true,
@@ -158,6 +190,10 @@ export function useRealtimeConnectionState(): GraphqlWsConnectionState {
 export function getRealtimeConnectionMessage(
   state: GraphqlWsConnectionState,
 ): string | null {
+  if (!state.browserOnline) {
+    return "Browser is offline. Live updates will reconnect when the network returns.";
+  }
+
   switch (state.status) {
     case "idle":
     case "connected":
