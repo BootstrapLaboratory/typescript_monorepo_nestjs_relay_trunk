@@ -1,7 +1,7 @@
 import relayLogo from "./assets/relay.svg";
 import reactLogo from "./assets/react.svg";
 import nestLogo from "./assets/nest.svg";
-import gitlabLogo from "./assets/gitlab.svg";
+import githubLogo from "./assets/github.svg";
 import trunkLogo from "./assets/trunk.png";
 import apolloLogo from "./assets/apollo.svg";
 import viteLogo from "/vite.svg";
@@ -17,9 +17,9 @@ export function Header() {
           href="https://github.com/BootstrapLaboratory/typescript_nestjs_relay_lerna_trunk"
           target="_blank"
           rel="noopener noreferrer"
-          title="View source on GitLab"
+          title="View source on GitHub"
         >
-          <img src={gitlabLogo} className="logo gitlab" alt="GitLab Logo" />
+          <img src={githubLogo} className="logo github" alt="GitHub Logo" />
           View source code
         </a>
         <a
@@ -28,7 +28,7 @@ export function Header() {
           rel="noopener noreferrer"
           title="Browse API with Apollo Sandbox"
         >
-          <img src={apolloLogo} className="logo gitlab" alt="Apollo Logo" />
+          <img src={apolloLogo} className="logo github" alt="Apollo Logo" />
           Browse API with Apollo Sandbox
         </a>
       </div>
@@ -52,7 +52,21 @@ export function Header() {
           <img src={trunkLogo} className="logo trunk_io" alt="Trunk.io logo" />
         </a>
       </div>
-      <h1>Vite + React + Relay + NestJS + Trunk.io</h1>
+      <div className="technology-tags">
+        <a href="https://cloud.google.com/run" target="_blank" rel="noreferrer">
+          Google Cloud Run
+        </a>
+        <a href="https://neon.com/" target="_blank" rel="noreferrer">
+          Neon
+        </a>
+        <a href="https://www.cloudflare.com/" target="_blank" rel="noreferrer">
+          Cloudflare
+        </a>
+        <a href="https://upstash.com/" target="_blank" rel="noreferrer">
+          Upstash
+        </a>
+      </div>
+      <h1>Vite + React + Relay + NestJS + Cloud Run + Neon + Cloudflare</h1>
     </>
   );
 }
@@ -60,7 +74,7 @@ export function Header() {
 export function ReadTheDocs() {
   return (
     <p className="read-the-docs">
-      Click on the Vite, React, Relay, Nest.js and Trunk.io logos to learn more
+      Click the technology links above to learn more about the stack
     </p>
   );
 }
