@@ -21,8 +21,12 @@ type CloseLike = {
   reason?: string;
 };
 
+const HEARTBEAT_INTERVAL_MS = 10_000;
+const HEARTBEAT_TIMEOUT_MS = 5_000;
 const FATAL_CLOSE_CODES = new Set([4400, 4401, 4403, 4406, 4409, 4429]);
 const listeners = new Set<() => void>();
+const SHOULD_LOG_RECONNECTS =
+  import.meta.env.VITE_GRAPHQL_LOG_RECONNECTS === "true";
 
 let connectionState: GraphqlWsConnectionState = {
   status: "idle",
@@ -34,11 +38,25 @@ let connectionState: GraphqlWsConnectionState = {
 };
 
 let browserNetworkListenersInitialized = false;
+let heartbeatTimeout: ReturnType<typeof setTimeout> | undefined;
 
 function emitConnectionStateChange(): void {
   for (const listener of listeners) {
     listener();
   }
+}
+
+function logRealtime(message: string, details?: Record<string, unknown>): void {
+  if (!SHOULD_LOG_RECONNECTS) {
+    return;
+  }
+
+  if (details) {
+    console.info(`[realtime] ${message}`, details);
+    return;
+  }
+
+  console.info(`[realtime] ${message}`);
 }
 
 function setConnectionState(
@@ -65,6 +83,13 @@ function getCloseDetail(event: CloseLike): string | null {
 
 function isFatalCloseCode(code: number | undefined): boolean {
   return typeof code === "number" && FATAL_CLOSE_CODES.has(code);
+}
+
+function clearHeartbeatTimeout(): void {
+  if (heartbeatTimeout) {
+    clearTimeout(heartbeatTimeout);
+    heartbeatTimeout = undefined;
+  }
 }
 
 function initializeBrowserNetworkListeners(): void {
@@ -94,11 +119,12 @@ function initializeBrowserNetworkListeners(): void {
 
 export function createRealtimeGraphqlWsClient(url: string): Client {
   initializeBrowserNetworkListeners();
+  let wsClient: Client;
 
-  return createClient({
+  wsClient = createClient({
     url,
     lazy: true,
-    keepAlive: 15_000,
+    keepAlive: HEARTBEAT_INTERVAL_MS,
     connectionAckWaitTimeout: 15_000,
     retryAttempts: Number.POSITIVE_INFINITY,
     retryWait: async (retries) => {
@@ -118,28 +144,65 @@ export function createRealtimeGraphqlWsClient(url: string): Client {
     },
     on: {
       connecting: (isRetrying) => {
+        clearHeartbeatTimeout();
         setConnectionState({
           status: isRetrying ? "retrying" : "connecting",
           attempt: isRetrying ? connectionState.attempt + 1 : 0,
           closeCode: null,
           detail: null,
         });
+        logRealtime(
+          isRetrying
+            ? "Attempting to reconnect the live GraphQL connection."
+            : "Opening the live GraphQL connection.",
+          { attempt: isRetrying ? connectionState.attempt + 1 : 0 },
+        );
       },
-      connected: () => {
+      connected: (_socket, _payload, wasRetry) => {
+        clearHeartbeatTimeout();
         setConnectionState({
           status: "connected",
           attempt: 0,
           closeCode: null,
           detail: null,
         });
+        logRealtime(
+          wasRetry
+            ? "Live GraphQL connection re-established."
+            : "Live GraphQL connection established.",
+        );
+      },
+      ping: (received) => {
+        if (received) {
+          return;
+        }
+
+        clearHeartbeatTimeout();
+        heartbeatTimeout = setTimeout(() => {
+          setConnectionState({
+            status: "retrying",
+            detail: "Live updates heartbeat timed out.",
+          });
+          logRealtime("No pong received in time. Terminating stuck socket.");
+          wsClient.terminate();
+        }, HEARTBEAT_TIMEOUT_MS);
+      },
+      pong: (received) => {
+        if (!received) {
+          return;
+        }
+
+        clearHeartbeatTimeout();
       },
       closed: (event) => {
+        clearHeartbeatTimeout();
         if (!isCloseLike(event)) {
           setConnectionState({
             status: "retrying",
             closeCode: null,
             detail: "The live connection closed unexpectedly.",
           });
+          logRealtime("Live GraphQL connection closed unexpectedly.");
           return;
         }
 
@@ -148,8 +211,13 @@ export function createRealtimeGraphqlWsClient(url: string): Client {
           closeCode: event.code ?? null,
           detail: getCloseDetail(event),
         });
+        logRealtime("Live GraphQL connection closed.", {
+          code: event.code ?? null,
+          reason: getCloseDetail(event),
+          fatal: isFatalCloseCode(event.code),
+        });
       },
-      error: () => {
+      error: (error) => {
         if (
           connectionState.status === "connecting" ||
           connectionState.status === "retrying"
@@ -161,9 +229,15 @@ export function createRealtimeGraphqlWsClient(url: string): Client {
           status: "retrying",
           detail: "The live connection hit a transport error.",
         });
+        logRealtime("Live GraphQL connection hit a transport error.", {
+          error:
+            error instanceof Error ? error.message : String(error ?? "unknown"),
+        });
       },
     },
   });
+
+  return wsClient;
 }
 
 export function subscribeToRealtimeConnectionState(
