@@ -139,12 +139,10 @@ h1 {
 
     & .chat-status--retrying {
       background: rgba(245, 158, 11, 0.16);
-      color: #fde68a;
     }
 
     & .chat-status--disconnected {
       background: rgba(239, 68, 68, 0.16);
-      color: #fecaca;
     }
 
     & .messages {
