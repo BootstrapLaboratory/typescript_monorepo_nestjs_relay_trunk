@@ -303,7 +303,7 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 ### Routing
 
-- [ ] Confirm SPA routing works on the chosen host
+- [x] Confirm SPA routing works on the chosen host
 - [x] Confirm the frontend can call the Cloud Run API over HTTPS
 - [x] Confirm WebSocket upgrade to the API host works from the deployed frontend origin
 
