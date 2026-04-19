@@ -11,6 +11,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "deps:upgrade": "bash ../../scripts/upgrade-package-json-deps.sh server",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "cross-env NODE_ENV=development nest start --watch",

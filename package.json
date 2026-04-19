@@ -7,6 +7,10 @@
   },
   "scripts": {
     "dev": "nx run-many --target=start:dev --all",
+    "deps:upgrade": "bash scripts/upgrade-package-json-deps.sh all",
+    "deps:upgrade:root": "bash scripts/upgrade-package-json-deps.sh root",
+    "deps:upgrade:client": "bash scripts/upgrade-package-json-deps.sh client",
+    "deps:upgrade:server": "bash scripts/upgrade-package-json-deps.sh server",
     "client:build:pages": "bash deploy/cloudflare-pages/scripts/build-client.sh",
     "server:image:build:local": "docker buildx build --pull --load -f apps/server/Dockerfile -t local/server-cloudrun:dev .",
     "rush": "rush",

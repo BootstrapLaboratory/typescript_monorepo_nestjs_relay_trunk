@@ -17,6 +17,8 @@ This repository is meant to be opened in a Dev Container.
 2. Run `Dev Containers: Reopen in Container`.
 3. Start the project with `npm run dev`.
 
+Dependency upgrades: run `npm run deps:upgrade` from the repo root to update dependency ranges across the root, client, and server packages. For a single package, use `npm run deps:upgrade:root`, `npm run deps:upgrade:client`, or `npm run deps:upgrade:server`.
+
 Local URLs:
 
 - Frontend: <http://localhost:5173>
