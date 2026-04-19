@@ -474,7 +474,7 @@ The migration is complete when all of the following are true:
 - [x] Backend uses environment-driven config only
 - [x] Database schema is managed by migrations, not `synchronize`
 - [x] Shared pub/sub works across multiple Cloud Run instances
-- [ ] WebSocket subscriptions reconnect cleanly after restart or cold start
+- [x] WebSocket subscriptions reconnect cleanly after restart or cold start
 - [x] CI validates builds and tests on every change
 - [x] Main branch deploys backend and frontend automatically
 - [x] Smoke tests verify query, mutation, and subscription after deploy
