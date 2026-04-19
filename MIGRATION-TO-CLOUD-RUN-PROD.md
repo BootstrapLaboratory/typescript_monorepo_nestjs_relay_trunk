@@ -331,7 +331,7 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 - [x] Create least-privilege app user
 - [x] Store connection string securely
 - [x] Choose direct or pooled connection mode intentionally
-- [ ] Keep Cloud Run instance count low enough to avoid excessive DB connections
+- [x] Keep Cloud Run instance count low enough to avoid excessive DB connections
 
 ### Redis
 
