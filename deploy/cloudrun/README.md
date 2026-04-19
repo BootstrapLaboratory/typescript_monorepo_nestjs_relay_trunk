@@ -107,6 +107,21 @@ That split is intentional:
 - `DATABASE_URL` should be the pooled low-privilege runtime user
 - `DATABASE_URL_DIRECT` should remain the direct higher-privilege migration user
 
+## Optional For Adopters With Their Own Domain
+
+This example project intentionally stops at the generated Cloud Run `run.app`
+URL.
+
+If you adopt this stack for a real project and own a backend domain such as
+`api.example.com`, treat this as the follow-up checklist:
+
+- map the custom backend domain to Cloud Run
+- point the frontend `VITE_GRAPHQL_HTTP` and `VITE_GRAPHQL_WS` values at that custom domain
+- keep `CLOUD_RUN_CORS_ORIGIN` aligned with the real frontend origin
+- verify `https://<your-api-domain>/health` and `https://<your-api-domain>/graphql`
+- verify GraphQL subscriptions over `wss://<your-api-domain>/graphql`
+- if the frontend also moves to a custom domain, coordinate that change with [deploy/cloudflare-pages/README.md](../cloudflare-pages/README.md)
+
 ## Notes
 
 - The backend container is built with Rush/Nx in the builder stage.

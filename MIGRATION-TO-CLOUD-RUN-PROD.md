@@ -30,9 +30,7 @@ These choices are fixed for this migration plan:
 - Primary Cloud Run region: `europe-west4` (Netherlands)
 - Primary Neon region: `aws-eu-central-1` (Frankfurt)
 - Preview deployment strategy: `No previews` for now
-- Future custom domains:
-  - `app.example.com`
-  - `api.example.com`
+- Custom domains are optional adopter follow-up, not part of this example-project migration
 
 This preview choice is intentionally conservative for the current hobby-scale
 setup. If the project scope, release process, or team size changes later, this
@@ -87,8 +85,8 @@ These are the repo details that now matter for the remaining migration work:
 
 - Initial frontend URL: `https://<cloudflare-pages-project>.pages.dev`
 - Initial backend URL: Cloud Run generated stable `run.app` URL
-- Future frontend URL: `https://app.example.com`
-- Future backend URL: `https://api.example.com`
+- Optional later frontend URL for adopters with a domain: `https://app.example.com`
+- Optional later backend URL for adopters with a domain: `https://api.example.com`
 - Backend runtime region: `europe-west4` (Netherlands)
 - Database region: `aws-eu-central-1` (Frankfurt)
 - Shared pub/sub: `Redis`
@@ -113,7 +111,10 @@ Start with provider-generated URLs:
 - Frontend: `https://<project>.pages.dev`
 - Backend: `https://<service>-<project-number>.europe-west4.run.app` when deterministic URL is available, otherwise the stable generated `run.app` service URL returned by Cloud Run
 
-Add custom domains later:
+For this example project, stop here.
+
+If an adopter later brings custom domains, that follow-up belongs in the host-
+specific deployment docs:
 
 - `app.example.com` -> Cloudflare Pages
 - `api.example.com` -> Cloud Run
@@ -136,11 +137,9 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 - [x] CI provider fixed to `GitHub Actions`
 - [x] Cloud Run region fixed to `europe-west4`
 - [x] Neon region fixed to `aws-eu-central-1`
-- [x] Final custom domains reserved as:
-  - `app.example.com`
-  - `api.example.com`
 - [x] Initial rollout will use provider-generated URLs before custom domains
 - [x] Local Redis is mandatory in the devcontainer for dev-to-prod parity
+- [x] Custom domains are intentionally out of scope for this example-project migration and are documented separately for adopters
 
 ## Phase 1: Make Backend Configuration Production-Safe
 
@@ -365,10 +364,9 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 ### Networking
 
 - [x] Use the generated `run.app` URL for the first rollout
-- [ ] Add `api.example.com` later
 - [x] Confirm CORS matches the real frontend origin
 - [x] Confirm WebSocket upgrades work through the Cloud Run domain
-- [ ] Confirm WebSocket upgrades work through the custom domain
+- [x] Keep custom-domain follow-up work documented outside this example migration checklist
 
 ### Runtime Validation
 

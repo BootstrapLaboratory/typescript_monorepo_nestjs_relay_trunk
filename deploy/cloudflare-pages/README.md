@@ -129,6 +129,19 @@ Where to find it in Cloudflare:
 - open the latest production deployment and use the provided production URL
 - Cloudflare's Pages docs also note that the project name is assigned as the `*.pages.dev` subdomain
 
+## Optional For Adopters With Their Own Domain
+
+This example project intentionally uses the generated `*.pages.dev` URL.
+
+If you adopt this stack for a real project and own a frontend domain such as
+`app.example.com`, use this follow-up checklist:
+
+- add the custom frontend domain in Cloudflare Pages
+- if the frontend origin changes, update the backend `CLOUD_RUN_CORS_ORIGIN`
+- if the backend also moves to a custom domain, update `VITE_GRAPHQL_HTTP` and `VITE_GRAPHQL_WS`
+- redeploy the frontend after those env-var changes
+- re-check normal page load, GraphQL requests, and live subscriptions from the deployed site
+
 ## References
 
 - Cloudflare Pages build configuration:
