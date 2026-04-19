@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ReaderFragment } from "relay-runtime";
+import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type Message_item$data = {
   readonly author: string | null | undefined;
@@ -21,28 +21,28 @@ export type Message_item$key = {
 };
 
 const node: ReaderFragment = {
-  argumentDefinitions: [],
-  kind: "Fragment",
-  metadata: null,
-  name: "Message_item",
-  selections: [
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "Message_item",
+  "selections": [
     {
-      alias: null,
-      args: null,
-      kind: "ScalarField",
-      name: "author",
-      storageKey: null,
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "author",
+      "storageKey": null
     },
     {
-      alias: null,
-      args: null,
-      kind: "ScalarField",
-      name: "body",
-      storageKey: null,
-    },
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "body",
+      "storageKey": null
+    }
   ],
-  type: "Message",
-  abstractKey: null,
+  "type": "Message",
+  "abstractKey": null
 };
 
 (node as any).hash = "aec1f81f5fc701f11d1a68b51a3e29ea";
