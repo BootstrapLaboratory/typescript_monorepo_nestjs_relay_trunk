@@ -13,7 +13,7 @@ Below are three supported approaches. I haven't picked one yet.
 
 ## Current Repo Setup
 
-The active devcontainer build is [`.devcontainer/Dockerfile.debian-base`](/workspace/.devcontainer/Dockerfile.debian-base:1).
+The active devcontainer build is [`.devcontainer/Dockerfile.debian-base`](../../.devcontainer/Dockerfile.debian-base).
 
 The repo now prepares Docker-compatible access to a host rootless Podman socket like this:
 
