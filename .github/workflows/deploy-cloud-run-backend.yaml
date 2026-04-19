@@ -7,6 +7,7 @@ on:
     paths:
       - .github/workflows/deploy-cloud-run-backend.yaml
       - .github/actions/cached-install/**
+      - deploy/cloudrun/tests/**
       - apps/server/**
       - common/**
       - package.json
@@ -39,6 +40,9 @@ jobs:
     permissions:
       contents: read
       id-token: write
+
+    outputs:
+      service_url: ${{ steps.deploy.outputs.url }}
 
     steps:
       - name: Checkout source code
@@ -140,3 +144,24 @@ jobs:
 
       - name: Show deployed backend URL
         run: echo "${{ steps.deploy.outputs.url }}"
+
+  smoke-backend:
+    needs: deploy-backend
+    if: needs.deploy-backend.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup NodeJS version ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Run post-deploy backend smoke tests
+        env:
+          SERVICE_URL: ${{ needs.deploy-backend.outputs.service_url }}
+        run: bash deploy/cloudrun/tests/validate-post-deploy-smoke.sh

@@ -39,6 +39,7 @@ Helper scripts:
 
 Helper tests:
 
+- [tests/validate-post-deploy-smoke.sh](tests/validate-post-deploy-smoke.sh)
 - [tests/validate-multi-instance.sh](tests/validate-multi-instance.sh)
 - [tests/validate-redeploy-reconnect.sh](tests/validate-redeploy-reconnect.sh)
 
@@ -49,6 +50,7 @@ Quick automation map:
 - GitHub repository variables: [configure-github-vars.sh](scripts/configure-github-vars.sh)
 - Cloud Run image build, migrations, and deploy: [../../.github/workflows/deploy-cloud-run-backend.yaml](../../.github/workflows/deploy-cloud-run-backend.yaml)
 - Neon and Upstash resource creation: still manual, documented in [NEON-UPSTASH-GUIDE.md](docs/NEON-UPSTASH-GUIDE.md)
+- Post-deploy health/query/mutation/subscription smoke validation: [tests/validate-post-deploy-smoke.sh](tests/validate-post-deploy-smoke.sh)
 - Temporary scale-up and cross-instance fanout validation: [tests/validate-multi-instance.sh](tests/validate-multi-instance.sh)
 - Hard outage plus redeploy reconnect diagnostic: [tests/validate-redeploy-reconnect.sh](tests/validate-redeploy-reconnect.sh)
   This is a useful live probe, but not a definitive browser reconnect approval test, because deleting a Cloud Run service does not always tear down an already-open websocket quickly enough to force a fresh reconnect cycle.

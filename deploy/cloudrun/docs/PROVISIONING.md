@@ -292,8 +292,8 @@ What should happen:
 
 Automation status:
 
-- manual verification
-- smoke checks are not fully automated yet
+- GitHub Actions now runs automated post-deploy smoke tests for health, query, mutation, and subscription behavior
+- manual verification is still useful as an extra spot check when you want to inspect the live deployment yourself
 
 After deploy, note the generated Cloud Run URL and verify:
 

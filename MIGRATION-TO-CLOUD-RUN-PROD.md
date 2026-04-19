@@ -391,7 +391,7 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 - [x] Run database migrations
 - [x] Deploy backend to Cloud Run
 - [x] Trigger frontend deployment or allow host auto-deploy from main
-- [ ] Run smoke tests against the deployed environment
+- [x] Run smoke tests against the deployed environment
 
 ### Smoke Tests
 
