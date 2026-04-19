@@ -10,7 +10,7 @@ It is written for this monorepo, where the frontend lives in [apps/client](../..
 
 For the manual Cloudflare dashboard steps, also see:
 
-- [CLOUDFLARE_GUIDE.md](CLOUDFLARE_GUIDE.md)
+- [CLOUDFLARE_GUIDE.md](docs/CLOUDFLARE_GUIDE.md)
 
 ## Repo-Side Build Command
 
@@ -28,7 +28,7 @@ That script:
 
 The script lives at:
 
-- [build-client.sh](build-client.sh)
+- [build-client.sh](scripts/build-client.sh)
 
 ## Required Cloudflare Pages Settings
 

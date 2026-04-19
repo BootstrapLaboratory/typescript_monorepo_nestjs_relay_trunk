@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_PATH="$(readlink -f -- "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${SCRIPT_PATH}")" && pwd)"
+REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../../.." && pwd)"
+
 require_env() {
   local name="$1"
   if [[ -z "${!name:-}" ]]; then
@@ -35,5 +39,7 @@ fi
 
 validate_prefix VITE_GRAPHQL_HTTP "https://"
 validate_prefix VITE_GRAPHQL_WS "wss://"
+
+cd "${REPO_ROOT}"
 
 npx nx run client:build

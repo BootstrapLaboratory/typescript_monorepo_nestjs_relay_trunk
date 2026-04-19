@@ -4,8 +4,8 @@ This guide covers the manual Cloudflare steps for the frontend deployment.
 
 It is the Cloudflare-side companion to:
 
-- [README.md](README.md)
-- [../cloudrun/PROVISIONING.md](../cloudrun/PROVISIONING.md)
+- [README.md](../README.md)
+- [../cloudrun/PROVISIONING.md](../../cloudrun/docs/PROVISIONING.md)
 
 This guide is for the exact frontend stack chosen for this repo:
 
@@ -59,7 +59,7 @@ Cloudflare Pages should build this repo with:
 
 Those settings are documented in:
 
-- [README.md](README.md)
+- [README.md](../README.md)
 
 ## Values To Have Ready
 
@@ -168,7 +168,7 @@ Important:
 
 - `VITE_GRAPHQL_HTTP` must be an absolute `https://` URL
 - `VITE_GRAPHQL_WS` must be an absolute `wss://` URL
-- do not use the placeholder `api.example.com` values from [../../apps/client/.env.production](../../apps/client/.env.production)
+- do not use the placeholder `api.example.com` values from [apps/client/.env.production](../../../apps/client/.env.production)
 - do not forget to append `/graphql`
 
 Example shape:
