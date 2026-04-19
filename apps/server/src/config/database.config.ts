@@ -47,9 +47,7 @@ function getDatabaseConnectionSummary(
       return {
         connectionSource: 'url',
         host: parsedUrl.hostname || null,
-        port: parsedUrl.port
-          ? Number(parsedUrl.port)
-          : DEFAULT_DATABASE_PORT,
+        port: parsedUrl.port ? Number(parsedUrl.port) : DEFAULT_DATABASE_PORT,
         database: parsedUrl.pathname.replace(/^\/+/, '') || null,
         sslMode: parsedUrl.searchParams.get('sslmode'),
         pooledConnection: parsedUrl.hostname.includes('-pooler'),
@@ -135,7 +133,9 @@ export async function createLoggedDataSource(
   options?: DataSourceOptions,
 ): Promise<DataSource> {
   if (!options) {
-    throw new Error('TypeORM options are required to initialize the DataSource');
+    throw new Error(
+      'TypeORM options are required to initialize the DataSource',
+    );
   }
 
   const summary = getDatabaseConnectionSummary(options);

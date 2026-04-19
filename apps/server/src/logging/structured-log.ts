@@ -36,10 +36,10 @@ function getErrorDetails(error: unknown): StructuredLogDetails {
 
   if (typeof error === 'object' && error !== null) {
     const details: StructuredLogDetails = {};
-    const name = Reflect.get(error, 'name');
-    const message = Reflect.get(error, 'message');
-    const code = Reflect.get(error, 'code');
-    const stack = Reflect.get(error, 'stack');
+    const name: unknown = Reflect.get(error, 'name');
+    const message: unknown = Reflect.get(error, 'message');
+    const code: unknown = Reflect.get(error, 'code');
+    const stack: unknown = Reflect.get(error, 'stack');
 
     if (typeof name === 'string') {
       details.errorName = name;
