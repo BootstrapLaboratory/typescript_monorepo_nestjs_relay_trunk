@@ -4,14 +4,14 @@ runs:
   using: composite
   steps:
     - name: Restore Root deps from cache
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       id: root_cache
       with:
         path: node_modules
         key: npm-lockfile-${{ hashFiles('package-lock.json') }}
 
     - name: Restore Rush deps from cache
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       id: rush_cache
       with:
         path: |
@@ -27,7 +27,7 @@ runs:
       shell: bash
 
     - name: Save Root deps in cache
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       if: steps.root_cache.outputs.cache-hit != 'true'
       with:
         path: node_modules
@@ -46,7 +46,7 @@ runs:
       shell: bash
 
     - name: Save Rush deps in cache
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       if: steps.rush_cache.outputs.cache-hit != 'true'
       with:
         path: |
