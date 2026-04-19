@@ -3,5 +3,11 @@
   "globalOverrides": {
     "fastify": "5.8.5",
     "yaml": "2.8.3"
-  }
+  },
+  "globalOnlyBuiltDependencies": [
+    "@apollo/protobufjs",
+    "@nestjs/core",
+    "@swc/core",
+    "unrs-resolver"
+  ]
 }

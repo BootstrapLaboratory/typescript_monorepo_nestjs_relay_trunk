@@ -10,9 +10,13 @@ WORKDIR /workspace
 
 COPY . .
 
-# Install the root Rush/Nx tooling, build the backend, then create a pruned
-# deployment bundle for runtime without triggering the root postinstall.
-RUN npm ci --ignore-scripts \
+# Install git so Rush can validate the repo state in-container, then install
+# the root Rush/Nx tooling, build the backend, and create a pruned deployment
+# bundle for runtime without triggering the root postinstall.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends git \
+ && rm -rf /var/lib/apt/lists/* \
+ && npm ci --ignore-scripts --loglevel=error --no-fund --no-audit \
  && npx rush install --max-install-attempts 1 \
  && npx nx run server:build \
  && npx rush deploy -p server -s server -t /workspace/common/deploy/server --overwrite

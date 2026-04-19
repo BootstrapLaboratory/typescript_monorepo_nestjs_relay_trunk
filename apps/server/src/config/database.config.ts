@@ -27,12 +27,35 @@ function buildSslConfig() {
   };
 }
 
-function getDatabaseUrl(preferDirectUrl = false): string | undefined {
-  if (preferDirectUrl && process.env.DATABASE_URL_DIRECT) {
-    return process.env.DATABASE_URL_DIRECT;
+function normalizeDatabaseUrl(databaseUrl: string): string {
+  try {
+    const parsedUrl = new URL(databaseUrl);
+
+    // `pg-connection-string` warns that `sslmode=require` will change
+    // semantics in the next major release. Pinning to `verify-full` keeps the
+    // current behavior explicit without requiring secret rotation.
+    if (
+      parsedUrl.searchParams.get('sslmode') === 'require' &&
+      !parsedUrl.searchParams.has('uselibpqcompat')
+    ) {
+      parsedUrl.searchParams.set('sslmode', 'verify-full');
+      return parsedUrl.toString();
+    }
+  } catch {
+    return databaseUrl;
   }
 
-  return process.env.DATABASE_URL;
+  return databaseUrl;
+}
+
+function getDatabaseUrl(preferDirectUrl = false): string | undefined {
+  if (preferDirectUrl && process.env.DATABASE_URL_DIRECT) {
+    return normalizeDatabaseUrl(process.env.DATABASE_URL_DIRECT);
+  }
+
+  return process.env.DATABASE_URL
+    ? normalizeDatabaseUrl(process.env.DATABASE_URL)
+    : undefined;
 }
 
 function getDatabaseConnectionSummary(

@@ -1,7 +1,22 @@
 {
   "npmScope": "typescript_nestjs_relay_trunk",
-  "implicitDependencies": {
-    "package.json": "*"
+  "namedInputs": {
+    "sharedGlobals": ["{workspaceRoot}/package.json"],
+    "default": ["{projectRoot}/**/*", "sharedGlobals"]
+  },
+  "targetDefaults": {
+    "build": {
+      "inputs": ["default", "^default"]
+    },
+    "start:dev": {
+      "inputs": ["default", "^default"]
+    },
+    "test": {
+      "inputs": ["default", "^default"]
+    },
+    "lint": {
+      "inputs": ["default", "^default"]
+    }
   },
   "tasksRunnerOptions": {
     "default": {
