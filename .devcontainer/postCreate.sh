@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
 MANAGED_BASHRC="/usr/local/share/devcontainer/bashrc"
 USER_BASHRC="${HOME}/.bashrc"
 USER_BASHRC_LEGACY="${HOME}/.bashrc_legacy"
@@ -43,3 +46,13 @@ if [[ -e ${USER_BASHRC} ]] || [[ -L ${USER_BASHRC} ]]; then
 fi
 
 ln -sfn "${MANAGED_BASHRC}" "${USER_BASHRC}"
+
+if [[ -f "${REPO_DIR}/package.json" ]]; then
+	cd "${REPO_DIR}"
+
+	if [[ -f package-lock.json ]]; then
+		npm ci
+	else
+		npm i
+	fi
+fi
