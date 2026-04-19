@@ -3,6 +3,8 @@ FROM mcr.microsoft.com/devcontainers/javascript-node:24
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD bash -lc 'true'
 
+ARG WATCHMAN_VERSION=2026.03.30.00
+
 # Установить необходимые пакеты
 
 # trunk-ignore(hadolint/DL3008)
@@ -15,6 +17,7 @@ RUN apt-get update \
       plantuml \
       graphviz \
       default-jre-headless \
+      unzip \
  && install -m 0755 -d /etc/apt/keyrings \
  && curl -fsSL https://download.docker.com/linux/debian/gpg \
       -o /etc/apt/keyrings/docker.asc \
@@ -39,6 +42,18 @@ RUN apt-get update \
       docker-compose-plugin \
       gh \
       google-cloud-cli \
+ && WATCHMAN_ARCHIVE="watchman-v${WATCHMAN_VERSION}-linux.zip" \
+ && WATCHMAN_URL="https://github.com/facebook/watchman/releases/download/v${WATCHMAN_VERSION}/${WATCHMAN_ARCHIVE}" \
+ && curl -fsSL "${WATCHMAN_URL}" -o "/tmp/${WATCHMAN_ARCHIVE}" \
+ && rm -rf /tmp/watchman-install \
+ && unzip -q "/tmp/${WATCHMAN_ARCHIVE}" -d /tmp/watchman-install \
+ && install -m 0755 -d /usr/local/bin /usr/local/lib /usr/local/var/run/watchman \
+ && cp /tmp/watchman-install/watchman-v"${WATCHMAN_VERSION}"-linux/bin/* /usr/local/bin/ \
+ && cp /tmp/watchman-install/watchman-v"${WATCHMAN_VERSION}"-linux/lib/* /usr/local/lib/ \
+ && chmod 755 /usr/local/bin/watchman \
+ && chmod 2777 /usr/local/var/run/watchman \
+ && ldconfig \
+ && rm -rf "/tmp/${WATCHMAN_ARCHIVE}" /tmp/watchman-install \
  && rm -rf /var/lib/apt/lists/*
 
 # HOME's .bashrc
