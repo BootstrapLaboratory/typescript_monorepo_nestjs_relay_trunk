@@ -310,7 +310,7 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 ### Google Cloud
 
 - [x] Add a provisioning runbook and helper scripts for GCP bootstrap and secret wiring
-- [x] Add a shared deployment env-file workflow so provisioning scripts can load common Cloud Run variables from `deploy/cloudrun/.env`
+- [x] Add a shared deployment env-file workflow so provisioning scripts can load common Cloud Run variables from `deploy/cloudrun/config/.env`
 - [x] Create a Google Cloud project
 - [x] Enable:
   - Cloud Run

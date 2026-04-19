@@ -25,17 +25,17 @@ GitHub Actions runs against a regular Docker daemon.
 For the real Google Cloud, Neon, Redis, Secret Manager, and GitHub Actions
 setup, use the provisioning runbook:
 
-- [AUTOMATED_PROVISIONING_GUIDE.md](AUTOMATED_PROVISIONING_GUIDE.md)
-- [PROVISIONING.md](PROVISIONING.md)
-- [GCP_GUIDE.md](GCP_GUIDE.md)
-- [NEON-UPSTASH-GUIDE.md](NEON-UPSTASH-GUIDE.md)
+- [AUTOMATED_PROVISIONING_GUIDE.md](docs/AUTOMATED_PROVISIONING_GUIDE.md)
+- [PROVISIONING.md](docs/PROVISIONING.md)
+- [GCP_GUIDE.md](docs/GCP_GUIDE.md)
+- [NEON-UPSTASH-GUIDE.md](docs/NEON-UPSTASH-GUIDE.md)
 
 Helper scripts:
 
-- [load-env.sh](load-env.sh)
-- [bootstrap-gcp.sh](bootstrap-gcp.sh)
-- [sync-secrets.sh](sync-secrets.sh)
-- [configure-github-vars.sh](configure-github-vars.sh)
+- [load-env.sh](scripts/load-env.sh)
+- [bootstrap-gcp.sh](scripts/bootstrap-gcp.sh)
+- [sync-secrets.sh](scripts/sync-secrets.sh)
+- [configure-github-vars.sh](scripts/configure-github-vars.sh)
 
 Helper tests:
 
@@ -44,20 +44,19 @@ Helper tests:
 
 Quick automation map:
 
-- Google Cloud project, IAM, Artifact Registry, and Workload Identity: [bootstrap-gcp.sh](bootstrap-gcp.sh)
-- Secret Manager secrets and secret access bindings: [sync-secrets.sh](sync-secrets.sh)
-- GitHub repository variables: [configure-github-vars.sh](configure-github-vars.sh)
+- Google Cloud project, IAM, Artifact Registry, and Workload Identity: [bootstrap-gcp.sh](scripts/bootstrap-gcp.sh)
+- Secret Manager secrets and secret access bindings: [sync-secrets.sh](scripts/sync-secrets.sh)
+- GitHub repository variables: [configure-github-vars.sh](scripts/configure-github-vars.sh)
 - Cloud Run image build, migrations, and deploy: [../../.github/workflows/deploy-cloud-run-backend.yaml](../../.github/workflows/deploy-cloud-run-backend.yaml)
-- Neon and Upstash resource creation: still manual, documented in [NEON-UPSTASH-GUIDE.md](NEON-UPSTASH-GUIDE.md)
+- Neon and Upstash resource creation: still manual, documented in [NEON-UPSTASH-GUIDE.md](docs/NEON-UPSTASH-GUIDE.md)
 - Temporary scale-up and cross-instance fanout validation: [tests/validate-multi-instance.sh](tests/validate-multi-instance.sh)
 - Hard outage plus redeploy reconnect diagnostic: [tests/validate-redeploy-reconnect.sh](tests/validate-redeploy-reconnect.sh)
   This is a useful live probe, but not a definitive browser reconnect approval test, because deleting a Cloud Run service does not always tear down an already-open websocket quickly enough to force a fresh reconnect cycle.
 
 The provisioning scripts automatically load variables from:
 
-- [deploy/cloudrun/.env](.env)
-- [deploy/cloudrun/.env.example](.env.example)
-- `deploy/cloudrun/.env.local` if you want a second local override file
+- [deploy/cloudrun/config/.env](config/.env)
+- [deploy/cloudrun/config/.env.example](config/.env.example)
 
 ## GitHub Actions configuration
 

@@ -2,8 +2,10 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
+source "${SCRIPT_DIR}/lib/paths.sh"
 
-for env_file in "${SCRIPT_DIR}/.env" "${SCRIPT_DIR}/.env.local"; do
+for env_file in "${CONFIG_DIR}/.env" "${CONFIG_DIR}/.env.local"; do
   if [[ -f "${env_file}" ]]; then
     set -a
     # shellcheck disable=SC1090

@@ -12,11 +12,11 @@ gets the real cloud side ready for them.
 
 ## Automation Map
 
-- Step `1`: manual input in [deploy/cloudrun/.env](.env)
-- Step `2`: automated by [bootstrap-gcp.sh](bootstrap-gcp.sh)
+- Step `1`: manual input in [deploy/cloudrun/config/.env](../config/.env)
+- Step `2`: automated by [bootstrap-gcp.sh](../scripts/bootstrap-gcp.sh)
 - Steps `3` and `4`: manual provider setup using [NEON-UPSTASH-GUIDE.md](NEON-UPSTASH-GUIDE.md)
-- Step `5`: automated by [sync-secrets.sh](sync-secrets.sh)
-- Step `6`: automated by [configure-github-vars.sh](configure-github-vars.sh), or manual in GitHub UI if preferred
+- Step `5`: automated by [sync-secrets.sh](../scripts/sync-secrets.sh)
+- Step `6`: automated by [configure-github-vars.sh](../scripts/configure-github-vars.sh), or manual in GitHub UI if preferred
 - Step `7`: automated by GitHub Actions in [../../.github/workflows/deploy-cloud-run-backend.yaml](../../.github/workflows/deploy-cloud-run-backend.yaml)
 - Step `8`: manual verification after deploy
 
@@ -58,15 +58,15 @@ Optional but convenient:
 
 ## Config File
 
-The provisioning scripts in this folder automatically load variables from:
+The Cloud Run provisioning scripts automatically load variables from:
 
-- [deploy/cloudrun/.env](.env)
-- [deploy/cloudrun/.env.example](.env.example)
-- `deploy/cloudrun/.env.local` if you want a local override file
+- [deploy/cloudrun/config/.env](../config/.env)
+- [deploy/cloudrun/config/.env.example](../config/.env.example)
 
-Start by copying `deploy/cloudrun/.env.example` to `deploy/cloudrun/.env` if
-you ever need to recreate the file. Then edit `deploy/cloudrun/.env` once and
-run the scripts without repeatedly exporting the same variables.
+Start by copying `deploy/cloudrun/config/.env.example` to
+`deploy/cloudrun/config/.env` if you ever need to recreate the file. Then edit
+`deploy/cloudrun/config/.env` once and run the scripts without repeatedly
+exporting the same variables.
 
 ## Step 1: Pick Exact Values
 
@@ -75,7 +75,7 @@ Automation status:
 - manual
 - the scripts read these values, but they do not invent them for you
 
-Put these values into [deploy/cloudrun/.env](.env):
+Put these values into [deploy/cloudrun/config/.env](../config/.env):
 
 ```dotenv
 PROJECT_ID=""
@@ -109,13 +109,13 @@ Notes:
 
 Automation status:
 
-- automated by [bootstrap-gcp.sh](bootstrap-gcp.sh)
+- automated by [bootstrap-gcp.sh](../scripts/bootstrap-gcp.sh)
 - this is the preferred path instead of clicking through most of [GCP_GUIDE.md](GCP_GUIDE.md)
 
 Run:
 
 ```bash
-bash deploy/cloudrun/bootstrap-gcp.sh
+bash deploy/cloudrun/scripts/bootstrap-gcp.sh
 ```
 
 What this does:
@@ -208,10 +208,10 @@ For short click-by-click provider instructions, see:
 
 Automation status:
 
-- automated by [sync-secrets.sh](sync-secrets.sh)
+- automated by [sync-secrets.sh](../scripts/sync-secrets.sh)
 - manual Secret Manager creation is only the fallback path described in [GCP_GUIDE.md](GCP_GUIDE.md)
 
-Fill these values in [deploy/cloudrun/.env](.env):
+Fill these values in [deploy/cloudrun/config/.env](../config/.env):
 
 - `DATABASE_URL`
 - `DATABASE_URL_DIRECT`
@@ -220,7 +220,7 @@ Fill these values in [deploy/cloudrun/.env](.env):
 Then run:
 
 ```bash
-bash deploy/cloudrun/sync-secrets.sh
+bash deploy/cloudrun/scripts/sync-secrets.sh
 ```
 
 What this does:
@@ -237,7 +237,7 @@ What this does:
 
 Automation status:
 
-- preferably automated by [configure-github-vars.sh](configure-github-vars.sh)
+- preferably automated by [configure-github-vars.sh](../scripts/configure-github-vars.sh)
 - manual GitHub repository settings are the fallback path
 
 The workflow expects these repository variables:
@@ -251,7 +251,7 @@ The workflow expects these repository variables:
 - `CLOUD_RUN_CORS_ORIGIN`
 
 For the first backend-only rollout, a practical `CLOUD_RUN_CORS_ORIGIN` in
-`deploy/cloudrun/.env` is:
+`deploy/cloudrun/config/.env` is:
 
 ```text
 http://localhost:5173
@@ -266,7 +266,7 @@ http://localhost:5173,https://your-project.pages.dev
 You can set the variables manually in GitHub repository settings, or by CLI:
 
 ```bash
-bash deploy/cloudrun/configure-github-vars.sh
+bash deploy/cloudrun/scripts/configure-github-vars.sh
 ```
 
 ## Step 7: Trigger the First Backend Deploy

@@ -10,14 +10,14 @@ This guide is scoped to Google Cloud only.
 
 For the full end-to-end rollout including Neon, Redis, and GitHub variables, also see:
 
-- [deploy/cloudrun/PROVISIONING.md](PROVISIONING.md)
+- [deploy/cloudrun/docs/PROVISIONING.md](PROVISIONING.md)
 
 ## Automation Status
 
 Most of the resource creation in this guide is already automated.
 
-- Sections `1` through `8` are normally handled by [bootstrap-gcp.sh](bootstrap-gcp.sh).
-- Sections `9` and `10` are normally handled by [sync-secrets.sh](sync-secrets.sh).
+- Sections `1` through `8` are normally handled by [bootstrap-gcp.sh](../scripts/bootstrap-gcp.sh).
+- Sections `9` and `10` are normally handled by [sync-secrets.sh](../scripts/sync-secrets.sh).
 - Section `11` is handled by the GitHub Actions deploy workflow.
 - Section `12` is a manual verification step after CI deploys.
 
@@ -31,7 +31,7 @@ Use this guide when:
 
 Before clicking through the console, fill or review these values in:
 
-- [deploy/cloudrun/.env](.env)
+- [deploy/cloudrun/config/.env](../config/.env)
 
 Important values:
 
@@ -61,7 +61,7 @@ Repo defaults assume:
 
 Automation status:
 
-- usually handled by [bootstrap-gcp.sh](bootstrap-gcp.sh)
+- usually handled by [bootstrap-gcp.sh](../scripts/bootstrap-gcp.sh)
 - keep this section as the manual fallback or verification path
 
 Console path:
@@ -88,7 +88,7 @@ Official docs:
 
 Automation status:
 
-- handled by [bootstrap-gcp.sh](bootstrap-gcp.sh) only if `BILLING_ACCOUNT_ID` is filled in `deploy/cloudrun/.env`
+- handled by [bootstrap-gcp.sh](../scripts/bootstrap-gcp.sh) only if `BILLING_ACCOUNT_ID` is filled in `deploy/cloudrun/config/.env`
 - otherwise this remains a manual Console step
 
 Console path:
@@ -113,7 +113,7 @@ Official docs:
 
 Automation status:
 
-- usually handled by [bootstrap-gcp.sh](bootstrap-gcp.sh)
+- usually handled by [bootstrap-gcp.sh](../scripts/bootstrap-gcp.sh)
 
 You need these APIs enabled for the current repo setup:
 
@@ -147,7 +147,7 @@ Official docs:
 
 Automation status:
 
-- usually handled by [bootstrap-gcp.sh](bootstrap-gcp.sh)
+- usually handled by [bootstrap-gcp.sh](../scripts/bootstrap-gcp.sh)
 
 Console path:
 
@@ -177,7 +177,7 @@ Official docs:
 
 Automation status:
 
-- usually handled by [bootstrap-gcp.sh](bootstrap-gcp.sh)
+- usually handled by [bootstrap-gcp.sh](../scripts/bootstrap-gcp.sh)
 
 You want two separate service accounts:
 
@@ -233,7 +233,7 @@ Official docs:
 
 Automation status:
 
-- usually handled by [bootstrap-gcp.sh](bootstrap-gcp.sh)
+- usually handled by [bootstrap-gcp.sh](../scripts/bootstrap-gcp.sh)
 
 The deployer service account needs:
 
@@ -290,7 +290,7 @@ Official docs:
 
 Automation status:
 
-- usually handled by [bootstrap-gcp.sh](bootstrap-gcp.sh)
+- usually handled by [bootstrap-gcp.sh](../scripts/bootstrap-gcp.sh)
 
 This is what lets GitHub Actions authenticate to Google Cloud without a long-lived JSON key.
 
@@ -348,7 +348,7 @@ Official docs:
 
 Automation status:
 
-- usually handled by [bootstrap-gcp.sh](bootstrap-gcp.sh)
+- usually handled by [bootstrap-gcp.sh](../scripts/bootstrap-gcp.sh)
 
 Console path:
 
@@ -385,7 +385,7 @@ Official docs:
 
 Automation status:
 
-- usually handled by [sync-secrets.sh](sync-secrets.sh)
+- usually handled by [sync-secrets.sh](../scripts/sync-secrets.sh)
 - keep this section as the manual fallback path if you want to create the secrets yourself in the Console
 
 You need these secrets:
@@ -423,7 +423,7 @@ Official docs:
 
 Automation status:
 
-- usually handled by [sync-secrets.sh](sync-secrets.sh)
+- usually handled by [sync-secrets.sh](../scripts/sync-secrets.sh)
 
 The deployer service account needs access to:
 
@@ -516,7 +516,7 @@ Official docs:
 
 Automation status:
 
-- this checklist is mainly for verification after running [bootstrap-gcp.sh](bootstrap-gcp.sh) and [sync-secrets.sh](sync-secrets.sh)
+- this checklist is mainly for verification after running [bootstrap-gcp.sh](../scripts/bootstrap-gcp.sh) and [sync-secrets.sh](../scripts/sync-secrets.sh)
 
 You are done with the manual Google Cloud side when all of these are true:
 
@@ -532,7 +532,7 @@ You are done with the manual Google Cloud side when all of these are true:
 
 At that point, return to:
 
-- [deploy/cloudrun/PROVISIONING.md](PROVISIONING.md)
+- [deploy/cloudrun/docs/PROVISIONING.md](PROVISIONING.md)
 
 and continue with:
 

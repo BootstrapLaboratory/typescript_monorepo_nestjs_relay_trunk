@@ -22,12 +22,13 @@ These provider resources are still manual.
 - Upstash Redis database and credentials: manual
 
 No repo script creates these provider-side resources yet. The existing scripts
-start being useful after you copy the resulting values into [`.env`](.env).
+start being useful after you copy the resulting values into
+[deploy/cloudrun/config/.env](../config/.env).
 
 ## What You Need To Produce
 
 At the end of this guide, you should have these values ready to place into
-[.env](.env):
+[deploy/cloudrun/config/.env](../config/.env):
 
 - `DATABASE_URL`
 - `DATABASE_URL_DIRECT`
@@ -175,7 +176,7 @@ Important:
 
 ## 3. Put The Values Into The Env File
 
-Update [`.env`](.env):
+Update [deploy/cloudrun/config/.env](../config/.env):
 
 ```dotenv
 DATABASE_URL="..."
@@ -185,10 +186,10 @@ REDIS_URL="rediss://:PASSWORD@ENDPOINT:PORT"
 
 ## 4. Next Step
 
-After the values are in [`.env`](.env), continue with:
+After the values are in [deploy/cloudrun/config/.env](../config/.env), continue with:
 
 ```bash
-bash deploy/cloudrun/sync-secrets.sh
+bash deploy/cloudrun/scripts/sync-secrets.sh
 ```
 
 That will create or update the Google Secret Manager entries used by the Cloud

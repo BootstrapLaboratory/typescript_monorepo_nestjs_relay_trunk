@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_PATH="$(readlink -f -- "${BASH_SOURCE[0]}")"
-TESTS_DIR="$(cd -- "$(dirname -- "${SCRIPT_PATH}")" && pwd)"
-CLOUDRUN_DIR="$(cd -- "${TESTS_DIR}/.." && pwd)"
+TEST_SCRIPT_PATH="$(readlink -f -- "${BASH_SOURCE[0]}")"
+TEST_SCRIPT_DIR="$(cd -- "$(dirname -- "${TEST_SCRIPT_PATH}")" && pwd)"
 # shellcheck disable=SC1091
-source "${CLOUDRUN_DIR}/load-env.sh"
+source "${TEST_SCRIPT_DIR}/../scripts/lib/paths.sh"
+# shellcheck disable=SC1091
+source "${SCRIPTS_DIR}/load-env.sh"
 
 require_env() {
   local name="$1"

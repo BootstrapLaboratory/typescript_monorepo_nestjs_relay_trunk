@@ -6,7 +6,7 @@ What I could not do directly:
 
 Run this next, in order:
 
-1. Pick values and export them (or use `.env` file):
+1. Pick values and export them (or use [deploy/cloudrun/config/.env](../config/.env)):
 
 ```bash
 export PROJECT_ID="replace-me-with-a-global-project-id"
@@ -27,7 +27,7 @@ export RUNTIME_SERVICE_ACCOUNT_ID="cloud-run-runtime"
 2. Bootstrap Google Cloud:
 
 ```bash
-bash bootstrap-gcp.sh
+bash deploy/cloudrun/scripts/bootstrap-gcp.sh
 ```
 
 3. Manually create Neon in the Neon console:
@@ -59,7 +59,7 @@ export RUNTIME_SERVICE_ACCOUNT_EMAIL="cloud-run-runtime@${PROJECT_ID}.iam.gservi
 export DATABASE_URL="replace-with-neon-pooled-url"
 export DATABASE_URL_DIRECT="replace-with-neon-direct-url"
 
-bash sync-secrets.sh
+bash deploy/cloudrun/scripts/sync-secrets.sh
 ```
 
 6. Set GitHub repository variables.
@@ -74,7 +74,7 @@ export CLOUD_RUN_SERVICE="${CLOUD_RUN_SERVICE}"
 export CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT="${RUNTIME_SERVICE_ACCOUNT_EMAIL}"
 export CLOUD_RUN_CORS_ORIGIN="http://localhost:5173"
 
-bash configure-github-vars.sh
+bash deploy/cloudrun/scripts/configure-github-vars.sh
 ```
 
 7. Trigger the GitHub Actions workflow:

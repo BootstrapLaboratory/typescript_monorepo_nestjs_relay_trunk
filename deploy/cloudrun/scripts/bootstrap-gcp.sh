@@ -3,6 +3,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck disable=SC1091
+source "${SCRIPT_DIR}/lib/paths.sh"
+# shellcheck disable=SC1091
 source "${SCRIPT_DIR}/load-env.sh"
 
 require_env() {
@@ -167,7 +169,7 @@ Suggested GitHub repository variables:
   CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT=${RUNTIME_SERVICE_ACCOUNT_EMAIL}
 
 Next:
-  1. Update ${SCRIPT_DIR}/.env with the real Neon and Redis values.
-  2. Run deploy/cloudrun/sync-secrets.sh to create/update Secret Manager secrets.
-  3. Run deploy/cloudrun/configure-github-vars.sh and deploy.
+  1. Update deploy/cloudrun/config/.env with the real Neon and Redis values.
+  2. Run bash deploy/cloudrun/scripts/sync-secrets.sh to create/update Secret Manager secrets.
+  3. Run bash deploy/cloudrun/scripts/configure-github-vars.sh and deploy.
 EOF
