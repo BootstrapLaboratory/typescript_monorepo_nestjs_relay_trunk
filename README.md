@@ -15,15 +15,14 @@ This repository is meant to be opened in a Dev Container.
 
 1. Open the repository in VS Code.
 2. Run `Dev Containers: Reopen in Container`.
-3. Inside the container, run `npm install`.
-4. Start the project with `npm run dev`.
+3. Start the project with `npm run dev`.
 
 Local URLs:
 
 - Frontend: <http://localhost:5173>
 - GraphQL API: <http://localhost:3000/graphql>
 
-The Dev Container starts the local backing services for you, so no cloud services are required for day-to-day development.
+The Dev Container starts the local backing services for you and installs dependencies during container setup, so no cloud services are required for day-to-day development.
 
 More context: [Dev Container notes](docs/notes/DevContainers.md)
 
