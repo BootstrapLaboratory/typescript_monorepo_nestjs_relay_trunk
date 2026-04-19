@@ -6,7 +6,8 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "node common/scripts/install-run-rush.js dev",
+    "dev": "bash scripts/run-nx-dev.sh",
+    "dev:rush": "node common/scripts/install-run-rush.js dev",
     "deps:upgrade": "bash scripts/upgrade-package-json-deps.sh --target all",
     "deps:upgrade:root": "bash scripts/upgrade-package-json-deps.sh --target root",
     "deps:upgrade:client": "bash scripts/upgrade-package-json-deps.sh --target client",

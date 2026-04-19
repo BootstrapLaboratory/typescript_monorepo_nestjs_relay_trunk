@@ -41,6 +41,8 @@ Quick verification inside the devcontainer after rebuild:
 
 If `XDG_RUNTIME_DIR` is not visible to the Dev Containers extension launch environment, the bind mount will not resolve correctly. In that case, launch VS Code from a shell that has the correct session environment or adjust your local VS Code launch environment before reopening the container.
 
+For the repo's Rush vs Nx split, see [MonorepoTooling.md](MonorepoTooling.md).
+
 ## Option A: Pod + root (simplest / most stable on Podman)
 
 Goal: "It just works" on Fedora/Podman with minimal moving parts.
