@@ -325,7 +325,7 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 - [x] Create Neon project and database
 - [x] Create the Neon project in `aws-eu-central-1`
-- [ ] Create least-privilege app user
+- [x] Create least-privilege app user
 - [x] Store connection string securely
 - [x] Choose direct or pooled connection mode intentionally
 - [ ] Keep Cloud Run instance count low enough to avoid excessive DB connections

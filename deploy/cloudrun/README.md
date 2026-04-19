@@ -34,6 +34,7 @@ Helper scripts:
 
 - [load-env.sh](scripts/load-env.sh)
 - [bootstrap-gcp.sh](scripts/bootstrap-gcp.sh)
+- [create-neon-app-user.sh](scripts/create-neon-app-user.sh)
 - [sync-secrets.sh](scripts/sync-secrets.sh)
 - [configure-github-vars.sh](scripts/configure-github-vars.sh)
 
@@ -46,6 +47,7 @@ Helper tests:
 Quick automation map:
 
 - Google Cloud project, IAM, Artifact Registry, and Workload Identity: [bootstrap-gcp.sh](scripts/bootstrap-gcp.sh)
+- Neon least-privilege runtime role creation and `DATABASE_URL` rotation: [create-neon-app-user.sh](scripts/create-neon-app-user.sh)
 - Secret Manager secrets and secret access bindings: [sync-secrets.sh](scripts/sync-secrets.sh)
 - GitHub repository variables: [configure-github-vars.sh](scripts/configure-github-vars.sh)
 - Cloud Run image build, migrations, and deploy: [../../.github/workflows/deploy-cloud-run-backend.yaml](../../.github/workflows/deploy-cloud-run-backend.yaml)
@@ -88,6 +90,11 @@ Secret Manager with these names:
 The workflow uses `DATABASE_URL_DIRECT` to run TypeORM migrations before the
 deploy. The runtime service receives `DATABASE_URL` and `REDIS_URL` as injected
 environment variables from Secret Manager.
+
+That split is intentional:
+
+- `DATABASE_URL` should be the pooled low-privilege runtime user
+- `DATABASE_URL_DIRECT` should remain the direct higher-privilege migration user
 
 ## Notes
 

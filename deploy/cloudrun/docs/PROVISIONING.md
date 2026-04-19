@@ -15,7 +15,7 @@ gets the real cloud side ready for them.
 - Step `1`: manual input in [deploy/cloudrun/config/.env](../config/.env)
 - Step `2`: automated by [bootstrap-gcp.sh](../scripts/bootstrap-gcp.sh)
 - Steps `3` and `4`: manual provider setup using [NEON-UPSTASH-GUIDE.md](NEON-UPSTASH-GUIDE.md)
-- Step `5`: automated by [sync-secrets.sh](../scripts/sync-secrets.sh)
+- Step `5`: automated by [create-neon-app-user.sh](../scripts/create-neon-app-user.sh) and [sync-secrets.sh](../scripts/sync-secrets.sh)
 - Step `6`: automated by [configure-github-vars.sh](../scripts/configure-github-vars.sh), or manual in GitHub UI if preferred
 - Step `7`: automated by GitHub Actions in [../../.github/workflows/deploy-cloud-run-backend.yaml](../../.github/workflows/deploy-cloud-run-backend.yaml)
 - Step `8`: manual verification after deploy
@@ -170,6 +170,37 @@ For short click-by-click provider instructions, see:
 
 - [NEON-UPSTASH-GUIDE.md](NEON-UPSTASH-GUIDE.md)
 
+## Step 3b: Create The Least-Privilege Neon Runtime User
+
+Automation status:
+
+- automated by [create-neon-app-user.sh](../scripts/create-neon-app-user.sh)
+- this step assumes `DATABASE_URL` and `DATABASE_URL_DIRECT` are already filled in
+
+Run:
+
+```bash
+bash deploy/cloudrun/scripts/create-neon-app-user.sh
+```
+
+What this does:
+
+- connects to Neon using `DATABASE_URL_DIRECT`
+- creates or rotates a dedicated low-privilege runtime role
+- grants runtime DML permissions on the current public schema
+- keeps `DATABASE_URL_DIRECT` unchanged for migrations
+- writes the new pooled runtime `DATABASE_URL` override into `deploy/cloudrun/config/.env.local`
+- syncs the updated `DATABASE_URL` into Secret Manager
+
+Default runtime role name:
+
+- `cloud_run_app`
+
+Optional env vars:
+
+- `NEON_APP_ROLE` if you want a different role name
+- `NEON_APP_PASSWORD` if you want to set the password yourself instead of generating one
+
 ## Step 4: Create Redis
 
 Automation status:
@@ -222,6 +253,11 @@ Then run:
 ```bash
 bash deploy/cloudrun/scripts/sync-secrets.sh
 ```
+
+If you used [create-neon-app-user.sh](../scripts/create-neon-app-user.sh), it
+already performed this sync for the runtime `DATABASE_URL`, so rerunning
+[sync-secrets.sh](../scripts/sync-secrets.sh) is only needed if you later edit
+the values again manually.
 
 What this does:
 

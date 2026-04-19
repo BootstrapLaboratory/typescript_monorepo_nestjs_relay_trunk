@@ -34,6 +34,9 @@ At the end of this guide, you should have these values ready to place into
 - `DATABASE_URL_DIRECT`
 - `REDIS_URL`
 
+After that, this guide also covers creating a dedicated low-privilege runtime
+role for `DATABASE_URL` while keeping `DATABASE_URL_DIRECT` for migrations.
+
 ## 1. Create Neon PostgreSQL
 
 Neon is the production PostgreSQL provider chosen for this repo.
@@ -109,6 +112,53 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST-pooler.REGION.aws.neon.tech/DBNAME
 DATABASE_URL_DIRECT="postgresql://USER:PASSWORD@HOST.REGION.aws.neon.tech/DBNAME?sslmode=require&channel_binding=require"
 ```
 
+## 1b. Create A Least-Privilege Runtime User
+
+Use the repo helper for this instead of hand-writing the grants each time.
+
+Prerequisite:
+
+- `DATABASE_URL` and `DATABASE_URL_DIRECT` are already filled in under [deploy/cloudrun/config/.env](../config/.env)
+
+Run:
+
+```bash
+bash deploy/cloudrun/scripts/create-neon-app-user.sh
+```
+
+What it does:
+
+- uses `DATABASE_URL_DIRECT` to connect with the higher-privilege Neon role
+- creates or rotates a dedicated runtime role named `cloud_run_app` by default
+- grants:
+  - `CONNECT` on the current database
+  - `USAGE` on schema `public`
+  - `SELECT, INSERT, UPDATE, DELETE` on all current tables in schema `public`
+  - `USAGE, SELECT` on all current sequences in schema `public`
+  - matching default privileges for future tables and sequences created by the migration role
+- verifies the new role can connect and do runtime-style reads and writes
+- writes the pooled runtime `DATABASE_URL` override into [deploy/cloudrun/config/.env.local](../config/.env.local)
+- syncs the updated `DATABASE_URL` secret to Google Secret Manager
+
+Why this split matters:
+
+- `DATABASE_URL` should be the pooled low-privilege runtime user used by Cloud Run
+- `DATABASE_URL_DIRECT` should remain the direct higher-privilege connection used for migrations
+
+Optional overrides:
+
+```bash
+NEON_APP_ROLE="my_runtime_role" \
+NEON_APP_PASSWORD="choose-a-password-yourself" \
+bash deploy/cloudrun/scripts/create-neon-app-user.sh
+```
+
+Rollback:
+
+1. Remove the `DATABASE_URL` override from [deploy/cloudrun/config/.env.local](../config/.env.local).
+2. Run `bash deploy/cloudrun/scripts/sync-secrets.sh`.
+3. Redeploy the backend.
+
 ## 2. Create Upstash Redis
 
 Upstash is the chosen Redis provider for the first rollout.
@@ -183,6 +233,11 @@ DATABASE_URL="..."
 DATABASE_URL_DIRECT="..."
 REDIS_URL="rediss://:PASSWORD@ENDPOINT:PORT"
 ```
+
+If you create the least-privilege runtime user, leave `DATABASE_URL_DIRECT` in
+[deploy/cloudrun/config/.env](../config/.env) and let
+[deploy/cloudrun/config/.env.local](../config/.env.local) override only
+`DATABASE_URL`.
 
 ## 4. Next Step
 
