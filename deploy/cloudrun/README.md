@@ -29,6 +29,7 @@ setup, use the provisioning runbook:
 - [PROVISIONING.md](docs/PROVISIONING.md)
 - [GCP_GUIDE.md](docs/GCP_GUIDE.md)
 - [NEON-UPSTASH-GUIDE.md](docs/NEON-UPSTASH-GUIDE.md)
+- [OPERATIONS.md](docs/OPERATIONS.md)
 
 Helper scripts:
 
@@ -56,6 +57,10 @@ Quick automation map:
 - Temporary scale-up and cross-instance fanout validation: [tests/validate-multi-instance.sh](tests/validate-multi-instance.sh)
 - Hard outage plus redeploy reconnect diagnostic: [tests/validate-redeploy-reconnect.sh](tests/validate-redeploy-reconnect.sh)
   This is a useful live probe, but not a definitive browser reconnect approval test, because deleting a Cloud Run service does not always tear down an already-open websocket quickly enough to force a fresh reconnect cycle.
+
+Operational runbooks:
+
+- revision rollback, migration rollback, secret rotation, and log queries: [OPERATIONS.md](docs/OPERATIONS.md)
 
 The provisioning scripts automatically load variables from:
 

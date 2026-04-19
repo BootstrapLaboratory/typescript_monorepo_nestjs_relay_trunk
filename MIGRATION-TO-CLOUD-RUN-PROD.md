@@ -404,7 +404,7 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 ### Logging
 
-- [ ] Add structured logs for:
+- [x] Add structured logs for:
   - startup
   - DB connection failures
   - pub/sub connection failures
@@ -419,10 +419,10 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 ### Recovery
 
-- [ ] Document rollback steps for backend image revisions
-- [ ] Document migration rollback process
-- [ ] Document how to rotate secrets
-- [ ] Document how to keep local devcontainer setup working when production env vars evolve
+- [x] Document rollback steps for backend image revisions
+- [x] Document migration rollback process
+- [x] Document how to rotate secrets
+- [x] Document how to keep local devcontainer setup working when production env vars evolve
 
 ## Repo Change Checklist
 

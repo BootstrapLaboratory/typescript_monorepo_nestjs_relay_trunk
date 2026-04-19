@@ -1,10 +1,13 @@
+import { Logger } from '@nestjs/common';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { DataSourceOptions } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 import { CreateMessageTable20260415190000 } from '../database/migrations/20260415190000-CreateMessageTable';
 import { MessageEntity } from '../modules/chat/entities/message.entity';
 import { parseBoolean, parseNumber } from './env.utils';
+import { logStructuredEvent } from '../logging/structured-log';
 
 const DEFAULT_DATABASE_PORT = 5432;
+const databaseLogger = new Logger('Database');
 
 function buildSslConfig() {
   const sslEnabled = parseBoolean(
@@ -30,6 +33,47 @@ function getDatabaseUrl(preferDirectUrl = false): string | undefined {
   }
 
   return process.env.DATABASE_URL;
+}
+
+function getDatabaseConnectionSummary(
+  options: DataSourceOptions,
+): Record<string, unknown> {
+  const databaseUrl = (options as DataSourceOptions & { url?: string }).url;
+
+  if (databaseUrl) {
+    try {
+      const parsedUrl = new URL(databaseUrl);
+
+      return {
+        connectionSource: 'url',
+        host: parsedUrl.hostname || null,
+        port: parsedUrl.port
+          ? Number(parsedUrl.port)
+          : DEFAULT_DATABASE_PORT,
+        database: parsedUrl.pathname.replace(/^\/+/, '') || null,
+        sslMode: parsedUrl.searchParams.get('sslmode'),
+        pooledConnection: parsedUrl.hostname.includes('-pooler'),
+        synchronize: options.synchronize ?? null,
+      };
+    } catch {
+      return {
+        connectionSource: 'url',
+        synchronize: options.synchronize ?? null,
+      };
+    }
+  }
+
+  return {
+    connectionSource: 'discrete_fields',
+    host:
+      (options as DataSourceOptions & { host?: string }).host ?? 'localhost',
+    port:
+      (options as DataSourceOptions & { port?: number }).port ??
+      DEFAULT_DATABASE_PORT,
+    database:
+      (options as DataSourceOptions & { database?: string }).database ?? null,
+    synchronize: options.synchronize ?? null,
+  };
 }
 
 function getBaseDatabaseOptions(options: {
@@ -85,4 +129,39 @@ export function getMigrationDataSourceOptions(): DataSourceOptions {
     synchronize: false,
     includeMigrations: true,
   });
+}
+
+export async function createLoggedDataSource(
+  options?: DataSourceOptions,
+): Promise<DataSource> {
+  if (!options) {
+    throw new Error('TypeORM options are required to initialize the DataSource');
+  }
+
+  const summary = getDatabaseConnectionSummary(options);
+  logStructuredEvent(databaseLogger, 'log', 'database_connect_start', summary);
+
+  const dataSource = new DataSource(options);
+
+  try {
+    const initializedDataSource = await dataSource.initialize();
+
+    logStructuredEvent(
+      databaseLogger,
+      'log',
+      'database_connect_ready',
+      summary,
+    );
+
+    return initializedDataSource;
+  } catch (error) {
+    logStructuredEvent(
+      databaseLogger,
+      'error',
+      'database_connect_failed',
+      summary,
+      error,
+    );
+    throw error;
+  }
 }

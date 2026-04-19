@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { PubSub } from 'graphql-subscriptions';
 import Redis from 'ioredis';
 import { Message } from './dto/message.model';
+import { logStructuredEvent } from '../../logging/structured-log';
 
 const MESSAGE_ADDED_EVENT = 'MessageAdded';
 const MESSAGE_ADDED_CHANNEL = 'chat.message-added';
@@ -38,13 +39,26 @@ export class ChatPubSubService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit(): Promise<void> {
     if (this.driver !== 'redis') {
-      this.logger.log('Using in-memory chat pub/sub');
+      logStructuredEvent(this.logger, 'log', 'chat_pubsub_driver_selected', {
+        driver: this.driver,
+      });
       return;
     }
 
     const redisUrl = this.configService.get<string>('REDIS_URL');
     if (!redisUrl) {
-      throw new Error('REDIS_URL is required when PUBSUB_DRIVER=redis');
+      const error = new Error('REDIS_URL is required when PUBSUB_DRIVER=redis');
+      logStructuredEvent(
+        this.logger,
+        'error',
+        'chat_pubsub_init_failed',
+        {
+          driver: this.driver,
+          reason: 'missing_redis_url',
+        },
+        error,
+      );
+      throw error;
     }
 
     this.publisher = new Redis(redisUrl, {
@@ -60,38 +74,35 @@ export class ChatPubSubService implements OnModuleInit, OnModuleDestroy {
     this.attachRedisLogging(this.subscriber, 'subscriber');
 
     this.subscriber.on('message', (channel, payload) => {
-      if (channel !== MESSAGE_ADDED_CHANNEL) {
-        return;
-      }
-
-      let parsedPayload: MessageAddedPayload;
-
-      try {
-        parsedPayload = JSON.parse(payload) as MessageAddedPayload;
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : 'Unknown JSON parse failure';
-        this.logger.error(
-          `Failed to parse Redis payload for ${MESSAGE_ADDED_CHANNEL}: ${message}`,
-        );
-        return;
-      }
-
-      this.logger.log(
-        JSON.stringify({
-          event: 'chat_pubsub_deliver',
-          channel,
-          driver: this.driver,
-          messageId: parsedPayload.MessageAdded.id,
-        }),
-      );
-      void this.localPubSub.publish(MESSAGE_ADDED_EVENT, parsedPayload);
+      void this.handleRedisMessage(channel, payload);
     });
 
-    await Promise.all([this.publisher.connect(), this.subscriber.connect()]);
-    await this.subscriber.subscribe(MESSAGE_ADDED_CHANNEL);
+    try {
+      await Promise.all([this.publisher.connect(), this.subscriber.connect()]);
+      await this.subscriber.subscribe(MESSAGE_ADDED_CHANNEL);
 
-    this.logger.log('Using Redis-backed chat pub/sub');
+      logStructuredEvent(this.logger, 'log', 'chat_pubsub_driver_selected', {
+        driver: this.driver,
+        channel: MESSAGE_ADDED_CHANNEL,
+      });
+    } catch (error) {
+      logStructuredEvent(
+        this.logger,
+        'error',
+        'chat_pubsub_init_failed',
+        {
+          driver: this.driver,
+          channel: MESSAGE_ADDED_CHANNEL,
+        },
+        error,
+      );
+
+      await Promise.all([
+        this.closeRedisClient(this.publisher, 'publisher'),
+        this.closeRedisClient(this.subscriber, 'subscriber'),
+      ]);
+      throw error;
+    }
   }
 
   async onModuleDestroy(): Promise<void> {
@@ -108,33 +119,71 @@ export class ChatPubSubService implements OnModuleInit, OnModuleDestroy {
 
     if (this.driver === 'redis') {
       if (!this.publisher) {
-        throw new Error('Redis publisher is not initialized');
+        const error = new Error('Redis publisher is not initialized');
+        logStructuredEvent(
+          this.logger,
+          'error',
+          'chat_pubsub_publish_failed',
+          {
+            driver: this.driver,
+            channel: MESSAGE_ADDED_CHANNEL,
+            messageId: message.id,
+            reason: 'publisher_not_initialized',
+          },
+          error,
+        );
+        throw error;
       }
 
-      await this.publisher.publish(
-        MESSAGE_ADDED_CHANNEL,
-        JSON.stringify(payload),
-      );
-      this.logger.log(
-        JSON.stringify({
-          event: 'chat_pubsub_publish',
+      try {
+        await this.publisher.publish(
+          MESSAGE_ADDED_CHANNEL,
+          JSON.stringify(payload),
+        );
+        logStructuredEvent(this.logger, 'log', 'chat_pubsub_publish', {
           channel: MESSAGE_ADDED_CHANNEL,
           driver: this.driver,
           messageId: message.id,
-        }),
-      );
+        });
+      } catch (error) {
+        logStructuredEvent(
+          this.logger,
+          'error',
+          'chat_pubsub_publish_failed',
+          {
+            channel: MESSAGE_ADDED_CHANNEL,
+            driver: this.driver,
+            messageId: message.id,
+          },
+          error,
+        );
+        throw error;
+      }
+
       return;
     }
 
-    await this.localPubSub.publish(MESSAGE_ADDED_EVENT, payload);
-    this.logger.log(
-      JSON.stringify({
-        event: 'chat_pubsub_publish',
+    try {
+      await this.localPubSub.publish(MESSAGE_ADDED_EVENT, payload);
+      logStructuredEvent(this.logger, 'log', 'chat_pubsub_publish', {
         channel: MESSAGE_ADDED_EVENT,
         driver: this.driver,
         messageId: message.id,
-      }),
-    );
+      });
+    } catch (error) {
+      logStructuredEvent(
+        this.logger,
+        'error',
+        'chat_pubsub_publish_failed',
+        {
+          channel: MESSAGE_ADDED_EVENT,
+          driver: this.driver,
+          messageId: message.id,
+        },
+        error,
+      );
+      throw error;
+    }
   }
 
   messageAddedIterator(): AsyncIterableIterator<MessageAddedPayload> {
@@ -145,15 +194,37 @@ export class ChatPubSubService implements OnModuleInit, OnModuleDestroy {
 
   private attachRedisLogging(client: Redis, role: string): void {
     client.on('error', (error) => {
-      this.logger.error(`Redis ${role} error: ${error.message}`, error.stack);
+      logStructuredEvent(
+        this.logger,
+        'error',
+        'redis_client_error',
+        {
+          driver: this.driver,
+          role,
+        },
+        error,
+      );
     });
 
     client.on('reconnecting', () => {
-      this.logger.warn(`Redis ${role} reconnecting`);
+      logStructuredEvent(this.logger, 'warn', 'redis_client_reconnecting', {
+        driver: this.driver,
+        role,
+      });
     });
 
     client.on('ready', () => {
-      this.logger.log(`Redis ${role} ready`);
+      logStructuredEvent(this.logger, 'log', 'redis_client_ready', {
+        driver: this.driver,
+        role,
+      });
+    });
+
+    client.on('close', () => {
+      logStructuredEvent(this.logger, 'warn', 'redis_client_closed', {
+        driver: this.driver,
+        role,
+      });
     });
   }
 
@@ -168,12 +239,65 @@ export class ChatPubSubService implements OnModuleInit, OnModuleDestroy {
     try {
       await client.quit();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unknown Redis shutdown error';
-      this.logger.warn(
-        `Redis ${role} quit failed, disconnecting instead: ${message}`,
+      logStructuredEvent(
+        this.logger,
+        'warn',
+        'redis_client_quit_failed',
+        {
+          driver: this.driver,
+          role,
+        },
+        error,
       );
       client.disconnect();
+    }
+  }
+
+  private async handleRedisMessage(
+    channel: string,
+    payload: string,
+  ): Promise<void> {
+    if (channel !== MESSAGE_ADDED_CHANNEL) {
+      return;
+    }
+
+    let parsedPayload: MessageAddedPayload;
+
+    try {
+      parsedPayload = JSON.parse(payload) as MessageAddedPayload;
+    } catch (error) {
+      logStructuredEvent(
+        this.logger,
+        'error',
+        'chat_pubsub_deliver_parse_failed',
+        {
+          channel,
+          driver: this.driver,
+        },
+        error,
+      );
+      return;
+    }
+
+    try {
+      await this.localPubSub.publish(MESSAGE_ADDED_EVENT, parsedPayload);
+      logStructuredEvent(this.logger, 'log', 'chat_pubsub_deliver', {
+        channel,
+        driver: this.driver,
+        messageId: parsedPayload.MessageAdded.id,
+      });
+    } catch (error) {
+      logStructuredEvent(
+        this.logger,
+        'error',
+        'chat_pubsub_deliver_failed',
+        {
+          channel,
+          driver: this.driver,
+          messageId: parsedPayload.MessageAdded.id,
+        },
+        error,
+      );
     }
   }
 }

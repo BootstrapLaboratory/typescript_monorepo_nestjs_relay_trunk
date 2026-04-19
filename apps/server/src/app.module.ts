@@ -18,7 +18,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { getEnvFilePaths } from './config/env-paths';
 import { ChatModule } from './modules/chat/chat.module';
-import { getDatabaseConfig } from './config/database.config';
+import {
+  createLoggedDataSource,
+  getDatabaseConfig,
+} from './config/database.config';
+import { logStructuredEvent } from './logging/structured-log';
 
 const subscriptionLogger = new Logger('GraphQLSubscriptions');
 
@@ -52,7 +56,7 @@ function logSubscriptionEvent(
   event: string,
   details: Record<string, unknown>,
 ): void {
-  subscriptionLogger.log(JSON.stringify({ event, ...details }));
+  logStructuredEvent(subscriptionLogger, 'log', event, details);
 }
 
 @Module({
@@ -113,6 +117,7 @@ function logSubscriptionEvent(
     }),
     TypeOrmModule.forRootAsync({
       useFactory: () => getDatabaseConfig(),
+      dataSourceFactory: async (options) => createLoggedDataSource(options),
     }),
   ],
   controllers: [AppController],
