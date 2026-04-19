@@ -22,8 +22,12 @@
     "postinstall": "if [ -f common/config/rush/pnpm-lock.yaml ]; then rush install; else rush update; fi && echo '\n\n' && echo '┌───────────────────────────────┐' && echo -n '| ' && chalk -n bold magenta \"🎉  Dev mode ready!  🎉\" && echo '       |' && echo -n '| ' && chalk -n bold cyan \"Run 'npm run dev' to start\" && echo '    |' && echo '└───────────────────────────────┘' && echo '\n'"
   },
   "devDependencies": {
-    "@microsoft/rush": "^5.166.0",
+    "@microsoft/rush": "^5.175.0",
     "chalk-cli": "^6.0.0",
-    "nx": "^22.4.3"
+    "nx": "^22.6.5"
+  },
+  "overrides": {
+    "fastify": "5.8.5",
+    "yaml": "2.8.3"
   }
 }

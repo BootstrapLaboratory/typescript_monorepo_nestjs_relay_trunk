@@ -5,13 +5,13 @@ import { AutoMap } from '@automapper/classes';
 export class Message {
   @Field(() => ID)
   @AutoMap()
-  id: string;
+  id!: string;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @AutoMap()
-  author: string;
+  author?: string;
 
   @Field()
   @AutoMap()
-  body?: string;
+  body!: string;
 }

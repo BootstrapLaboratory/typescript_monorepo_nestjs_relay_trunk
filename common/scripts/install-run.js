@@ -16,173 +16,225 @@
   // webpackBootstrap
   /******/ "use strict";
   /******/ var __webpack_modules__ = {
-    /***/ 90178:
-      /*!****************************************************!*\
-  !*** ./lib-esnext/utilities/executionUtilities.js ***!
-  \****************************************************/
-      /***/ (
-        __unused_webpack_module,
-        __webpack_exports__,
-        __webpack_require__,
-      ) => {
-        __webpack_require__.r(__webpack_exports__);
-        /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-          /* harmony export */ IS_WINDOWS: () => /* binding */ IS_WINDOWS,
-          /* harmony export */ escapeArgumentIfNeeded: () =>
-            /* binding */ escapeArgumentIfNeeded,
-          /* harmony export */
-        });
-        // Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
-        // See LICENSE in the project root for license information.
-        const IS_WINDOWS = process.platform === "win32";
-        function escapeArgumentIfNeeded(command, isWindows = IS_WINDOWS) {
-          if (command.includes(" ")) {
-            if (isWindows) {
-              // Windows: use double quotes and escape internal double quotes
-              return `"${command.replace(/"/g, '""')}"`;
-            } else {
-              // Unix: use JSON.stringify for proper escaping
-              return JSON.stringify(command);
-            }
+    /***/ 953844(
+      /*!**************************************************************!*\
+  !*** ./lib-intermediate-esm/utilities/executionUtilities.js ***!
+  \**************************************************************/
+      __unused_webpack_module,
+      __webpack_exports__,
+      __webpack_require__,
+    ) {
+      __webpack_require__.r(__webpack_exports__);
+      /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+        /* harmony export */ IS_WINDOWS: () => /* binding */ IS_WINDOWS,
+        /* harmony export */ escapeArgumentIfNeeded: () =>
+          /* binding */ escapeArgumentIfNeeded,
+        /* harmony export */
+      });
+      // Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
+      // See LICENSE in the project root for license information.
+      const IS_WINDOWS = process.platform === "win32";
+      function escapeArgumentIfNeeded(command, isWindows = IS_WINDOWS) {
+        if (command.includes(" ")) {
+          if (isWindows) {
+            // Windows: use double quotes and escape internal double quotes
+            return `"${command.replace(/"/g, '""')}"`;
           } else {
-            return command;
+            // Unix: use JSON.stringify for proper escaping
+            return JSON.stringify(command);
           }
+        } else {
+          return command;
         }
-        //# sourceMappingURL=executionUtilities.js.map
+      }
+      //# sourceMappingURL=executionUtilities.js.map
 
-        /***/
-      },
+      /***/
+    },
 
-    /***/ 176760:
-      /*!****************************!*\
-  !*** external "node:path" ***!
-  \****************************/
-      /***/ (module) => {
-        module.exports = require("node:path");
+    /***/ 359480(
+      /*!**********************************************************!*\
+  !*** ./lib-intermediate-esm/utilities/npmrcUtilities.js ***!
+  \**********************************************************/
+      __unused_webpack_module,
+      __webpack_exports__,
+      __webpack_require__,
+    ) {
+      __webpack_require__.r(__webpack_exports__);
+      /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+        /* harmony export */ isVariableSetInNpmrcFile: () =>
+          /* binding */ isVariableSetInNpmrcFile,
+        /* harmony export */ syncNpmrc: () => /* binding */ syncNpmrc,
+        /* harmony export */ trimNpmrcFileLines: () =>
+          /* binding */ trimNpmrcFileLines,
+        /* harmony export */
+      });
+      /* harmony import */ var node_fs__WEBPACK_IMPORTED_MODULE_0__ =
+        __webpack_require__(/*! node:fs */ 973024);
+      /* harmony import */ var node_fs__WEBPACK_IMPORTED_MODULE_0___default =
+        /*#__PURE__*/ __webpack_require__.n(
+          node_fs__WEBPACK_IMPORTED_MODULE_0__,
+        );
+      /* harmony import */ var node_path__WEBPACK_IMPORTED_MODULE_1__ =
+        __webpack_require__(/*! node:path */ 176760);
+      /* harmony import */ var node_path__WEBPACK_IMPORTED_MODULE_1___default =
+        /*#__PURE__*/ __webpack_require__.n(
+          node_path__WEBPACK_IMPORTED_MODULE_1__,
+        );
+      // Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
+      // See LICENSE in the project root for license information.
+      // IMPORTANT - do not use any non-built-in libraries in this file
 
-        /***/
-      },
-
-    /***/ 731421:
-      /*!*************************************!*\
-  !*** external "node:child_process" ***!
-  \*************************************/
-      /***/ (module) => {
-        module.exports = require("node:child_process");
-
-        /***/
-      },
-
-    /***/ 832286:
-      /*!************************************************!*\
-  !*** ./lib-esnext/utilities/npmrcUtilities.js ***!
-  \************************************************/
-      /***/ (
-        __unused_webpack_module,
-        __webpack_exports__,
-        __webpack_require__,
-      ) => {
-        __webpack_require__.r(__webpack_exports__);
-        /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-          /* harmony export */ isVariableSetInNpmrcFile: () =>
-            /* binding */ isVariableSetInNpmrcFile,
-          /* harmony export */ syncNpmrc: () => /* binding */ syncNpmrc,
-          /* harmony export */ trimNpmrcFileLines: () =>
-            /* binding */ trimNpmrcFileLines,
-          /* harmony export */
-        });
-        /* harmony import */ var node_fs__WEBPACK_IMPORTED_MODULE_0__ =
-          __webpack_require__(/*! node:fs */ 973024);
-        /* harmony import */ var node_fs__WEBPACK_IMPORTED_MODULE_0___default =
-          /*#__PURE__*/ __webpack_require__.n(
-            node_fs__WEBPACK_IMPORTED_MODULE_0__,
-          );
-        /* harmony import */ var node_path__WEBPACK_IMPORTED_MODULE_1__ =
-          __webpack_require__(/*! node:path */ 176760);
-        /* harmony import */ var node_path__WEBPACK_IMPORTED_MODULE_1___default =
-          /*#__PURE__*/ __webpack_require__.n(
-            node_path__WEBPACK_IMPORTED_MODULE_1__,
-          );
-        // Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
-        // See LICENSE in the project root for license information.
-        // IMPORTANT - do not use any non-built-in libraries in this file
-
-        /**
-         * This function reads the content for given .npmrc file path, and also trims
-         * unusable lines from the .npmrc file.
-         *
-         * @returns
-         * The text of the the .npmrc.
-         */
-        // create a global _combinedNpmrc for cache purpose
-        const _combinedNpmrcMap = new Map();
-        function _trimNpmrcFile(options) {
-          const {
-            sourceNpmrcPath,
-            linesToPrepend,
-            linesToAppend,
-            supportEnvVarFallbackSyntax,
-          } = options;
-          const combinedNpmrcFromCache = _combinedNpmrcMap.get(sourceNpmrcPath);
-          if (combinedNpmrcFromCache !== undefined) {
-            return combinedNpmrcFromCache;
-          }
-          let npmrcFileLines = [];
-          if (linesToPrepend) {
-            npmrcFileLines.push(...linesToPrepend);
-          }
-          if (
-            node_fs__WEBPACK_IMPORTED_MODULE_0__.existsSync(sourceNpmrcPath)
-          ) {
-            npmrcFileLines.push(
-              ...node_fs__WEBPACK_IMPORTED_MODULE_0__
-                .readFileSync(sourceNpmrcPath)
-                .toString()
-                .split("\n"),
-            );
-          }
-          if (linesToAppend) {
-            npmrcFileLines.push(...linesToAppend);
-          }
-          npmrcFileLines = npmrcFileLines.map((line) => (line || "").trim());
-          const resultLines = trimNpmrcFileLines(
-            npmrcFileLines,
-            process.env,
-            supportEnvVarFallbackSyntax,
-          );
-          const combinedNpmrc = resultLines.join("\n");
-          //save the cache
-          _combinedNpmrcMap.set(sourceNpmrcPath, combinedNpmrc);
-          return combinedNpmrc;
+      /**
+       * This function reads the content for given .npmrc file path, and also trims
+       * unusable lines from the .npmrc file.
+       *
+       * @returns
+       * The text of the the .npmrc.
+       */
+      function _trimNpmrcFile(options) {
+        const {
+          sourceNpmrcPath,
+          linesToPrepend,
+          linesToAppend,
+          supportEnvVarFallbackSyntax,
+          filterNpmIncompatibleProperties,
+          env = process.env,
+        } = options;
+        let npmrcFileLines = [];
+        if (linesToPrepend) {
+          npmrcFileLines.push(...linesToPrepend);
         }
-        /**
-         *
-         * @param npmrcFileLines The npmrc file's lines
-         * @param env The environment variables object
-         * @param supportEnvVarFallbackSyntax Whether to support fallback values in the form of `${VAR_NAME:-fallback}`
-         * @returns
-         */
-        function trimNpmrcFileLines(
+        if (node_fs__WEBPACK_IMPORTED_MODULE_0__.existsSync(sourceNpmrcPath)) {
+          npmrcFileLines.push(
+            ...node_fs__WEBPACK_IMPORTED_MODULE_0__
+              .readFileSync(sourceNpmrcPath)
+              .toString()
+              .split("\n"),
+          );
+        }
+        if (linesToAppend) {
+          npmrcFileLines.push(...linesToAppend);
+        }
+        npmrcFileLines = npmrcFileLines.map((line) => (line || "").trim());
+        const resultLines = trimNpmrcFileLines(
           npmrcFileLines,
           env,
           supportEnvVarFallbackSyntax,
-        ) {
-          var _a;
-          const resultLines = [];
-          // This finds environment variable tokens that look like "${VAR_NAME}"
-          const expansionRegExp = /\$\{([^\}]+)\}/g;
-          // Comment lines start with "#" or ";"
-          const commentRegExp = /^\s*[#;]/;
-          // Trim out lines that reference environment variables that aren't defined
-          for (let line of npmrcFileLines) {
-            let lineShouldBeTrimmed = false;
-            //remove spaces before or after key and value
-            line = line
-              .split("=")
-              .map((lineToTrim) => lineToTrim.trim())
-              .join("=");
-            // Ignore comment lines
-            if (!commentRegExp.test(line)) {
+          filterNpmIncompatibleProperties,
+        );
+        const combinedNpmrc = resultLines.join("\n");
+        return combinedNpmrc;
+      }
+      /**
+       * List of npmrc properties that are not supported by npm but may be present in the config.
+       * These include pnpm-specific properties and deprecated npm properties.
+       */
+      const NPM_INCOMPATIBLE_PROPERTIES = new Set([
+        // pnpm-specific hoisting configuration
+        "hoist",
+        "hoist-pattern",
+        "public-hoist-pattern",
+        "shamefully-hoist",
+        // Deprecated or unknown npm properties that cause warnings
+        "email",
+        "publish-branch",
+      ]);
+      /**
+       * List of registry-scoped npmrc property suffixes that are pnpm-specific.
+       * These are properties like "//registry.example.com/:tokenHelper" where "tokenHelper"
+       * is the suffix after the last colon.
+       */
+      const NPM_INCOMPATIBLE_REGISTRY_SCOPED_PROPERTIES = new Set([
+        // pnpm-specific token helper properties
+        "tokenHelper",
+        "urlTokenHelper",
+      ]);
+      /**
+       * Regular expression to extract property names from .npmrc lines.
+       * Matches everything before '=', '[', or whitespace to capture the property name.
+       * Note: The 'g' flag is intentionally omitted since we only need the first match.
+       * Examples:
+       *   "registry=https://..." -> matches "registry"
+       *   "hoist-pattern[]=..." -> matches "hoist-pattern"
+       */
+      const PROPERTY_NAME_REGEX = /^([^=\[\s]+)/;
+      /**
+       * Regular expression to extract environment variable names and optional fallback values.
+       * Matches patterns like:
+       *   nameString                 -> group 1: nameString,    group 2: undefined
+       *   nameString-fallbackString  -> group 1: nameString,    group 2: fallbackString
+       *   nameString:-fallbackString -> group 1: nameString,    group 2: fallbackString
+       */
+      const ENV_VAR_WITH_FALLBACK_REGEX =
+        /^(?<name>[^:-]+)(?::?-(?<fallback>.+))?$/;
+      /**
+       *
+       * @param npmrcFileLines The npmrc file's lines
+       * @param env The environment variables object
+       * @param supportEnvVarFallbackSyntax Whether to support fallback values in the form of `${VAR_NAME:-fallback}`
+       * @param filterNpmIncompatibleProperties Whether to filter out properties that npm doesn't understand
+       * @returns An array of processed npmrc file lines with undefined environment variables and npm-incompatible properties commented out
+       */
+      function trimNpmrcFileLines(
+        npmrcFileLines,
+        env,
+        supportEnvVarFallbackSyntax,
+        filterNpmIncompatibleProperties = false,
+      ) {
+        var _a, _b, _c;
+        const resultLines = [];
+        // This finds environment variable tokens that look like "${VAR_NAME}"
+        const expansionRegExp = /\$\{([^\}]+)\}/g;
+        // Comment lines start with "#" or ";"
+        const commentRegExp = /^\s*[#;]/;
+        // Trim out lines that reference environment variables that aren't defined
+        for (let line of npmrcFileLines) {
+          let lineShouldBeTrimmed = false;
+          let trimReason = "";
+          //remove spaces before or after key and value
+          line = line
+            .split("=")
+            .map((lineToTrim) => lineToTrim.trim())
+            .join("=");
+          // Ignore comment lines
+          if (!commentRegExp.test(line)) {
+            // Check if this is a property that npm doesn't understand
+            if (filterNpmIncompatibleProperties) {
+              // Extract the property name (everything before the '=' or '[')
+              const match = line.match(PROPERTY_NAME_REGEX);
+              if (match) {
+                const propertyName = match[1];
+                // Check if this is a registry-scoped property (starts with "//" like "//registry.npmjs.org/:_authToken")
+                const isRegistryScoped = propertyName.startsWith("//");
+                if (isRegistryScoped) {
+                  // For registry-scoped properties, check if the suffix (after the last colon) is npm-incompatible
+                  // Example: "//registry.example.com/:tokenHelper" -> suffix is "tokenHelper"
+                  const lastColonIndex = propertyName.lastIndexOf(":");
+                  if (lastColonIndex !== -1) {
+                    const registryPropertySuffix = propertyName.substring(
+                      lastColonIndex + 1,
+                    );
+                    if (
+                      NPM_INCOMPATIBLE_REGISTRY_SCOPED_PROPERTIES.has(
+                        registryPropertySuffix,
+                      )
+                    ) {
+                      lineShouldBeTrimmed = true;
+                      trimReason = "NPM_INCOMPATIBLE_PROPERTY";
+                    }
+                  }
+                } else {
+                  // For non-registry-scoped properties, check the full property name
+                  if (NPM_INCOMPATIBLE_PROPERTIES.has(propertyName)) {
+                    lineShouldBeTrimmed = true;
+                    trimReason = "NPM_INCOMPATIBLE_PROPERTY";
+                  }
+                }
+              }
+            }
+            // Check for undefined environment variables
+            if (!lineShouldBeTrimmed) {
               const environmentVariables = line.match(expansionRegExp);
               if (environmentVariables) {
                 for (const token of environmentVariables) {
@@ -193,7 +245,7 @@
                    * ${nameString-fallbackString}   -> name-fallbackString
                    * ${nameString:-fallbackString}  -> name:-fallbackString
                    */
-                  const nameWithFallback = token.substring(2, token.length - 1);
+                  const nameWithFallback = token.slice(2, -1);
                   let environmentVariableName;
                   let fallback;
                   if (supportEnvVarFallbackSyntax) {
@@ -206,20 +258,25 @@
                      * nameString:-fallbackString ->  nameString    fallbackString
                      */
                     const matched = nameWithFallback.match(
-                      /^([^:-]+)(?:\:?-(.+))?$/,
+                      ENV_VAR_WITH_FALLBACK_REGEX,
                     );
-                    // matched: [originStr, variableName, fallback]
                     environmentVariableName =
-                      (_a =
-                        matched === null || matched === void 0
+                      (_b =
+                        (_a =
+                          matched === null || matched === void 0
+                            ? void 0
+                            : matched.groups) === null || _a === void 0
                           ? void 0
-                          : matched[1]) !== null && _a !== void 0
-                        ? _a
+                          : _a.name) !== null && _b !== void 0
+                        ? _b
                         : nameWithFallback;
                     fallback =
-                      matched === null || matched === void 0
+                      (_c =
+                        matched === null || matched === void 0
+                          ? void 0
+                          : matched.groups) === null || _c === void 0
                         ? void 0
-                        : matched[2];
+                        : _c.fallback;
                   } else {
                     environmentVariableName = nameWithFallback;
                   }
@@ -227,131 +284,161 @@
                   if (!env[environmentVariableName] && !fallback) {
                     // No, so trim this line
                     lineShouldBeTrimmed = true;
+                    trimReason = "MISSING_ENVIRONMENT_VARIABLE";
                     break;
                   }
                 }
               }
             }
-            if (lineShouldBeTrimmed) {
+          }
+          if (lineShouldBeTrimmed) {
+            // Comment out the line with appropriate reason
+            if (trimReason === "NPM_INCOMPATIBLE_PROPERTY") {
+              // Example output:
+              // "; UNSUPPORTED BY NPM: email=test@example.com"
+              resultLines.push("; UNSUPPORTED BY NPM: " + line);
+            } else {
               // Example output:
               // "; MISSING ENVIRONMENT VARIABLE: //my-registry.com/npm/:_authToken=${MY_AUTH_TOKEN}"
               resultLines.push("; MISSING ENVIRONMENT VARIABLE: " + line);
-            } else {
-              resultLines.push(line);
             }
-          }
-          return resultLines;
-        }
-        function _copyAndTrimNpmrcFile(options) {
-          const { logger, sourceNpmrcPath, targetNpmrcPath } = options;
-          logger.info(`Transforming ${sourceNpmrcPath}`); // Verbose
-          logger.info(`  --> "${targetNpmrcPath}"`);
-          const combinedNpmrc = _trimNpmrcFile(options);
-          node_fs__WEBPACK_IMPORTED_MODULE_0__.writeFileSync(
-            targetNpmrcPath,
-            combinedNpmrc,
-          );
-          return combinedNpmrc;
-        }
-        function syncNpmrc(options) {
-          const {
-            sourceNpmrcFolder,
-            targetNpmrcFolder,
-            useNpmrcPublish,
-            logger = {
-              // eslint-disable-next-line no-console
-              info: console.log,
-              // eslint-disable-next-line no-console
-              error: console.error,
-            },
-            createIfMissing = false,
-          } = options;
-          const sourceNpmrcPath = node_path__WEBPACK_IMPORTED_MODULE_1__.join(
-            sourceNpmrcFolder,
-            !useNpmrcPublish ? ".npmrc" : ".npmrc-publish",
-          );
-          const targetNpmrcPath = node_path__WEBPACK_IMPORTED_MODULE_1__.join(
-            targetNpmrcFolder,
-            ".npmrc",
-          );
-          try {
-            if (
-              node_fs__WEBPACK_IMPORTED_MODULE_0__.existsSync(
-                sourceNpmrcPath,
-              ) ||
-              createIfMissing
-            ) {
-              // Ensure the target folder exists
-              if (
-                !node_fs__WEBPACK_IMPORTED_MODULE_0__.existsSync(
-                  targetNpmrcFolder,
-                )
-              ) {
-                node_fs__WEBPACK_IMPORTED_MODULE_0__.mkdirSync(
-                  targetNpmrcFolder,
-                  { recursive: true },
-                );
-              }
-              return _copyAndTrimNpmrcFile({
-                sourceNpmrcPath,
-                targetNpmrcPath,
-                logger,
-                ...options,
-              });
-            } else if (
-              node_fs__WEBPACK_IMPORTED_MODULE_0__.existsSync(targetNpmrcPath)
-            ) {
-              // If the source .npmrc doesn't exist and there is one in the target, delete the one in the target
-              logger.info(`Deleting ${targetNpmrcPath}`); // Verbose
-              node_fs__WEBPACK_IMPORTED_MODULE_0__.unlinkSync(targetNpmrcPath);
-            }
-          } catch (e) {
-            throw new Error(`Error syncing .npmrc file: ${e}`);
+          } else {
+            resultLines.push(line);
           }
         }
-        function isVariableSetInNpmrcFile(
+        return resultLines;
+      }
+      function _copyAndTrimNpmrcFile(options) {
+        const { logger, sourceNpmrcPath, targetNpmrcPath } = options;
+        logger.info(`Transforming ${sourceNpmrcPath}`); // Verbose
+        logger.info(`  --> "${targetNpmrcPath}"`);
+        const combinedNpmrc = _trimNpmrcFile(options);
+        node_fs__WEBPACK_IMPORTED_MODULE_0__.writeFileSync(
+          targetNpmrcPath,
+          combinedNpmrc,
+        );
+        return combinedNpmrc;
+      }
+      function syncNpmrc(options) {
+        const {
           sourceNpmrcFolder,
-          variableKey,
-          supportEnvVarFallbackSyntax,
-        ) {
-          const sourceNpmrcPath = `${sourceNpmrcFolder}/.npmrc`;
-          //if .npmrc file does not exist, return false directly
+          targetNpmrcFolder,
+          useNpmrcPublish,
+          logger = {
+            // eslint-disable-next-line no-console
+            info: console.log,
+            // eslint-disable-next-line no-console
+            error: console.error,
+          },
+          createIfMissing = false,
+        } = options;
+        const sourceNpmrcPath = node_path__WEBPACK_IMPORTED_MODULE_1__.join(
+          sourceNpmrcFolder,
+          !useNpmrcPublish ? ".npmrc" : ".npmrc-publish",
+        );
+        const targetNpmrcPath = node_path__WEBPACK_IMPORTED_MODULE_1__.join(
+          targetNpmrcFolder,
+          ".npmrc",
+        );
+        try {
           if (
-            !node_fs__WEBPACK_IMPORTED_MODULE_0__.existsSync(sourceNpmrcPath)
+            node_fs__WEBPACK_IMPORTED_MODULE_0__.existsSync(sourceNpmrcPath) ||
+            createIfMissing
           ) {
-            return false;
+            // Ensure the target folder exists
+            if (
+              !node_fs__WEBPACK_IMPORTED_MODULE_0__.existsSync(
+                targetNpmrcFolder,
+              )
+            ) {
+              node_fs__WEBPACK_IMPORTED_MODULE_0__.mkdirSync(
+                targetNpmrcFolder,
+                { recursive: true },
+              );
+            }
+            return _copyAndTrimNpmrcFile({
+              sourceNpmrcPath,
+              targetNpmrcPath,
+              logger,
+              ...options,
+            });
+          } else if (
+            node_fs__WEBPACK_IMPORTED_MODULE_0__.existsSync(targetNpmrcPath)
+          ) {
+            // If the source .npmrc doesn't exist and there is one in the target, delete the one in the target
+            logger.info(`Deleting ${targetNpmrcPath}`); // Verbose
+            node_fs__WEBPACK_IMPORTED_MODULE_0__.unlinkSync(targetNpmrcPath);
           }
-          const trimmedNpmrcFile = _trimNpmrcFile({
-            sourceNpmrcPath,
-            supportEnvVarFallbackSyntax,
-          });
-          const variableKeyRegExp = new RegExp(`^${variableKey}=`, "m");
-          return trimmedNpmrcFile.match(variableKeyRegExp) !== null;
+        } catch (e) {
+          throw new Error(`Error syncing .npmrc file: ${e}`);
         }
-        //# sourceMappingURL=npmrcUtilities.js.map
+      }
+      function isVariableSetInNpmrcFile(
+        sourceNpmrcFolder,
+        variableKey,
+        supportEnvVarFallbackSyntax,
+      ) {
+        const sourceNpmrcPath = `${sourceNpmrcFolder}/.npmrc`;
+        //if .npmrc file does not exist, return false directly
+        if (!node_fs__WEBPACK_IMPORTED_MODULE_0__.existsSync(sourceNpmrcPath)) {
+          return false;
+        }
+        const trimmedNpmrcFile = _trimNpmrcFile({
+          sourceNpmrcPath,
+          supportEnvVarFallbackSyntax,
+          filterNpmIncompatibleProperties: false,
+        });
+        const variableKeyRegExp = new RegExp(`^${variableKey}=`, "m");
+        return trimmedNpmrcFile.match(variableKeyRegExp) !== null;
+      }
+      //# sourceMappingURL=npmrcUtilities.js.map
 
-        /***/
-      },
+      /***/
+    },
 
-    /***/ 848161:
-      /*!**************************!*\
-  !*** external "node:os" ***!
-  \**************************/
-      /***/ (module) => {
-        module.exports = require("node:os");
+    /***/ 731421(
+      /*!*************************************!*\
+  !*** external "node:child_process" ***!
+  \*************************************/
+      module,
+    ) {
+      module.exports = require("node:child_process");
 
-        /***/
-      },
+      /***/
+    },
 
-    /***/ 973024:
+    /***/ 973024(
       /*!**************************!*\
   !*** external "node:fs" ***!
   \**************************/
-      /***/ (module) => {
-        module.exports = require("node:fs");
+      module,
+    ) {
+      module.exports = require("node:fs");
 
-        /***/
-      },
+      /***/
+    },
+
+    /***/ 848161(
+      /*!**************************!*\
+  !*** external "node:os" ***!
+  \**************************/
+      module,
+    ) {
+      module.exports = require("node:os");
+
+      /***/
+    },
+
+    /***/ 176760(
+      /*!****************************!*\
+  !*** external "node:path" ***!
+  \****************************/
+      module,
+    ) {
+      module.exports = require("node:path");
+
+      /***/
+    },
 
     /******/
   };
@@ -376,6 +463,13 @@
     });
     /******/
     /******/ // Execute the module function
+    /******/ if (!(moduleId in __webpack_modules__)) {
+      /******/ delete __webpack_module_cache__[moduleId];
+      /******/ var e = new Error("Cannot find module '" + moduleId + "'");
+      /******/ e.code = "MODULE_NOT_FOUND";
+      /******/ throw e;
+      /******/
+    }
     /******/ __webpack_modules__[moduleId](
       module,
       module.exports,
@@ -452,9 +546,9 @@
   var __webpack_exports__ = {};
   // This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
   (() => {
-    /*!*******************************************!*\
-  !*** ./lib-esnext/scripts/install-run.js ***!
-  \*******************************************/
+    /*!*****************************************************!*\
+  !*** ./lib-intermediate-esm/scripts/install-run.js ***!
+  \*****************************************************/
     __webpack_require__.r(__webpack_exports__);
     /* harmony export */ __webpack_require__.d(__webpack_exports__, {
       /* harmony export */ RUSH_JSON_FILENAME: () =>
@@ -488,9 +582,9 @@
         node_path__WEBPACK_IMPORTED_MODULE_3__,
       );
     /* harmony import */ var _utilities_npmrcUtilities__WEBPACK_IMPORTED_MODULE_4__ =
-      __webpack_require__(/*! ../utilities/npmrcUtilities */ 832286);
+      __webpack_require__(/*! ../utilities/npmrcUtilities */ 359480);
     /* harmony import */ var _utilities_executionUtilities__WEBPACK_IMPORTED_MODULE_5__ =
-      __webpack_require__(/*! ../utilities/executionUtilities */ 90178);
+      __webpack_require__(/*! ../utilities/executionUtilities */ 953844);
     // Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
     // See LICENSE in the project root for license information.
     /* eslint-disable no-console */
@@ -650,6 +744,9 @@
               targetNpmrcFolder: rushTempFolder,
               logger,
               supportEnvVarFallbackSyntax: false,
+              // Always filter npm-incompatible properties in install-run scripts.
+              // Any warnings will be shown when running Rush commands directly.
+              filterNpmIncompatibleProperties: true,
             },
           );
           // This returns something that looks like:
@@ -1010,6 +1107,9 @@
           targetNpmrcFolder: packageInstallFolder,
           logger,
           supportEnvVarFallbackSyntax: false,
+          // Always filter npm-incompatible properties in install-run scripts.
+          // Any warnings will be shown when running Rush commands directly.
+          filterNpmIncompatibleProperties: true,
         });
         _createPackageJson(packageInstallFolder, packageName, packageVersion);
         const installCommand = lockFilePath ? "ci" : "install";

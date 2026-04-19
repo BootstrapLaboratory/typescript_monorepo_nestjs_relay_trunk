@@ -13,5 +13,5 @@ export class NewMessageInput {
   @Field({ nullable: false })
   @Length(1, 1024)
   @AutoMap()
-  body: string;
+  body!: string;
 }

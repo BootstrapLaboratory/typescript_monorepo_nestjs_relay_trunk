@@ -208,14 +208,14 @@ you specifically want an end-to-end notification drill.
 ## Official Docs
 
 - Create public uptime checks:
-  https://cloud.google.com/monitoring/uptime-checks
+  [cloud.google.com/monitoring/uptime-checks](https://cloud.google.com/monitoring/uptime-checks)
 - Create alerting policies for uptime checks:
-  https://docs.cloud.google.com/monitoring/uptime-checks/uptime-alerting-policies
+  [docs.cloud.google.com/monitoring/uptime-checks/uptime-alerting-policies](https://docs.cloud.google.com/monitoring/uptime-checks/uptime-alerting-policies)
 - Sample alerting policies in JSON:
-  https://docs.cloud.google.com/monitoring/alerts/policies-in-json
+  [docs.cloud.google.com/monitoring/alerts/policies-in-json](https://docs.cloud.google.com/monitoring/alerts/policies-in-json)
 - Log-based metrics overview:
-  https://docs.cloud.google.com/logging/docs/logs-based-metrics
+  [docs.cloud.google.com/logging/docs/logs-based-metrics](https://docs.cloud.google.com/logging/docs/logs-based-metrics)
 - Configure notifications for log-based metrics:
-  https://docs.cloud.google.com/logging/docs/logs-based-metrics/charts-and-alerts
+  [docs.cloud.google.com/logging/docs/logs-based-metrics/charts-and-alerts](https://docs.cloud.google.com/logging/docs/logs-based-metrics/charts-and-alerts)
 - Create and manage notification channels by API / CLI:
-  https://docs.cloud.google.com/monitoring/alerts/using-channels-api
+  [docs.cloud.google.com/monitoring/alerts/using-channels-api](https://docs.cloud.google.com/monitoring/alerts/using-channels-api)

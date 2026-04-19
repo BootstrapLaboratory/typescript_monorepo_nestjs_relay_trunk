@@ -1,5 +1,7 @@
 FROM mcr.microsoft.com/devcontainers/javascript-node:24
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD bash -lc 'true'
 
@@ -67,20 +69,18 @@ RUN install -d -m 0755 /usr/local/share/devcontainer \
 # Force Java headless for everything (safe in devcontainer)
 ENV JAVA_TOOL_OPTIONS="-Djava.awt.headless=true"
 
-# Make plantuml always headless (avoid X11 in containers)
-RUN cat > /usr/local/bin/plantuml <<'EOF' \
- && chmod +x /usr/local/bin/plantuml
-#!/usr/bin/env bash
-unset DISPLAY
-exec /usr/bin/plantuml "$@"
-EOF
-
+# Make plantuml always headless (avoid X11 in containers).
 # Keep a legacy entrypoint for users/scripts that still call docker-compose.
-RUN cat > /usr/local/bin/docker-compose <<'EOF' \
- && chmod +x /usr/local/bin/docker-compose
-#!/usr/bin/env bash
-exec docker compose "$@"
-EOF
+RUN printf '%s\n' \
+      '#!/usr/bin/env bash' \
+      'unset DISPLAY' \
+      'exec /usr/bin/plantuml "$@"' \
+      > /usr/local/bin/plantuml \
+ && printf '%s\n' \
+      '#!/usr/bin/env bash' \
+      'exec docker compose "$@"' \
+      > /usr/local/bin/docker-compose \
+ && chmod 0755 /usr/local/bin/plantuml /usr/local/bin/docker-compose
 
 WORKDIR /workspace
 RUN if ! id -u vscode >/dev/null 2>&1; then useradd -m vscode; fi

@@ -11,5 +11,6 @@
         "parallel": 8
       }
     }
-  }
+  },
+  "analytics": false
 }

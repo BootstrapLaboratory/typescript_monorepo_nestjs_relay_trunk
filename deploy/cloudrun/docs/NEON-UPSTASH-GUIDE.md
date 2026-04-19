@@ -58,7 +58,7 @@ Why the defaults are fine:
 - this repo does not currently have an application-auth integration that uses Neon Auth
 - for this migration, Neon is only the managed PostgreSQL provider
 
-### Console Steps
+### Neon Console Steps
 
 1. Open the Neon console and sign in.
 2. Click `New Project` or complete the onboarding project creation flow.
@@ -178,7 +178,7 @@ Region note:
 - pick the nearest available European primary region shown in the Upstash UI
 - if Frankfurt or another nearby EU region is available, prefer that
 
-### Console Steps
+### Upstash Console Steps
 
 1. Open the Upstash console and sign in.
 2. Click `+ Create Database`.

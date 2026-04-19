@@ -10,15 +10,12 @@ WORKDIR /workspace
 
 COPY . .
 
-# Install the root Rush/Nx tooling without triggering the root postinstall.
-RUN npm ci --ignore-scripts
-
-# Install and link the monorepo dependencies the same way CI/dev use them.
-RUN npx rush install --max-install-attempts 1
-
-# Build the backend, then create a pruned deployment bundle for runtime.
-RUN npx nx run server:build
-RUN npx rush deploy -p server -s server -t /workspace/common/deploy/server --overwrite
+# Install the root Rush/Nx tooling, build the backend, then create a pruned
+# deployment bundle for runtime without triggering the root postinstall.
+RUN npm ci --ignore-scripts \
+ && npx rush install --max-install-attempts 1 \
+ && npx nx run server:build \
+ && npx rush deploy -p server -s server -t /workspace/common/deploy/server --overwrite
 
 FROM node:24-bookworm-slim AS runtime
 

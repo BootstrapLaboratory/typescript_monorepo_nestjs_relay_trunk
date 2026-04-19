@@ -5,7 +5,7 @@ import { AutoMap } from '@automapper/classes';
 export class MessageEntity {
   @PrimaryGeneratedColumn()
   @AutoMap()
-  id: number;
+  id!: number;
 
   @Column({ nullable: true })
   @AutoMap()
@@ -13,5 +13,5 @@ export class MessageEntity {
 
   @Column({ nullable: false })
   @AutoMap()
-  body: string;
+  body!: string;
 }
