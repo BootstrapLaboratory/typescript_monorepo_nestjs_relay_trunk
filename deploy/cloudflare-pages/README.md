@@ -44,7 +44,9 @@ Recommended project shape:
 
 - project name: a unique frontend name such as `poltapp-client`
 - production branch: `main`
-- preview branch setting: `None` for now, until backend preview strategy is decided
+- preview branch setting: `None`
+- current preview strategy: `No previews` for now
+- revisit previews later only if the project or team needs dedicated branch environments
 
 ## Build Settings
 
@@ -107,7 +109,7 @@ For the first rollout, keep the setup simple:
 - connect the repository once
 - build from repo root
 - deploy only the frontend app from `apps/client/dist`
-- disable automatic preview deployments for now
+- disable automatic preview deployments as the current `No previews` strategy
 
 ## After The First Deploy
 

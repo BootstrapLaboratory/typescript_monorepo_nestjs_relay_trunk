@@ -206,13 +206,16 @@ Recommended setting:
 
 - production branch: `main`
 - preview branch deployments: `None`
+- current preview strategy: `No previews`
 
 Why:
 
 - this migration does not yet define a separate preview backend
 - disabling preview builds avoids confusing deployments that point at the wrong API
+- this is the intentional default for the current hobby-scale setup
 
-You can revisit preview deployments later once you choose a backend preview strategy.
+You can revisit preview deployments later if the project or team needs shared
+dev previews or a dedicated full preview stack.
 
 ## 8. Trigger The First Frontend Deploy
 
@@ -293,7 +296,7 @@ Notes:
 These are intentionally not part of the first rollout:
 
 - add `app.example.com`
-- re-enable preview deployments with a real preview backend strategy
+- re-enable preview deployments if future project or team needs justify a real preview backend strategy
 - add Cloudflare Web Analytics
 
 ## Official Docs

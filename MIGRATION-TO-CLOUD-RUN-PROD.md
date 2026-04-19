@@ -29,9 +29,14 @@ These choices are fixed for this migration plan:
 - CI/CD provider: `GitHub Actions`
 - Primary Cloud Run region: `europe-west4` (Netherlands)
 - Primary Neon region: `aws-eu-central-1` (Frankfurt)
+- Preview deployment strategy: `No previews` for now
 - Future custom domains:
   - `app.example.com`
   - `api.example.com`
+
+This preview choice is intentionally conservative for the current hobby-scale
+setup. If the project scope, release process, or team size changes later, this
+can be revisited in favor of shared-dev or full preview environments.
 
 ## Non-Negotiable Compatibility Requirement
 
@@ -294,10 +299,8 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
   - `VITE_GRAPHQL_HTTP`
   - `VITE_GRAPHQL_WS`
 - [x] Use the generated `*.pages.dev` URL for the initial production rollout
-- [ ] Make preview deployments point to either:
-  - a shared dev API
-  - a preview API
-  - or disable previews until backend preview strategy is decided
+- [x] Use `No previews` for now by disabling preview deployments
+- [x] Document that preview environments can be introduced later if project or team needs change
 
 ### Routing
 
