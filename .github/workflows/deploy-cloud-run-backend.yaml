@@ -130,6 +130,8 @@ jobs:
             DATABASE_SSL=true
             DATABASE_SSL_REJECT_UNAUTHORIZED=false
             CORS_ORIGIN=${{ vars.CLOUD_RUN_CORS_ORIGIN }}
+            LOG_VERBOSE_PUBSUB=false
+            LOG_GRAPHQL_SUBSCRIPTIONS=false
           secrets: |-
             DATABASE_URL=DATABASE_URL:latest
             REDIS_URL=REDIS_URL:latest

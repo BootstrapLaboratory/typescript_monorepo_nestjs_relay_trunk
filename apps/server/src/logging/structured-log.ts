@@ -1,7 +1,12 @@
 import { Logger } from '@nestjs/common';
+import { parseBoolean } from '../config/env.utils';
 
 type StructuredLogLevel = 'log' | 'warn' | 'error';
 type StructuredLogDetails = Record<string, unknown>;
+
+function getVerboseLoggingFallback(): boolean {
+  return process.env.NODE_ENV !== 'production';
+}
 
 function getErrorDetails(error: unknown): StructuredLogDetails {
   if (error instanceof Error) {
@@ -91,4 +96,18 @@ export function logStructuredEvent(
   }
 
   logger.log(message);
+}
+
+export function isVerbosePubSubLoggingEnabled(): boolean {
+  return parseBoolean(
+    process.env.LOG_VERBOSE_PUBSUB,
+    getVerboseLoggingFallback(),
+  );
+}
+
+export function isGraphqlSubscriptionLoggingEnabled(): boolean {
+  return parseBoolean(
+    process.env.LOG_GRAPHQL_SUBSCRIPTIONS,
+    getVerboseLoggingFallback(),
+  );
 }

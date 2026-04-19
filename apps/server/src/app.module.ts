@@ -22,7 +22,10 @@ import {
   createLoggedDataSource,
   getDatabaseConfig,
 } from './config/database.config';
-import { logStructuredEvent } from './logging/structured-log';
+import {
+  isGraphqlSubscriptionLoggingEnabled,
+  logStructuredEvent,
+} from './logging/structured-log';
 
 const subscriptionLogger = new Logger('GraphQLSubscriptions');
 
@@ -56,6 +59,10 @@ function logSubscriptionEvent(
   event: string,
   details: Record<string, unknown>,
 ): void {
+  if (!isGraphqlSubscriptionLoggingEnabled()) {
+    return;
+  }
+
   logStructuredEvent(subscriptionLogger, 'log', event, details);
 }
 

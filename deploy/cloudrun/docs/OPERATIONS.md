@@ -46,6 +46,22 @@ The backend now emits JSON-shaped log lines for these operational events:
   - `graphql_subscription_disconnect`
   - `graphql_subscription_subscribe`
 
+Verbose success-path tracing is intentionally configurable:
+
+- `LOG_VERBOSE_PUBSUB=true`
+  - enables per-message `chat_pubsub_publish` and `chat_pubsub_deliver`
+- `LOG_GRAPHQL_SUBSCRIPTIONS=true`
+  - enables `graphql_subscription_connect`, `graphql_subscription_disconnect`,
+    and `graphql_subscription_subscribe`
+
+Current repo defaults:
+
+- local dev in `apps/server/.env.development`: both flags `true`
+- Cloud Run deploy workflow: both flags `false`
+
+That keeps production logs focused on lifecycle and failure events while
+preserving rich local tracing when you are debugging subscriptions.
+
 ## Read Recent Backend Logs
 
 Load the shared Cloud Run config first:

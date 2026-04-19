@@ -8,7 +8,10 @@ import { ConfigService } from '@nestjs/config';
 import { PubSub } from 'graphql-subscriptions';
 import Redis from 'ioredis';
 import { Message } from './dto/message.model';
-import { logStructuredEvent } from '../../logging/structured-log';
+import {
+  isVerbosePubSubLoggingEnabled,
+  logStructuredEvent,
+} from '../../logging/structured-log';
 
 const MESSAGE_ADDED_EVENT = 'MessageAdded';
 const MESSAGE_ADDED_CHANNEL = 'chat.message-added';
@@ -140,11 +143,13 @@ export class ChatPubSubService implements OnModuleInit, OnModuleDestroy {
           MESSAGE_ADDED_CHANNEL,
           JSON.stringify(payload),
         );
-        logStructuredEvent(this.logger, 'log', 'chat_pubsub_publish', {
-          channel: MESSAGE_ADDED_CHANNEL,
-          driver: this.driver,
-          messageId: message.id,
-        });
+        if (isVerbosePubSubLoggingEnabled()) {
+          logStructuredEvent(this.logger, 'log', 'chat_pubsub_publish', {
+            channel: MESSAGE_ADDED_CHANNEL,
+            driver: this.driver,
+            messageId: message.id,
+          });
+        }
       } catch (error) {
         logStructuredEvent(
           this.logger,
@@ -165,11 +170,13 @@ export class ChatPubSubService implements OnModuleInit, OnModuleDestroy {
 
     try {
       await this.localPubSub.publish(MESSAGE_ADDED_EVENT, payload);
-      logStructuredEvent(this.logger, 'log', 'chat_pubsub_publish', {
-        channel: MESSAGE_ADDED_EVENT,
-        driver: this.driver,
-        messageId: message.id,
-      });
+      if (isVerbosePubSubLoggingEnabled()) {
+        logStructuredEvent(this.logger, 'log', 'chat_pubsub_publish', {
+          channel: MESSAGE_ADDED_EVENT,
+          driver: this.driver,
+          messageId: message.id,
+        });
+      }
     } catch (error) {
       logStructuredEvent(
         this.logger,
@@ -281,11 +288,13 @@ export class ChatPubSubService implements OnModuleInit, OnModuleDestroy {
 
     try {
       await this.localPubSub.publish(MESSAGE_ADDED_EVENT, parsedPayload);
-      logStructuredEvent(this.logger, 'log', 'chat_pubsub_deliver', {
-        channel,
-        driver: this.driver,
-        messageId: parsedPayload.MessageAdded.id,
-      });
+      if (isVerbosePubSubLoggingEnabled()) {
+        logStructuredEvent(this.logger, 'log', 'chat_pubsub_deliver', {
+          channel,
+          driver: this.driver,
+          messageId: parsedPayload.MessageAdded.id,
+        });
+      }
     } catch (error) {
       logStructuredEvent(
         this.logger,
