@@ -191,7 +191,7 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 - [x] Ensure every Cloud Run instance can receive events published by any other instance
 - [x] Add reconnect behavior for the shared pub/sub client
 - [x] Log subscription disconnects and reconnects for debugging
-- [ ] Keep local subscriptions working through Redis in the devcontainer
+- [x] Keep local subscriptions working through Redis in the devcontainer
 
 ### Chosen Production Strategy: Redis
 
@@ -450,7 +450,7 @@ These are the most likely repo touchpoints for this migration:
 - [x] [apps/server/.env.development](/workspace/apps/server/.env.development:1)
   - keep local devcontainer database flow working
   - add local Redis config
-- [ ] [apps/client/.env.development](/workspace/apps/client/.env.development:1)
+- [x] [apps/client/.env.development](/workspace/apps/client/.env.development:1)
   - keep local devcontainer API URLs working
 - [x] `Dockerfile` or `deploy/cloudrun/...`
   - add a real backend production container build
