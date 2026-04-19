@@ -27,12 +27,7 @@ export function MarkdownRenderer({ markdown }: { markdown: string }) {
             const target = normalizeLinkTarget(href ?? "");
 
             return (
-              <a
-                {...props}
-                href={target}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a {...props} href={target} target="_blank" rel="noreferrer">
                 {children}
               </a>
             );

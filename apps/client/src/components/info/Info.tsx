@@ -51,7 +51,9 @@ function NavigationLink({
     <a
       href={href}
       onClick={handleClick}
-      className={isActive ? "app-nav__link app-nav__link--active" : "app-nav__link"}
+      className={
+        isActive ? "app-nav__link app-nav__link--active" : "app-nav__link"
+      }
       aria-current={isActive ? "page" : undefined}
     >
       {label}

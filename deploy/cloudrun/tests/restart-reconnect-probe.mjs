@@ -102,7 +102,10 @@ function scheduleReconnect(reason) {
   state.lastError = reason;
   state.reconnectCount += 1;
   persistState();
-  log("Scheduling reconnect.", { reason, reconnectCount: state.reconnectCount });
+  log("Scheduling reconnect.", {
+    reason,
+    reconnectCount: state.reconnectCount,
+  });
 
   connectTimer = setTimeout(() => {
     connect();
@@ -206,8 +209,7 @@ function connect() {
   }
 
   state.connectionAttempts += 1;
-  state.status =
-    state.connectedCount > 0 ? "retrying" : "connecting";
+  state.status = state.connectedCount > 0 ? "retrying" : "connecting";
   persistState();
   log("Opening subscription probe socket.", {
     attempt: state.connectionAttempts,
@@ -225,8 +227,7 @@ function connect() {
     try {
       handleMessage(event.data);
     } catch (error) {
-      state.lastError =
-        error instanceof Error ? error.message : String(error);
+      state.lastError = error instanceof Error ? error.message : String(error);
       persistState();
       log("Failed to process WebSocket message.", {
         error: state.lastError,

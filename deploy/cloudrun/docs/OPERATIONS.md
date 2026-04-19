@@ -147,7 +147,7 @@ bash deploy/cloudrun/tests/validate-post-deploy-smoke.sh "${SERVICE_URL}"
 ```
 
 5. If the rollback should become the new intended state, redeploy the desired
-commit or image instead of leaving traffic pinned manually forever.
+   commit or image instead of leaving traffic pinned manually forever.
 
 ## Roll Back Database Migrations
 
@@ -185,10 +185,10 @@ npm run migration:revert
 ```
 
 4. Roll back backend traffic or redeploy the matching code if the reverted
-schema is no longer compatible with the currently running revision.
+   schema is no longer compatible with the currently running revision.
 
 5. Run the post-deploy smoke test again after the service and schema are back in
-sync.
+   sync.
 
 Important notes:
 

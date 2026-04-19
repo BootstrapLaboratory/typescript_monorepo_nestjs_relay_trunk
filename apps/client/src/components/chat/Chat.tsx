@@ -26,8 +26,9 @@ export default function Chat() {
 
   const messages = data?.getMessages?.filter((m) => m != null);
   const realtimeConnectionState = useRealtimeConnectionState();
-  const realtimeConnectionMessage =
-    getRealtimeConnectionMessage(realtimeConnectionState);
+  const realtimeConnectionMessage = getRealtimeConnectionMessage(
+    realtimeConnectionState,
+  );
   const disableSendBecauseLiveUpdatesAreRecovering =
     !realtimeConnectionState.browserOnline ||
     realtimeConnectionState.status === "retrying" ||

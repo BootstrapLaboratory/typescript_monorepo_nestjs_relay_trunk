@@ -13,10 +13,7 @@ import {
   type GraphQLResponse,
   type Disposable,
 } from "relay-runtime";
-import {
-  type FormattedExecutionResult,
-  type Sink,
-} from "graphql-ws";
+import { type FormattedExecutionResult, type Sink } from "graphql-ws";
 import type { RelayObservable } from "relay-runtime/lib/network/RelayObservable";
 import { createRealtimeGraphqlWsClient } from "./realtime-connection";
 

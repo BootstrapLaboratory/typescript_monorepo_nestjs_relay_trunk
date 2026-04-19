@@ -55,8 +55,7 @@ export default function MessageAddForm({
     });
   };
 
-  const isSubmitDisabled =
-    isInFlight || disableBecauseLiveUpdatesAreRecovering;
+  const isSubmitDisabled = isInFlight || disableBecauseLiveUpdatesAreRecovering;
 
   return (
     <form onSubmit={onSubmit}>
