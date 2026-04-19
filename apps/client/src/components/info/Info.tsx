@@ -1,3 +1,5 @@
+import type { MouseEvent } from "react";
+import projectReadme from "../../../../../README.md?raw";
 import relayLogo from "./assets/relay.svg";
 import reactLogo from "./assets/react.svg";
 import nestLogo from "./assets/nest.svg";
@@ -6,15 +8,85 @@ import trunkLogo from "./assets/trunk.png";
 import apolloLogo from "./assets/apollo.svg";
 import viteLogo from "/vite.svg";
 import rushStackLogo from "./assets/rushstack.svg";
+import { MarkdownRenderer } from "./markdown";
 
 const HTTP_ENDPOINT = import.meta.env.VITE_GRAPHQL_HTTP!;
+const PROJECT_REPOSITORY_URL = "https://github.com/BeltOrg/beltapp";
+
+type NavigationProps = {
+  currentPath: string;
+  onNavigate: (nextPath: string) => void;
+};
+
+function NavigationLink({
+  href,
+  label,
+  currentPath,
+  onNavigate,
+}: {
+  href: string;
+  label: string;
+  currentPath: string;
+  onNavigate: (nextPath: string) => void;
+}) {
+  const isActive = currentPath === href;
+
+  function handleClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    onNavigate(href);
+  }
+
+  return (
+    <a
+      href={href}
+      onClick={handleClick}
+      className={isActive ? "app-nav__link app-nav__link--active" : "app-nav__link"}
+      aria-current={isActive ? "page" : undefined}
+    >
+      {label}
+    </a>
+  );
+}
+
+export function Navigation({ currentPath, onNavigate }: NavigationProps) {
+  return (
+    <nav className="app-nav" aria-label="Primary">
+      <div className="app-nav__brand">Anonymous Chat</div>
+      <div className="app-nav__links">
+        <NavigationLink
+          href="/"
+          label="Chat"
+          currentPath={currentPath}
+          onNavigate={onNavigate}
+        />
+        <NavigationLink
+          href="/info"
+          label="Info"
+          currentPath={currentPath}
+          onNavigate={onNavigate}
+        />
+      </div>
+    </nav>
+  );
+}
 
 export function Header() {
   return (
     <>
       <div className="source-code-link">
         <a
-          href="https://github.com/BootstrapLaboratory/typescript_nestjs_relay_lerna_trunk"
+          href={PROJECT_REPOSITORY_URL}
           target="_blank"
           rel="noopener noreferrer"
           title="View source on GitHub"
@@ -76,5 +148,22 @@ export function ReadTheDocs() {
     <p className="read-the-docs">
       Click the technology links above to learn more about the stack
     </p>
+  );
+}
+
+export function ProjectReadmePage() {
+  return (
+    <section className="info-page">
+      <header className="info-page__header">
+        <p className="info-page__eyebrow">Project info</p>
+        <h1>Repository README</h1>
+        <p className="info-page__summary">
+          This page renders the root repository documentation inside the client
+          app so we can validate a real non-root SPA route such as{" "}
+          <code>/info</code>.
+        </p>
+      </header>
+      <MarkdownRenderer markdown={projectReadme} />
+    </section>
   );
 }

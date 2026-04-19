@@ -1,5 +1,5 @@
 #root {
-  max-width: 1280px;
+  max-width: 1180px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
@@ -56,11 +56,53 @@
   }
 }
 
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.app-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(14px);
+}
+
+.app-nav__brand {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.app-nav__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.app-nav__link {
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(100, 108, 255, 0.3);
+  color: inherit;
+}
+
+.app-nav__link--active {
+  background: rgba(100, 108, 255, 0.18);
+  border-color: rgba(100, 108, 255, 0.55);
+}
+
 .source-code-link,
 .card,
 .technologies,
-.technology-tags,
-#root > h1 {
+.technology-tags {
   padding: 0;
   margin: 0;
 }
@@ -81,12 +123,19 @@
   }
 }
 
-#root > h1 {
+h1 {
   margin-bottom: 1rem;
 }
 
 .card {
+  padding: 0;
+
   & .chat {
+    padding: 1.5rem;
+    border-radius: 24px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(15, 23, 42, 0.36);
+
     & .chat-status {
       margin: 0 0 1rem;
       padding: 0.75rem 1rem;
@@ -139,6 +188,114 @@
   }
 }
 
+.info-page,
+.not-found {
+  text-align: left;
+  padding: 2rem;
+  border-radius: 24px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(15, 23, 42, 0.36);
+}
+
+.info-page__header {
+  margin-bottom: 2rem;
+}
+
+.info-page__eyebrow {
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.info-page__summary {
+  margin: 0;
+  max-width: 70ch;
+  color: #cbd5e1;
+}
+
+.markdown-content {
+  display: grid;
+  gap: 1rem;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  margin: 1rem 0 0;
+  line-height: 1.2;
+}
+
+.markdown-content p,
+.markdown-content ul,
+.markdown-content ol,
+.markdown-content pre {
+  margin: 0;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  padding-left: 1.5rem;
+}
+
+.markdown-content li + li {
+  margin-top: 0.4rem;
+}
+
+.markdown-content code {
+  font-family: "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
+  font-size: 0.92em;
+}
+
+.markdown-content p code,
+.markdown-content li code,
+.info-page__summary code {
+  padding: 0.15rem 0.35rem;
+  border-radius: 6px;
+  background: rgba(148, 163, 184, 0.16);
+}
+
+.markdown-content pre {
+  padding: 1rem;
+  border-radius: 16px;
+  overflow-x: auto;
+  background: rgba(2, 6, 23, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.markdown-footer {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+  color: #94a3b8;
+}
+
 .read-the-docs {
   color: #888;
+}
+
+@media (max-width: 720px) {
+  #root {
+    padding: 1rem;
+  }
+
+  .app-nav {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .source-code-link {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .info-page,
+  .not-found,
+  .card .chat {
+    padding: 1.25rem;
+  }
 }

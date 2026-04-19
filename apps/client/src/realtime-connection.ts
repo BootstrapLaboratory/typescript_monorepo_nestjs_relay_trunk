@@ -269,7 +269,7 @@ export function getRealtimeConnectionMessage(
   switch (state.status) {
     case "idle":
     case "connected":
-      return null;
+      return "Connected to server";
     case "connecting":
       return "Connecting live updates...";
     case "retrying":
