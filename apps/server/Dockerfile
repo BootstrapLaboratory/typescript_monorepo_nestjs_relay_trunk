@@ -10,16 +10,16 @@ WORKDIR /workspace
 
 COPY . .
 
-# Install git so Rush can validate the repo state in-container, then install
-# the root Rush/Nx tooling, build the backend, and create a pruned deployment
-# bundle for runtime without triggering the root postinstall.
+# Install git so Rush can validate the repo state in-container, then build the
+# backend and create a pruned deployment bundle without relying on a root
+# node_modules folder.
+# trunk-ignore(hadolint/DL3008)
 RUN apt-get update \
  && apt-get install -y --no-install-recommends git \
  && rm -rf /var/lib/apt/lists/* \
- && npm ci --ignore-scripts --loglevel=error --no-fund --no-audit \
- && npx rush install --max-install-attempts 1 \
- && npx nx run server:build \
- && npx rush deploy -p server -s server -t /workspace/common/deploy/server --overwrite
+ && node common/scripts/install-run-rush.js install --max-install-attempts 1 \
+ && node common/scripts/install-run-rush.js build --to server \
+ && node common/scripts/install-run-rush.js deploy -p server -s server -t /workspace/common/deploy/server --overwrite
 
 FROM node:24-bookworm-slim AS runtime
 

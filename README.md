@@ -17,7 +17,7 @@ This repository is meant to be opened in a Dev Container.
 2. Run `Dev Containers: Reopen in Container`.
 3. Start the project with `npm run dev`.
 
-Dependency upgrades: run `npm run deps:upgrade` from the repo root to update dependency ranges across the root, client, and server packages. For a single package, use `npm run deps:upgrade:root`, `npm run deps:upgrade:client`, or `npm run deps:upgrade:server`.
+Dependency upgrades: run `npm run deps:upgrade` from the repo root to update dependency ranges across the Rush-managed app packages. For a single package, use `npm run deps:upgrade:client` or `npm run deps:upgrade:server`. `npm run deps:upgrade:root` is retained as a compatibility no-op because the repo root is intentionally dependency-free.
 
 Local URLs:
 

@@ -7,13 +7,13 @@ on:
     paths:
       - .github/workflows/deploy-cloud-run-backend.yaml
       - .github/actions/cached-install/**
-      - deploy/cloudrun/tests/**
+      - deploy/cloudrun/**
       - apps/server/**
       - common/**
+      - scripts/**
       - package.json
-      - package-lock.json
       - rush.json
-      - nx.json
+      - .dockerignore
 
 permissions:
   contents: read
@@ -76,6 +76,7 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: false
 
       - name: Install dependencies with caching
         uses: ./.github/actions/cached-install
@@ -161,6 +162,7 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: false
 
       - name: Run post-deploy backend smoke tests
         env:

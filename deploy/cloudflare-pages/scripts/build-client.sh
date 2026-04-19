@@ -42,4 +42,5 @@ validate_prefix VITE_GRAPHQL_WS "wss://"
 
 cd "${REPO_ROOT}"
 
-npx nx run client:build
+node common/scripts/install-run-rush.js install --max-install-attempts 1
+node common/scripts/install-run-rush.js build --to client

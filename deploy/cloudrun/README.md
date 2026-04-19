@@ -124,7 +124,7 @@ If you adopt this stack for a real project and own a backend domain such as
 
 ## Notes
 
-- The backend container is built with Rush/Nx in the builder stage.
+- The backend container is built with Rush in the builder stage.
 - `rush deploy` is used to create a pruned runtime bundle before the final
   image is assembled.
 - The final container starts from `/app/apps/server` and runs `node dist/main.js`.

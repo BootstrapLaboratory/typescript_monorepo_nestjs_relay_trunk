@@ -151,7 +151,7 @@ For `Root directory (advanced)`:
 Why this setup:
 
 - this repo is a monorepo
-- the frontend build is launched from repo root through Nx
+- the frontend build is launched from repo root through Rush
 - the custom build command already validates the required env vars and then builds the client correctly
 
 ## 6. Set Environment Variables

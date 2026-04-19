@@ -3,31 +3,21 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   },
   "scripts": {
-    "dev": "nx run-many --target=start:dev --all",
-    "deps:upgrade": "bash scripts/upgrade-package-json-deps.sh all",
-    "deps:upgrade:root": "bash scripts/upgrade-package-json-deps.sh root",
-    "deps:upgrade:client": "bash scripts/upgrade-package-json-deps.sh client",
-    "deps:upgrade:server": "bash scripts/upgrade-package-json-deps.sh server",
+    "dev": "node common/scripts/install-run-rush.js dev",
+    "deps:upgrade": "bash scripts/upgrade-package-json-deps.sh --target all",
+    "deps:upgrade:root": "bash scripts/upgrade-package-json-deps.sh --target root",
+    "deps:upgrade:client": "bash scripts/upgrade-package-json-deps.sh --target client",
+    "deps:upgrade:server": "bash scripts/upgrade-package-json-deps.sh --target server",
     "client:build:pages": "bash deploy/cloudflare-pages/scripts/build-client.sh",
     "server:image:build:local": "docker buildx build --pull --load -f apps/server/Dockerfile -t local/server-cloudrun:dev .",
-    "rush": "rush",
-    "rush:install": "rush install",
-    "rush:update": "rush update",
-    "rush:build": "rush build",
-    "rush:version": "rush version",
-    "rush:publish": "rush publish",
-    "postinstall": "if [ -f common/config/rush/pnpm-lock.yaml ]; then rush install; else rush update; fi && echo '\n\n' && echo '┌───────────────────────────────┐' && echo -n '| ' && chalk -n bold magenta \"🎉  Dev mode ready!  🎉\" && echo '       |' && echo -n '| ' && chalk -n bold cyan \"Run 'npm run dev' to start\" && echo '    |' && echo '└───────────────────────────────┘' && echo '\n'"
-  },
-  "devDependencies": {
-    "@microsoft/rush": "^5.175.0",
-    "chalk-cli": "^6.0.0",
-    "nx": "^22.6.5"
-  },
-  "overrides": {
-    "fastify": "5.8.5",
-    "yaml": "2.8.3"
+    "rush": "node common/scripts/install-run-rush.js",
+    "rush:install": "node common/scripts/install-run-rush.js install",
+    "rush:update": "node common/scripts/install-run-rush.js update",
+    "rush:build": "node common/scripts/install-run-rush.js build",
+    "rush:version": "node common/scripts/install-run-rush.js version",
+    "rush:publish": "node common/scripts/install-run-rush.js publish"
   }
 }

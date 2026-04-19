@@ -24,7 +24,7 @@ That script:
 
 - validates the required production API env vars are present
 - refuses to build if the placeholder `api.example.com` URLs are still in use
-- builds the client through Nx from the monorepo root
+- bootstraps Rush dependencies and builds the client from the monorepo root
 
 The script lives at:
 
@@ -60,7 +60,7 @@ Use these values in the Pages project setup:
 Why `None` instead of the plain Vite preset:
 
 - this repo is a monorepo
-- the frontend build is launched from the repo root through Nx
+- the frontend build is launched from the repo root through Rush
 - the custom repo-root build command is more reliable than assuming the app is a standalone Vite project
 
 ## Required Environment Variables

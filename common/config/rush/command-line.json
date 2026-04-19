@@ -1,0 +1,25 @@
+/**
+ * Repo-level Rush commands that coordinate work across projects without relying
+ * on a root node_modules folder.
+ */
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/command-line.schema.json",
+  "commands": [
+    {
+      "commandKind": "bulk",
+      "name": "dev",
+      "summary": "Start the local development processes for the selected projects.",
+      "description": "Runs each selected project's start:dev script from its own project folder. Intended for interactive local development from the repo root.",
+      "safeForSimultaneousRushProcesses": true,
+      "shellCommand": "npm run start:dev",
+      "enableParallelism": true,
+      "ignoreDependencyOrder": true,
+      "ignoreMissingScript": false,
+      "allowWarningsInSuccessfulBuild": true,
+      "incremental": false,
+      "watchForChanges": false,
+      "disableBuildCache": true
+    }
+  ],
+  "parameters": []
+}

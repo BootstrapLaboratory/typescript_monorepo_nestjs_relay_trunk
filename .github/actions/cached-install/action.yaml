@@ -1,14 +1,14 @@
-name: Restore & Install Rush/Nx
-description: Restore caches and run npm ci + rush install
+name: Restore & Install Rush
+description: Restore Rush bootstrap and dependency caches, then run rush install
 runs:
   using: composite
   steps:
-    - name: Restore Root deps from cache
+    - name: Restore Rush bootstrap from cache
       uses: actions/cache/restore@v5
-      id: root_cache
+      id: rush_bootstrap_cache
       with:
-        path: node_modules
-        key: npm-lockfile-${{ hashFiles('package-lock.json') }}
+        path: common/temp/install-run
+        key: rush-bootstrap-${{ hashFiles('rush.json') }}
 
     - name: Restore Rush deps from cache
       uses: actions/cache/restore@v5
@@ -17,21 +17,13 @@ runs:
         path: |
           common/temp/node_modules
           common/temp/pnpm-store
-        key: rush2-${{ hashFiles('common/config/rush/pnpm-lock.yaml') }}
+        key: rush-deps-${{ hashFiles('rush.json', 'common/config/rush/pnpm-lock.yaml') }}
 
-    - name: Install Root deps (Rush & Nx only)
-      if: steps.root_cache.outputs.cache-hit != 'true'
+    - name: Rush bootstrap cache status
+      if: steps.rush_bootstrap_cache.outputs.cache-hit != 'true'
       run: |
-        echo "Root deps cache miss"
-        npm ci --ignore-scripts
+        echo "Rush bootstrap cache miss"
       shell: bash
-
-    - name: Save Root deps in cache
-      uses: actions/cache/save@v5
-      if: steps.root_cache.outputs.cache-hit != 'true'
-      with:
-        path: node_modules
-        key: npm-lockfile-${{ hashFiles('package-lock.json') }}
 
     - name: Rush cache status
       if: steps.rush_cache.outputs.cache-hit != 'true'
@@ -39,11 +31,17 @@ runs:
         echo Rush deps cache miss
       shell: bash
 
-    - name: Install Rush deps (need to do this even when cache is available to initialize Rush properly)
+    - name: Install Rush deps
       run: |
-        echo "Install Rush deps (need to do this even when cache is available to initialize Rush properly)" >> /dev/null
-        npx rush install --max-install-attempts 1
+        node common/scripts/install-run-rush.js install --max-install-attempts 1
       shell: bash
+
+    - name: Save Rush bootstrap in cache
+      uses: actions/cache/save@v5
+      if: steps.rush_bootstrap_cache.outputs.cache-hit != 'true'
+      with:
+        path: common/temp/install-run
+        key: rush-bootstrap-${{ hashFiles('rush.json') }}
 
     - name: Save Rush deps in cache
       uses: actions/cache/save@v5
@@ -52,4 +50,4 @@ runs:
         path: |
           common/temp/node_modules
           common/temp/pnpm-store
-        key: rush2-${{ hashFiles('common/config/rush/pnpm-lock.yaml') }}
+        key: rush-deps-${{ hashFiles('rush.json', 'common/config/rush/pnpm-lock.yaml') }}

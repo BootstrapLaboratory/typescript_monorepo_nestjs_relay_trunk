@@ -49,10 +49,5 @@ ln -sfn "${MANAGED_BASHRC}" "${USER_BASHRC}"
 
 if [[ -f "${REPO_DIR}/package.json" ]]; then
 	cd "${REPO_DIR}"
-
-	if [[ -f package-lock.json ]]; then
-		npm ci
-	else
-		npm i
-	fi
+	node common/scripts/install-run-rush.js install --max-install-attempts 1
 fi

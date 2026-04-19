@@ -6,12 +6,12 @@ on:
       - .github/workflows/pr.yaml
       - .github/actions/cached-install/**
       - apps/**
-      - deploy/cloudrun/tests/**
-      - common/config/rush/**
+      - common/**
+      - deploy/**
+      - scripts/**
       - package.json
-      - package-lock.json
       - rush.json
-      - nx.json
+      - .dockerignore
 
 permissions:
   contents: read
@@ -34,6 +34,7 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: false
 
       - name: Install dependencies with caching
         uses: ./.github/actions/cached-install
@@ -51,10 +52,10 @@ jobs:
         run: npm test -- --runInBand
 
       - name: Build client
-        run: npx nx run client:build
+        run: node common/scripts/install-run-rush.js build --to client
 
       - name: Build server
-        run: npx nx run server:build
+        run: node common/scripts/install-run-rush.js build --to server
 
   backend-runtime-smoke:
     runs-on: ubuntu-latest
@@ -89,12 +90,13 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: false
 
       - name: Install dependencies with caching
         uses: ./.github/actions/cached-install
 
       - name: Build server
-        run: npx nx run server:build
+        run: node common/scripts/install-run-rush.js build --to server
 
       - name: Run production database migrations
         working-directory: apps/server
