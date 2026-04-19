@@ -137,11 +137,6 @@ h1 {
       text-align: left;
     }
 
-    & .chat-status--connecting {
-      background: rgba(59, 130, 246, 0.16);
-      color: #bfdbfe;
-    }
-
     & .chat-status--retrying {
       background: rgba(245, 158, 11, 0.16);
       color: #fde68a;
