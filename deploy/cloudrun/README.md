@@ -29,6 +29,7 @@ setup, use the provisioning runbook:
 - [PROVISIONING.md](docs/PROVISIONING.md)
 - [GCP_GUIDE.md](docs/GCP_GUIDE.md)
 - [NEON-UPSTASH-GUIDE.md](docs/NEON-UPSTASH-GUIDE.md)
+- [MONITORING.md](docs/MONITORING.md)
 - [OPERATIONS.md](docs/OPERATIONS.md)
 
 Helper scripts:
@@ -36,8 +37,10 @@ Helper scripts:
 - [load-env.sh](scripts/load-env.sh)
 - [bootstrap-gcp.sh](scripts/bootstrap-gcp.sh)
 - [create-neon-app-user.sh](scripts/create-neon-app-user.sh)
+- [create-monitoring-email-channel.sh](scripts/create-monitoring-email-channel.sh)
 - [sync-secrets.sh](scripts/sync-secrets.sh)
 - [configure-github-vars.sh](scripts/configure-github-vars.sh)
+- [setup-monitoring-alerts.sh](scripts/setup-monitoring-alerts.sh)
 
 Helper tests:
 
@@ -49,6 +52,8 @@ Quick automation map:
 
 - Google Cloud project, IAM, Artifact Registry, and Workload Identity: [bootstrap-gcp.sh](scripts/bootstrap-gcp.sh)
 - Neon least-privilege runtime role creation and `DATABASE_URL` rotation: [create-neon-app-user.sh](scripts/create-neon-app-user.sh)
+- Cloud Monitoring email channel helper: [create-monitoring-email-channel.sh](scripts/create-monitoring-email-channel.sh)
+- Cloud Run uptime checks, log-based metrics, and alert policies: [setup-monitoring-alerts.sh](scripts/setup-monitoring-alerts.sh)
 - Secret Manager secrets and secret access bindings: [sync-secrets.sh](scripts/sync-secrets.sh)
 - GitHub repository variables: [configure-github-vars.sh](scripts/configure-github-vars.sh)
 - Cloud Run image build, migrations, and deploy: [../../.github/workflows/deploy-cloud-run-backend.yaml](../../.github/workflows/deploy-cloud-run-backend.yaml)
@@ -60,6 +65,7 @@ Quick automation map:
 
 Operational runbooks:
 
+- monitoring and alert setup: [MONITORING.md](docs/MONITORING.md)
 - revision rollback, migration rollback, secret rotation, and log queries: [OPERATIONS.md](docs/OPERATIONS.md)
 
 The provisioning scripts automatically load variables from:

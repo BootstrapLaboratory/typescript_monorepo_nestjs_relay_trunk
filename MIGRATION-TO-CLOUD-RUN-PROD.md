@@ -413,9 +413,9 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 ### Monitoring
 
-- [ ] Add alerts for backend crash loops or repeated failed deploys
-- [ ] Track Cloud Run revision health
-- [ ] Track Neon connection or availability issues
+- [x] Add alerts for backend crash loops or repeated failed deploys
+- [x] Track Cloud Run revision health
+- [x] Track Neon connection or availability issues
 
 ### Recovery
 
