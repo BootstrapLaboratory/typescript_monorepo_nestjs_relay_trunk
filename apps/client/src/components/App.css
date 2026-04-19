@@ -68,10 +68,6 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem 1.25rem;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 18px;
-  background: rgba(15, 23, 42, 0.5);
-  backdrop-filter: blur(14px);
 }
 
 .app-nav__brand {
@@ -132,9 +128,6 @@ h1 {
 
   & .chat {
     padding: 1.5rem;
-    border-radius: 24px;
-    border: 1px solid rgba(148, 163, 184, 0.18);
-    background: rgba(15, 23, 42, 0.36);
 
     & .chat-status {
       margin: 0 0 1rem;
@@ -192,9 +185,6 @@ h1 {
 .not-found {
   text-align: left;
   padding: 2rem;
-  border-radius: 24px;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  background: rgba(15, 23, 42, 0.36);
 }
 
 .info-page__header {
@@ -206,13 +196,11 @@ h1 {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.78rem;
-  color: #94a3b8;
 }
 
 .info-page__summary {
   margin: 0;
   max-width: 70ch;
-  color: #cbd5e1;
 }
 
 .markdown-content {

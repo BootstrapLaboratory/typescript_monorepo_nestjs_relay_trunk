@@ -154,15 +154,6 @@ export function ReadTheDocs() {
 export function ProjectReadmePage() {
   return (
     <section className="info-page">
-      <header className="info-page__header">
-        <p className="info-page__eyebrow">Project info</p>
-        <h1>Repository README</h1>
-        <p className="info-page__summary">
-          This page renders the root repository documentation inside the client
-          app so we can validate a real non-root SPA route such as{" "}
-          <code>/info</code>.
-        </p>
-      </header>
       <MarkdownRenderer markdown={projectReadme} />
     </section>
   );
