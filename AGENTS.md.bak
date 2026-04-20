@@ -25,7 +25,7 @@ record. Read only the docs that are relevant to the task you are doing.
 ## Repo Map
 
 - `README.md`: repo overview, local development, and general workflow.
-- `apps/client`: Vite + React + Relay frontend.
+- `apps/webapp`: Vite + React + Relay frontend.
 - `apps/server`: NestJS + GraphQL + TypeORM backend.
 - `deploy/cloudflare-pages`: frontend deployment module and scripts.
 - `deploy/cloudrun`: backend deployment module and scripts.
@@ -63,7 +63,7 @@ When that guidance is in scope:
 
 ## Area-Specific Routing
 
-- For frontend app work in `apps/client`, use local package scripts and keep
+- For frontend app work in `apps/webapp`, use local package scripts and keep
   Relay artifacts in sync when GraphQL query shapes change.
 - For backend app work in `apps/server`, use local package scripts and relevant
   tests.

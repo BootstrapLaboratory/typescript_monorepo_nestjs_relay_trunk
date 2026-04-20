@@ -6,7 +6,7 @@ This guide wires the repo for the chosen frontend host:
 - initial frontend URL: generated `*.pages.dev`
 - initial backend URL used by the frontend: generated Cloud Run `run.app` URL
 
-It is written for this monorepo, where the frontend lives in [apps/client](../../apps/client).
+It is written for this monorepo, where the frontend lives in [apps/webapp](../../apps/webapp).
 
 For the manual Cloudflare dashboard steps, also see:
 
@@ -17,18 +17,18 @@ For the manual Cloudflare dashboard steps, also see:
 Cloudflare Pages should use this repo-root build command:
 
 ```bash
-npm run client:build:pages
+npm run webapp:build:pages
 ```
 
 That script:
 
 - validates the required production API env vars are present
 - refuses to build if the placeholder `api.example.com` URLs are still in use
-- bootstraps Rush dependencies and builds the client from the monorepo root
+- bootstraps Rush dependencies and builds the web app from the monorepo root
 
 The script lives at:
 
-- [build-client.sh](scripts/build-client.sh)
+- [build-webapp.sh](scripts/build-webapp.sh)
 
 ## Required Cloudflare Pages Settings
 
@@ -42,7 +42,7 @@ In Cloudflare Dashboard:
 
 Recommended project shape:
 
-- project name: a unique frontend name such as `poltapp-client`
+- project name: a unique frontend name such as `poltapp-webapp`
 - production branch: `main`
 - preview branch setting: `None`
 - current preview strategy: `No previews` for now
@@ -54,8 +54,8 @@ Use these values in the Pages project setup:
 
 - Framework preset: `None`
 - Root directory: repo root
-- Build command: `npm run client:build:pages`
-- Build output directory: `apps/client/dist`
+- Build command: `npm run webapp:build:pages`
+- Build output directory: `apps/webapp/dist`
 
 Why `None` instead of the plain Vite preset:
 
@@ -86,7 +86,7 @@ Important:
 
 - `VITE_GRAPHQL_HTTP` must be an absolute `https://` URL
 - `VITE_GRAPHQL_WS` must be an absolute `wss://` URL
-- do not leave the placeholder values from [apps/client/.env.production](../../apps/client/.env.production)
+- do not leave the placeholder values from [apps/webapp/.env.production](../../apps/webapp/.env.production)
 
 ## SPA Routing
 
@@ -108,7 +108,12 @@ For the first rollout, keep the setup simple:
 
 - connect the repository once
 - build from repo root
-- deploy only the frontend app from `apps/client/dist`
+- deploy only the frontend app from `apps/webapp/dist`
+
+If you already created the Pages project before this rename:
+
+- update the build command to `npm run webapp:build:pages`
+- update the build output directory to `apps/webapp/dist`
 - disable automatic preview deployments as the current `No previews` strategy
 
 ## After The First Deploy

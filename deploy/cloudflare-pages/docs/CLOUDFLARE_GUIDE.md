@@ -54,8 +54,8 @@ The repo-side build wiring is already done.
 
 Cloudflare Pages should build this repo with:
 
-- build command: `npm run client:build:pages`
-- output directory: `apps/client/dist`
+- build command: `npm run webapp:build:pages`
+- output directory: `apps/webapp/dist`
 
 Those settings are documented in:
 
@@ -126,7 +126,7 @@ For this migration, create one Pages project for the frontend only.
 
 Use these values during project creation:
 
-- project name: a unique frontend project name such as `poltapp-client`
+- project name: a unique frontend project name such as `poltapp-webapp`
 - production branch: `main`
 
 Notes:
@@ -140,13 +140,13 @@ Notes:
 In the `Set up builds and deployments` step, use:
 
 - Framework preset: `None`
-- Build command: `npm run client:build:pages`
-- Build output directory: `apps/client/dist`
+- Build command: `npm run webapp:build:pages`
+- Build output directory: `apps/webapp/dist`
 
 For `Root directory (advanced)`:
 
 - leave it empty if the UI allows that, because Cloudflare uses the repository root by default
-- if the UI requires an explicit path, use the repository root rather than `apps/client`
+- if the UI requires an explicit path, use the repository root rather than `apps/webapp`
 
 Why this setup:
 
@@ -168,7 +168,7 @@ Important:
 
 - `VITE_GRAPHQL_HTTP` must be an absolute `https://` URL
 - `VITE_GRAPHQL_WS` must be an absolute `wss://` URL
-- do not use the placeholder `api.example.com` values from [apps/client/.env.production](../../../apps/client/.env.production)
+- do not use the placeholder `api.example.com` values from [../../../apps/webapp/.env.production](../../../apps/webapp/.env.production)
 - do not forget to append `/graphql`
 
 Example shape:
@@ -216,6 +216,11 @@ Why:
 
 You can revisit preview deployments later if the project or team needs shared
 dev previews or a dedicated full preview stack.
+
+If this Pages project already exists from before the rename, update:
+
+- `Build command` to `npm run webapp:build:pages`
+- `Build output directory` to `apps/webapp/dist`
 
 ## 8. Trigger The First Frontend Deploy
 

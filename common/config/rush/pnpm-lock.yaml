@@ -74,12 +74,12 @@ importers:
       '@rolldown/plugin-babel':
         specifier: ^0.2.3
         version: 0.2.3(@babel/core@7.29.0)(@babel/runtime@7.29.2)(rolldown@1.0.0-rc.16)(vite@8.0.9(@types/node@25.6.0)(terser@5.46.1)(yaml@2.8.3))
-      '@rush-temp/client':
-        specifier: file:./projects/client.tgz
-        version: file:projects/client.tgz(@babel/runtime@7.29.2)(@types/node@25.6.0)(rolldown@1.0.0-rc.16)(terser@5.46.1)(ws@8.20.0)(yaml@2.8.3)
       '@rush-temp/server':
         specifier: file:./projects/server.tgz
         version: file:projects/server.tgz(@babel/core@7.29.0)(@jest/transform@30.3.0)(@jest/types@30.3.0)(@types/eslint@9.6.1)(babel-jest@30.3.0(@babel/core@7.29.0))(fastify@5.8.5)(jest-util@30.3.0)(webpack@5.106.0(@swc/core@1.15.30))
+      '@rush-temp/webapp':
+        specifier: file:./projects/webapp.tgz
+        version: file:projects/webapp.tgz(@babel/runtime@7.29.2)(@types/node@25.6.0)(rolldown@1.0.0-rc.16)(terser@5.46.1)(ws@8.20.0)(yaml@2.8.3)
       '@swc/cli':
         specifier: ^0.8.1
         version: 0.8.1(@swc/core@1.15.30)
@@ -1413,12 +1413,12 @@ packages:
   '@rolldown/pluginutils@1.0.0-rc.7':
     resolution: {integrity: sha512-qujRfC8sFVInYSPPMLQByRh7zhwkGFS4+tyMQ83srV1qrxL4g8E2tyxVVyxd0+8QeBM1mIk9KbWxkegRr76XzA==}
 
-  '@rush-temp/client@file:projects/client.tgz':
-    resolution: {integrity: sha512-FUSST9CWXZZiN+/UsBSHFi9RcRkCCNrdQwwU8VUvpA8LUOD9g1sVPdyPa7mEC+4S2g2gWwCxR3kexopfbOh5hQ==, tarball: file:projects/client.tgz}
-    version: 0.0.0
-
   '@rush-temp/server@file:projects/server.tgz':
     resolution: {integrity: sha512-aXdfjTD5/cRJqRsR9e7s3lHwfspiz52se4FjMuZVW4SpeaH4Jlh1kUaX5Cds76+w6OjLC2sCULy5TeCb2VAYBQ==, tarball: file:projects/server.tgz}
+    version: 0.0.0
+
+  '@rush-temp/webapp@file:projects/webapp.tgz':
+    resolution: {integrity: sha512-HNj8SAnTQaykRbEn+GBDzPSuCOYSIccpbDwTzIOCmMcti0zC8XsQEpKt4MTP6gfK5rayKTQSiZ6LIIPlGxZOfw==, tarball: file:projects/webapp.tgz}
     version: 0.0.0
 
   '@sec-ant/readable-stream@0.4.1':
@@ -6468,59 +6468,6 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.0-rc.7': {}
 
-  '@rush-temp/client@file:projects/client.tgz(@babel/runtime@7.29.2)(@types/node@25.6.0)(rolldown@1.0.0-rc.16)(terser@5.46.1)(ws@8.20.0)(yaml@2.8.3)':
-    dependencies:
-      '@babel/core': 7.29.0
-      '@eslint/js': 10.0.1(eslint@10.2.1)
-      '@rolldown/plugin-babel': 0.2.3(@babel/core@7.29.0)(@babel/runtime@7.29.2)(rolldown@1.0.0-rc.16)(vite@8.0.9(@types/node@25.6.0)(terser@5.46.1)(yaml@2.8.3))
-      '@types/babel__core': 7.20.5
-      '@types/react': 19.2.14
-      '@types/react-dom': 19.2.3(@types/react@19.2.14)
-      '@types/react-relay': 18.2.1
-      '@types/relay-runtime': 20.1.1
-      '@vitejs/plugin-react': 6.0.1(@rolldown/plugin-babel@0.2.3(@babel/core@7.29.0)(@babel/runtime@7.29.2)(rolldown@1.0.0-rc.16)(vite@8.0.9(@types/node@25.6.0)(terser@5.46.1)(yaml@2.8.3)))(vite@8.0.9(@types/node@25.6.0)(terser@5.46.1)(yaml@2.8.3))
-      babel-plugin-relay: 20.1.1
-      eslint: 10.2.1
-      eslint-plugin-react-hooks: 7.1.1(eslint@10.2.1)
-      eslint-plugin-react-refresh: 0.5.2(eslint@10.2.1)
-      globals: 17.5.0
-      graphql: 16.13.2
-      graphql-ws: 6.0.8(graphql@16.13.2)(ws@8.20.0)
-      react: 19.2.5
-      react-dom: 19.2.5(react@19.2.5)
-      react-markdown: 10.1.0(@types/react@19.2.14)(react@19.2.5)
-      react-relay: 20.1.1(react@19.2.5)
-      relay-compiler: 20.1.1
-      relay-runtime: 20.1.1
-      remark-gfm: 4.0.1
-      rollup-plugin-visualizer: 6.0.11(rolldown@1.0.0-rc.16)
-      typescript: 6.0.3
-      typescript-eslint: 8.58.2(eslint@10.2.1)(typescript@6.0.3)
-      vite: 8.0.9(@types/node@25.6.0)(terser@5.46.1)(yaml@2.8.3)
-    transitivePeerDependencies:
-      - '@babel/plugin-transform-runtime'
-      - '@babel/runtime'
-      - '@fastify/websocket'
-      - '@types/node'
-      - '@vitejs/devtools'
-      - babel-plugin-react-compiler
-      - crossws
-      - encoding
-      - esbuild
-      - jiti
-      - less
-      - rolldown
-      - rollup
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - ws
-      - yaml
-
   '@rush-temp/server@file:projects/server.tgz(@babel/core@7.29.0)(@jest/transform@30.3.0)(@jest/types@30.3.0)(@types/eslint@9.6.1)(babel-jest@30.3.0(@babel/core@7.29.0))(fastify@5.8.5)(jest-util@30.3.0)(webpack@5.106.0(@swc/core@1.15.30))':
     dependencies:
       '@apollo/server': 5.5.0(graphql@16.13.2)
@@ -6620,6 +6567,59 @@ snapshots:
       - utf-8-validate
       - webpack
       - webpack-cli
+
+  '@rush-temp/webapp@file:projects/webapp.tgz(@babel/runtime@7.29.2)(@types/node@25.6.0)(rolldown@1.0.0-rc.16)(terser@5.46.1)(ws@8.20.0)(yaml@2.8.3)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@eslint/js': 10.0.1(eslint@10.2.1)
+      '@rolldown/plugin-babel': 0.2.3(@babel/core@7.29.0)(@babel/runtime@7.29.2)(rolldown@1.0.0-rc.16)(vite@8.0.9(@types/node@25.6.0)(terser@5.46.1)(yaml@2.8.3))
+      '@types/babel__core': 7.20.5
+      '@types/react': 19.2.14
+      '@types/react-dom': 19.2.3(@types/react@19.2.14)
+      '@types/react-relay': 18.2.1
+      '@types/relay-runtime': 20.1.1
+      '@vitejs/plugin-react': 6.0.1(@rolldown/plugin-babel@0.2.3(@babel/core@7.29.0)(@babel/runtime@7.29.2)(rolldown@1.0.0-rc.16)(vite@8.0.9(@types/node@25.6.0)(terser@5.46.1)(yaml@2.8.3)))(vite@8.0.9(@types/node@25.6.0)(terser@5.46.1)(yaml@2.8.3))
+      babel-plugin-relay: 20.1.1
+      eslint: 10.2.1
+      eslint-plugin-react-hooks: 7.1.1(eslint@10.2.1)
+      eslint-plugin-react-refresh: 0.5.2(eslint@10.2.1)
+      globals: 17.5.0
+      graphql: 16.13.2
+      graphql-ws: 6.0.8(graphql@16.13.2)(ws@8.20.0)
+      react: 19.2.5
+      react-dom: 19.2.5(react@19.2.5)
+      react-markdown: 10.1.0(@types/react@19.2.14)(react@19.2.5)
+      react-relay: 20.1.1(react@19.2.5)
+      relay-compiler: 20.1.1
+      relay-runtime: 20.1.1
+      remark-gfm: 4.0.1
+      rollup-plugin-visualizer: 6.0.11(rolldown@1.0.0-rc.16)
+      typescript: 6.0.3
+      typescript-eslint: 8.58.2(eslint@10.2.1)(typescript@6.0.3)
+      vite: 8.0.9(@types/node@25.6.0)(terser@5.46.1)(yaml@2.8.3)
+    transitivePeerDependencies:
+      - '@babel/plugin-transform-runtime'
+      - '@babel/runtime'
+      - '@fastify/websocket'
+      - '@types/node'
+      - '@vitejs/devtools'
+      - babel-plugin-react-compiler
+      - crossws
+      - encoding
+      - esbuild
+      - jiti
+      - less
+      - rolldown
+      - rollup
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - tsx
+      - ws
+      - yaml
 
   '@sec-ant/readable-stream@0.4.1': {}
 

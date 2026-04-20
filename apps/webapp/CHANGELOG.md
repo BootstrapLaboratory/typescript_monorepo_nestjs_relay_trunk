@@ -1,4 +1,4 @@
-# Change Log - client
+# Change Log - webapp
 
 This log was last generated on Fri, 01 Aug 2025 06:24:02 GMT and should not be manually modified.
 

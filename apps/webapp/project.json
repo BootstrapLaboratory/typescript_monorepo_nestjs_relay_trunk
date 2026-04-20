@@ -1,11 +1,11 @@
 {
-  "name": "client",
+  "name": "webapp",
   "targets": {
     "start:dev": {
       "executor": "nx:run-commands",
       "options": {
         "command": "npm run start:dev",
-        "cwd": "apps/client"
+        "cwd": "apps/webapp"
       }
     }
   }

@@ -17,7 +17,7 @@ import { type FormattedExecutionResult, type Sink } from "graphql-ws";
 import type { RelayObservable } from "relay-runtime/lib/network/RelayObservable";
 import { createRealtimeGraphqlWsClient } from "./realtime-connection";
 
-const PRELOAD_RETRY_STORAGE_KEY = "client:vite-preload-retry";
+const PRELOAD_RETRY_STORAGE_KEY = "webapp:vite-preload-retry";
 const PRELOAD_RETRY_WINDOW_MS = 60_000;
 const HTTP_CONFIG = import.meta.env.VITE_GRAPHQL_HTTP!;
 const WS_CONFIG = import.meta.env.VITE_GRAPHQL_WS!;

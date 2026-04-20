@@ -107,7 +107,7 @@ export default function App() {
         <p className="info-page__eyebrow">Page not found</p>
         <h1>Unknown route: {pathname}</h1>
         <p>
-          This example client currently exposes only the chat page and the
+          This example web app currently exposes only the chat page and the
           README-backed info page.
         </p>
         <p>

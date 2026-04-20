@@ -260,9 +260,9 @@ sync using these rules:
   - add the placeholder to `deploy/cloudrun/config/.env.example`
   - add the real value to `deploy/cloudrun/config/.env` or `.env.local`
   - update `deploy/cloudrun/scripts/sync-secrets.sh` if the new secret belongs in Secret Manager
-- client build-time env:
-  - update `apps/client/.env.development`
-  - update `apps/client/.env.production`
+- web app build-time env:
+  - update `apps/webapp/.env.development`
+  - update `apps/webapp/.env.production`
   - update the Cloudflare Pages project variables
 - local infra parity:
   - if production adds a new local dependency, update `.devcontainer/docker-compose.localdb.yml`

@@ -1,11 +1,11 @@
 {
-  "name": "client",
+  "name": "webapp",
   "private": true,
   "version": "0.0.1",
   "type": "module",
   "scripts": {
     "start:dev": "npm run dev:relay & npm run dev",
-    "deps:upgrade": "bash ../../scripts/upgrade-package-json-deps.sh client",
+    "deps:upgrade": "bash ../../scripts/upgrade-package-json-deps.sh --target webapp",
     "dev": "vite",
     "dev:relay": "relay-compiler --watch",
     "relay": "relay-compiler",

@@ -5,8 +5,8 @@
   "nodeSupportedVersionRange": ">=18.0.0",
   "projects": [
     {
-      "packageName": "client",
-      "projectFolder": "apps/client",
+      "packageName": "webapp",
+      "projectFolder": "apps/webapp",
       "reviewCategory": "applications",
       "versionPolicyName": "apps"
     },

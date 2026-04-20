@@ -39,8 +39,8 @@ jobs:
       - name: Install dependencies with caching
         uses: ./.github/actions/cached-install
 
-      - name: Lint client
-        working-directory: apps/client
+      - name: Lint web app
+        working-directory: apps/webapp
         run: npm run lint
 
       - name: Lint server
@@ -51,8 +51,8 @@ jobs:
         working-directory: apps/server
         run: npm test -- --runInBand
 
-      - name: Build client
-        run: node common/scripts/install-run-rush.js build --to client
+      - name: Build web app
+        run: node common/scripts/install-run-rush.js build --to webapp
 
       - name: Build server
         run: node common/scripts/install-run-rush.js build --to server
@@ -143,12 +143,12 @@ jobs:
         run: bash deploy/cloudrun/tests/validate-post-deploy-smoke.sh
 
       - name: Regenerate Relay artifacts
-        working-directory: apps/client
+        working-directory: apps/webapp
         run: npm run relay
 
       - name: Ensure committed GraphQL schema and Relay artifacts are up to date
         run: |
-          git diff --exit-code -- apps/server/__generated__/schema.gql apps/client/src/components/chat/__generated__
+          git diff --exit-code -- apps/server/__generated__/schema.gql apps/webapp/src/components/chat/__generated__
 
       - name: Show backend logs on failure
         if: failure()

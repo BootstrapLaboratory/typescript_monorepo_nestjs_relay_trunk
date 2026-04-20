@@ -4,7 +4,7 @@
 
 Anonymous Chat is a full-stack monorepo for a real-time chat application.
 
-- `apps/client` contains the React + Vite + Relay frontend.
+- `apps/webapp` contains the React + Vite + Relay frontend.
 - `apps/server` contains the NestJS + GraphQL backend with WebSocket subscriptions.
 - Local development is designed to run entirely inside the Dev Container.
 - Production uses Google Cloud Run for the backend, Neon for PostgreSQL, Upstash for Redis, and Cloudflare Pages for the frontend.
@@ -17,7 +17,7 @@ This repository is meant to be opened in a Dev Container.
 2. Run `Dev Containers: Reopen in Container`.
 3. Start the project with `npm run dev`.
 
-Dependency upgrades: run `npm run deps:upgrade` from the repo root to update dependency ranges across the Rush-managed app packages. For a single package, use `npm run deps:upgrade:client` or `npm run deps:upgrade:server`. `npm run deps:upgrade:root` is retained as a compatibility no-op because the repo root is intentionally dependency-free.
+Dependency upgrades: run `npm run deps:upgrade` from the repo root to update dependency ranges across the Rush-managed app packages. For a single package, use `npm run deps:upgrade:webapp` or `npm run deps:upgrade:server`. `npm run deps:upgrade:root` is retained as a compatibility no-op because the repo root is intentionally dependency-free.
 
 Local URLs:
 

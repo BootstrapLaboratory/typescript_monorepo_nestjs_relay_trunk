@@ -70,14 +70,14 @@ Required local strategy:
 
 These are the repo details that now matter for the remaining migration work:
 
-- Backend subscriptions are enabled in [apps/server/src/app.module.ts](/workspace/apps/server/src/app.module.ts:28).
-- Subscription events now flow through Redis-backed shared pub/sub via [apps/server/src/modules/chat/chat-pubsub.service.ts](/workspace/apps/server/src/modules/chat/chat-pubsub.service.ts:1) when `PUBSUB_DRIVER=redis`.
-- Database configuration is environment-driven in [apps/server/src/config/database.config.ts](/workspace/apps/server/src/config/database.config.ts:1), with `DATABASE_URL` and optional `DATABASE_URL_DIRECT` support.
-- Production schema sync is disabled by env-driven config, and TypeORM migrations now live under [apps/server/src/database](/workspace/apps/server/src/database).
-- CORS is environment-driven in [apps/server/src/main.ts](/workspace/apps/server/src/main.ts:15).
-- The client production config supports absolute HTTP and WebSocket API URLs through [apps/client/src/main.tsx](/workspace/apps/client/src/main.tsx:23) and [apps/client/.env.production](/workspace/apps/client/.env.production:1).
-- A dedicated health endpoint now exists at [apps/server/src/app.controller.ts](/workspace/apps/server/src/app.controller.ts:1) for startup smoke checks.
-- The backend now has a monorepo-aware Cloud Run container build in [apps/server/Dockerfile](/workspace/apps/server/Dockerfile:1) plus GitHub Actions workflows under [.github/workflows](/workspace/.github/workflows).
+- Backend subscriptions are enabled in [apps/server/src/app.module.ts](apps/server/src/app.module.ts).
+- Subscription events now flow through Redis-backed shared pub/sub via [apps/server/src/modules/chat/chat-pubsub.service.ts](apps/server/src/modules/chat/chat-pubsub.service.ts) when `PUBSUB_DRIVER=redis`.
+- Database configuration is environment-driven in [apps/server/src/config/database.config.ts](apps/server/src/config/database.config.ts), with `DATABASE_URL` and optional `DATABASE_URL_DIRECT` support.
+- Production schema sync is disabled by env-driven config, and TypeORM migrations now live under [apps/server/src/database](apps/server/src/database).
+- CORS is environment-driven in [apps/server/src/main.ts](apps/server/src/main.ts).
+- The web app production config supports absolute HTTP and WebSocket API URLs through [apps/webapp/src/main.tsx](apps/webapp/src/main.tsx) and [apps/webapp/.env.production](apps/webapp/.env.production).
+- A dedicated health endpoint now exists at [apps/server/src/app.controller.ts](apps/server/src/app.controller.ts) for startup smoke checks.
+- The backend now has a monorepo-aware Cloud Run container build in [apps/server/Dockerfile](apps/server/Dockerfile) plus GitHub Actions workflows under [.github/workflows](.github/workflows).
 
 ## Recommended Production Architecture
 
@@ -226,7 +226,7 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 ### Environment Variable Model
 
 - [x] Stop assuming production API calls are same-origin `/api/graphql`
-- [x] Replace [.env.production](/workspace/apps/client/.env.production:1) with production values that can be absolute URLs
+- [x] Replace [apps/webapp/.env.production](apps/webapp/.env.production) with production values that can be absolute URLs
 - [x] Support:
   - initial frontend -> backend:
     - `VITE_GRAPHQL_HTTP=<Cloud Run generated HTTPS URL>/graphql`
@@ -238,7 +238,7 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 ### Client Runtime Logic
 
-- [x] Update [apps/client/src/main.tsx](/workspace/apps/client/src/main.tsx:23) so production supports absolute WebSocket URLs
+- [x] Update [apps/webapp/src/main.tsx](apps/webapp/src/main.tsx) so production supports absolute WebSocket URLs
 - [x] Keep local development behavior working exactly as it does now
 - [x] Add retry and reconnect settings to the `graphql-ws` client
 - [x] Handle temporary disconnects cleanly after Cloud Run instance restarts or cold starts
@@ -293,7 +293,7 @@ This is a best-fit Europe choice for this project, not a guarantee of absolute l
 
 ### Static Hosting
 
-- [x] Configure `Cloudflare Pages` to build `apps/client`
+- [x] Configure `Cloudflare Pages` to build `apps/webapp`
 - [x] Set production env vars on the frontend host:
   - `VITE_GRAPHQL_HTTP`
   - `VITE_GRAPHQL_WS`
@@ -443,15 +443,15 @@ These are the most likely repo touchpoints for this migration:
   - add migration scripts
 - [x] `apps/server/src/database/...`
   - add TypeORM DataSource and migrations
-- [x] [apps/client/src/main.tsx](/workspace/apps/client/src/main.tsx:1)
+- [x] [apps/webapp/src/main.tsx](apps/webapp/src/main.tsx)
   - support absolute production HTTP and WS URLs
-- [x] [apps/client/.env.production](/workspace/apps/client/.env.production:1)
+- [x] [apps/webapp/.env.production](apps/webapp/.env.production)
   - switch to generated Cloud Run API URL first
   - support later move to `api.example.com`
 - [x] [apps/server/.env.development](/workspace/apps/server/.env.development:1)
   - keep local devcontainer database flow working
   - add local Redis config
-- [x] [apps/client/.env.development](/workspace/apps/client/.env.development:1)
+- [x] [apps/webapp/.env.development](apps/webapp/.env.development)
   - keep local devcontainer API URLs working
 - [x] `Dockerfile` or `deploy/cloudrun/...`
   - add a real backend production container build
