@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_PATH="$(readlink -f -- "${BASH_SOURCE[0]}")"
-SCRIPT_DIR="$(cd -- "$(dirname -- "${SCRIPT_PATH}")" && pwd)"
-REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../../.." && pwd)"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
+source "${SCRIPT_DIR}/lib/paths.sh"
 
 require_env() {
   local name="$1"
@@ -42,5 +42,8 @@ validate_prefix VITE_GRAPHQL_WS "wss://"
 
 cd "${REPO_ROOT}"
 
-node common/scripts/install-run-rush.js install --max-install-attempts 1
+if [[ "${SKIP_RUSH_INSTALL:-false}" != "true" ]]; then
+  node common/scripts/install-run-rush.js install --max-install-attempts 1
+fi
+
 node common/scripts/install-run-rush.js build --to webapp

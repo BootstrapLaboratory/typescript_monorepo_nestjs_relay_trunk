@@ -38,7 +38,7 @@ npm --prefix apps/server run graphql:schema
 
 Output:
 
-- [apps/server/__generated__/schema.gql](../../apps/server/__generated__/schema.gql)
+- [apps/server/generated/schema.gql](../../apps/server/generated/schema.gql)
 
 This file is intentionally ignored by Git.
 
@@ -61,7 +61,7 @@ That command:
 
 Relay outputs are written under:
 
-- `apps/webapp/src/**/__generated__/`
+- `apps/webapp/src/**/generated/`
 
 These files are also intentionally ignored by Git.
 
@@ -79,6 +79,11 @@ That order is encoded in:
 - [apps/webapp/package.json](../../apps/webapp/package.json)
 
 So a clean checkout no longer depends on committed GraphQL generated files.
+
+For production deployment, the webapp is built in GitHub Actions and the
+prebuilt `apps/webapp/dist` output is uploaded to Cloudflare Pages with
+Wrangler. Cloudflare no longer rebuilds frontend source from Git pushes for
+this repo's main deployment path.
 
 ## Local Development
 

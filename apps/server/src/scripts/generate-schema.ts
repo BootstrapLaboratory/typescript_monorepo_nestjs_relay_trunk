@@ -14,13 +14,13 @@ import {
 } from '../graphql/schema-manifest';
 
 const SERVER_ROOT = resolve(__dirname, '../..');
-const OUTPUT_PATH = resolve(SERVER_ROOT, '__generated__/schema.gql');
+const OUTPUT_PATH = resolve(SERVER_ROOT, 'generated/schema.gql');
 
 async function generateSchema(): Promise<void> {
   const app = await NestFactory.createApplicationContext(
     GraphQLSchemaBuilderModule,
     {
-    logger: false,
+      logger: false,
     },
   );
 

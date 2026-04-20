@@ -2,7 +2,7 @@
 /dist
 /node_modules
 /build
-__generated__/
+generated/
 
 # Logs
 logs

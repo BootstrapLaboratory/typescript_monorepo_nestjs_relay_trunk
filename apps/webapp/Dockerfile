@@ -6,8 +6,8 @@ WORKDIR /app
 
 COPY . .
 
-RUN node common/scripts/install-run-rush.js install --max-install-attempts 1
-RUN node common/scripts/install-run-rush.js build --to webapp
+RUN node common/scripts/install-run-rush.js install --max-install-attempts 1 \
+ && node common/scripts/install-run-rush.js build --to webapp
 
 # 2. Production stage (nginx)
 FROM nginx:alpine AS production

@@ -38,7 +38,7 @@ Deployment is split by application boundary:
 - The backend is built from this monorepo and deployed to Google Cloud Run.
 - PostgreSQL is hosted on Neon.
 - Redis pub/sub is hosted on Upstash.
-- The frontend is deployed separately to Cloudflare Pages and connects to the Cloud Run API.
+- The frontend is built in GitHub Actions and uploaded to Cloudflare Pages with Wrangler, then connects to the Cloud Run API.
 
 Step-by-step deployment docs live here:
 

@@ -7,8 +7,8 @@
 .env
 .env.*
 gha-creds-*.json
-deploy/cloudrun/.env
-deploy/cloudrun/.env.local
+deploy/cloudrun/config/.env
+deploy/cloudrun/config/.env.local
 apps/*/.env
 apps/*/.env.*
 node_modules

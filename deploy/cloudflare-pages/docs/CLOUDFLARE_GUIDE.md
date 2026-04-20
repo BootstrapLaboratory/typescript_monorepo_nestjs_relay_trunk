@@ -10,16 +10,16 @@ It is the Cloudflare-side companion to:
 This guide is for the exact frontend stack chosen for this repo:
 
 - frontend host: `Cloudflare Pages`
-- deployment style: `Git integration`
+- deployment style: `GitHub Actions + Wrangler Pages deploy`
 - initial frontend URL: generated `*.pages.dev`
 - initial backend URL: generated Cloud Run `run.app` URL
 
 ## Important UI Note
 
-Cloudflare currently has two similar but different Git-based flows in the
+Cloudflare currently has two similar but different setup styles in the
 dashboard:
 
-- `Pages` projects
+- `Pages` projects, which can be Git-integrated or Direct Upload
 - `Worker` projects with `Workers Builds`
 
 This guide is written for the `Pages` project flow.
@@ -38,24 +38,26 @@ What to do:
 
 1. Go back.
 2. In `Workers & Pages` -> `Create application`, select `Pages`.
-3. Choose `Import an existing Git repository`.
+3. Choose the Pages project type that matches your migration path:
+   - `Import an existing Git repository` if you are keeping the existing Git-integrated project and only disabling automatic builds
+   - `Direct Upload` if you are creating a brand-new Pages project specifically for Wrangler uploads
 4. Continue with the Pages-specific settings from this guide.
 
 Why this matters:
 
-- the Pages flow uses a `Build output directory` field
-- the Worker flow uses Wrangler deploy commands instead
-- the Pages-first rollout in this migration expects a generated `*.pages.dev`
+- this repo deploys to a Cloudflare `Pages` project
+- the Worker flow is a different product
+- the Pages rollout in this migration expects a generated `*.pages.dev`
   hostname, while the Worker flow is oriented around `*.workers.dev`
 
 ## What The Repo Already Provides
 
-The repo-side build wiring is already done.
+The repo-side build and deploy wiring is already done.
 
-Cloudflare Pages should build this repo with:
+GitHub Actions now:
 
-- build command: `npm run webapp:build:pages`
-- output directory: `apps/webapp/dist`
+- builds the webapp with `npm run webapp:build:pages`
+- uploads `apps/webapp/dist` with `wrangler pages deploy`
 
 Those settings are documented in:
 
@@ -65,12 +67,9 @@ Those settings are documented in:
 
 Before clicking through Cloudflare, have these ready:
 
-- your GitHub repository connected to this codebase
+- your GitHub repository connected to this codebase, if your Pages project already uses Git integration
 - your deployed backend Cloud Run URL
-- the exact frontend env vars you will set in Pages:
-  - `NODE_VERSION=24`
-  - `VITE_GRAPHQL_HTTP=https://<cloud-run-service>.run.app/graphql`
-  - `VITE_GRAPHQL_WS=wss://<cloud-run-service>.run.app/graphql`
+- your shared deploy config in [../../cloudrun/config/.env](../../cloudrun/config/.env)
 
 For this repo, the frontend must use absolute production API URLs.
 
@@ -92,39 +91,21 @@ You do **not** need to add a custom domain yet for this rollout.
 
 The first deployment will use the generated `*.pages.dev` hostname.
 
-## 2. Connect GitHub To Cloudflare Pages
+## 2. Create Or Reuse The Pages Project
 
-Console path:
+This repo deploys prebuilt assets with Wrangler, so Cloudflare only needs one
+Pages project to host the site.
 
-- `Workers & Pages`
-- `Create application`
-- `Pages`
-- `Connect to Git`
+You can use either of these starting points:
 
-Steps:
+- an existing Git-integrated Pages project
+- a new Direct Upload Pages project
 
-1. Open `Workers & Pages`.
-2. Click `Create application`.
-3. Choose `Pages`.
-4. Choose `Connect to Git`.
-5. Authorize the Cloudflare Workers & Pages GitHub app when prompted.
-6. If the repository is under a GitHub organization, grant access to the correct organization.
-7. Prefer limiting the GitHub app to only the repositories you actually want Cloudflare to build.
+For this repository's current migration path, the most likely case is that you
+already have a Git-integrated Pages project and want to keep it while disabling
+automatic builds.
 
-## 3. Select The Repository
-
-Steps:
-
-1. After GitHub authorization, choose this repository.
-2. Click `Begin setup`.
-
-Cloudflare Pages supports monorepos, so one repository can host multiple apps.
-
-For this migration, create one Pages project for the frontend only.
-
-## 4. Create The Pages Project
-
-Use these values during project creation:
+Use these values for the project:
 
 - project name: a unique frontend project name such as `poltapp-webapp`
 - production branch: `main`
@@ -132,51 +113,102 @@ Use these values during project creation:
 Notes:
 
 - the project name becomes the base for the generated `*.pages.dev` hostname
-- the production branch should match the branch you want to publish as the live frontend
 - Cloudflare's Pages docs note that the `Project name` value is assigned as your `*.pages.dev` subdomain
 
-## 5. Configure Build Settings
+If you are creating a brand-new project and already know that GitHub Actions
+will be your only build authority, a Direct Upload project is also a valid
+choice. This guide keeps focusing on the existing Git-integrated project path,
+because that is the live migration shape for this repo.
 
-In the `Set up builds and deployments` step, use:
+## 3. Disable Automatic Git Builds
 
-- Framework preset: `None`
-- Build command: `npm run webapp:build:pages`
-- Build output directory: `apps/webapp/dist`
+If your Pages project is Git-integrated, disable both automatic production and
+preview builds.
 
-For `Root directory (advanced)`:
+Dashboard path:
 
-- leave it empty if the UI allows that, because Cloudflare uses the repository root by default
-- if the UI requires an explicit path, use the repository root rather than `apps/webapp`
+- `Workers & Pages`
+- your Pages project
+- `Settings`
+- `Builds & deployments`
+- `Branch control`
 
-Why this setup:
+Set:
 
-- this repo is a monorepo
-- the frontend build is launched from repo root through Rush
-- the custom build command validates the required env vars, generates GraphQL SDL plus Relay artifacts, and then builds the webapp correctly
+- `Enable automatic production branch deployments`: `off`
+- `Preview branch`: `None`
 
-## 6. Set Environment Variables
+Cloudflare documents this as the supported way to stop Git-triggered Pages
+builds and switch to Wrangler deployments for an existing Git-integrated
+project.
 
-During project creation or immediately afterward, set these `Production` environment variables:
+Optional helper script:
+
+```bash
+bash deploy/cloudflare-pages/scripts/disable-automatic-deployments.sh
+```
+
+The helper calls the Pages project update API with:
+
+- `source.config.deployments_enabled=false`
+- `source.config.production_deployments_enabled=false`
+- `source.config.preview_deployment_setting=none`
+
+## 4. Generate A Cloudflare API Token
+
+Cloudflare's CI guide recommends an API token with:
+
+- permission group: `Account`
+- resource: `Cloudflare Pages`
+- access level: `Edit`
+
+Save the token value as the GitHub repository secret:
+
+- `CLOUDFLARE_API_TOKEN`
+
+If you keep using the shared deploy config, also place it in
+[../../cloudrun/config/.env](../../cloudrun/config/.env) so the helper scripts
+can reuse it.
+
+## 5. Get Your Cloudflare Account ID
+
+Find your Cloudflare account ID in the dashboard and save it as the GitHub
+repository secret:
+
+- `CLOUDFLARE_ACCOUNT_ID`
+
+If you keep using the shared deploy config, also place it in
+[../../cloudrun/config/.env](../../cloudrun/config/.env).
+
+## 6. Configure GitHub Repository Variables
+
+Preferred path:
+
+```bash
+bash deploy/cloudflare-pages/scripts/configure-github-vars.sh
+```
+
+That helper:
+
+- loads Cloudflare values from [../../cloudrun/config/.env](../../cloudrun/config/.env)
+- sets the Cloudflare GitHub Actions secrets
+- sets the Cloudflare Pages project name variable
+- derives `WEBAPP_VITE_GRAPHQL_HTTP` and `WEBAPP_VITE_GRAPHQL_WS` from the live Cloud Run service if you did not set explicit overrides in the shared config
+
+Manual GitHub UI equivalent:
 
 ```dotenv
-NODE_VERSION=24
-VITE_GRAPHQL_HTTP=https://<cloud-run-service>.run.app/graphql
-VITE_GRAPHQL_WS=wss://<cloud-run-service>.run.app/graphql
+CLOUDFLARE_PAGES_PROJECT_NAME=<your-pages-project-name>
+WEBAPP_VITE_GRAPHQL_HTTP=https://<cloud-run-service>.run.app/graphql
+WEBAPP_VITE_GRAPHQL_WS=wss://<cloud-run-service>.run.app/graphql
 ```
 
 Important:
 
-- `VITE_GRAPHQL_HTTP` must be an absolute `https://` URL
-- `VITE_GRAPHQL_WS` must be an absolute `wss://` URL
+- `WEBAPP_VITE_GRAPHQL_HTTP` must be an absolute `https://` URL
+- `WEBAPP_VITE_GRAPHQL_WS` must be an absolute `wss://` URL
 - do not use the placeholder `api.example.com` values from [../../../apps/webapp/.env.production](../../../apps/webapp/.env.production)
 - do not forget to append `/graphql`
-
-Example shape:
-
-```dotenv
-VITE_GRAPHQL_HTTP=https://api-12345-xy.a.run.app/graphql
-VITE_GRAPHQL_WS=wss://api-12345-xy.a.run.app/graphql
-```
 
 If your real backend URL is currently:
 
@@ -184,51 +216,27 @@ If your real backend URL is currently:
 https://api-32lgreeilq-ez.a.run.app/
 ```
 
-then the exact values are:
+then the exact GitHub variables are:
 
 ```dotenv
-VITE_GRAPHQL_HTTP=https://api-32lgreeilq-ez.a.run.app/graphql
-VITE_GRAPHQL_WS=wss://api-32lgreeilq-ez.a.run.app/graphql
+WEBAPP_VITE_GRAPHQL_HTTP=https://api-32lgreeilq-ez.a.run.app/graphql
+WEBAPP_VITE_GRAPHQL_WS=wss://api-32lgreeilq-ez.a.run.app/graphql
 ```
 
-## 7. Configure Preview Deployments
+These values are consumed by:
 
-For the first rollout, keep preview handling simple.
+- [deploy-cloudflare-pages-webapp.yaml](../../../.github/workflows/deploy-cloudflare-pages-webapp.yaml)
 
-Console path:
+The workflow maps them to the build-time `VITE_*` environment variables before
+running the repo build helper.
 
-- open your Pages project
-- `Settings`
-- `Builds & deployments`
-- branch deployment controls
-
-Recommended setting:
-
-- production branch: `main`
-- preview branch deployments: `None`
-- current preview strategy: `No previews`
-
-Why:
-
-- this migration does not yet define a separate preview backend
-- disabling preview builds avoids confusing deployments that point at the wrong API
-- this is the intentional default for the current hobby-scale setup
-
-You can revisit preview deployments later if the project or team needs shared
-dev previews or a dedicated full preview stack.
-
-If this Pages project already exists from before the rename, update:
-
-- `Build command` to `npm run webapp:build:pages`
-- `Build output directory` to `apps/webapp/dist`
-
-## 8. Trigger The First Frontend Deploy
+## 7. Trigger The First Frontend Deploy
 
 Steps:
 
-1. Save the project settings.
-2. Start the first deploy.
-3. Wait for the build to complete.
+1. Open GitHub Actions.
+2. Run `deploy-cloudflare-pages-webapp`, or push a change to `main` that matches the workflow paths.
+3. Wait for the build and `wrangler pages deploy` upload to complete.
 4. Open the generated production URL.
 
 Expected production URL shape:
@@ -255,7 +263,7 @@ https://beltapp.pages.dev
 
 But the dashboard deployment link is the safest source of truth.
 
-## 9. Update Backend CORS After The First Pages Deploy
+## 8. Update Backend CORS After The First Pages Deploy
 
 Once Cloudflare gives you the real `*.pages.dev` URL, update the backend CORS allowlist.
 
@@ -278,7 +286,7 @@ http://localhost:5173,https://<project-name>.pages.dev
 
 4. Trigger the backend deploy workflow again so Cloud Run picks up the new CORS value.
 
-## 10. Validate The Frontend
+## 9. Validate The Frontend
 
 After the Pages deploy finishes:
 
@@ -290,13 +298,14 @@ After the Pages deploy finishes:
 
 Notes:
 
+- the deploy workflow already validates `/` and `/info` against the live `*.pages.dev` URL after upload
 - Cloudflare Pages already supports SPA serving behavior by default for projects without a top-level `404.html`, so no custom `_redirects` file is required for this app right now.
 - If the UI loads but API calls fail, first check:
-  - `VITE_GRAPHQL_HTTP`
-  - `VITE_GRAPHQL_WS`
+  - `WEBAPP_VITE_GRAPHQL_HTTP`
+  - `WEBAPP_VITE_GRAPHQL_WS`
   - `CLOUD_RUN_CORS_ORIGIN` on the backend
 
-## 11. Optional Later Steps
+## 10. Optional Later Steps
 
 These are intentionally not part of the first rollout:
 
@@ -308,18 +317,12 @@ These are intentionally not part of the first rollout:
 
 - Cloudflare account creation:
   [Create account](https://developers.cloudflare.com/fundamentals/account/create-account/)
-- Cloudflare Pages Git integration getting started:
-  [Git integration guide](https://developers.cloudflare.com/pages/get-started/git-integration/)
+- Cloudflare Pages direct upload:
+  [Direct Upload](https://developers.cloudflare.com/pages/get-started/direct-upload/)
+- Cloudflare Pages direct upload with continuous integration:
+  [Use Direct Upload with continuous integration](https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/)
 - Cloudflare Pages Git integration management:
   [Git integration](https://developers.cloudflare.com/pages/configuration/git-integration/)
-- Cloudflare Pages GitHub integration:
-  [GitHub integration](https://developers.cloudflare.com/pages/configuration/git-integration/github-integration/)
-- Cloudflare Pages build configuration:
-  [Build configuration](https://developers.cloudflare.com/pages/configuration/build-configuration/)
-- Cloudflare Pages monorepo support:
-  [Monorepos](https://developers.cloudflare.com/pages/configuration/monorepos/)
-- Cloudflare Pages environment variables:
-  [Bindings / Environment variables](https://developers.cloudflare.com/pages/functions/bindings/)
 - Cloudflare Pages branch deployment controls:
   [Branch deployment controls](https://developers.cloudflare.com/pages/configuration/branch-build-controls/)
 - Cloudflare Pages SPA serving behavior:

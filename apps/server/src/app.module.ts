@@ -126,7 +126,7 @@ function logSubscriptionEvent(
           // Local dev still writes the snapshot so Relay watch can follow
           // backend schema edits after Nest restarts.
           autoSchemaFile: shouldWriteSchemaSnapshot
-            ? join(process.cwd(), '__generated__/schema.gql')
+            ? join(process.cwd(), 'generated/schema.gql')
             : true,
           sortSchema: true,
         };

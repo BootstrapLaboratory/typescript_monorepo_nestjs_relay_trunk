@@ -3,7 +3,7 @@ name: pull-request-checks
 on:
   pull_request:
     paths:
-      - .github/workflows/pr.yaml
+      - .github/workflows/**
       - .github/actions/cached-install/**
       - apps/**
       - common/**
