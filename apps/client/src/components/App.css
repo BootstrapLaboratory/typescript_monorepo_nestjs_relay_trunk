@@ -175,9 +175,33 @@ h1 {
 }
 
 .info-page,
+.route-error,
+.route-pending,
 .not-found {
   text-align: left;
   padding: 2rem;
+}
+
+.route-pending,
+.route-error {
+  display: grid;
+  gap: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.2);
+}
+
+.route-pending h1,
+.route-error h1 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.route-pending p,
+.route-error p {
+  margin: 0;
+  max-width: 65ch;
 }
 
 .info-page__header {

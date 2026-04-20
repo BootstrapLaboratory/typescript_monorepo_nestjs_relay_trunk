@@ -1,0 +1,12 @@
+# Keep the SPA shell fresh so lazy route chunks can recover after a new deploy.
+/
+  Cache-Control: no-cache
+
+/index.html
+  Cache-Control: no-cache
+
+/info
+  Cache-Control: no-cache
+
+/info/
+  Cache-Control: no-cache
