@@ -28,6 +28,9 @@ The Dev Container starts the local backing services for you and installs depende
 
 More context: [Dev Container notes](docs/notes/DevContainers.md)
 
+GraphQL codegen ownership and clean-checkout build flow:
+[GraphQL codegen notes](docs/notes/GraphqlCodegen.md)
+
 ## Deployment
 
 Deployment is split by application boundary:

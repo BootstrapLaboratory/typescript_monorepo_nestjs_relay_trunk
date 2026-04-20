@@ -142,14 +142,6 @@ jobs:
           SERVICE_URL: http://127.0.0.1:3100
         run: bash deploy/cloudrun/tests/validate-post-deploy-smoke.sh
 
-      - name: Regenerate Relay artifacts
-        working-directory: apps/webapp
-        run: npm run relay
-
-      - name: Ensure committed GraphQL schema and Relay artifacts are up to date
-        run: |
-          git diff --exit-code -- apps/server/__generated__/schema.gql apps/webapp/src/components/chat/__generated__
-
       - name: Show backend logs on failure
         if: failure()
         run: cat /tmp/server-smoke.log

@@ -5,8 +5,7 @@
   "author": "",
   "private": true,
   "files": [
-    "dist/**/*",
-    "__generated__/.gitignore"
+    "dist/**/*"
   ],
   "license": "UNLICENSED",
   "scripts": {
@@ -17,6 +16,7 @@
     "start:dev": "cross-env NODE_ENV=development nest start --watch",
     "start:debug": "cross-env NODE_ENV=development nest start --debug --watch",
     "start:prod": "node dist/main",
+    "graphql:schema": "node -r ts-node/register ./src/scripts/generate-schema.ts",
     "typeorm": "node -r ts-node/register ./node_modules/typeorm/cli.js",
     "migration:create": "npm run typeorm -- migration:create src/database/migrations/ManualMigration",
     "migration:generate": "npm run typeorm -- migration:generate src/database/migrations/GeneratedMigration -d src/database/typeorm.datasource.ts",

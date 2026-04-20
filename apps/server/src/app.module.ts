@@ -77,50 +77,60 @@ function logSubscriptionEvent(
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        path: configService.get<string>('GRAPHQL_PATH') ?? '/graphql',
-        subscriptions: {
-          'graphql-ws': {
-            connectionInitWaitTimeout: 15_000,
-            onConnect: (ctx) => {
-              const extra = getGraphqlWsExtra(ctx.extra);
-              const connectionId = randomUUID();
-              extra.connectionId = connectionId;
+      useFactory: (configService: ConfigService) => {
+        const nodeEnv = configService.get<string>('NODE_ENV') ?? 'development';
+        const shouldWriteSchemaSnapshot = nodeEnv !== 'production';
 
-              logSubscriptionEvent('graphql_subscription_connect', {
-                connectionId,
-                ip: getClientIp(extra.request),
-                path: extra.request?.url ?? null,
-              });
-            },
-            onDisconnect: (ctx, code, reason) => {
-              const extra = getGraphqlWsExtra(ctx.extra);
+        return {
+          path: configService.get<string>('GRAPHQL_PATH') ?? '/graphql',
+          subscriptions: {
+            'graphql-ws': {
+              connectionInitWaitTimeout: 15_000,
+              onConnect: (ctx) => {
+                const extra = getGraphqlWsExtra(ctx.extra);
+                const connectionId = randomUUID();
+                extra.connectionId = connectionId;
 
-              logSubscriptionEvent('graphql_subscription_disconnect', {
-                connectionId: extra.connectionId ?? null,
-                code: code ?? null,
-                reason: reason ?? null,
-              });
-            },
-            onSubscribe: (ctx, id, payload) => {
-              const extra = getGraphqlWsExtra(ctx.extra);
+                logSubscriptionEvent('graphql_subscription_connect', {
+                  connectionId,
+                  ip: getClientIp(extra.request),
+                  path: extra.request?.url ?? null,
+                });
+              },
+              onDisconnect: (ctx, code, reason) => {
+                const extra = getGraphqlWsExtra(ctx.extra);
 
-              logSubscriptionEvent('graphql_subscription_subscribe', {
-                connectionId: extra.connectionId ?? null,
-                operationId: id,
-                operationName: payload.operationName ?? null,
-              });
+                logSubscriptionEvent('graphql_subscription_disconnect', {
+                  connectionId: extra.connectionId ?? null,
+                  code: code ?? null,
+                  reason: reason ?? null,
+                });
+              },
+              onSubscribe: (ctx, id, payload) => {
+                const extra = getGraphqlWsExtra(ctx.extra);
+
+                logSubscriptionEvent('graphql_subscription_subscribe', {
+                  connectionId: extra.connectionId ?? null,
+                  operationId: id,
+                  operationName: payload.operationName ?? null,
+                });
+              },
             },
           },
-        },
-        // Keep schema exploration available while the project is still being
-        // migrated to its hosted production setup.
-        introspection: true,
-        plugins: [ApolloServerPluginLandingPageLocalDefault({ embed: true })],
-        playground: false,
-        autoSchemaFile: join(process.cwd(), '__generated__/schema.gql'),
-        sortSchema: true,
-      }),
+          // Keep schema exploration available while the project is still being
+          // migrated to its hosted production setup.
+          introspection: true,
+          plugins: [ApolloServerPluginLandingPageLocalDefault({ embed: true })],
+          playground: false,
+          // Production builds should not depend on runtime file emission.
+          // Local dev still writes the snapshot so Relay watch can follow
+          // backend schema edits after Nest restarts.
+          autoSchemaFile: shouldWriteSchemaSnapshot
+            ? join(process.cwd(), '__generated__/schema.gql')
+            : true,
+          sortSchema: true,
+        };
+      },
     }),
     TypeOrmModule.forRootAsync({
       useFactory: () => getDatabaseConfig(),

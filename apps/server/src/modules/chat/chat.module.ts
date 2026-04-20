@@ -7,13 +7,16 @@ import { ChatService } from './chat.service';
 import { MessageEntity } from './entities/message.entity';
 import { MapperProvider } from './mappers/message.profile';
 
+export const CHAT_GRAPHQL_RESOLVERS = [ChatResolver] as const;
+export const CHAT_GRAPHQL_SCALARS = [DateScalar] as const;
+
 @Module({
   imports: [TypeOrmModule.forFeature([MessageEntity])],
   providers: [
-    ChatResolver,
+    ...CHAT_GRAPHQL_RESOLVERS,
     ChatService,
     ChatPubSubService,
-    DateScalar,
+    ...CHAT_GRAPHQL_SCALARS,
     MapperProvider,
   ],
 })

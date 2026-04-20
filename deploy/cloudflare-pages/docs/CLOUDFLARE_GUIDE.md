@@ -152,7 +152,7 @@ Why this setup:
 
 - this repo is a monorepo
 - the frontend build is launched from repo root through Rush
-- the custom build command already validates the required env vars and then builds the client correctly
+- the custom build command validates the required env vars, generates GraphQL SDL plus Relay artifacts, and then builds the webapp correctly
 
 ## 6. Set Environment Variables
 
