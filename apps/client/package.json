@@ -9,6 +9,7 @@
     "dev": "vite",
     "dev:relay": "relay-compiler --watch",
     "relay": "relay-compiler",
+    "analyze": "tsc -b && vite build --mode analyze",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -39,6 +40,7 @@
     "globals": "^17.5.0",
     "graphql": "^16.13.2",
     "relay-compiler": "^20.1.1",
+    "rollup-plugin-visualizer": "^6.0.3",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.58.2",
     "vite": "^8.0.8"

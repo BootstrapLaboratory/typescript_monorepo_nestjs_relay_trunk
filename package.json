@@ -12,6 +12,7 @@
     "deps:upgrade:root": "bash scripts/upgrade-package-json-deps.sh --target root",
     "deps:upgrade:client": "bash scripts/upgrade-package-json-deps.sh --target client",
     "deps:upgrade:server": "bash scripts/upgrade-package-json-deps.sh --target server",
+    "client:analyze": "npm --prefix apps/client run analyze",
     "client:build:pages": "bash deploy/cloudflare-pages/scripts/build-client.sh",
     "server:image:build:local": "docker buildx build --pull --load -f apps/server/Dockerfile -t local/server-cloudrun:dev .",
     "rush": "node common/scripts/install-run-rush.js",
