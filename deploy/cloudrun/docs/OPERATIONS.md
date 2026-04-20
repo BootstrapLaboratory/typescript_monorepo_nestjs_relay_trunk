@@ -215,7 +215,7 @@ That helper:
 Then redeploy the backend:
 
 ```bash
-gh workflow run deploy-cloud-run-backend --ref main
+gh workflow run ci-release.yaml --ref main -f force_server=true
 ```
 
 ### Rotate `DATABASE_URL_DIRECT` Or `REDIS_URL`
@@ -231,7 +231,7 @@ bash deploy/cloudrun/scripts/sync-secrets.sh
 4. Redeploy the backend:
 
 ```bash
-gh workflow run deploy-cloud-run-backend --ref main
+gh workflow run ci-release.yaml --ref main -f force_server=true
 ```
 
 5. Validate the running service:
@@ -255,7 +255,7 @@ sync using these rules:
 - backend runtime env:
   - update `apps/server/.env.development` when local dev needs the same knob
   - update `deploy/cloudrun/config/.env.example` when Cloud Run needs the knob
-  - update `.github/workflows/deploy-cloud-run-backend.yaml` if the value must be injected at deploy time
+  - update `.github/workflows/ci-release.yaml` if the value must be injected at deploy time
 - backend secrets:
   - add the placeholder to `deploy/cloudrun/config/.env.example`
   - add the real value to `deploy/cloudrun/config/.env` or `.env.local`

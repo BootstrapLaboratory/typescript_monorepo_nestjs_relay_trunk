@@ -17,7 +17,7 @@ gets the real cloud side ready for them.
 - Steps `3` and `4`: manual provider setup using [NEON-UPSTASH-GUIDE.md](NEON-UPSTASH-GUIDE.md)
 - Step `5`: automated by [create-neon-app-user.sh](../scripts/create-neon-app-user.sh) and [sync-secrets.sh](../scripts/sync-secrets.sh)
 - Step `6`: automated by [configure-github-vars.sh](../scripts/configure-github-vars.sh), or manual in GitHub UI if preferred
-- Step `7`: automated by GitHub Actions in [../../.github/workflows/deploy-cloud-run-backend.yaml](../../.github/workflows/deploy-cloud-run-backend.yaml)
+- Step `7`: automated by GitHub Actions in [../../.github/workflows/ci-release.yaml](../../.github/workflows/ci-release.yaml)
 - Step `8`: manual verification after deploy
 
 ## Chosen Stack
@@ -309,12 +309,12 @@ bash deploy/cloudrun/scripts/configure-github-vars.sh
 
 Automation status:
 
-- handled by GitHub Actions in [../../.github/workflows/deploy-cloud-run-backend.yaml](../../.github/workflows/deploy-cloud-run-backend.yaml)
+- handled by GitHub Actions in [../../.github/workflows/ci-release.yaml](../../.github/workflows/ci-release.yaml)
 - this step is about starting the workflow and watching the result
 
 From GitHub Actions:
 
-- run `deploy-cloud-run-backend`
+- run `ci-release` with `force_server=true`
 
 What should happen:
 

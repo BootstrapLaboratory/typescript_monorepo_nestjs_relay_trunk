@@ -11,6 +11,8 @@ npm run server:image:build:local
 Equivalent direct command:
 
 ```bash
+node common/scripts/install-run-rush.js build --to server
+node common/scripts/install-run-rush.js deploy -p server -s server -t common/deploy/server --overwrite
 docker buildx build --pull --load -f apps/server/Dockerfile -t local/server-cloudrun:dev .
 ```
 
@@ -56,7 +58,7 @@ Quick automation map:
 - Cloud Run uptime checks, log-based metrics, and alert policies: [setup-monitoring-alerts.sh](scripts/setup-monitoring-alerts.sh)
 - Secret Manager secrets and secret access bindings: [sync-secrets.sh](scripts/sync-secrets.sh)
 - GitHub repository variables: [configure-github-vars.sh](scripts/configure-github-vars.sh)
-- Cloud Run image build, migrations, and deploy: [../../.github/workflows/deploy-cloud-run-backend.yaml](../../.github/workflows/deploy-cloud-run-backend.yaml)
+- Unified build, backend deploy, and webapp deploy orchestration: [../../.github/workflows/ci-release.yaml](../../.github/workflows/ci-release.yaml)
 - Neon and Upstash resource creation: still manual, documented in [NEON-UPSTASH-GUIDE.md](docs/NEON-UPSTASH-GUIDE.md)
 - Post-deploy health/query/mutation/subscription smoke validation: [tests/validate-post-deploy-smoke.sh](tests/validate-post-deploy-smoke.sh)
 - Temporary scale-up and cross-instance fanout validation: [tests/validate-multi-instance.sh](tests/validate-multi-instance.sh)

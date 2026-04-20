@@ -1,9 +1,9 @@
-import type { ChatQuery } from "./generated/ChatQuery.graphql";
+import type { ChatQuery } from "./__generated__/ChatQuery.graphql";
 import { graphql, useLazyLoadQuery, useSubscription } from "react-relay";
 import MessageItem from "./Message";
 import MessageAddForm from "./MessageAddForm";
 import { useMemo } from "react";
-import type { ChatMessageAddedSubscription } from "./generated/ChatMessageAddedSubscription.graphql";
+import type { ChatMessageAddedSubscription } from "./__generated__/ChatMessageAddedSubscription.graphql";
 import type { GraphQLSubscriptionConfig } from "relay-runtime";
 import { appendRootFieldRecordIfMissing } from "./store";
 import {

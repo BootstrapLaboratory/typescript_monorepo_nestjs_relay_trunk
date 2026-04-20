@@ -1,0 +1,12 @@
+{
+  "name": "api-contract",
+  "private": true,
+  "version": "0.0.1",
+  "files": [
+    "schema.gql"
+  ],
+  "scripts": {
+    "build": "node -e \"require('node:fs').accessSync('schema.gql')\"",
+    "start:dev": "npm --prefix ../../apps/server run graphql:schema:watch"
+  }
+}

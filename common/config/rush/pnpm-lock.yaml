@@ -74,6 +74,9 @@ importers:
       '@rolldown/plugin-babel':
         specifier: ^0.2.3
         version: 0.2.3(@babel/core@7.29.0)(@babel/runtime@7.29.2)(rolldown@1.0.0-rc.16)(vite@8.0.9(@types/node@25.6.0)(terser@5.46.1)(yaml@2.8.3))
+      '@rush-temp/api-contract':
+        specifier: file:./projects/api-contract.tgz
+        version: file:projects/api-contract.tgz
       '@rush-temp/server':
         specifier: file:./projects/server.tgz
         version: file:projects/server.tgz(@babel/core@7.29.0)(@jest/transform@30.3.0)(@jest/types@30.3.0)(@types/eslint@9.6.1)(babel-jest@30.3.0(@babel/core@7.29.0))(fastify@5.8.5)(jest-util@30.3.0)(webpack@5.106.0(@swc/core@1.15.30))
@@ -1413,12 +1416,16 @@ packages:
   '@rolldown/pluginutils@1.0.0-rc.7':
     resolution: {integrity: sha512-qujRfC8sFVInYSPPMLQByRh7zhwkGFS4+tyMQ83srV1qrxL4g8E2tyxVVyxd0+8QeBM1mIk9KbWxkegRr76XzA==}
 
+  '@rush-temp/api-contract@file:projects/api-contract.tgz':
+    resolution: {integrity: sha512-E5TMm9tn/V3mjQI+yArCMGBNKJmuxTttFNb0KIdz/nBjyO02r6TWg6+VuONPxrY17AhX569pAXIstMSBYhcGqA==, tarball: file:projects/api-contract.tgz}
+    version: 0.0.0
+
   '@rush-temp/server@file:projects/server.tgz':
     resolution: {integrity: sha512-aXdfjTD5/cRJqRsR9e7s3lHwfspiz52se4FjMuZVW4SpeaH4Jlh1kUaX5Cds76+w6OjLC2sCULy5TeCb2VAYBQ==, tarball: file:projects/server.tgz}
     version: 0.0.0
 
   '@rush-temp/webapp@file:projects/webapp.tgz':
-    resolution: {integrity: sha512-HNj8SAnTQaykRbEn+GBDzPSuCOYSIccpbDwTzIOCmMcti0zC8XsQEpKt4MTP6gfK5rayKTQSiZ6LIIPlGxZOfw==, tarball: file:projects/webapp.tgz}
+    resolution: {integrity: sha512-nGdB0KAy5qIzEOt+19NV2vODZjwSuAYfdKmygTNxG0g5gIPZMfFxqTVgiUz9BHhLYhiO7BHmaaAdTFNg16h57A==, tarball: file:projects/webapp.tgz}
     version: 0.0.0
 
   '@sec-ant/readable-stream@0.4.1':
@@ -6467,6 +6474,8 @@ snapshots:
   '@rolldown/pluginutils@1.0.0-rc.16': {}
 
   '@rolldown/pluginutils@1.0.0-rc.7': {}
+
+  '@rush-temp/api-contract@file:projects/api-contract.tgz': {}
 
   '@rush-temp/server@file:projects/server.tgz(@babel/core@7.29.0)(@jest/transform@30.3.0)(@jest/types@30.3.0)(@types/eslint@9.6.1)(babel-jest@30.3.0(@babel/core@7.29.0))(fastify@5.8.5)(jest-util@30.3.0)(webpack@5.106.0(@swc/core@1.15.30))':
     dependencies:

@@ -5,6 +5,12 @@
   "nodeSupportedVersionRange": ">=18.0.0",
   "projects": [
     {
+      "packageName": "api-contract",
+      "projectFolder": "libs/api",
+      "reviewCategory": "libraries",
+      "versionPolicyName": "apps"
+    },
+    {
       "packageName": "webapp",
       "projectFolder": "apps/webapp",
       "reviewCategory": "applications",

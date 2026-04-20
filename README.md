@@ -33,8 +33,10 @@ GraphQL codegen ownership and clean-checkout build flow:
 
 ## Deployment
 
-Deployment is split by application boundary:
+Deployment is orchestrated by one GitHub Actions workflow and then fanned out
+to the two runtime hosts:
 
+- GitHub Actions runs the unified [ci-release workflow](.github/workflows/ci-release.yaml).
 - The backend is built from this monorepo and deployed to Google Cloud Run.
 - PostgreSQL is hosted on Neon.
 - Redis pub/sub is hosted on Upstash.

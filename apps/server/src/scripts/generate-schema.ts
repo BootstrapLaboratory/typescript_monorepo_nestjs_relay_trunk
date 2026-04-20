@@ -13,8 +13,8 @@ import {
   GRAPHQL_SCHEMA_SCALARS,
 } from '../graphql/schema-manifest';
 
-const SERVER_ROOT = resolve(__dirname, '../..');
-const OUTPUT_PATH = resolve(SERVER_ROOT, 'generated/schema.gql');
+const REPO_ROOT = resolve(__dirname, '../../../..');
+const OUTPUT_PATH = resolve(REPO_ROOT, 'libs/api/schema.gql');
 
 async function generateSchema(): Promise<void> {
   const app = await NestFactory.createApplicationContext(

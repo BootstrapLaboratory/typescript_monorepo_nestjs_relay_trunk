@@ -7,6 +7,36 @@
   "commands": [
     {
       "commandKind": "bulk",
+      "name": "lint",
+      "summary": "Run lint scripts for the selected projects.",
+      "description": "Runs each selected project's lint script from its own project folder.",
+      "safeForSimultaneousRushProcesses": true,
+      "shellCommand": "npm run lint --if-present",
+      "enableParallelism": true,
+      "ignoreDependencyOrder": true,
+      "ignoreMissingScript": true,
+      "allowWarningsInSuccessfulBuild": true,
+      "incremental": false,
+      "watchForChanges": false,
+      "disableBuildCache": true
+    },
+    {
+      "commandKind": "bulk",
+      "name": "test",
+      "summary": "Run test scripts for the selected projects.",
+      "description": "Runs each selected project's test script from its own project folder.",
+      "safeForSimultaneousRushProcesses": true,
+      "shellCommand": "npm run test --if-present",
+      "enableParallelism": true,
+      "ignoreDependencyOrder": true,
+      "ignoreMissingScript": true,
+      "allowWarningsInSuccessfulBuild": true,
+      "incremental": false,
+      "watchForChanges": false,
+      "disableBuildCache": true
+    },
+    {
+      "commandKind": "bulk",
       "name": "dev",
       "summary": "Start the local development processes for the selected projects.",
       "description": "Runs each selected project's start:dev script from its own project folder. Intended for interactive local development from the repo root.",

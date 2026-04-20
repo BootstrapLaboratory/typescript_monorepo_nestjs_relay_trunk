@@ -1,6 +1,6 @@
 {
   "src": "./src",
-  "schema": "../server/generated/schema.gql",
+  "schema": "../../libs/api/schema.gql",
   "language": "typescript",
   "eagerEsModules": true
 }

@@ -11,8 +11,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { randomUUID } from 'crypto';
 import type { IncomingMessage } from 'http';
-import { join } from 'path';
-
 /* internal modules */
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -78,9 +76,6 @@ function logSubscriptionEvent(
       driver: ApolloDriver,
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const nodeEnv = configService.get<string>('NODE_ENV') ?? 'development';
-        const shouldWriteSchemaSnapshot = nodeEnv !== 'production';
-
         return {
           path: configService.get<string>('GRAPHQL_PATH') ?? '/graphql',
           subscriptions: {
@@ -122,12 +117,9 @@ function logSubscriptionEvent(
           introspection: true,
           plugins: [ApolloServerPluginLandingPageLocalDefault({ embed: true })],
           playground: false,
-          // Production builds should not depend on runtime file emission.
-          // Local dev still writes the snapshot so Relay watch can follow
-          // backend schema edits after Nest restarts.
-          autoSchemaFile: shouldWriteSchemaSnapshot
-            ? join(process.cwd(), 'generated/schema.gql')
-            : true,
+          // GraphQL SDL is generated ahead of time into libs/api/schema.gql.
+          // Runtime boot should not own or mutate the shared contract file.
+          autoSchemaFile: true,
           sortSchema: true,
         };
       },

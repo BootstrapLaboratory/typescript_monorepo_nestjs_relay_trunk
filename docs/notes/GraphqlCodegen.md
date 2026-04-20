@@ -6,8 +6,8 @@ Relay on the webapp.
 The important build rule is:
 
 - the backend TypeScript decorators are the source of truth
-- `schema.gql` is generated, not tracked
-- Relay artifacts are generated, not tracked
+- `libs/api/schema.gql` is the committed GraphQL contract snapshot
+- Relay artifacts are generated from that contract during build and local watch
 
 ## Source Of Truth
 
@@ -18,6 +18,10 @@ The GraphQL contract originates from the backend code-first definitions under
 - [apps/server/src/modules/chat/dto/message.model.ts](../../apps/server/src/modules/chat/dto/message.model.ts)
 - [apps/server/src/modules/chat/dto/new-message.input.ts](../../apps/server/src/modules/chat/dto/new-message.input.ts)
 - [apps/server/src/modules/common/scalars/date.scalar.ts](../../apps/server/src/modules/common/scalars/date.scalar.ts)
+
+The committed contract package lives at:
+
+- [libs/api](../../libs/api)
 
 ## SDL Generation
 
@@ -38,38 +42,35 @@ npm --prefix apps/server run graphql:schema
 
 Output:
 
-- [apps/server/generated/schema.gql](../../apps/server/generated/schema.gql)
+- [libs/api/schema.gql](../../libs/api/schema.gql)
 
-This file is intentionally ignored by Git.
+This file is intentionally tracked in Git. CI regenerates it whenever `server`
+is in scope and fails if the committed contract is stale.
 
 ## Relay Generation
 
-The webapp consumes the generated SDL via:
+The webapp consumes the committed SDL snapshot via:
 
 - [apps/webapp/relay.config.json](../../apps/webapp/relay.config.json)
 
-Relay generation always bootstraps the schema first:
+Relay generation uses that committed contract:
 
 ```bash
 npm --prefix apps/webapp run relay
 ```
 
-That command:
-
-1. runs `apps/server` schema generation
-2. runs `relay-compiler`
+That command runs `relay-compiler` against
+[libs/api/schema.gql](../../libs/api/schema.gql).
 
 Relay outputs are written under:
 
-- `apps/webapp/src/**/generated/`
-
-These files are also intentionally ignored by Git.
+- `apps/webapp/src/**/__generated__/`
 
 ## Build Ownership
 
 The clean-checkout build order for the webapp is:
 
-1. generate backend SDL
+1. read the committed GraphQL contract from `libs/api/schema.gql`
 2. generate Relay artifacts
 3. run TypeScript build
 4. run Vite build
@@ -78,7 +79,9 @@ That order is encoded in:
 
 - [apps/webapp/package.json](../../apps/webapp/package.json)
 
-So a clean checkout no longer depends on committed GraphQL generated files.
+For release CI, [ci-release.yaml](../../.github/workflows/ci-release.yaml)
+regenerates `libs/api/schema.gql` whenever `server` is in scope and fails if the
+result differs from Git.
 
 For production deployment, the webapp is built in GitHub Actions and the
 prebuilt `apps/webapp/dist` output is uploaded to Cloudflare Pages with
@@ -89,12 +92,12 @@ this repo's main deployment path.
 
 For local development:
 
-- `apps/webapp` runs an initial schema generation before Relay watch starts
-- `apps/server` still writes the schema snapshot during local Nest startup so
-  backend schema edits refresh the file after restarts
+- `libs/api` runs `graphql:schema:watch` against `apps/server`
+- `apps/webapp` runs Relay in watch mode against `libs/api/schema.gql`
+- `apps/server` boots without mutating the shared contract file at runtime
 
-That keeps the devcontainer workflow practical while production and CI builds
-stay independent from backend runtime startup.
+That keeps the devcontainer workflow practical while production and CI use the
+same ahead-of-time contract model.
 
 ## Updating The GraphQL Surface
 
@@ -106,5 +109,6 @@ When you add a new GraphQL resolver or scalar class, update:
 If the public GraphQL contract changes, rerun:
 
 ```bash
+npm --prefix apps/server run graphql:schema
 npm --prefix apps/webapp run relay
 ```

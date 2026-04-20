@@ -464,7 +464,7 @@ Official docs:
 
 Automation status:
 
-- handled by GitHub Actions in [../../.github/workflows/deploy-cloud-run-backend.yaml](../../.github/workflows/deploy-cloud-run-backend.yaml)
+- handled by GitHub Actions in [../../.github/workflows/ci-release.yaml](../../.github/workflows/ci-release.yaml)
 
 You do **not** need to create the Cloud Run service manually for the normal path.
 
@@ -476,7 +476,7 @@ You also do not need to manually upload a container image if the GitHub deployme
 
 Automation status:
 
-- the deploy itself is handled by GitHub Actions in [../../.github/workflows/deploy-cloud-run-backend.yaml](../../.github/workflows/deploy-cloud-run-backend.yaml)
+- the deploy itself is handled by GitHub Actions in [../../.github/workflows/ci-release.yaml](../../.github/workflows/ci-release.yaml)
 - this section is manual verification only
 
 After the first successful GitHub deploy, verify in the console:

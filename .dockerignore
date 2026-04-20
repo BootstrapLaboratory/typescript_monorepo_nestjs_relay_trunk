@@ -13,7 +13,9 @@ apps/*/.env
 apps/*/.env.*
 node_modules
 common/temp
-common/deploy
+common/deploy/*
+!common/deploy/server/
+!common/deploy/server/**
 apps/*/node_modules
 apps/*/dist
 apps/*/.vite

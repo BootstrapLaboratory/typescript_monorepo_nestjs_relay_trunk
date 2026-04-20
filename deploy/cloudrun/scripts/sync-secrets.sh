@@ -75,5 +75,5 @@ Access granted to:
 
 Next:
   1. Set GitHub repository variables.
-  2. Trigger deploy-cloud-run-backend.
+  2. Trigger ci-release with force_server=true.
 EOF

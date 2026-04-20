@@ -8,14 +8,15 @@
     "deps:upgrade": "bash ../../scripts/upgrade-package-json-deps.sh --target webapp",
     "dev": "vite",
     "relay:compiler": "relay-compiler",
-    "dev:relay": "npm --prefix ../server run graphql:schema && npm run relay:compiler -- --watch",
-    "relay": "npm --prefix ../server run graphql:schema && npm run relay:compiler",
+    "dev:relay": "npm run relay:compiler -- --watch",
+    "relay": "npm run relay:compiler",
     "analyze": "npm run relay && tsc -b && vite build --mode analyze",
     "build": "npm run relay && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "api-contract": "0.0.1",
     "graphql-ws": "^6.0.8",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",

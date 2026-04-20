@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { MessageAddFormAddMessageMutation } from "./generated/MessageAddFormAddMessageMutation.graphql";
+import type { MessageAddFormAddMessageMutation } from "./__generated__/MessageAddFormAddMessageMutation.graphql";
 import { graphql, useMutation } from "react-relay";
 import { appendRootFieldRecordIfMissing } from "./store";
 

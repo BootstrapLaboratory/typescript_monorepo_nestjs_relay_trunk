@@ -225,7 +225,7 @@ WEBAPP_VITE_GRAPHQL_WS=wss://api-32lgreeilq-ez.a.run.app/graphql
 
 These values are consumed by:
 
-- [deploy-cloudflare-pages-webapp.yaml](../../../.github/workflows/deploy-cloudflare-pages-webapp.yaml)
+- [ci-release.yaml](../../../.github/workflows/ci-release.yaml)
 
 The workflow maps them to the build-time `VITE_*` environment variables before
 running the repo build helper.
@@ -235,7 +235,7 @@ running the repo build helper.
 Steps:
 
 1. Open GitHub Actions.
-2. Run `deploy-cloudflare-pages-webapp`, or push a change to `main` that matches the workflow paths.
+2. Run `ci-release` with `force_webapp=true`, or push a change to `main` that affects the `webapp` Rush project.
 3. Wait for the build and `wrangler pages deploy` upload to complete.
 4. Open the generated production URL.
 

@@ -34,7 +34,8 @@ That script:
 - validates the required production API env vars are present
 - refuses to build if the placeholder `api.example.com` URLs are still in use
 - bootstraps Rush dependencies from the monorepo root
-- generates GraphQL SDL from the backend source and Relay artifacts for the webapp
+- uses the committed GraphQL contract snapshot in `libs/api/schema.gql`
+- generates Relay artifacts for the webapp
 - builds the web app from the monorepo root
 
 The script lives at:
@@ -43,7 +44,7 @@ The script lives at:
 
 The deployment workflow that uses this build output lives at:
 
-- [deploy-cloudflare-pages-webapp.yaml](../../.github/workflows/deploy-cloudflare-pages-webapp.yaml)
+- [ci-release.yaml](../../.github/workflows/ci-release.yaml)
 
 ## Required GitHub Repository Configuration
 

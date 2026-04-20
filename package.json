@@ -14,7 +14,7 @@
     "deps:upgrade:server": "bash scripts/upgrade-package-json-deps.sh --target server",
     "webapp:analyze": "npm --prefix apps/webapp run analyze",
     "webapp:build:pages": "bash deploy/cloudflare-pages/scripts/build-webapp.sh",
-    "server:image:build:local": "docker buildx build --pull --load -f apps/server/Dockerfile -t local/server-cloudrun:dev .",
+    "server:image:build:local": "node common/scripts/install-run-rush.js build --to server && node common/scripts/install-run-rush.js deploy -p server -s server -t common/deploy/server --overwrite && docker buildx build --pull --load -f apps/server/Dockerfile -t local/server-cloudrun:dev .",
     "rush": "node common/scripts/install-run-rush.js",
     "rush:install": "node common/scripts/install-run-rush.js install",
     "rush:update": "node common/scripts/install-run-rush.js update",
