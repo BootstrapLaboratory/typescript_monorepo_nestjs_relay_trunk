@@ -1,0 +1,3 @@
+common/scripts/install-run*.js
+apps/server/__generated__/**
+apps/webapp/src/**/__generated__/**
