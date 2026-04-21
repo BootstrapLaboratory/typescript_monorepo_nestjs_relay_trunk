@@ -95,7 +95,7 @@ function dryRunPreparationCommand(context: DeployExecutorContext): string {
   return `mkdir -p ${context.service.artifact_path}/apps/server`
 }
 
-export const deployServerExecutor: DeployExecutor = {
+export const executor: DeployExecutor = {
   buildEnvironment,
   dryRunPreparationCommand,
   image: SERVER_EXECUTOR_IMAGE,

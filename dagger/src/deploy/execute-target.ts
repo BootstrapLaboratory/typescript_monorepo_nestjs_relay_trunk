@@ -20,7 +20,7 @@ export async function executeTarget(
   dockerSocket?: Socket,
   gcpCredentialsFile?: File,
 ): Promise<DeployTargetResult> {
-  const deployExecutor = getDeployExecutor(service.executor)
+  const deployExecutor = await getDeployExecutor(service.executor)
   const deployExecutorContext = {
     deployConfig,
     dockerSocket,
