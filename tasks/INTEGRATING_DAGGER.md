@@ -9,10 +9,16 @@ Target behavior:
 - GitHub Actions remains the trigger and outer CI shell.
 - `detect` continues deciding scope.
 - packaging stays stable while deploy orchestration moves into Dagger.
+- GitHub Actions release flow becomes `detect -> package -> plan-deploy -> deploy`.
 - selected targets are filtered first, then deployment order is computed from the service mesh.
 - `webapp`-only releases do not require `server`.
 - `server` deploys before services that list it in `deploy_after`.
 - independent services in the same wave deploy in parallel.
+
+Expected final GitHub Actions job graph:
+
+- pull request: `detect -> validate`
+- release: `detect -> package -> plan-deploy -> deploy`
 
 ## Principles
 
@@ -115,6 +121,7 @@ Purpose: move deployment-order logic into portable code.
 Stop point:
 
 - Release planning is now portable, deterministic, and independent from GitHub DAG semantics.
+- The repository has enough planner functionality to back a first-class `plan-deploy` CI job.
 
 ## Phase 4: Add Dagger Release Deploy Orchestration
 
@@ -153,18 +160,24 @@ Purpose: make GitHub call Dagger, while keeping GitHub as the outer CI entrypoin
   - `validate_targets_json`
   - `release_targets_json`
 - [ ] Keep the `package` job initially.
-- [ ] Replace separate deploy orchestration jobs with a single `deploy` job.
+- [ ] Add a first-class `plan-deploy` job after `package`.
+- [ ] Make `plan-deploy`:
+  - call Dagger planning
+  - emit or persist the computed deployment plan
+  - fail fast if the service mesh or selected targets are invalid
+- [ ] Replace separate deploy orchestration jobs with a single `deploy` job that depends on `plan-deploy`.
 - [ ] In that `deploy` job:
   - download required artifacts
   - set up required secrets/env vars
   - call `dagger` to run `deploy-release`
+- [ ] Keep the deploy job focused on execution, not planning.
 - [ ] Remove GitHub-specific ordering logic from `.github/workflows/ci-release.yaml`.
 - [ ] Remove `always()` / skipped-job orchestration workarounds once Dagger is authoritative.
 - [ ] Keep manual release entrypoints, but make them feed the Dagger-backed release path.
 
 Stop point:
 
-- GitHub Actions is now only the trigger/shell, and Dagger owns deployment ordering.
+- GitHub Actions now exposes `detect -> package -> plan-deploy -> deploy`, and Dagger owns deployment ordering.
 
 ## Phase 6: Cleanup and Portability Hardening
 
