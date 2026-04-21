@@ -55,11 +55,11 @@ Purpose: make deploy implementations callable outside GitHub-specific job orches
   - commit SHA
   - environment name
   - required secrets/env vars
-- [ ] Extract backend deploy logic into a dedicated callable entrypoint.
-- [ ] Extract webapp deploy logic into a dedicated callable entrypoint.
-- [ ] Replace GitHub-only action assumptions with CLI/API/script equivalents where needed.
-- [ ] Keep executor implementations target-specific; do not force a shared deploy script.
-- [ ] Ensure each target executor can be invoked independently for local or CI dry-runs.
+- [x] Extract backend deploy logic into a dedicated callable entrypoint.
+- [x] Extract webapp deploy logic into a dedicated callable entrypoint.
+- [x] Replace GitHub-only action assumptions with CLI/API/script equivalents where needed.
+- [x] Keep executor implementations target-specific; do not force a shared deploy script.
+- [x] Ensure each target executor can be invoked independently for local or CI dry-runs.
 
 ### Phase 1 Deliverable: Concrete Executor Contract
 
@@ -139,6 +139,7 @@ Portable direction:
 
 - caller prepares cloud authentication before invoking the executor, or the executor performs CLI auth itself
 - executor uses `gcloud` and `docker` directly instead of relying on GitHub-only action wrappers
+- executor supports `DRY_RUN=1` for local or CI verification without live cloud side effects
 
 #### `webapp` executor
 
@@ -176,14 +177,41 @@ Current side effects and steps to preserve:
 - validate deployed routes
 - update `deploy/prod/webapp`
 
-Current GitHub-specific piece that should be replaced or wrapped portably:
-
-- `cloudflare/wrangler-action@v3`
-
 Portable direction:
 
 - executor installs or receives `wrangler` and runs `wrangler pages deploy ...` directly
 - route validation stays as a portable shell or Node step
+- executor supports `DRY_RUN=1` for local or CI verification without live Cloudflare side effects
+
+Independent verification examples:
+
+```bash
+mkdir -p /tmp/dagger-phase1-server/apps/server
+DRY_RUN=1 \
+GIT_SHA=deadbeef \
+GCP_PROJECT_ID=demo \
+GCP_ARTIFACT_REGISTRY_REPOSITORY=repo \
+CLOUD_RUN_SERVICE=server-svc \
+CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT=svc@example.com \
+CLOUD_RUN_CORS_ORIGIN=https://example.com \
+CLOUD_RUN_REGION=europe-west4 \
+ARTIFACT_PATH=/tmp/dagger-phase1-server \
+bash scripts/ci/deploy-server.sh
+```
+
+```bash
+mkdir -p /tmp/dagger-phase1-webapp
+DRY_RUN=1 \
+GIT_SHA=deadbeef \
+CLOUDFLARE_API_TOKEN=token \
+CLOUDFLARE_ACCOUNT_ID=acct \
+CLOUDFLARE_PAGES_PROJECT_NAME=pages-demo \
+WEBAPP_VITE_GRAPHQL_HTTP=https://api.example.com \
+WEBAPP_VITE_GRAPHQL_WS=wss://api.example.com \
+WEBAPP_URL=https://pages-demo.pages.dev \
+ARTIFACT_PATH=/tmp/dagger-phase1-webapp \
+bash scripts/ci/deploy-webapp.sh
+```
 
 Notes:
 
@@ -198,13 +226,34 @@ Stop point:
 
 Purpose: introduce Dagger without cutting over deploys yet.
 
-- [ ] Choose the Dagger SDK language.
-- [ ] Recommended default: TypeScript, to match the existing Node-based CI helpers.
-- [ ] Initialize the Dagger module in the repository.
-- [ ] Add a minimal Dagger function that can run successfully in local development.
-- [ ] Add a minimal GitHub Actions job or step that can call a Dagger function successfully.
-- [ ] Decide whether Dagger Cloud is used for observability or kept disabled.
-- [ ] Keep this phase free-compatible by running Dagger on standard GitHub runners only.
+- [x] Choose the Dagger SDK language.
+- [x] Recommended default: TypeScript, to match the existing Node-based CI helpers.
+- [x] Initialize the Dagger module in the repository.
+- [x] Add a minimal Dagger function that can run successfully in local development.
+- [x] Add a minimal GitHub Actions job or step that can call a Dagger function successfully.
+- [x] Decide whether Dagger Cloud is used for observability or kept disabled.
+- [x] Keep this phase free-compatible by running Dagger on standard GitHub runners only.
+
+Phase 2 implementation notes:
+
+- The Dagger module lives in `dagger/` to avoid colliding with the monorepo root package layout.
+- The selected SDK is TypeScript.
+- The initial bootstrap functions are:
+  - `ping`
+  - `describe-release-targets`
+- Local verification commands:
+```bash
+cd dagger
+dagger develop
+dagger functions
+dagger call ping
+dagger call describe-release-targets --release-targets-json='["server","webapp"]'
+```
+- GitHub bootstrap workflow:
+  - `.github/workflows/dagger-smoke.yaml`
+- Dagger Cloud is intentionally disabled for now to keep the bootstrap free-compatible:
+  - no `DAGGER_CLOUD_TOKEN`
+  - `DAGGER_NO_NAG=1` in the smoke workflow
 
 Stop point:
 
@@ -214,33 +263,53 @@ Stop point:
 
 Purpose: move deployment-order logic into portable code.
 
-- [ ] Add a service mesh document, recommended path: `deploy/services-mesh.yaml`.
-- [ ] Use `deploy_after` as the dependency field name.
-- [ ] Start with the current known targets:
+- [x] Add a service mesh document, recommended path: `deploy/services-mesh.yaml`.
+- [x] Use `deploy_after` as the dependency field name.
+- [x] Start with the current known targets:
   - `server`
   - `webapp`
-- [ ] Reserve the shape for future targets such as `mobile`.
-- [ ] Add artifact and executor metadata only if the planner needs it immediately.
-- [ ] Implement a Dagger-side planner that:
+- [x] Reserve the shape for future targets such as `mobile`.
+- [x] Add artifact and executor metadata only if the planner needs it immediately.
+- [x] Implement a Dagger-side planner that:
   - reads `release_targets_json`
   - filters the mesh to selected targets first
   - computes deployment waves
   - fails on cycles
-- [ ] Define the planner output contract.
-- [ ] Recommended shape:
+- [x] Define the planner output contract.
+- [x] Current shape:
 ```json
 {
+  "selectedTargets": ["server", "webapp"],
   "waves": [
     [{ "target": "server", "executor": "server" }],
     [{ "target": "webapp", "executor": "webapp" }]
   ]
 }
 ```
-- [ ] Add planner tests for:
+- [x] Add planner tests for:
   - `["webapp"] -> [["webapp"]]`
   - `["server", "webapp"] -> [["server"], ["webapp"]]`
   - a future parallel case like `["server", "webapp", "mobile"] -> [["server"], ["webapp", "mobile"]]`
   - cycle detection
+
+Phase 3 implementation notes:
+
+- The canonical mesh file lives at [`../deploy/services-mesh.yaml`](../deploy/services-mesh.yaml).
+- The Dagger planner entrypoint is `plan-release` in [`../dagger/src/index.ts`](../dagger/src/index.ts).
+- The pure planner logic and validations live in [`../dagger/src/planner.ts`](../dagger/src/planner.ts).
+- Planner tests live in [`../dagger/test/planner.test.ts`](../dagger/test/planner.test.ts).
+- The planner intentionally filters the mesh to selected targets first, so `["webapp"]` produces one valid wave without requiring `server` to be selected.
+- Only executor metadata is included in the initial mesh and plan output. Artifact metadata stays out of the mesh until the Dagger deploy executor actually needs it.
+
+Phase 3 verification commands:
+
+```bash
+cd dagger
+yarn test
+yarn tsc --noEmit
+dagger call plan-release --repo=.. --release-targets-json='["webapp"]'
+dagger call plan-release --repo=.. --release-targets-json='["server","webapp"]'
+```
 
 Stop point:
 
@@ -251,53 +320,119 @@ Stop point:
 
 Purpose: let Dagger own deploy ordering and parallel wave execution.
 
-- [ ] Add a Dagger function such as `deploy-release`.
-- [ ] Input contract for `deploy-release`:
+- [x] Add a Dagger function such as `deploy-release`.
+- [x] Input contract for the initial `deploy-release`:
+  - `repo`
   - `release_targets_json`
   - commit SHA
   - environment name
-  - artifact locations or artifact root
-- [ ] Make `deploy-release`:
+  - `dry_run`
+  - artifact locations resolved from canonical repo paths, with optional target-specific environment overrides
+- [x] Make `deploy-release`:
   - load the service mesh
   - compute the plan
   - execute each wave in order
   - execute targets inside a wave in parallel
-- [ ] Keep executor dispatch target-specific:
+- [x] Keep executor dispatch target-specific:
   - `server` -> backend deploy executor
   - `webapp` -> webapp deploy executor
-- [ ] Emit readable logs for:
+- [x] Emit readable logs for:
   - selected targets
   - computed waves
   - start/finish of each target deploy
-- [ ] Make wave failure stop the remaining plan.
-- [ ] Define how deploy tags are updated on success per target.
+- [x] Make wave failure stop the remaining plan.
+- [x] Define how deploy tags are updated on success per target.
+
+Phase 4 implementation notes:
+
+- The first Dagger deploy executor lives in [`../dagger/src/index.ts`](../dagger/src/index.ts) as `deploy-release`.
+- `deploy-release` reuses the planner from [`../dagger/src/planner.ts`](../dagger/src/planner.ts) instead of duplicating ordering logic.
+- Dagger dispatches to the existing portable shell executors:
+  - [`../scripts/ci/deploy-server.sh`](../scripts/ci/deploy-server.sh)
+  - [`../scripts/ci/deploy-webapp.sh`](../scripts/ci/deploy-webapp.sh)
+- `deploy-release` now accepts:
+  - `deploy_config_file` for explicit per-target runtime config
+  - `docker_socket` for the live backend image build/push path
+  - `gcp_credentials_file` for live Google Cloud authentication inside the server executor container
+- The `dry_run` path still matters:
+  - it uses placeholder cloud values when `dry_run=true`
+  - it synthesizes missing artifact directories only for dry-run verification
+- Deploy tag update behavior remains owned by the target-specific executor scripts, so Dagger orchestration does not reimplement tag semantics.
+
+Phase 4 verification commands:
+
+```bash
+cd dagger
+yarn test
+yarn tsc --noEmit
+dagger call deploy-release --repo=.. --git-sha=deadbeef --release-targets-json='["webapp"]' --dry-run=true
+dagger call deploy-release --repo=.. --git-sha=deadbeef --release-targets-json='["server","webapp"]' --dry-run=true
+```
 
 Stop point:
 
-- Dagger can perform the full ordered release deploy locally or from CI, using the same service mesh.
+- Dagger can perform a dry-run ordered release deploy locally, using the same service mesh and target-specific executors that Phase 5 will call from CI.
 
 ## Phase 5: Integrate Dagger into GitHub Actions
 
 Purpose: make GitHub call Dagger, while keeping GitHub as the outer CI entrypoint.
 
-- [ ] Keep `detect` as the source of:
+- [x] Keep `detect` as the source of:
   - `validate_targets_json`
   - `release_targets_json`
-- [ ] Keep the `package` job initially.
-- [ ] Add a first-class `plan-deploy` job after `package`.
-- [ ] Make `plan-deploy`:
+- [x] Keep the `package` job initially.
+- [x] Add a first-class `plan-deploy` job after `package`.
+- [x] Make `plan-deploy`:
   - call Dagger planning
   - emit or persist the computed deployment plan
   - fail fast if the service mesh or selected targets are invalid
-- [ ] Replace separate deploy orchestration jobs with a single `deploy` job that depends on `plan-deploy`.
-- [ ] In that `deploy` job:
+- [x] Replace separate deploy orchestration jobs with a single `deploy` job that depends on `plan-deploy`.
+- [x] In that `deploy` job:
   - download required artifacts
   - set up required secrets/env vars
   - call `dagger` to run `deploy-release`
-- [ ] Keep the deploy job focused on execution, not planning.
-- [ ] Remove GitHub-specific ordering logic from `.github/workflows/ci-release.yaml`.
-- [ ] Remove `always()` / skipped-job orchestration workarounds once Dagger is authoritative.
-- [ ] Keep manual release entrypoints, but make them feed the Dagger-backed release path.
+- [x] Keep the deploy job focused on execution, not planning.
+- [x] Remove GitHub-specific ordering logic from `.github/workflows/ci-release.yaml`.
+- [x] Remove `always()` / skipped-job orchestration workarounds once Dagger is authoritative.
+- [x] Keep manual release entrypoints, but make them feed the Dagger-backed release path.
+
+Phase 5 implementation notes:
+
+- The release workflow now exposes `detect -> package -> plan-deploy -> deploy` in [`../.github/workflows/ci-release.yaml`](../.github/workflows/ci-release.yaml).
+- `plan-deploy` installs Dagger, prepares the module, and calls `plan-release`.
+- `deploy`:
+  - downloads and materializes the packaged artifacts first
+  - authenticates to Google Cloud only when `server` is in `release_targets_json`
+  - writes an explicit `dagger-deploy-config.json`
+  - calls `deploy-release`
+- The manual wrapper workflows continue to point at the reusable `ci-release` workflow:
+  - [`../.github/workflows/deploy-server.yaml`](../.github/workflows/deploy-server.yaml)
+  - [`../.github/workflows/deploy-webapp.yaml`](../.github/workflows/deploy-webapp.yaml)
+
+Phase 5 verification commands:
+
+```bash
+cd dagger
+yarn test
+yarn tsc --noEmit
+dagger call plan-release --repo=.. --release-targets-json='["server","webapp"]'
+tmpfile="$(mktemp)"
+cat > "${tmpfile}" <<'EOF'
+{
+  "webapp": {
+    "artifactPath": "/workspace/apps/webapp/dist",
+    "cloudflareApiToken": "token-from-config",
+    "cloudflareAccountId": "account-from-config",
+    "cloudflarePagesProjectName": "custom-webapp",
+    "webappGraphqlHttp": "https://api.custom.invalid/graphql",
+    "webappGraphqlWs": "wss://api.custom.invalid/graphql",
+    "webappUrl": "https://custom-webapp.pages.dev"
+  }
+}
+EOF
+dagger call deploy-release --repo=.. --git-sha=deadbeef --release-targets-json='["webapp"]' --dry-run=true --deploy-config-file="${tmpfile}"
+git diff --check
+```
 
 Stop point:
 
@@ -320,16 +455,14 @@ Stop point:
 ## Suggested Implementation Order
 
 - [x] Phase 0
-- [ ] Phase 1
-- [ ] Phase 2
-- [ ] Phase 3
-- [ ] Phase 4
-- [ ] Phase 5
+- [x] Phase 1
+- [x] Phase 2
+- [x] Phase 3
+- [x] Phase 4
+- [x] Phase 5
 - [ ] Phase 6
 
 ## Open Decisions
 
-- [ ] Confirm Dagger SDK language.
-- [ ] Confirm whether Dagger Cloud is used or intentionally skipped.
 - [ ] Decide whether packaging remains GitHub-owned long-term or also moves into Dagger later.
 - [ ] Decide whether deploy artifacts remain GitHub artifacts or move to a storage backend later.

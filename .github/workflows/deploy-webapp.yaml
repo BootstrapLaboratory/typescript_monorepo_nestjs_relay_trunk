@@ -9,7 +9,7 @@ jobs:
   release:
     permissions:
       contents: write
-      deployments: write
+      id-token: write
     uses: ./.github/workflows/ci-release.yaml
     with:
       force_targets_json: '["webapp"]'

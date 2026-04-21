@@ -231,39 +231,66 @@ jobs:
           path: apps/webapp/dist
           if-no-files-found: error
 
-  deploy-server:
+  plan-deploy:
     needs:
       - detect
       - package
-    if: needs.package.result == 'success' && contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
+    if: needs.package.result == 'success'
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      id-token: write
     outputs:
-      service_url: ${{ steps.deploy.outputs.url }}
+      deployment_plan_json: ${{ steps.plan.outputs.deployment_plan_json }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - name: Setup NodeJS version ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v5
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          package-manager-cache: false
+      - name: Install Dagger CLI
+        run: |
+          mkdir -p "${RUNNER_TEMP}/bin"
+          curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR="${RUNNER_TEMP}/bin" sh
+          echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
 
-      - name: Download backend deploy artifact
-        uses: actions/download-artifact@v5
-        with:
-          name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'server') }}
-          path: .
+      - name: Prepare Dagger module
+        working-directory: dagger
+        env:
+          DAGGER_NO_NAG: "1"
+        run: dagger develop
 
-      - name: Extract backend deploy artifact
-        run: make ci-deploy-extract-target-artifact TARGET=server
+      - id: plan
+        name: Compute deployment waves
+        working-directory: dagger
+        env:
+          DAGGER_NO_NAG: "1"
+          RELEASE_TARGETS_JSON: ${{ needs.detect.outputs.release_targets_json }}
+        run: |
+          deployment_plan_json="$(dagger call plan-release --repo=.. --release-targets-json="${RELEASE_TARGETS_JSON}")"
+          printf 'deployment_plan_json<<EOF\n%s\nEOF\n' "${deployment_plan_json}" >> "${GITHUB_OUTPUT}"
+          printf '%s\n' "${deployment_plan_json}"
+
+  deploy:
+    needs:
+      - detect
+      - plan-deploy
+    if: needs.plan-deploy.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install Dagger CLI
+        run: |
+          mkdir -p "${RUNNER_TEMP}/bin"
+          curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR="${RUNNER_TEMP}/bin" sh
+          echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
 
       - name: Confirm required Google Cloud configuration
+        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
         env:
           GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
           GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
@@ -275,117 +302,22 @@ jobs:
         run: make ci-deploy-server-check-gcp-config
 
       - id: auth
+        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
         name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v3
         with:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
 
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v3
-        with:
-          version: ">= 416.0.0"
-          project_id: ${{ vars.GCP_PROJECT_ID }}
-
-      - name: Confirm required Secret Manager entries are readable
-        env:
-          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
-        run: make ci-deploy-server-check-secrets
-
-      - name: Load direct database URL for migrations
-        env:
-          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
-        run: make ci-deploy-server-load-direct-db-url
-
-      - name: Run production database migrations from the deploy artifact
-        env:
-          NODE_ENV: production
-          DATABASE_URL_DIRECT: ${{ env.DATABASE_URL_DIRECT }}
-          DATABASE_SYNCHRONIZE: "false"
-          DATABASE_SSL: "true"
-          DATABASE_SSL_REJECT_UNAUTHORIZED: "false"
-        run: make ci-deploy-server-migrations
-
-      - name: Configure Docker for Artifact Registry
-        env:
-          CLOUD_RUN_REGION: ${{ env.CLOUD_RUN_REGION }}
-        run: make ci-deploy-server-configure-docker
-
-      - name: Build and push backend image
-        env:
-          IMAGE_NAME: ${{ env.CLOUD_RUN_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}/${{ vars.CLOUD_RUN_SERVICE }}:${{ github.sha }}
-        run: make ci-deploy-server-build-push-image
-
-      - id: deploy
-        name: Deploy backend to Cloud Run
-        uses: google-github-actions/deploy-cloudrun@v3
-        with:
-          service: ${{ vars.CLOUD_RUN_SERVICE }}
-          region: ${{ env.CLOUD_RUN_REGION }}
-          project_id: ${{ vars.GCP_PROJECT_ID }}
-          image: ${{ env.IMAGE_NAME }}
-          env_vars: |-
-            NODE_ENV=production
-            HOST=0.0.0.0
-            GRAPHQL_PATH=/graphql
-            PUBSUB_DRIVER=redis
-            DATABASE_SYNCHRONIZE=false
-            DATABASE_SSL=true
-            DATABASE_SSL_REJECT_UNAUTHORIZED=false
-            CORS_ORIGIN=${{ vars.CLOUD_RUN_CORS_ORIGIN }}
-            LOG_VERBOSE_PUBSUB=false
-            LOG_GRAPHQL_SUBSCRIPTIONS=false
-          secrets: |-
-            DATABASE_URL=DATABASE_URL:latest
-            REDIS_URL=REDIS_URL:latest
-          flags: >-
-            --port=3000
-            --service-account=${{ vars.CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT }}
-            --no-invoker-iam-check
-            --min-instances=0
-            --max-instances=3
-            --concurrency=20
-            --timeout=3600
-
-      - name: Run post-deploy backend smoke tests
-        env:
-          SERVICE_URL: ${{ steps.deploy.outputs.url }}
-        run: make ci-deploy-server-smoke SERVICE_URL="${{ steps.deploy.outputs.url }}"
-
-      - name: Update backend deploy tag
-        run: make ci-deploy-update-tag TARGET=server GIT_SHA="${GITHUB_SHA}"
-
-  deploy-webapp:
-    needs:
-      - detect
-      - package
-      - deploy-server
-    if: |
-      always() &&
-      !cancelled() &&
-      needs.package.result == 'success' &&
-      contains(fromJSON(needs.detect.outputs.release_targets_json), 'webapp') &&
-      (
-        !contains(fromJSON(needs.detect.outputs.release_targets_json), 'server') ||
-        needs.deploy-server.result == 'success'
-      )
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      deployments: write
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-
-      - name: Download webapp deploy artifact
+      - name: Download backend deploy artifact
+        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
         uses: actions/download-artifact@v5
         with:
-          name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'webapp') }}
-          path: apps/webapp/dist
+          name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'server') }}
+          path: .
 
       - name: Confirm required Cloudflare configuration
+        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'webapp')
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -394,21 +326,85 @@ jobs:
           WEBAPP_VITE_GRAPHQL_WS: ${{ vars.WEBAPP_VITE_GRAPHQL_WS }}
         run: make ci-deploy-webapp-check-config
 
-      - name: Deploy webapp to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+      - name: Download webapp deploy artifact
+        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'webapp')
+        uses: actions/download-artifact@v5
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          command: >-
-            pages deploy apps/webapp/dist
-            --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
-            --branch=main
+          name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'webapp') }}
+          path: apps/webapp/dist
 
-      - name: Validate deployed frontend routes
+      - name: Extract backend deploy artifact
+        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
+        run: make ci-deploy-extract-target-artifact TARGET=server
+
+      - name: Prepare Dagger module
+        working-directory: dagger
         env:
-          WEBAPP_URL: https://${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}.pages.dev
-        run: make ci-deploy-webapp-validate-routes
+          DAGGER_NO_NAG: "1"
+        run: dagger develop
 
-      - name: Update webapp deploy tag
-        run: make ci-deploy-update-tag TARGET=webapp GIT_SHA="${GITHUB_SHA}"
+      - name: Show deployment plan
+        env:
+          DEPLOYMENT_PLAN_JSON: ${{ needs.plan-deploy.outputs.deployment_plan_json }}
+        run: printf '%s\n' "${DEPLOYMENT_PLAN_JSON}"
+
+      - name: Write Dagger deploy config
+        env:
+          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+          GCP_ARTIFACT_REGISTRY_REPOSITORY: ${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}
+          CLOUD_RUN_SERVICE: ${{ vars.CLOUD_RUN_SERVICE }}
+          CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT: ${{ vars.CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT }}
+          CLOUD_RUN_CORS_ORIGIN: ${{ vars.CLOUD_RUN_CORS_ORIGIN }}
+          CLOUD_RUN_REGION: ${{ env.CLOUD_RUN_REGION }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+          WEBAPP_VITE_GRAPHQL_HTTP: ${{ vars.WEBAPP_VITE_GRAPHQL_HTTP }}
+          WEBAPP_VITE_GRAPHQL_WS: ${{ vars.WEBAPP_VITE_GRAPHQL_WS }}
+          WEBAPP_URL: https://${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}.pages.dev
+        run: |
+          cat > "${RUNNER_TEMP}/dagger-deploy-config.json" <<EOF
+          {
+            "server": {
+              "artifactPath": "/workspace/common/deploy/server",
+              "gcpProjectId": "${GCP_PROJECT_ID}",
+              "gcpArtifactRegistryRepository": "${GCP_ARTIFACT_REGISTRY_REPOSITORY}",
+              "cloudRunService": "${CLOUD_RUN_SERVICE}",
+              "cloudRunRuntimeServiceAccount": "${CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT}",
+              "cloudRunCorsOrigin": "${CLOUD_RUN_CORS_ORIGIN}",
+              "cloudRunRegion": "${CLOUD_RUN_REGION}"
+            },
+            "webapp": {
+              "artifactPath": "/workspace/apps/webapp/dist",
+              "cloudflareApiToken": "${CLOUDFLARE_API_TOKEN}",
+              "cloudflareAccountId": "${CLOUDFLARE_ACCOUNT_ID}",
+              "cloudflarePagesProjectName": "${CLOUDFLARE_PAGES_PROJECT_NAME}",
+              "webappGraphqlHttp": "${WEBAPP_VITE_GRAPHQL_HTTP}",
+              "webappGraphqlWs": "${WEBAPP_VITE_GRAPHQL_WS}",
+              "webappUrl": "${WEBAPP_URL}"
+            }
+          }
+          EOF
+
+      - name: Execute deployment plan
+        working-directory: dagger
+        env:
+          DAGGER_NO_NAG: "1"
+          RELEASE_TARGETS_JSON: ${{ needs.detect.outputs.release_targets_json }}
+        run: |
+          cmd=(
+            dagger call deploy-release
+            --repo=..
+            --git-sha="${GITHUB_SHA}"
+            --release-targets-json="${RELEASE_TARGETS_JSON}"
+            --environment=prod
+            --dry-run=false
+            --deploy-config-file="${RUNNER_TEMP}/dagger-deploy-config.json"
+          )
+
+          if [[ "${RELEASE_TARGETS_JSON}" == *'"server"'* ]]; then
+            cmd+=(--docker-socket=/var/run/docker.sock)
+            cmd+=(--gcp-credentials-file='${{ steps.auth.outputs.credentials_file_path }}')
+          fi
+
+          "${cmd[@]}"

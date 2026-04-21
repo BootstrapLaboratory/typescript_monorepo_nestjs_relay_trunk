@@ -31,8 +31,10 @@ DEPLOY_ARTIFACT_ARCHIVE ?= $(DEPLOY_ARTIFACT_NAME).tgz
 	ci-deploy-server-migrations \
 	ci-deploy-server-configure-docker \
 	ci-deploy-server-build-push-image \
+	ci-deploy-server-release \
 	ci-deploy-server-smoke \
 	ci-deploy-webapp-check-config \
+	ci-deploy-webapp-release \
 	ci-deploy-webapp-validate-routes \
 	ci-deploy-update-tag
 
@@ -126,6 +128,10 @@ ci-deploy-server-configure-docker:
 ci-deploy-server-build-push-image:
 	@bash scripts/ci/build-push-server-image.sh
 
+ci-deploy-server-release:
+	@test -n "$(GIT_SHA)" || (echo "GIT_SHA is required" >&2; exit 1)
+	@ARTIFACT_PATH="$(ARTIFACT_PATH)" DEPLOY_TAG_PREFIX="$(DEPLOY_TAG_PREFIX)" GIT_SHA="$(GIT_SHA)" IMAGE_NAME="$(IMAGE_NAME)" bash scripts/ci/deploy-server.sh
+
 ci-deploy-server-smoke:
 	@test -n "$(SERVICE_URL)" || (echo "SERVICE_URL is required" >&2; exit 1)
 	@SERVICE_URL="$(SERVICE_URL)" bash deploy/cloudrun/tests/validate-post-deploy-smoke.sh
@@ -142,6 +148,10 @@ ci-deploy-webapp-check-config:
 		CLOUDFLARE_PAGES_PROJECT_NAME \
 		WEBAPP_VITE_GRAPHQL_HTTP \
 		WEBAPP_VITE_GRAPHQL_WS
+
+ci-deploy-webapp-release:
+	@test -n "$(GIT_SHA)" || (echo "GIT_SHA is required" >&2; exit 1)
+	@ARTIFACT_PATH="$(ARTIFACT_PATH)" DEPLOY_TAG_PREFIX="$(DEPLOY_TAG_PREFIX)" GIT_SHA="$(GIT_SHA)" WEBAPP_URL="$(WEBAPP_URL)" bash scripts/ci/deploy-webapp.sh
 
 ci-deploy-webapp-validate-routes:
 	@bash scripts/ci/validate-webapp-routes.sh
