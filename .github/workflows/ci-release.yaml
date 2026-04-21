@@ -320,6 +320,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup NodeJS version ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: false
+
       - name: Download backend deploy artifact
         uses: actions/download-artifact@v5
         with:

@@ -41,6 +41,13 @@ const subscriptionQuery = "subscription { MessageAdded { id author body } }";
 const getMessagesQuery = "query { getMessages { id author body } }";
 const addMessageMutation =
   "mutation($input: NewMessageInput!) { addMessage(newMessageData: $input) { id author body } }";
+const WebSocketCtor = globalThis.WebSocket;
+
+if (typeof WebSocketCtor !== "function") {
+  throw new Error(
+    "Global WebSocket is unavailable in this Node runtime. Ensure the smoke test runs with the configured Node version from actions/setup-node.",
+  );
+}
 
 async function waitForHealthyService() {
   for (let attempt = 1; attempt <= 24; attempt += 1) {
@@ -112,7 +119,7 @@ async function waitForSubscriptionDelivery() {
         clearTimeout(timeoutTimer);
       }
 
-      if (socket && socket.readyState === WebSocket.OPEN) {
+      if (socket && socket.readyState === WebSocketCtor.OPEN) {
         try {
           socket.close(1000, "Smoke complete");
         } catch {}
@@ -147,7 +154,10 @@ async function waitForSubscriptionDelivery() {
       );
     }, 20_000);
 
-    socket = new WebSocket(`${wsUrl}?probe=post-deploy-smoke-${uniqueId}`, "graphql-transport-ws");
+    socket = new WebSocketCtor(
+      `${wsUrl}?probe=post-deploy-smoke-${uniqueId}`,
+      "graphql-transport-ws",
+    );
 
     socket.onopen = () => {
       socket.send(JSON.stringify({ type: "connection_init" }));
