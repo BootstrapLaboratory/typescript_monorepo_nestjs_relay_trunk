@@ -11,10 +11,6 @@ export class Message {
   @AutoMap()
   author?: string;
 
-  @Field(() => String, { nullable: true })
-  @AutoMap()
-  email?: string;
-
   @Field()
   @AutoMap()
   body!: string;
