@@ -26,17 +26,7 @@ DEPLOY_ARTIFACT_ARCHIVE ?= $(DEPLOY_ARTIFACT_NAME).tgz
 	ci-package-archive-target \
 	ci-deploy-extract-target-artifact \
 	ci-deploy-server-check-gcp-config \
-	ci-deploy-server-check-secrets \
-	ci-deploy-server-load-direct-db-url \
-	ci-deploy-server-migrations \
-	ci-deploy-server-configure-docker \
-	ci-deploy-server-build-push-image \
-	ci-deploy-server-release \
-	ci-deploy-server-smoke \
-	ci-deploy-webapp-check-config \
-	ci-deploy-webapp-release \
-	ci-deploy-webapp-validate-routes \
-	ci-deploy-update-tag
+	ci-deploy-webapp-check-config
 
 ci-check-graphql-drift:
 	@FAILURE_MODE="$(FAILURE_MODE)" bash scripts/ci/check-graphql-drift.sh
@@ -106,41 +96,6 @@ ci-deploy-server-check-gcp-config:
 		CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT \
 		CLOUD_RUN_CORS_ORIGIN
 
-ci-deploy-server-check-secrets:
-	@test -n "$${GCP_PROJECT_ID:-}" || (echo "GCP_PROJECT_ID is required" >&2; exit 1)
-	@for secret_name in DATABASE_URL DATABASE_URL_DIRECT REDIS_URL; do \
-		gcloud secrets versions access latest \
-			--secret "$$secret_name" \
-			--project "$$GCP_PROJECT_ID" \
-			> /dev/null; \
-	done
-
-ci-deploy-server-load-direct-db-url:
-	@bash scripts/ci/load-direct-db-url.sh
-
-ci-deploy-server-migrations:
-	@bash scripts/ci/run-dist-server-migrations.sh
-
-ci-deploy-server-configure-docker:
-	@test -n "$${CLOUD_RUN_REGION:-}" || (echo "CLOUD_RUN_REGION is required" >&2; exit 1)
-	@gcloud auth configure-docker "$${CLOUD_RUN_REGION}-docker.pkg.dev" --quiet
-
-ci-deploy-server-build-push-image:
-	@bash scripts/ci/build-push-server-image.sh
-
-ci-deploy-server-release:
-	@test -n "$(GIT_SHA)" || (echo "GIT_SHA is required" >&2; exit 1)
-	@ARTIFACT_PATH="$(ARTIFACT_PATH)" DEPLOY_TAG_PREFIX="$(DEPLOY_TAG_PREFIX)" GIT_SHA="$(GIT_SHA)" IMAGE_NAME="$(IMAGE_NAME)" bash scripts/ci/deploy-server.sh
-
-ci-deploy-server-smoke:
-	@test -n "$(SERVICE_URL)" || (echo "SERVICE_URL is required" >&2; exit 1)
-	@SERVICE_URL="$(SERVICE_URL)" bash deploy/cloudrun/tests/validate-post-deploy-smoke.sh
-
-ci-deploy-update-tag:
-	@test -n "$(TARGET)" || (echo "TARGET is required" >&2; exit 1)
-	@test -n "$(GIT_SHA)" || (echo "GIT_SHA is required" >&2; exit 1)
-	@TARGET="$(TARGET)" DEPLOY_TAG_PREFIX="$(DEPLOY_TAG_PREFIX)" GIT_SHA="$(GIT_SHA)" bash scripts/ci/update-deploy-tag.sh
-
 ci-deploy-webapp-check-config:
 	@MISSING_PREFIX="Missing required Cloudflare GitHub configuration:" bash scripts/ci/require-envs.sh \
 		CLOUDFLARE_API_TOKEN \
@@ -148,10 +103,3 @@ ci-deploy-webapp-check-config:
 		CLOUDFLARE_PAGES_PROJECT_NAME \
 		WEBAPP_VITE_GRAPHQL_HTTP \
 		WEBAPP_VITE_GRAPHQL_WS
-
-ci-deploy-webapp-release:
-	@test -n "$(GIT_SHA)" || (echo "GIT_SHA is required" >&2; exit 1)
-	@ARTIFACT_PATH="$(ARTIFACT_PATH)" DEPLOY_TAG_PREFIX="$(DEPLOY_TAG_PREFIX)" GIT_SHA="$(GIT_SHA)" WEBAPP_URL="$(WEBAPP_URL)" bash scripts/ci/deploy-webapp.sh
-
-ci-deploy-webapp-validate-routes:
-	@bash scripts/ci/validate-webapp-routes.sh

@@ -80,13 +80,14 @@ That order is encoded in:
 - [apps/webapp/package.json](../../apps/webapp/package.json)
 
 For release CI, [ci-release.yaml](../../.github/workflows/ci-release.yaml)
-regenerates `libs/api/schema.gql` whenever `server` is in scope and fails if the
-result differs from Git.
+verifies the committed `libs/api/schema.gql` snapshot during `package` whenever
+`server` is in scope, then hands the packaged outputs to the Dagger-backed
+release flow described in [ReleaseFlow.md](./ReleaseFlow.md).
 
-For production deployment, the webapp is built in GitHub Actions and the
-prebuilt `apps/webapp/dist` output is uploaded to Cloudflare Pages with
-Wrangler. Cloudflare no longer rebuilds frontend source from Git pushes for
-this repo's main deployment path.
+For production deployment, the webapp build is produced in the `package` job
+and the prebuilt `apps/webapp/dist` artifact is later published to Cloudflare
+Pages by the `deploy` job through Dagger's `deploy-release` executor using
+Wrangler.
 
 ## Local Development
 

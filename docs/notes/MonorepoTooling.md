@@ -5,6 +5,7 @@ This repository intentionally uses Rush and Nx for different jobs.
 ## Current Split
 
 - Rush is the source of truth for dependency installation, lockfile updates, CI builds, Docker builds, and deploy packaging.
+- Dagger owns release planning and deploy execution after packaged artifacts exist.
 - Nx is used only for the local `npm run dev` experience.
 
 That split is deliberate.
@@ -36,7 +37,8 @@ npm run dev:rush
 
 ## Why CI Still Uses Rush
 
-CI, production builds, and Docker images stay Rush-native on purpose:
+CI, production builds, Docker images, and deploy artifacts stay Rush-native on
+purpose:
 
 - one authority for installs and lockfiles
 - one authority for monorepo build selection in automation
@@ -44,6 +46,9 @@ CI, production builds, and Docker images stay Rush-native on purpose:
 
 This keeps the convenience of Nx in development without making Nx a required
 part of the install or deployment architecture.
+
+Dagger consumes those packaged outputs for release orchestration instead of
+replacing Rush's build and packaging responsibilities.
 
 ## Nx Caching Policy
 

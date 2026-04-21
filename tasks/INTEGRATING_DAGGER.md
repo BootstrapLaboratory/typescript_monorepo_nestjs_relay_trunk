@@ -442,15 +442,19 @@ Stop point:
 
 Purpose: finish the migration and reduce CI vendor coupling.
 
-- [ ] Remove obsolete GitHub-only deploy orchestration code.
-- [ ] Remove dead Makefile targets or helper scripts that were only needed for GitHub job wiring.
-- [ ] Update operational docs to describe the Dagger-backed deploy flow only.
+- [x] Remove obsolete GitHub-only deploy orchestration code.
+- [x] Remove dead Makefile targets or helper scripts that were only needed for GitHub job wiring.
+- [x] Update operational docs to describe the Dagger-backed deploy flow only.
 - [ ] Add one example of invoking the same Dagger release function from another CI provider.
 - [ ] Add a follow-up task for GitLab wrapper integration if desired.
 
 Stop point:
 
 - Deploy orchestration is portable, and GitHub-specific logic is reduced to thin wrapper CI.
+
+Current operational release note:
+
+- [../docs/notes/ReleaseFlow.md](../docs/notes/ReleaseFlow.md)
 
 ## Suggested Implementation Order
 
