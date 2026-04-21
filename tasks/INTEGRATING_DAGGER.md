@@ -48,8 +48,8 @@ Stop point:
 
 Purpose: make deploy implementations callable outside GitHub-specific job orchestration.
 
-- [ ] Identify the minimum stable input contract for every deploy target.
-- [ ] Define a portable executor contract for each target:
+- [x] Identify the minimum stable input contract for every deploy target.
+- [x] Define a portable executor contract for each target:
   - target name
   - artifact location
   - commit SHA
@@ -60,6 +60,130 @@ Purpose: make deploy implementations callable outside GitHub-specific job orches
 - [ ] Replace GitHub-only action assumptions with CLI/API/script equivalents where needed.
 - [ ] Keep executor implementations target-specific; do not force a shared deploy script.
 - [ ] Ensure each target executor can be invoked independently for local or CI dry-runs.
+
+### Phase 1 Deliverable: Concrete Executor Contract
+
+The portable contract should be storage-agnostic and CI-vendor-agnostic. The executor should receive materialized inputs and credentials/capabilities from the caller instead of assuming GitHub-specific job primitives.
+
+Base executor contract for every target:
+
+- `target`: logical release target name such as `server` or `webapp`
+- `artifact_path`: local filesystem path to the prepared release artifact or build output
+- `git_sha`: release commit SHA to deploy and tag
+- `environment`: deployment environment name, initially `prod`
+- `deploy_tag_prefix`: deploy tag namespace, currently `deploy/prod`
+- `repo_root`: repository root if the executor still needs repo-local files/scripts
+- `capabilities`: authenticated access prepared by the caller, for example cloud auth, registry auth, or API token availability
+
+Expected executor behavior for every target:
+
+- validate required inputs and credentials up front
+- deploy the target artifact
+- run target-specific post-deploy verification
+- update the deploy tag only after a successful deploy
+- return structured result data if useful for later orchestration or reporting
+
+Recommended portable output contract:
+
+- `target`
+- `status`
+- `deployed_ref` such as image name or deploy identifier
+- optional `service_url` for targets that expose one
+
+Current concrete target mapping:
+
+#### `server` executor
+
+Required portable inputs:
+
+- `target=server`
+- `artifact_path=common/deploy/server` after extracting `deploy-target-server.tgz`
+- `git_sha`
+- `environment=prod`
+- `deploy_tag_prefix`
+- `cloud_run_region`
+- `gcp_project_id`
+- `gcp_artifact_registry_repository`
+- `cloud_run_service`
+- `cloud_run_runtime_service_account`
+- `cloud_run_cors_origin`
+
+Required credentials/capabilities:
+
+- authenticated Google Cloud access
+- ability to read Secret Manager secrets:
+  - `DATABASE_URL`
+  - `DATABASE_URL_DIRECT`
+  - `REDIS_URL`
+- ability to push container images to Artifact Registry
+- ability to update Git deploy tags in the origin repository
+
+Current side effects and steps to preserve:
+
+- extract the packaged backend artifact
+- verify required Google Cloud configuration
+- load `DATABASE_URL_DIRECT`
+- run dist migrations from `common/deploy/server/apps/server`
+- build and push the backend image
+- deploy Cloud Run service
+- smoke test the deployed service URL
+- update `deploy/prod/server`
+
+Current GitHub-specific pieces that should be replaced or wrapped portably:
+
+- `google-github-actions/auth@v3`
+- `google-github-actions/setup-gcloud@v3`
+- `google-github-actions/deploy-cloudrun@v3`
+
+Portable direction:
+
+- caller prepares cloud authentication before invoking the executor, or the executor performs CLI auth itself
+- executor uses `gcloud` and `docker` directly instead of relying on GitHub-only action wrappers
+
+#### `webapp` executor
+
+Required portable inputs:
+
+- `target=webapp`
+- `artifact_path=apps/webapp/dist` after materializing the packaged frontend artifact
+- `git_sha`
+- `environment=prod`
+- `deploy_tag_prefix`
+- `cloudflare_pages_project_name`
+- `webapp_url` for route validation, currently `https://<project>.pages.dev`
+
+Required credentials/capabilities:
+
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
+- ability to update Git deploy tags in the origin repository
+
+Current environment/config checks still present in CI:
+
+- `WEBAPP_VITE_GRAPHQL_HTTP`
+- `WEBAPP_VITE_GRAPHQL_WS`
+
+Note:
+
+- these Vite variables are currently validated in the deploy job even though the release artifact is already built
+- Phase 1 should preserve current behavior first, then later decide whether those checks belong in packaging instead of deployment
+
+Current side effects and steps to preserve:
+
+- materialize the packaged frontend artifact
+- verify required Cloudflare configuration
+- deploy the built frontend to Cloudflare Pages
+- validate deployed routes
+- update `deploy/prod/webapp`
+
+Current GitHub-specific piece that should be replaced or wrapped portably:
+
+- `cloudflare/wrangler-action@v3`
+
+Portable direction:
+
+- executor installs or receives `wrangler` and runs `wrangler pages deploy ...` directly
+- route validation stays as a portable shell or Node step
 
 Notes:
 
