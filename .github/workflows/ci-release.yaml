@@ -7,12 +7,9 @@ on:
       - main
   workflow_call:
     inputs:
-      force_server:
-        default: false
-        type: boolean
-      force_webapp:
-        default: false
-        type: boolean
+      force_targets_json:
+        default: '[]'
+        type: string
 
 permissions:
   contents: read
@@ -21,6 +18,8 @@ env:
   CLOUD_RUN_REGION: europe-west4
   NODE_VERSION: "24"
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  DEPLOY_ARTIFACT_PREFIX: deploy-target
+  DEPLOY_TAG_PREFIX: deploy/prod
 
 concurrency:
   group: ci-release-${{ github.event.pull_request.number || github.ref }}
@@ -33,14 +32,9 @@ jobs:
       mode: ${{ steps.plan.outputs.mode || steps.plan_manual.outputs.mode }}
       any_scope: ${{ steps.plan.outputs.any_scope || steps.plan_manual.outputs.any_scope }}
       pr_base_sha: ${{ steps.plan.outputs.pr_base_sha || steps.plan_manual.outputs.pr_base_sha }}
-      pr_affected_projects_json: ${{ steps.plan.outputs.pr_affected_projects_json || steps.plan_manual.outputs.pr_affected_projects_json }}
-      server_affected_projects_json: ${{ steps.plan.outputs.server_affected_projects_json || steps.plan_manual.outputs.server_affected_projects_json }}
-      webapp_affected_projects_json: ${{ steps.plan.outputs.webapp_affected_projects_json || steps.plan_manual.outputs.webapp_affected_projects_json }}
-      validate_server: ${{ steps.plan.outputs.validate_server || steps.plan_manual.outputs.validate_server }}
-      validate_webapp: ${{ steps.plan.outputs.validate_webapp || steps.plan_manual.outputs.validate_webapp }}
-      deploy_server: ${{ steps.plan.outputs.deploy_server || steps.plan_manual.outputs.deploy_server }}
-      deploy_webapp: ${{ steps.plan.outputs.deploy_webapp || steps.plan_manual.outputs.deploy_webapp }}
-      release_targets: ${{ steps.plan.outputs.release_targets || steps.plan_manual.outputs.release_targets }}
+      affected_projects_by_target_json: ${{ steps.plan.outputs.affected_projects_by_target_json || steps.plan_manual.outputs.affected_projects_by_target_json }}
+      validate_targets_json: ${{ steps.plan.outputs.validate_targets_json || steps.plan_manual.outputs.validate_targets_json }}
+      deploy_targets_json: ${{ steps.plan.outputs.deploy_targets_json || steps.plan_manual.outputs.deploy_targets_json }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@v5
@@ -62,8 +56,8 @@ jobs:
         env:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
-          FORCE_SERVER: "false"
-          FORCE_WEBAPP: "false"
+          FORCE_TARGETS_JSON: '[]'
+          DEPLOY_TAG_PREFIX: ${{ env.DEPLOY_TAG_PREFIX }}
         run: node scripts/ci/compute-rush-plan.mjs
 
       - id: plan_manual
@@ -72,8 +66,8 @@ jobs:
         env:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           PR_BASE_SHA: ""
-          FORCE_SERVER: ${{ inputs.force_server }}
-          FORCE_WEBAPP: ${{ inputs.force_webapp }}
+          FORCE_TARGETS_JSON: ${{ inputs.force_targets_json }}
+          DEPLOY_TAG_PREFIX: ${{ env.DEPLOY_TAG_PREFIX }}
         run: node scripts/ci/compute-rush-plan.mjs
 
   validate:
@@ -119,7 +113,7 @@ jobs:
         uses: ./.github/actions/cached-install
 
       - name: Verify the committed GraphQL contract snapshot
-        if: needs.detect.outputs.validate_server == 'true'
+        if: contains(fromJSON(needs.detect.outputs.validate_targets_json), 'server')
         run: make ci-check-graphql-drift FAILURE_MODE=merge
 
       - name: Lint affected Rush projects
@@ -132,7 +126,7 @@ jobs:
         run: make ci-validate-build-affected FROM_SHA="${{ needs.detect.outputs.pr_base_sha }}"
 
       - name: Run production-like database migrations
-        if: needs.detect.outputs.validate_server == 'true'
+        if: contains(fromJSON(needs.detect.outputs.validate_targets_json), 'server')
         env:
           NODE_ENV: production
           DATABASE_HOST: 127.0.0.1
@@ -145,7 +139,7 @@ jobs:
         run: make ci-validate-server-migrations
 
       - name: Start backend with production-like env
-        if: needs.detect.outputs.validate_server == 'true'
+        if: contains(fromJSON(needs.detect.outputs.validate_targets_json), 'server')
         env:
           NODE_ENV: production
           HOST: 127.0.0.1
@@ -166,25 +160,25 @@ jobs:
         run: make ci-validate-start-server
 
       - name: Run backend smoke tests
-        if: needs.detect.outputs.validate_server == 'true'
+        if: contains(fromJSON(needs.detect.outputs.validate_targets_json), 'server')
         env:
           SERVICE_URL: http://127.0.0.1:3100
         run: make ci-validate-server-smoke SERVICE_URL=http://127.0.0.1:3100
 
       - name: Show backend logs on failure
-        if: failure() && needs.detect.outputs.validate_server == 'true'
+        if: failure() && contains(fromJSON(needs.detect.outputs.validate_targets_json), 'server')
         run: make ci-validate-show-server-logs
 
       - name: Stop backend
-        if: always() && needs.detect.outputs.validate_server == 'true'
+        if: always() && contains(fromJSON(needs.detect.outputs.validate_targets_json), 'server')
         run: make ci-validate-stop-server
 
       - name: Prepare pruned backend deploy bundle
-        if: needs.detect.outputs.validate_server == 'true'
+        if: contains(fromJSON(needs.detect.outputs.validate_targets_json), 'server')
         run: make ci-package-server-bundle
 
       - name: Build runtime-only backend container
-        if: needs.detect.outputs.validate_server == 'true'
+        if: contains(fromJSON(needs.detect.outputs.validate_targets_json), 'server')
         run: make ci-validate-build-server-container IMAGE_TAG=local/server-cloudrun:${{ github.sha }}
 
   package:
@@ -207,33 +201,33 @@ jobs:
         uses: ./.github/actions/cached-install
 
       - name: Verify the committed GraphQL contract snapshot
-        if: needs.detect.outputs.deploy_server == 'true'
+        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
         run: make ci-check-graphql-drift FAILURE_MODE=deploy
 
       - name: Lint, test, and build selected release targets
-        run: make ci-package-release-targets DEPLOY_SERVER=${{ needs.detect.outputs.deploy_server }} DEPLOY_WEBAPP=${{ needs.detect.outputs.deploy_webapp }}
+        run: make ci-package-release-targets DEPLOY_TARGETS_JSON='${{ needs.detect.outputs.deploy_targets_json }}'
 
       - name: Prepare pruned backend deploy bundle
-        if: needs.detect.outputs.deploy_server == 'true'
+        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
         run: make ci-package-server-bundle
 
       - name: Archive backend deploy bundle
-        if: needs.detect.outputs.deploy_server == 'true'
-        run: make ci-package-archive-server-bundle
+        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
+        run: make ci-package-archive-target TARGET=server
 
       - name: Upload backend deploy artifact
-        if: needs.detect.outputs.deploy_server == 'true'
+        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
         uses: actions/upload-artifact@v5
         with:
-          name: server-deploy
-          path: server-deploy.tgz
+          name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'server') }}
+          path: ${{ format('{0}-{1}.tgz', env.DEPLOY_ARTIFACT_PREFIX, 'server') }}
           if-no-files-found: error
 
       - name: Upload webapp deploy artifact
-        if: needs.detect.outputs.deploy_webapp == 'true'
+        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'webapp')
         uses: actions/upload-artifact@v5
         with:
-          name: webapp-dist
+          name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'webapp') }}
           path: apps/webapp/dist
           if-no-files-found: error
 
@@ -241,7 +235,7 @@ jobs:
     needs:
       - detect
       - package
-    if: github.event_name != 'pull_request' && needs.detect.outputs.deploy_server == 'true' && needs.package.result == 'success'
+    if: needs.package.result == 'success' && contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -263,11 +257,11 @@ jobs:
       - name: Download backend deploy artifact
         uses: actions/download-artifact@v5
         with:
-          name: server-deploy
+          name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'server') }}
           path: .
 
       - name: Extract backend deploy artifact
-        run: make ci-deploy-server-extract-artifact
+        run: make ci-deploy-extract-target-artifact TARGET=server
 
       - name: Confirm required Google Cloud configuration
         env:
@@ -359,7 +353,7 @@ jobs:
         run: make ci-deploy-server-smoke SERVICE_URL="${{ steps.deploy.outputs.url }}"
 
       - name: Update backend deploy tag
-        run: make ci-deploy-server-update-tag TAG_NAME=deploy/prod/server GIT_SHA="${GITHUB_SHA}"
+        run: make ci-deploy-update-tag TARGET=server GIT_SHA="${GITHUB_SHA}"
 
   deploy-webapp:
     needs:
@@ -369,10 +363,12 @@ jobs:
     if: |
       always() &&
       !cancelled() &&
-      github.event_name != 'pull_request' &&
-      needs.detect.outputs.deploy_webapp == 'true' &&
       needs.package.result == 'success' &&
-      (needs.deploy-server.result == 'success' || needs.deploy-server.result == 'skipped')
+      contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'webapp') &&
+      (
+        !contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server') ||
+        needs.deploy-server.result == 'success'
+      )
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -386,7 +382,7 @@ jobs:
       - name: Download webapp deploy artifact
         uses: actions/download-artifact@v5
         with:
-          name: webapp-dist
+          name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'webapp') }}
           path: apps/webapp/dist
 
       - name: Confirm required Cloudflare configuration
@@ -415,4 +411,4 @@ jobs:
         run: make ci-deploy-webapp-validate-routes
 
       - name: Update webapp deploy tag
-        run: make ci-deploy-webapp-update-tag TAG_NAME=deploy/prod/webapp GIT_SHA="${GITHUB_SHA}"
+        run: make ci-deploy-update-tag TARGET=webapp GIT_SHA="${GITHUB_SHA}"

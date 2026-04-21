@@ -3,9 +3,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
+DEPLOY_TAG_PREFIX="${DEPLOY_TAG_PREFIX:-deploy/prod}"
 
-if [[ -z "${TAG_NAME:-}" ]]; then
-  echo "TAG_NAME is required" >&2
+if [[ -z "${TARGET:-}" ]]; then
+  echo "TARGET is required" >&2
   exit 1
 fi
 
@@ -13,6 +14,8 @@ if [[ -z "${GIT_SHA:-}" ]]; then
   echo "GIT_SHA is required" >&2
   exit 1
 fi
+
+TAG_NAME="${DEPLOY_TAG_PREFIX}/${TARGET}"
 
 cd "${REPO_ROOT}"
 

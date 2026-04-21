@@ -4,6 +4,8 @@ import { resolve } from 'node:path';
 
 const REPO_ROOT = resolve(import.meta.dirname, '..', '..');
 const OUTPUT_PATH = process.env.GITHUB_OUTPUT;
+const TARGET_NAMES = ['server', 'webapp'];
+const DEPLOY_TAG_PREFIX = process.env.DEPLOY_TAG_PREFIX ?? 'deploy/prod';
 
 function run(command, args) {
   return execFileSync(command, args, {
@@ -23,8 +25,29 @@ function writeOutput(name, value) {
   console.log(`${name}=${normalizedValue}`);
 }
 
-function parseBoolean(value) {
-  return value === '1' || value === 'true';
+function parseTargetList(value) {
+  const parsedValue = JSON.parse(value);
+
+  if (!Array.isArray(parsedValue)) {
+    throw new Error('FORCE_TARGETS_JSON must be a JSON array.');
+  }
+
+  const normalizedTargets = [];
+  for (const targetName of parsedValue) {
+    if (typeof targetName !== 'string' || targetName.length === 0) {
+      throw new Error('FORCE_TARGETS_JSON entries must be non-empty strings.');
+    }
+
+    if (!TARGET_NAMES.includes(targetName)) {
+      throw new Error(`Unsupported forced target "${targetName}".`);
+    }
+
+    if (!normalizedTargets.includes(targetName)) {
+      normalizedTargets.push(targetName);
+    }
+  }
+
+  return normalizedTargets;
 }
 
 function hasGitCommit(ref) {
@@ -71,13 +94,18 @@ function projectSetContains(projects, projectName) {
   return projects.includes(projectName);
 }
 
-function joinTargets(targets) {
-  return targets.join(',');
+function buildAffectedProjectsByTarget(resolver) {
+  return Object.fromEntries(
+    TARGET_NAMES.map((targetName) => [targetName, [...resolver(targetName)]]),
+  );
+}
+
+function buildDeployTagName(targetName) {
+  return `${DEPLOY_TAG_PREFIX}/${targetName}`;
 }
 
 const eventName = process.env.GITHUB_EVENT_NAME ?? '';
-const forceServer = parseBoolean(process.env.FORCE_SERVER ?? 'false');
-const forceWebapp = parseBoolean(process.env.FORCE_WEBAPP ?? 'false');
+const forceTargets = parseTargetList(process.env.FORCE_TARGETS_JSON ?? '[]');
 
 if (!eventName) {
   throw new Error('GITHUB_EVENT_NAME is required.');
@@ -96,74 +124,85 @@ if (eventName === 'pull_request') {
 
   const normalizedBaseSha = run('git', ['rev-parse', `${prBaseSha}^{commit}`]);
   const affectedProjects = rushAffectedProjects(normalizedBaseSha);
+  const validateTargets = [];
+
+  if (projectSetContains(affectedProjects, 'server')) {
+    validateTargets.push('server');
+  }
+  if (projectSetContains(affectedProjects, 'webapp')) {
+    validateTargets.push('webapp');
+  }
+
+  const affectedProjectsByTarget = buildAffectedProjectsByTarget((targetName) =>
+    projectSetContains(affectedProjects, targetName) ? affectedProjects : [],
+  );
 
   writeOutput('mode', 'pull_request');
   writeOutput('pr_base_sha', normalizedBaseSha);
-  writeOutput('pr_affected_projects_json', JSON.stringify(affectedProjects));
-  writeOutput('validate_server', String(projectSetContains(affectedProjects, 'server')));
-  writeOutput('validate_webapp', String(projectSetContains(affectedProjects, 'webapp')));
-  writeOutput('deploy_server', 'false');
-  writeOutput('deploy_webapp', 'false');
-  writeOutput('server_affected_projects_json', '[]');
-  writeOutput('webapp_affected_projects_json', '[]');
   writeOutput(
-    'any_scope',
-    String(projectSetContains(affectedProjects, 'server') || projectSetContains(affectedProjects, 'webapp')),
+    'affected_projects_by_target_json',
+    JSON.stringify(affectedProjectsByTarget),
   );
+  writeOutput('validate_targets_json', JSON.stringify(validateTargets));
+  writeOutput('deploy_targets_json', '[]');
+  writeOutput('any_scope', String(validateTargets.length > 0));
   process.exit(0);
 }
 
 const currentHeadSha = run('git', ['rev-parse', 'HEAD^{commit}']);
 const targetServerOnly =
   eventName === 'workflow_call' &&
-  forceServer &&
-  !forceWebapp;
+  forceTargets.length === 1 &&
+  forceTargets.includes('server');
 const targetWebappOnly =
   eventName === 'workflow_call' &&
-  forceWebapp &&
-  !forceServer;
+  forceTargets.length === 1 &&
+  forceTargets.includes('webapp');
 
 const serverBaseSha = targetWebappOnly
   ? currentHeadSha
-  : resolveBaseSha('deploy/prod/server');
+  : resolveBaseSha(buildDeployTagName('server'));
 const webappBaseSha = targetServerOnly
   ? currentHeadSha
-  : resolveBaseSha('deploy/prod/webapp');
+  : resolveBaseSha(buildDeployTagName('webapp'));
 
 const serverAffectedProjects = serverBaseSha ? rushAffectedProjects(serverBaseSha) : [];
 const webappAffectedProjects = webappBaseSha ? rushAffectedProjects(webappBaseSha) : [];
 
 const deployServer =
-  forceServer ||
+  forceTargets.includes('server') ||
   !serverBaseSha ||
   projectSetContains(serverAffectedProjects, 'server');
 const deployWebapp =
-  forceWebapp ||
+  forceTargets.includes('webapp') ||
   !webappBaseSha ||
   projectSetContains(webappAffectedProjects, 'webapp');
 
-const releaseTargets = [];
+const deployTargets = [];
 if (deployServer) {
-  releaseTargets.push('server');
+  deployTargets.push('server');
 }
 if (deployWebapp) {
-  releaseTargets.push('webapp');
+  deployTargets.push('webapp');
 }
+
+const releaseAffectedProjectsByTarget = {
+  server: serverAffectedProjects,
+  webapp: webappAffectedProjects,
+};
+const affectedProjectsByTarget = buildAffectedProjectsByTarget(
+  (targetName) => releaseAffectedProjectsByTarget[targetName] ?? [],
+);
 
 writeOutput('mode', 'release');
 writeOutput('pr_base_sha', '');
-writeOutput('pr_affected_projects_json', '[]');
 writeOutput(
-  'server_affected_projects_json',
-  JSON.stringify(serverAffectedProjects),
+  'affected_projects_by_target_json',
+  JSON.stringify(affectedProjectsByTarget),
 );
 writeOutput(
-  'webapp_affected_projects_json',
-  JSON.stringify(webappAffectedProjects),
+  'validate_targets_json',
+  JSON.stringify(deployTargets),
 );
-writeOutput('validate_server', String(deployServer));
-writeOutput('validate_webapp', String(deployWebapp));
-writeOutput('deploy_server', String(deployServer));
-writeOutput('deploy_webapp', String(deployWebapp));
-writeOutput('release_targets', joinTargets(releaseTargets));
-writeOutput('any_scope', String(releaseTargets.length > 0));
+writeOutput('deploy_targets_json', JSON.stringify(deployTargets));
+writeOutput('any_scope', String(deployTargets.length > 0));

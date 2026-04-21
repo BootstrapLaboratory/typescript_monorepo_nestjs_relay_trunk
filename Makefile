@@ -3,8 +3,12 @@ SHELL := bash
 RUSH := node common/scripts/install-run-rush.js
 SERVER_SMOKE_LOG ?= /tmp/server-smoke.log
 SERVER_PID_FILE ?= /tmp/server-smoke.pid
-SERVER_DEPLOY_ARCHIVE ?= server-deploy.tgz
 GRAPHQL_SCHEMA ?= libs/api/schema.gql
+DEPLOY_ARTIFACT_PREFIX ?= deploy-target
+DEPLOY_TAG_PREFIX ?= deploy/prod
+TARGET ?=
+DEPLOY_ARTIFACT_NAME ?= $(DEPLOY_ARTIFACT_PREFIX)-$(TARGET)
+DEPLOY_ARTIFACT_ARCHIVE ?= $(DEPLOY_ARTIFACT_NAME).tgz
 
 .PHONY: \
 	ci-check-graphql-drift \
@@ -19,8 +23,8 @@ GRAPHQL_SCHEMA ?= libs/api/schema.gql
 	ci-package-server-bundle \
 	ci-validate-build-server-container \
 	ci-package-release-targets \
-	ci-package-archive-server-bundle \
-	ci-deploy-server-extract-artifact \
+	ci-package-archive-target \
+	ci-deploy-extract-target-artifact \
 	ci-deploy-server-check-gcp-config \
 	ci-deploy-server-check-secrets \
 	ci-deploy-server-load-direct-db-url \
@@ -28,10 +32,9 @@ GRAPHQL_SCHEMA ?= libs/api/schema.gql
 	ci-deploy-server-configure-docker \
 	ci-deploy-server-build-push-image \
 	ci-deploy-server-smoke \
-	ci-deploy-server-update-tag \
 	ci-deploy-webapp-check-config \
 	ci-deploy-webapp-validate-routes \
-	ci-deploy-webapp-update-tag
+	ci-deploy-update-tag
 
 ci-check-graphql-drift:
 	@FAILURE_MODE="$(FAILURE_MODE)" bash scripts/ci/check-graphql-drift.sh
@@ -80,14 +83,16 @@ ci-validate-build-server-container:
 	@docker build --pull -f apps/server/Dockerfile -t "$(IMAGE_TAG)" .
 
 ci-package-release-targets:
-	@DEPLOY_SERVER="$(DEPLOY_SERVER)" DEPLOY_WEBAPP="$(DEPLOY_WEBAPP)" bash scripts/ci/run-release-targets.sh
+	@DEPLOY_TARGETS_JSON='$(DEPLOY_TARGETS_JSON)' bash scripts/ci/run-release-targets.sh
 
-ci-package-archive-server-bundle:
-	@tar -czf "$(SERVER_DEPLOY_ARCHIVE)" -C common/deploy server
+ci-package-archive-target:
+	@test -n "$(TARGET)" || (echo "TARGET is required" >&2; exit 1)
+	@tar -czf "$(DEPLOY_ARTIFACT_ARCHIVE)" -C common/deploy "$(TARGET)"
 
-ci-deploy-server-extract-artifact:
+ci-deploy-extract-target-artifact:
+	@test -n "$(TARGET)" || (echo "TARGET is required" >&2; exit 1)
 	@mkdir -p common/deploy
-	@tar -xzf "$(SERVER_DEPLOY_ARCHIVE)" -C common/deploy
+	@tar -xzf "$(DEPLOY_ARTIFACT_ARCHIVE)" -C common/deploy
 
 ci-deploy-server-check-gcp-config:
 	@MISSING_PREFIX="Missing required GitHub Actions variable:" bash scripts/ci/require-envs.sh \
@@ -125,10 +130,10 @@ ci-deploy-server-smoke:
 	@test -n "$(SERVICE_URL)" || (echo "SERVICE_URL is required" >&2; exit 1)
 	@SERVICE_URL="$(SERVICE_URL)" bash deploy/cloudrun/tests/validate-post-deploy-smoke.sh
 
-ci-deploy-server-update-tag:
-	@test -n "$(TAG_NAME)" || (echo "TAG_NAME is required" >&2; exit 1)
+ci-deploy-update-tag:
+	@test -n "$(TARGET)" || (echo "TARGET is required" >&2; exit 1)
 	@test -n "$(GIT_SHA)" || (echo "GIT_SHA is required" >&2; exit 1)
-	@TAG_NAME="$(TAG_NAME)" GIT_SHA="$(GIT_SHA)" bash scripts/ci/update-deploy-tag.sh
+	@TARGET="$(TARGET)" DEPLOY_TAG_PREFIX="$(DEPLOY_TAG_PREFIX)" GIT_SHA="$(GIT_SHA)" bash scripts/ci/update-deploy-tag.sh
 
 ci-deploy-webapp-check-config:
 	@MISSING_PREFIX="Missing required Cloudflare GitHub configuration:" bash scripts/ci/require-envs.sh \
@@ -140,8 +145,3 @@ ci-deploy-webapp-check-config:
 
 ci-deploy-webapp-validate-routes:
 	@bash scripts/ci/validate-webapp-routes.sh
-
-ci-deploy-webapp-update-tag:
-	@test -n "$(TAG_NAME)" || (echo "TAG_NAME is required" >&2; exit 1)
-	@test -n "$(GIT_SHA)" || (echo "GIT_SHA is required" >&2; exit 1)
-	@TAG_NAME="$(TAG_NAME)" GIT_SHA="$(GIT_SHA)" bash scripts/ci/update-deploy-tag.sh

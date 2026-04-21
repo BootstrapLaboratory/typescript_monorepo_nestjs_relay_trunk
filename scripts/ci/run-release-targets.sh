@@ -3,15 +3,29 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
+DEPLOY_TARGETS_JSON="${DEPLOY_TARGETS_JSON:-[]}"
 targets=()
 
-if [[ "${DEPLOY_SERVER:-false}" == "true" ]]; then
-  targets+=(--to server)
-fi
+while IFS= read -r target; do
+  targets+=(--to "${target}")
+done < <(
+  DEPLOY_TARGETS_JSON="${DEPLOY_TARGETS_JSON}" node --input-type=module <<'EOF'
+const raw = process.env.DEPLOY_TARGETS_JSON ?? '[]';
+const parsed = JSON.parse(raw);
 
-if [[ "${DEPLOY_WEBAPP:-false}" == "true" ]]; then
-  targets+=(--to webapp)
-fi
+if (!Array.isArray(parsed)) {
+  throw new Error('DEPLOY_TARGETS_JSON must be a JSON array.');
+}
+
+for (const target of parsed) {
+  if (typeof target !== 'string' || target.length === 0) {
+    throw new Error('DEPLOY_TARGETS_JSON entries must be non-empty strings.');
+  }
+
+  console.log(target);
+}
+EOF
+)
 
 if [[ "${#targets[@]}" == "0" ]]; then
   echo "No Rush release targets were selected." >&2

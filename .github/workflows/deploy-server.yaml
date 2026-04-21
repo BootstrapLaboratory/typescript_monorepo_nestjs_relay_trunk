@@ -12,5 +12,5 @@ jobs:
       id-token: write
     uses: ./.github/workflows/ci-release.yaml
     with:
-      force_server: true
+      force_targets_json: '["server"]'
     secrets: inherit

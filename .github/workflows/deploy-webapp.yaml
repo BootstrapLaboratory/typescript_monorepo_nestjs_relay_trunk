@@ -12,5 +12,5 @@ jobs:
       deployments: write
     uses: ./.github/workflows/ci-release.yaml
     with:
-      force_webapp: true
+      force_targets_json: '["webapp"]'
     secrets: inherit
