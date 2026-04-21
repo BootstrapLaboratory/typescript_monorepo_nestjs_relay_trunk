@@ -18,6 +18,7 @@ Both wrapper workflows call the same reusable release workflow with different
 Example invocation from another CI provider:
 
 - [GitLabReleaseExample.md](./GitLabReleaseExample.md)
+- [../../examples/gitlab/ci-release.gitlab-ci.yml](../../examples/gitlab/ci-release.gitlab-ci.yml)
 
 ## Job Graph
 

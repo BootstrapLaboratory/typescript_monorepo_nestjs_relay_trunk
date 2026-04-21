@@ -446,16 +446,18 @@ Purpose: finish the migration and reduce CI vendor coupling.
 - [x] Remove dead Makefile targets or helper scripts that were only needed for GitHub job wiring.
 - [x] Update operational docs to describe the Dagger-backed deploy flow only.
 - [x] Add one example of invoking the same Dagger release function from another CI provider.
-- [ ] Add a follow-up task for GitLab wrapper integration if desired.
+- [x] Add a thin GitLab wrapper example for the same Dagger-backed release flow.
 
 Stop point:
 
-- Deploy orchestration is portable, and GitHub-specific logic is reduced to thin wrapper CI.
+- The Dagger release cutover is complete, with GitHub wrappers in production and
+  a GitLab wrapper example available for follow-up adoption.
 
-Current operational release note:
+Current operational release notes and examples:
 
 - [../docs/notes/ReleaseFlow.md](../docs/notes/ReleaseFlow.md)
 - [../docs/notes/GitLabReleaseExample.md](../docs/notes/GitLabReleaseExample.md)
+- [../examples/gitlab/ci-release.gitlab-ci.yml](../examples/gitlab/ci-release.gitlab-ci.yml)
 
 ## Suggested Implementation Order
 
@@ -465,7 +467,7 @@ Current operational release note:
 - [x] Phase 3
 - [x] Phase 4
 - [x] Phase 5
-- [ ] Phase 6
+- [x] Phase 6
 
 ## Open Decisions
 
