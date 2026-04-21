@@ -11,6 +11,10 @@ export class MessageEntity {
   @AutoMap()
   author?: string;
 
+  @Column({ nullable: true })
+  @AutoMap()
+  email?: string;
+
   @Column({ nullable: false })
   @AutoMap()
   body!: string;
