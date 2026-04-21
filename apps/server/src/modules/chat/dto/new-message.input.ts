@@ -10,12 +10,6 @@ export class NewMessageInput {
   @IsOptional()
   author?: string;
 
-@Field({ nullable: true })
-  @MaxLength(16)
-  @AutoMap()
-  @IsOptional()
-  email?: string;
-
   @Field({ nullable: false })
   @Length(1, 1024)
   @AutoMap()
