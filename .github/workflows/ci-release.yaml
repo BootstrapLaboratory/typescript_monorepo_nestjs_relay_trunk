@@ -32,6 +32,7 @@ permissions:
 env:
   CLOUD_RUN_REGION: europe-west4
   NODE_VERSION: "24"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 concurrency:
   group: ci-release-${{ github.event.pull_request.number || github.ref }}
@@ -282,12 +283,16 @@ jobs:
             -t common/deploy/server \
             --overwrite
 
+      - name: Archive backend deploy bundle
+        if: needs.detect.outputs.deploy_server == 'true'
+        run: tar -czf server-deploy.tgz -C common/deploy server
+
       - name: Upload backend deploy artifact
         if: needs.detect.outputs.deploy_server == 'true'
         uses: actions/upload-artifact@v5
         with:
           name: server-deploy
-          path: common/deploy/server
+          path: server-deploy.tgz
           if-no-files-found: error
 
       - name: Upload webapp deploy artifact
@@ -319,7 +324,12 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           name: server-deploy
-          path: common/deploy/server
+          path: .
+
+      - name: Extract backend deploy artifact
+        run: |
+          mkdir -p common/deploy
+          tar -xzf server-deploy.tgz -C common/deploy
 
       - name: Confirm required Google Cloud configuration
         env:
