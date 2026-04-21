@@ -83,7 +83,7 @@ ci-validate-build-server-container:
 	@docker build --pull -f apps/server/Dockerfile -t "$(IMAGE_TAG)" .
 
 ci-package-release-targets:
-	@DEPLOY_TARGETS_JSON='$(DEPLOY_TARGETS_JSON)' bash scripts/ci/run-release-targets.sh
+	@RELEASE_TARGETS_JSON='$(RELEASE_TARGETS_JSON)' bash scripts/ci/run-release-targets.sh
 
 ci-package-archive-target:
 	@test -n "$(TARGET)" || (echo "TARGET is required" >&2; exit 1)

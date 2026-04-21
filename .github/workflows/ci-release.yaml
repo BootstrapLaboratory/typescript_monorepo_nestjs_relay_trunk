@@ -8,7 +8,7 @@ on:
   workflow_call:
     inputs:
       force_targets_json:
-        default: '[]'
+        default: "[]"
         type: string
 
 permissions:
@@ -34,7 +34,7 @@ jobs:
       pr_base_sha: ${{ steps.plan.outputs.pr_base_sha || steps.plan_manual.outputs.pr_base_sha }}
       affected_projects_by_target_json: ${{ steps.plan.outputs.affected_projects_by_target_json || steps.plan_manual.outputs.affected_projects_by_target_json }}
       validate_targets_json: ${{ steps.plan.outputs.validate_targets_json || steps.plan_manual.outputs.validate_targets_json }}
-      deploy_targets_json: ${{ steps.plan.outputs.deploy_targets_json || steps.plan_manual.outputs.deploy_targets_json }}
+      release_targets_json: ${{ steps.plan.outputs.release_targets_json || steps.plan_manual.outputs.release_targets_json }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@v5
@@ -56,7 +56,7 @@ jobs:
         env:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
-          FORCE_TARGETS_JSON: '[]'
+          FORCE_TARGETS_JSON: "[]"
           DEPLOY_TAG_PREFIX: ${{ env.DEPLOY_TAG_PREFIX }}
         run: node scripts/ci/compute-rush-plan.mjs
 
@@ -201,22 +201,22 @@ jobs:
         uses: ./.github/actions/cached-install
 
       - name: Verify the committed GraphQL contract snapshot
-        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
+        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
         run: make ci-check-graphql-drift FAILURE_MODE=deploy
 
       - name: Lint, test, and build selected release targets
-        run: make ci-package-release-targets DEPLOY_TARGETS_JSON='${{ needs.detect.outputs.deploy_targets_json }}'
+        run: make ci-package-release-targets RELEASE_TARGETS_JSON='${{ needs.detect.outputs.release_targets_json }}'
 
       - name: Prepare pruned backend deploy bundle
-        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
+        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
         run: make ci-package-server-bundle
 
       - name: Archive backend deploy bundle
-        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
+        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
         run: make ci-package-archive-target TARGET=server
 
       - name: Upload backend deploy artifact
-        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
+        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
         uses: actions/upload-artifact@v5
         with:
           name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'server') }}
@@ -224,7 +224,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload webapp deploy artifact
-        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'webapp')
+        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'webapp')
         uses: actions/upload-artifact@v5
         with:
           name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'webapp') }}
@@ -235,7 +235,7 @@ jobs:
     needs:
       - detect
       - package
-    if: needs.package.result == 'success' && contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
+    if: needs.package.result == 'success' && contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -364,9 +364,9 @@ jobs:
       always() &&
       !cancelled() &&
       needs.package.result == 'success' &&
-      contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'webapp') &&
+      contains(fromJSON(needs.detect.outputs.release_targets_json), 'webapp') &&
       (
-        !contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server') ||
+        !contains(fromJSON(needs.detect.outputs.release_targets_json), 'server') ||
         needs.deploy-server.result == 'success'
       )
     runs-on: ubuntu-latest
