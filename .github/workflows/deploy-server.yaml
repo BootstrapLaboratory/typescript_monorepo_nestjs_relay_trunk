@@ -1,0 +1,16 @@
+name: deploy-server
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  release:
+    permissions:
+      contents: write
+      id-token: write
+    uses: ./.github/workflows/ci-release.yaml
+    with:
+      force_server: true
+    secrets: inherit

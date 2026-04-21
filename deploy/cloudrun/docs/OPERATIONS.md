@@ -215,7 +215,7 @@ That helper:
 Then redeploy the backend:
 
 ```bash
-gh workflow run ci-release.yaml --ref main -f force_server=true
+gh workflow run deploy-server.yaml --ref main
 ```
 
 ### Rotate `DATABASE_URL_DIRECT` Or `REDIS_URL`
@@ -231,7 +231,7 @@ bash deploy/cloudrun/scripts/sync-secrets.sh
 4. Redeploy the backend:
 
 ```bash
-gh workflow run ci-release.yaml --ref main -f force_server=true
+gh workflow run deploy-server.yaml --ref main
 ```
 
 5. Validate the running service:

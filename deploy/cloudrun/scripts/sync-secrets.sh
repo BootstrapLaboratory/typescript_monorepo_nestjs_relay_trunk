@@ -75,5 +75,5 @@ Access granted to:
 
 Next:
   1. Set GitHub repository variables.
-  2. Trigger ci-release with force_server=true.
+  2. Trigger deploy-server.
 EOF

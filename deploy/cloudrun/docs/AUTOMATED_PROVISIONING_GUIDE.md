@@ -79,7 +79,7 @@ bash deploy/cloudrun/scripts/configure-github-vars.sh
 
 7. Trigger the GitHub Actions workflow:
 
-- run `ci-release` with `force_server=true`
+- run `deploy-server`
 - then validate:
 
 ```bash

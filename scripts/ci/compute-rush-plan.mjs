@@ -36,17 +36,7 @@ function hasGitCommit(ref) {
   }
 }
 
-function resolveBaseSha(inputValue, tagName) {
-  if (inputValue) {
-    if (!hasGitCommit(inputValue)) {
-      throw new Error(
-        `The provided base SHA or ref "${inputValue}" for ${tagName} could not be resolved locally.`,
-      );
-    }
-
-    return run('git', ['rev-parse', `${inputValue}^{commit}`]);
-  }
-
+function resolveBaseSha(tagName) {
   if (!hasGitCommit(tagName)) {
     return '';
   }
@@ -88,8 +78,6 @@ function joinTargets(targets) {
 const eventName = process.env.GITHUB_EVENT_NAME ?? '';
 const forceServer = parseBoolean(process.env.FORCE_SERVER ?? 'false');
 const forceWebapp = parseBoolean(process.env.FORCE_WEBAPP ?? 'false');
-const serverBaseOverride = process.env.SERVER_BASE_SHA_OVERRIDE ?? '';
-const webappBaseOverride = process.env.WEBAPP_BASE_SHA_OVERRIDE ?? '';
 
 if (!eventName) {
   throw new Error('GITHUB_EVENT_NAME is required.');
@@ -116,8 +104,6 @@ if (eventName === 'pull_request') {
   writeOutput('validate_webapp', String(projectSetContains(affectedProjects, 'webapp')));
   writeOutput('deploy_server', 'false');
   writeOutput('deploy_webapp', 'false');
-  writeOutput('server_base_sha', '');
-  writeOutput('webapp_base_sha', '');
   writeOutput('server_affected_projects_json', '[]');
   writeOutput('webapp_affected_projects_json', '[]');
   writeOutput(
@@ -129,22 +115,20 @@ if (eventName === 'pull_request') {
 
 const currentHeadSha = run('git', ['rev-parse', 'HEAD^{commit}']);
 const targetServerOnly =
-  eventName === 'workflow_dispatch' &&
+  eventName === 'workflow_call' &&
   forceServer &&
-  !forceWebapp &&
-  !webappBaseOverride;
+  !forceWebapp;
 const targetWebappOnly =
-  eventName === 'workflow_dispatch' &&
+  eventName === 'workflow_call' &&
   forceWebapp &&
-  !forceServer &&
-  !serverBaseOverride;
+  !forceServer;
 
 const serverBaseSha = targetWebappOnly
   ? currentHeadSha
-  : resolveBaseSha(serverBaseOverride, 'deploy/prod/server');
+  : resolveBaseSha('deploy/prod/server');
 const webappBaseSha = targetServerOnly
   ? currentHeadSha
-  : resolveBaseSha(webappBaseOverride, 'deploy/prod/webapp');
+  : resolveBaseSha('deploy/prod/webapp');
 
 const serverAffectedProjects = serverBaseSha ? rushAffectedProjects(serverBaseSha) : [];
 const webappAffectedProjects = webappBaseSha ? rushAffectedProjects(webappBaseSha) : [];
@@ -169,8 +153,6 @@ if (deployWebapp) {
 writeOutput('mode', 'release');
 writeOutput('pr_base_sha', '');
 writeOutput('pr_affected_projects_json', '[]');
-writeOutput('server_base_sha', serverBaseSha);
-writeOutput('webapp_base_sha', webappBaseSha);
 writeOutput(
   'server_affected_projects_json',
   JSON.stringify(serverAffectedProjects),

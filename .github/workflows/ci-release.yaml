@@ -5,26 +5,14 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  workflow_call:
     inputs:
       force_server:
-        description: Force a backend deploy even if Rush does not detect server impact.
-        required: false
         default: false
         type: boolean
       force_webapp:
-        description: Force a webapp deploy even if Rush does not detect webapp impact.
-        required: false
         default: false
         type: boolean
-      server_base_sha:
-        description: Optional git ref or SHA to compare against for backend deploy detection.
-        required: false
-        type: string
-      webapp_base_sha:
-        description: Optional git ref or SHA to compare against for webapp deploy detection.
-        required: false
-        type: string
 
 permissions:
   contents: read
@@ -42,19 +30,17 @@ jobs:
   detect:
     runs-on: ubuntu-latest
     outputs:
-      mode: ${{ steps.plan.outputs.mode }}
-      any_scope: ${{ steps.plan.outputs.any_scope }}
-      pr_base_sha: ${{ steps.plan.outputs.pr_base_sha }}
-      pr_affected_projects_json: ${{ steps.plan.outputs.pr_affected_projects_json }}
-      server_base_sha: ${{ steps.plan.outputs.server_base_sha }}
-      webapp_base_sha: ${{ steps.plan.outputs.webapp_base_sha }}
-      server_affected_projects_json: ${{ steps.plan.outputs.server_affected_projects_json }}
-      webapp_affected_projects_json: ${{ steps.plan.outputs.webapp_affected_projects_json }}
-      validate_server: ${{ steps.plan.outputs.validate_server }}
-      validate_webapp: ${{ steps.plan.outputs.validate_webapp }}
-      deploy_server: ${{ steps.plan.outputs.deploy_server }}
-      deploy_webapp: ${{ steps.plan.outputs.deploy_webapp }}
-      release_targets: ${{ steps.plan.outputs.release_targets }}
+      mode: ${{ steps.plan.outputs.mode || steps.plan_manual.outputs.mode }}
+      any_scope: ${{ steps.plan.outputs.any_scope || steps.plan_manual.outputs.any_scope }}
+      pr_base_sha: ${{ steps.plan.outputs.pr_base_sha || steps.plan_manual.outputs.pr_base_sha }}
+      pr_affected_projects_json: ${{ steps.plan.outputs.pr_affected_projects_json || steps.plan_manual.outputs.pr_affected_projects_json }}
+      server_affected_projects_json: ${{ steps.plan.outputs.server_affected_projects_json || steps.plan_manual.outputs.server_affected_projects_json }}
+      webapp_affected_projects_json: ${{ steps.plan.outputs.webapp_affected_projects_json || steps.plan_manual.outputs.webapp_affected_projects_json }}
+      validate_server: ${{ steps.plan.outputs.validate_server || steps.plan_manual.outputs.validate_server }}
+      validate_webapp: ${{ steps.plan.outputs.validate_webapp || steps.plan_manual.outputs.validate_webapp }}
+      deploy_server: ${{ steps.plan.outputs.deploy_server || steps.plan_manual.outputs.deploy_server }}
+      deploy_webapp: ${{ steps.plan.outputs.deploy_webapp || steps.plan_manual.outputs.deploy_webapp }}
+      release_targets: ${{ steps.plan.outputs.release_targets || steps.plan_manual.outputs.release_targets }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@v5
@@ -72,13 +58,22 @@ jobs:
 
       - id: plan
         name: Compute Rush release plan
+        if: github.event_name != 'workflow_call'
         env:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
-          FORCE_SERVER: ${{ inputs.force_server || false }}
-          FORCE_WEBAPP: ${{ inputs.force_webapp || false }}
-          SERVER_BASE_SHA_OVERRIDE: ${{ inputs.server_base_sha || '' }}
-          WEBAPP_BASE_SHA_OVERRIDE: ${{ inputs.webapp_base_sha || '' }}
+          FORCE_SERVER: "false"
+          FORCE_WEBAPP: "false"
+        run: node scripts/ci/compute-rush-plan.mjs
+
+      - id: plan_manual
+        name: Compute Rush release plan
+        if: github.event_name == 'workflow_call'
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ""
+          FORCE_SERVER: ${{ inputs.force_server }}
+          FORCE_WEBAPP: ${{ inputs.force_webapp }}
         run: node scripts/ci/compute-rush-plan.mjs
 
   validate:

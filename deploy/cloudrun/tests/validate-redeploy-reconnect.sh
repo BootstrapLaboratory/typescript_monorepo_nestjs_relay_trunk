@@ -94,14 +94,14 @@ gcloud run services delete "${CLOUD_RUN_SERVICE}" \
 
 echo "Triggering the GitHub Actions backend deploy workflow..."
 TRIGGERED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-gh workflow run ci-release.yaml --ref main -f force_server=true >/dev/null
+gh workflow run deploy-server.yaml --ref main >/dev/null
 
 RUN_DATABASE_ID=""
 echo "Waiting for the workflow dispatch run to appear..."
 for ((attempt = 1; attempt <= 30; attempt += 1)); do
   RUN_DATABASE_ID="$(
     gh run list \
-      --workflow ci-release.yaml \
+      --workflow deploy-server.yaml \
       --limit 10 \
       --json databaseId,event,createdAt \
       | node -e '

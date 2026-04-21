@@ -309,12 +309,12 @@ bash deploy/cloudrun/scripts/configure-github-vars.sh
 
 Automation status:
 
-- handled by GitHub Actions in [../../.github/workflows/ci-release.yaml](../../.github/workflows/ci-release.yaml)
+- handled by GitHub Actions in [../../.github/workflows/ci-release.yaml](../../.github/workflows/ci-release.yaml) and [../../.github/workflows/deploy-server.yaml](../../.github/workflows/deploy-server.yaml)
 - this step is about starting the workflow and watching the result
 
 From GitHub Actions:
 
-- run `ci-release` with `force_server=true`
+- run `deploy-server`
 
 What should happen:
 

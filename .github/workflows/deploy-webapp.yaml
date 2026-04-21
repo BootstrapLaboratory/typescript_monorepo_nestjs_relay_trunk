@@ -1,0 +1,16 @@
+name: deploy-webapp
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  release:
+    permissions:
+      contents: write
+      deployments: write
+    uses: ./.github/workflows/ci-release.yaml
+    with:
+      force_webapp: true
+    secrets: inherit

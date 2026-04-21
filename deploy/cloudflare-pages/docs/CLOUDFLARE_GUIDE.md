@@ -235,7 +235,7 @@ running the repo build helper.
 Steps:
 
 1. Open GitHub Actions.
-2. Run `ci-release` with `force_webapp=true`, or push a change to `main` that affects the `webapp` Rush project.
+2. Run `deploy-webapp`, or push a change to `main` that affects the `webapp` Rush project.
 3. Wait for the build and `wrangler pages deploy` upload to complete.
 4. Open the generated production URL.
 
