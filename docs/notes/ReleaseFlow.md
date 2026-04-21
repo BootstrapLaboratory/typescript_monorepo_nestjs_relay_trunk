@@ -15,6 +15,10 @@ release orchestrator.
 Both wrapper workflows call the same reusable release workflow with different
 `force_targets_json` inputs.
 
+Example invocation from another CI provider:
+
+- [GitLabReleaseExample.md](./GitLabReleaseExample.md)
+
 ## Job Graph
 
 The current GitHub Actions release graph is:
