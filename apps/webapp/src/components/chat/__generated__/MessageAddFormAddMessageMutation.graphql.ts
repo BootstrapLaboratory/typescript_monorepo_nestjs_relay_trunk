@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<c703f747a76fc97dc2c7a835da1b3523>>
+ * @generated SignedSource<<3084d47f91d94689a1ac4a79c9bc3c10>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -12,6 +12,7 @@ import { ConcreteRequest } from 'relay-runtime';
 export type NewMessageInput = {
   author?: string | null | undefined;
   body: string;
+  email?: string | null | undefined;
 };
 export type MessageAddFormAddMessageMutation$variables = {
   input: NewMessageInput;
