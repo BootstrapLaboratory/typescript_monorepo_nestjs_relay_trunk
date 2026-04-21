@@ -1,9 +1,13 @@
 services:
   server:
-    executor: server
+    executor: deploy_server
     deploy_after: []
+    deploy_script: scripts/ci/deploy-server.sh
+    artifact_path: /workspace/common/deploy/server
 
   webapp:
-    executor: webapp
+    executor: deploy_webapp
     deploy_after:
       - server
+    deploy_script: scripts/ci/deploy-webapp.sh
+    artifact_path: /workspace/apps/webapp/dist

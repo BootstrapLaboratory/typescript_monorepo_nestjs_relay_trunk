@@ -281,8 +281,8 @@ Purpose: move deployment-order logic into portable code.
 {
   "selectedTargets": ["server", "webapp"],
   "waves": [
-    [{ "target": "server", "executor": "server" }],
-    [{ "target": "webapp", "executor": "webapp" }]
+    [{ "target": "server", "executor": "deploy_server" }],
+    [{ "target": "webapp", "executor": "deploy_webapp" }]
   ]
 }
 ```
@@ -296,17 +296,23 @@ Phase 3 implementation notes:
 
 - The canonical mesh file lives at [`../deploy/services-mesh.yaml`](../deploy/services-mesh.yaml).
 - The Dagger planner entrypoint is `plan-release` in [`../dagger/src/index.ts`](../dagger/src/index.ts).
-- The pure planner logic and validations live in [`../dagger/src/planner.ts`](../dagger/src/planner.ts).
-- Planner tests live in [`../dagger/test/planner.test.ts`](../dagger/test/planner.test.ts).
+- The pure planner logic and validations live in:
+  - [`../dagger/src/planning/parse-release-targets.ts`](../dagger/src/planning/parse-release-targets.ts)
+  - [`../dagger/src/planning/parse-services-mesh.ts`](../dagger/src/planning/parse-services-mesh.ts)
+  - [`../dagger/src/planning/build-deployment-plan.ts`](../dagger/src/planning/build-deployment-plan.ts)
+- Planner and parser tests live in:
+  - [`../dagger/test/parse-release-targets.test.ts`](../dagger/test/parse-release-targets.test.ts)
+  - [`../dagger/test/parse-services-mesh.test.ts`](../dagger/test/parse-services-mesh.test.ts)
+  - [`../dagger/test/build-deployment-plan.test.ts`](../dagger/test/build-deployment-plan.test.ts)
 - The planner intentionally filters the mesh to selected targets first, so `["webapp"]` produces one valid wave without requiring `server` to be selected.
-- Only executor metadata is included in the initial mesh and plan output. Artifact metadata stays out of the mesh until the Dagger deploy executor actually needs it.
+- The service mesh now carries both executor metadata and static deploy metadata such as `deploy_script` and `artifact_path`, while the plan output remains focused on `target` and `executor`.
 
 Phase 3 verification commands:
 
 ```bash
 cd dagger
-yarn test
-yarn tsc --noEmit
+npm test
+./node_modules/.bin/tsc --noEmit
 dagger call plan-release --repo=.. --release-targets-json='["webapp"]'
 dagger call plan-release --repo=.. --release-targets-json='["server","webapp"]'
 ```
@@ -334,8 +340,8 @@ Purpose: let Dagger own deploy ordering and parallel wave execution.
   - execute each wave in order
   - execute targets inside a wave in parallel
 - [x] Keep executor dispatch target-specific:
-  - `server` -> backend deploy executor
-  - `webapp` -> webapp deploy executor
+  - `deploy_server` -> backend deploy executor
+  - `deploy_webapp` -> webapp deploy executor
 - [x] Emit readable logs for:
   - selected targets
   - computed waves
@@ -345,8 +351,8 @@ Purpose: let Dagger own deploy ordering and parallel wave execution.
 
 Phase 4 implementation notes:
 
-- The first Dagger deploy executor lives in [`../dagger/src/index.ts`](../dagger/src/index.ts) as `deploy-release`.
-- `deploy-release` reuses the planner from [`../dagger/src/planner.ts`](../dagger/src/planner.ts) instead of duplicating ordering logic.
+- The Dagger API surface remains in [`../dagger/src/index.ts`](../dagger/src/index.ts), while `deploy-release` runtime orchestration now lives in [`../dagger/src/deploy/deploy-release.ts`](../dagger/src/deploy/deploy-release.ts).
+- `deploy-release` reuses the extracted planning modules under [`../dagger/src/planning`](../dagger/src/planning) instead of duplicating ordering logic.
 - Dagger dispatches to the existing portable shell executors:
   - [`../scripts/ci/deploy-server.sh`](../scripts/ci/deploy-server.sh)
   - [`../scripts/ci/deploy-webapp.sh`](../scripts/ci/deploy-webapp.sh)

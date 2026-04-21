@@ -1,7 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "test": "node --test --experimental-strip-types test/planner.test.ts"
+    "test": "node --test --experimental-strip-types test/*.test.ts"
   },
   "devDependencies": {
     "@types/node": "24.0.0"
