@@ -367,6 +367,8 @@ jobs:
       - package
       - deploy-server
     if: |
+      always() &&
+      !cancelled() &&
       github.event_name != 'pull_request' &&
       needs.detect.outputs.deploy_webapp == 'true' &&
       needs.package.result == 'success' &&
