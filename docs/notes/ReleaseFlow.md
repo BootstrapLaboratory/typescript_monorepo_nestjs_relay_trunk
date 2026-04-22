@@ -30,14 +30,18 @@ The current GitHub Actions release graph is:
 
 Responsibilities by job:
 
-- `detect` computes `validate_targets_json` for PR validation scope and
-  `deploy_targets_json` for packaging and deployment scope.
+- `detect` computes the canonical
+  [../../.dagger/runtime/ci-plan.json](../../.dagger/runtime/ci-plan.json)
+  handoff file, then derives thin GitHub scheduling outputs from that file.
+- `validate` restores `ci-plan.json` after checkout and reads validation scope
+  from the file instead of treating GitHub job outputs as its primary contract.
 - `package` installs dependencies, verifies the committed GraphQL contract when
   `server` is in scope, builds the selected targets, and uploads deploy
-  artifacts.
-- `deploy` downloads the packaged artifacts, prepares cloud configuration and
-  credentials, writes one flat deploy env file, and calls `deploy-release`.
-  Dagger computes and logs the deployment plan internally before executing it.
+  artifacts after restoring `ci-plan.json`.
+- `deploy` restores `ci-plan.json`, downloads the packaged artifacts, prepares
+  cloud configuration and credentials, writes one flat deploy env file, and
+  calls `deploy-release`. Dagger computes and logs the deployment plan
+  internally before executing it.
 
 ## Release Artifacts
 

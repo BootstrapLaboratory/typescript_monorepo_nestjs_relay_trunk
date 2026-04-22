@@ -1,12 +1,18 @@
 import { appendFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
+import {
+  deriveCiPlanOutputs,
+  resolveCiPlanPath,
+  writeCiPlanFile,
+} from "./ci-plan.mjs";
 import { computeRushPlan } from "./compute-rush-plan-core.mjs";
 import { loadDeployTargetsFromRepo } from "./deploy-target-metadata.mjs";
 
 const REPO_ROOT = resolve(import.meta.dirname, "..", "..");
 const OUTPUT_PATH = process.env.GITHUB_OUTPUT;
 const DEPLOY_TAG_PREFIX = process.env.DEPLOY_TAG_PREFIX ?? "deploy/prod";
+const CI_PLAN_PATH = resolveCiPlanPath(process.env.CI_PLAN_PATH);
 
 function run(command, args) {
   return execFileSync(command, args, {
@@ -74,13 +80,16 @@ const plan = computeRushPlan({
   resolveCommitSha,
   rushAffectedProjects,
 });
+const ciPlan = writeCiPlanFile(plan, CI_PLAN_PATH);
+const outputs = deriveCiPlanOutputs(ciPlan);
 
-writeOutput("mode", plan.mode);
-writeOutput("pr_base_sha", plan.prBaseSha);
-writeOutput(
+for (const name of [
+  "mode",
+  "pr_base_sha",
   "affected_projects_by_deploy_target_json",
-  JSON.stringify(plan.affectedProjectsByDeployTarget),
-);
-writeOutput("validate_targets_json", JSON.stringify(plan.validateTargets));
-writeOutput("deploy_targets_json", JSON.stringify(plan.deployTargets));
-writeOutput("any_scope", String(plan.anyScope));
+  "validate_targets_json",
+  "deploy_targets_json",
+  "any_scope",
+]) {
+  writeOutput(name, outputs[name]);
+}

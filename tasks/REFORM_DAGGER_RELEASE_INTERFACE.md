@@ -254,7 +254,7 @@ The workflow should keep the same thin wrapper shape:
   working-directory: dagger
   env:
     DAGGER_NO_NAG: "1"
-    DEPLOY_TARGETS_JSON: ${{ needs.detect.outputs.deploy_targets_json }}
+    DEPLOY_TARGETS_JSON: ${{ steps.ci_plan.outputs.deploy_targets_json }}
   run: |
     dagger call deploy-release \
       --git-sha="${GITHUB_SHA}" \

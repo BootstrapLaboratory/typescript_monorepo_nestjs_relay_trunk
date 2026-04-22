@@ -29,12 +29,9 @@ jobs:
   detect:
     runs-on: ubuntu-latest
     outputs:
-      mode: ${{ steps.plan.outputs.mode || steps.plan_manual.outputs.mode }}
-      any_scope: ${{ steps.plan.outputs.any_scope || steps.plan_manual.outputs.any_scope }}
-      pr_base_sha: ${{ steps.plan.outputs.pr_base_sha || steps.plan_manual.outputs.pr_base_sha }}
-      affected_projects_by_deploy_target_json: ${{ steps.plan.outputs.affected_projects_by_deploy_target_json || steps.plan_manual.outputs.affected_projects_by_deploy_target_json }}
-      validate_targets_json: ${{ steps.plan.outputs.validate_targets_json || steps.plan_manual.outputs.validate_targets_json }}
-      deploy_targets_json: ${{ steps.plan.outputs.deploy_targets_json || steps.plan_manual.outputs.deploy_targets_json }}
+      mode: ${{ steps.finalize.outputs.mode }}
+      has_validate_scope: ${{ steps.finalize.outputs.has_validate_scope }}
+      has_deploy_scope: ${{ steps.finalize.outputs.has_deploy_scope }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@v5
@@ -70,9 +67,23 @@ jobs:
           DEPLOY_TAG_PREFIX: ${{ env.DEPLOY_TAG_PREFIX }}
         run: node scripts/ci/compute-rush-plan.mjs
 
+      - id: finalize
+        name: Finalize deploy plan outputs
+        run: node scripts/ci/finalize-ci-plan.mjs
+
+      - name: Stage CI plan artifact
+        run: cp .dagger/runtime/ci-plan.json "${RUNNER_TEMP}/ci-plan.json"
+
+      - name: Upload CI plan artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: ci-plan
+          path: ${{ runner.temp }}/ci-plan.json
+          if-no-files-found: error
+
   validate:
     needs: detect
-    if: github.event_name == 'pull_request' && needs.detect.outputs.any_scope == 'true'
+    if: github.event_name == 'pull_request' && needs.detect.outputs.has_validate_scope == 'true'
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -109,24 +120,34 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           package-manager-cache: false
 
+      - name: Download CI plan artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: ci-plan
+          path: .dagger/runtime
+
+      - id: ci_plan
+        name: Load CI plan
+        run: node scripts/ci/finalize-ci-plan.mjs
+
       - name: Install dependencies with caching
         uses: ./.github/actions/cached-install
 
       - name: Verify the committed GraphQL contract snapshot
-        if: contains(fromJSON(needs.detect.outputs.validate_targets_json), 'server')
+        if: contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
         run: make ci-check-graphql-drift FAILURE_MODE=merge
 
       - name: Lint affected Rush projects
-        run: make ci-validate-lint-affected FROM_SHA="${{ needs.detect.outputs.pr_base_sha }}"
+        run: make ci-validate-lint-affected FROM_SHA="${{ steps.ci_plan.outputs.pr_base_sha }}"
 
       - name: Test affected Rush projects
-        run: make ci-validate-test-affected FROM_SHA="${{ needs.detect.outputs.pr_base_sha }}"
+        run: make ci-validate-test-affected FROM_SHA="${{ steps.ci_plan.outputs.pr_base_sha }}"
 
       - name: Build affected Rush projects
-        run: make ci-validate-build-affected FROM_SHA="${{ needs.detect.outputs.pr_base_sha }}"
+        run: make ci-validate-build-affected FROM_SHA="${{ steps.ci_plan.outputs.pr_base_sha }}"
 
       - name: Run production-like database migrations
-        if: contains(fromJSON(needs.detect.outputs.validate_targets_json), 'server')
+        if: contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
         env:
           NODE_ENV: production
           DATABASE_HOST: 127.0.0.1
@@ -139,7 +160,7 @@ jobs:
         run: make ci-validate-server-migrations
 
       - name: Start backend with production-like env
-        if: contains(fromJSON(needs.detect.outputs.validate_targets_json), 'server')
+        if: contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
         env:
           NODE_ENV: production
           HOST: 127.0.0.1
@@ -160,30 +181,30 @@ jobs:
         run: make ci-validate-start-server
 
       - name: Run backend smoke tests
-        if: contains(fromJSON(needs.detect.outputs.validate_targets_json), 'server')
+        if: contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
         env:
           SERVICE_URL: http://127.0.0.1:3100
         run: make ci-validate-server-smoke SERVICE_URL=http://127.0.0.1:3100
 
       - name: Show backend logs on failure
-        if: failure() && contains(fromJSON(needs.detect.outputs.validate_targets_json), 'server')
+        if: failure() && contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
         run: make ci-validate-show-server-logs
 
       - name: Stop backend
-        if: always() && contains(fromJSON(needs.detect.outputs.validate_targets_json), 'server')
+        if: always() && contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
         run: make ci-validate-stop-server
 
       - name: Prepare pruned backend deploy bundle
-        if: contains(fromJSON(needs.detect.outputs.validate_targets_json), 'server')
+        if: contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
         run: make ci-package-server-bundle
 
       - name: Build runtime-only backend container
-        if: contains(fromJSON(needs.detect.outputs.validate_targets_json), 'server')
+        if: contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
         run: make ci-validate-build-server-container IMAGE_TAG=local/server-cloudrun:${{ github.sha }}
 
   package:
     needs: detect
-    if: github.event_name != 'pull_request' && needs.detect.outputs.any_scope == 'true'
+    if: github.event_name != 'pull_request' && needs.detect.outputs.has_deploy_scope == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
@@ -197,26 +218,36 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           package-manager-cache: false
 
+      - name: Download CI plan artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: ci-plan
+          path: .dagger/runtime
+
+      - id: ci_plan
+        name: Load CI plan
+        run: node scripts/ci/finalize-ci-plan.mjs
+
       - name: Install dependencies with caching
         uses: ./.github/actions/cached-install
 
       - name: Verify the committed GraphQL contract snapshot
-        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
         run: make ci-check-graphql-drift FAILURE_MODE=deploy
 
       - name: Lint, test, and build selected deploy targets
-        run: make ci-package-release-targets DEPLOY_TARGETS_JSON='${{ needs.detect.outputs.deploy_targets_json }}'
+        run: make ci-package-release-targets DEPLOY_TARGETS_JSON='${{ steps.ci_plan.outputs.deploy_targets_json }}'
 
       - name: Prepare pruned backend deploy bundle
-        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
         run: make ci-package-server-bundle
 
       - name: Archive backend deploy bundle
-        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
         run: make ci-package-archive-target TARGET=server
 
       - name: Upload backend deploy artifact
-        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
         uses: actions/upload-artifact@v5
         with:
           name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'server') }}
@@ -224,7 +255,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload webapp deploy artifact
-        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'webapp')
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'webapp')
         uses: actions/upload-artifact@v5
         with:
           name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'webapp') }}
@@ -235,7 +266,7 @@ jobs:
     needs:
       - detect
       - package
-    if: needs.package.result == 'success'
+    if: needs.detect.outputs.has_deploy_scope == 'true' && needs.package.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -246,6 +277,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup NodeJS version ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: false
+
+      - name: Download CI plan artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: ci-plan
+          path: .dagger/runtime
+
+      - id: ci_plan
+        name: Load CI plan
+        run: node scripts/ci/finalize-ci-plan.mjs
+
       - name: Install Dagger CLI
         run: |
           mkdir -p "${RUNNER_TEMP}/bin"
@@ -253,7 +300,7 @@ jobs:
           echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
 
       - name: Confirm required Google Cloud configuration
-        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
         env:
           GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
           GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
@@ -265,7 +312,7 @@ jobs:
         run: make ci-deploy-server-check-gcp-config
 
       - id: auth
-        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
         name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v3
         with:
@@ -273,14 +320,14 @@ jobs:
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
 
       - name: Download backend deploy artifact
-        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
         uses: actions/download-artifact@v5
         with:
           name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'server') }}
           path: .
 
       - name: Confirm required Cloudflare configuration
-        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'webapp')
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'webapp')
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -290,14 +337,14 @@ jobs:
         run: make ci-deploy-webapp-check-config
 
       - name: Download webapp deploy artifact
-        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'webapp')
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'webapp')
         uses: actions/download-artifact@v5
         with:
           name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'webapp') }}
           path: apps/webapp/dist
 
       - name: Extract backend deploy artifact
-        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
         run: make ci-deploy-extract-target-artifact TARGET=server
 
       - name: Write Dagger deploy env file
@@ -322,7 +369,7 @@ jobs:
         working-directory: dagger
         env:
           DAGGER_NO_NAG: "1"
-          DEPLOY_TARGETS_JSON: ${{ needs.detect.outputs.deploy_targets_json }}
+          DEPLOY_TARGETS_JSON: ${{ steps.ci_plan.outputs.deploy_targets_json }}
         run: |
           dagger call deploy-release \
             --git-sha="${GITHUB_SHA}" \

@@ -2,6 +2,7 @@ import * as assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {
   chmodSync,
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -51,6 +52,7 @@ function setupFixture({
   const gitRefsFile = join(fixtureDir, "git-refs.tsv");
   const rushAffectedProjectsFile = join(fixtureDir, "rush-affected.tsv");
   const githubOutputFile = join(fixtureDir, "github-output.txt");
+  const ciPlanFile = join(fixtureDir, "ci-plan.json");
 
   mkdirSync(binDir, { recursive: true });
 
@@ -155,6 +157,7 @@ printf ']}\\n'
     cleanup() {
       rmSync(fixtureDir, { force: true, recursive: true });
     },
+    ciPlanFile,
     fixtureDir,
     githubOutputFile,
   };
@@ -178,6 +181,7 @@ function runComputeRushPlan(
     env: {
       ...process.env,
       ...env,
+      CI_PLAN_PATH: fixture.ciPlanFile,
       GITHUB_OUTPUT: fixture.githubOutputFile,
       PATH: `${fixture.binDir}:${process.env.PATH}`,
       TEST_FIXTURE_DIR: fixture.fixtureDir,
@@ -185,9 +189,13 @@ function runComputeRushPlan(
   });
 
   const outputFileContents = readFileSync(fixture.githubOutputFile, "utf8");
+  const ciPlan = existsSync(fixture.ciPlanFile)
+    ? JSON.parse(readFileSync(fixture.ciPlanFile, "utf8"))
+    : null;
   fixture.cleanup();
 
   return {
+    ciPlan,
     ...result,
     outputs: parseSimpleOutputFile(outputFileContents),
   };
@@ -222,6 +230,16 @@ test("pull request mode reports affected deploy targets from the current hardcod
     mode: "pull_request",
     pr_base_sha: "pr-base-sha",
     validate_targets_json: JSON.stringify(["api-contract", "server", "webapp"]),
+  });
+  assert.deepEqual(result.ciPlan, {
+    mode: "pull_request",
+    pr_base_sha: "pr-base-sha",
+    affected_projects_by_deploy_target: {
+      server: ["api-contract", "server", "webapp"],
+      webapp: ["api-contract", "server", "webapp"],
+    },
+    validate_targets: ["api-contract", "server", "webapp"],
+    deploy_targets: [],
   });
 });
 

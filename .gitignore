@@ -8,6 +8,7 @@ dist
 dist-ssr
 *.local
 gha-creds-*.json
+.dagger/runtime/
 
 # Editor directories and files
 .vscode/*
