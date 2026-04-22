@@ -77,7 +77,7 @@ Those target YAML files define:
 - `artifact_path`
 - runtime image/toolchain preparation
 - env pass-through and static env
-- file/socket mounts
+- file mounts
 - dry-run defaults and host-env requirements
 
 ## Runtime Contract
@@ -95,17 +95,15 @@ That file carries:
 
 - 1:1 runtime env values such as `CLOUD_RUN_REGION`
 - host-side mount sources such as `GOOGLE_GHA_CREDS_PATH`
-- wrapper-specific runtime paths such as `DOCKER_SOCKET_FILE`
 
 For file-backed mounts, the workflow also passes `--host-workspace-dir` to
 `deploy-release`. That lets Dagger strip the checked-out workspace prefix from
 absolute host file paths and mount them from the repository context with
 `repo.file(...)` instead of requiring CI-side path rewriting.
 
-For socket-backed mounts, the workflow creates a repo-local symlink under
-`.dagger/runtime/` first, writes that workspace-local path into
-`DOCKER_SOCKET_FILE`, and passes the same `--host-workspace-dir` prefix. Dagger
-then strips the workspace prefix before loading the socket source.
+Docker socket handling is a shared special case instead of target YAML
+metadata. The wrapper passes
+`--docker-socket=/var/run/docker.sock` directly to `deploy-release`.
 
 Current target behavior:
 
@@ -123,7 +121,8 @@ the Dagger runtime prints a summary of:
 - runtime image
 - install commands
 - env keys being exposed
-- file and socket mounts being attached
+- file mounts being attached
+- whether the shared Docker socket is attached
 
 ## Operational Notes
 

@@ -36,13 +36,8 @@ runtime:
     GCP_PROJECT_ID: dry-run-project
 
   required_host_env:
-    - DOCKER_SOCKET_FILE
     - GOOGLE_GHA_CREDS_PATH
 
   file_mounts:
     - source_var: GOOGLE_GHA_CREDS_PATH
       target: /tmp/gcp-credentials.json
-
-  socket_mounts:
-    - source_var: DOCKER_SOCKET_FILE
-      target: /var/run/docker.sock

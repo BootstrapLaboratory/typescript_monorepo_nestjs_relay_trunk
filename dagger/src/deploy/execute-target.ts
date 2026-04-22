@@ -1,4 +1,4 @@
-import { dag, Directory } from "@dagger.io/dagger"
+import { dag, Directory, Socket } from "@dagger.io/dagger"
 
 import type { DeployTargetDefinition } from "../model/deploy-target.ts"
 import type { DeployTargetResult } from "../model/deploy-result.ts"
@@ -18,6 +18,7 @@ function formatDryRunSummary(
   envVars: Record<string, string>,
   environment: string,
   gitSha: string,
+  dockerSocketEnabled: boolean,
   wave: number,
 ): string {
   const lines = [
@@ -49,13 +50,9 @@ function formatDryRunSummary(
     )
   }
 
-  if (definition.runtime.socket_mounts.length > 0) {
-    lines.push("socket_mounts:")
-    lines.push(
-      ...definition.runtime.socket_mounts.map(
-        (mount) => `  - source_var=${mount.source_var} target=${mount.target}`,
-      ),
-    )
+  if (dockerSocketEnabled) {
+    lines.push("docker_socket:")
+    lines.push("  - /var/run/docker.sock")
   }
 
   return `${lines.join("\n")}\n`
@@ -70,6 +67,7 @@ export async function executeTarget(
   hostEnv: Record<string, string>,
   hostWorkspaceDir: string,
   wave: number,
+  dockerSocket?: Socket,
 ): Promise<DeployTargetResult> {
   const definition = await loadDeployTargetDefinition(repo, target)
   validateRequiredHostEnv(definition.runtime, hostEnv, dryRun, target)
@@ -85,7 +83,7 @@ export async function executeTarget(
   console.log(`[deploy-release] wave ${wave}: starting ${target}`)
 
   if (dryRun) {
-    const output = formatDryRunSummary(definition, envVars, environment, gitSha, wave)
+    const output = formatDryRunSummary(definition, envVars, environment, gitSha, dockerSocket !== undefined, wave)
     console.log(output.trimEnd())
 
     return {
@@ -108,9 +106,8 @@ export async function executeTarget(
     container = container.withMountedFile(fileMount.target, repo.file(sourcePath))
   }
 
-  for (const socketMount of definition.runtime.socket_mounts) {
-    const sourcePath = getRequiredRepoRelativeHostPathSource(hostEnv, socketMount.source_var, target, hostWorkspaceDir)
-    container = container.withUnixSocket(socketMount.target, dag.address(sourcePath).socket())
+  if (dockerSocket !== undefined) {
+    container = container.withUnixSocket("/var/run/docker.sock", dockerSocket)
   }
 
   for (const [name, value] of Object.entries(envVars)) {

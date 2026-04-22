@@ -1,4 +1,4 @@
-import { argument, Directory, File, func, object } from "@dagger.io/dagger"
+import { argument, Directory, File, func, object, Socket } from "@dagger.io/dagger"
 
 import { deployRelease, planRelease } from "./deploy/deploy-release.ts"
 import { parseReleaseTargets } from "./planning/parse-release-targets.ts"
@@ -47,7 +47,8 @@ export class ReleaseOrchestrator {
     dryRun: boolean = true,
     deployEnvFile?: File,
     hostWorkspaceDir: string = "",
+    dockerSocket?: Socket,
   ): Promise<string> {
-    return deployRelease(repo, gitSha, releaseTargetsJson, environment, dryRun, deployEnvFile, hostWorkspaceDir)
+    return deployRelease(repo, gitSha, releaseTargetsJson, environment, dryRun, deployEnvFile, hostWorkspaceDir, dockerSocket)
   }
 }

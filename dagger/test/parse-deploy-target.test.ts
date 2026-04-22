@@ -33,7 +33,6 @@ runtime:
       install: [],
       pass_env: ["WEBAPP_URL", "WEBAPP_VITE_GRAPHQL_HTTP"],
       required_host_env: [],
-      socket_mounts: [],
     },
   })
 })

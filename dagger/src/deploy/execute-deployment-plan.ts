@@ -1,4 +1,4 @@
-import { Directory } from "@dagger.io/dagger"
+import { Directory, Socket } from "@dagger.io/dagger"
 import type { DeploymentPlan } from "../model/deployment-plan.ts"
 import type { DeployTargetResult } from "../model/deploy-result.ts"
 import { executeTarget } from "./execute-target.ts"
@@ -11,6 +11,7 @@ export async function executeDeploymentPlan(
   dryRun: boolean,
   hostEnv: Record<string, string>,
   hostWorkspaceDir: string,
+  dockerSocket?: Socket,
 ): Promise<DeployTargetResult[]> {
   const results: DeployTargetResult[] = []
 
@@ -32,6 +33,7 @@ export async function executeDeploymentPlan(
             hostEnv,
             hostWorkspaceDir,
             waveNumber,
+            dockerSocket,
           )
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error)

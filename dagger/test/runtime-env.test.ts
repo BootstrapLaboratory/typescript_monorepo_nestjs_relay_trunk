@@ -26,7 +26,6 @@ const webappLikeSpec: DeployRuntimeSpec = {
     "WEBAPP_URL",
   ],
   required_host_env: ["REQUIRED_ONLY_IN_LIVE_RUN"],
-  socket_mounts: [],
 }
 
 test("parses a flat deploy env file into a host env map", () => {
@@ -154,19 +153,5 @@ test("fails when an absolute workspace-backed mount source is provided without h
         "server",
       ),
     /hostWorkspaceDir/,
-  )
-})
-
-test("normalizes a workspace-backed socket source under hostWorkspaceDir to a repo-relative path", () => {
-  assert.equal(
-    getRequiredRepoRelativeHostPathSource(
-      {
-        DOCKER_SOCKET_FILE: "/home/runner/work/beltapp/beltapp/.dagger/runtime/docker.sock",
-      },
-      "DOCKER_SOCKET_FILE",
-      "server",
-      "/home/runner/work/beltapp/beltapp",
-    ),
-    ".dagger/runtime/docker.sock",
   )
 })

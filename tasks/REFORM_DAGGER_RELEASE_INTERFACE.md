@@ -34,6 +34,7 @@ export async function deployRelease(
   dryRun: boolean = true,
   deployEnvFile?: File,
   hostWorkspaceDir: string = "",
+  dockerSocket?: Socket,
 ): Promise<string>
 ```
 
@@ -45,7 +46,9 @@ Notes:
   values and any host-side path sources needed by mounts
 - `hostWorkspaceDir` should let Dagger map absolute host mount paths under the
   checked-out workspace back to repository-relative paths for repo-backed file
-  mounts and workspace-local socket sources
+  mounts
+- `dockerSocket` should stay an optional shared typed input, because Docker
+  socket forwarding is a special case outside repository deploy metadata
 - wrapper shell env should stay a wrapper concern, not an implicit Dagger
   module input
 
@@ -59,8 +62,8 @@ Notes:
 - Keep the service mesh focused on release graph and ordering.
 - Keep target-specific runtime metadata declarative in YAML companion files.
 - Expose only explicitly whitelisted values and mounts to executor containers.
-- Keep file and socket handling declarative and separate from plain env
-  pass-through.
+- Keep file handling declarative and separate from plain env pass-through.
+- Keep Docker socket forwarding as one shared optional typed input.
 - Keep dry-run behavior generic and common for all targets.
 - Make adding a new target a repository-config task:
   service mesh entry + target YAML + deploy script/artifact preparation.
@@ -72,7 +75,7 @@ The target data flow is:
 1. CI defines environment variables and any needed host-side path sources.
 2. CI writes one flat deploy env file with those values.
 3. `dagger call deploy-release` is invoked with explicit control arguments plus
-   the deploy env file and `hostWorkspaceDir`.
+   the deploy env file, `hostWorkspaceDir`, and an optional `dockerSocket`.
 4. Dagger loads `.dagger/deploy/services-mesh.yaml` to determine release graph
    and target order.
 5. Dagger loads `.dagger/deploy/targets/<target>.yaml` for each target being
@@ -92,11 +95,10 @@ remaining target-specific behavior out of the TypeScript codebase.
 CI should provide:
 
 - explicit Dagger call arguments such as `gitSha`, `releaseTargetsJson`,
-  `environment`, `dryRun`, and `hostWorkspaceDir`
+  `environment`, `dryRun`, `hostWorkspaceDir`, and optional `dockerSocket`
 - plain string values such as `CLOUD_RUN_REGION` and
   `CLOUDFLARE_PAGES_PROJECT_NAME`
 - host-side path values such as `GOOGLE_GHA_CREDS_PATH`
-- host-side socket path values such as `DOCKER_SOCKET_FILE`
 
 Those values should be written into one flat deploy env file using the same env
 names the target YAML expects.
@@ -174,15 +176,10 @@ runtime:
 
   required_host_env:
     - GOOGLE_GHA_CREDS_PATH
-    - DOCKER_SOCKET_FILE
 
   file_mounts:
     - source_var: GOOGLE_GHA_CREDS_PATH
       target: /tmp/gcp-credentials.json
-
-  socket_mounts:
-    - source_var: DOCKER_SOCKET_FILE
-      target: /var/run/docker.sock
 ```
 
 This keeps the model clear:
@@ -190,13 +187,14 @@ This keeps the model clear:
 - `pass_env`: 1:1 deploy env file entry to container env
 - `env`: static container env literals
 - `file_mounts`: host file path source to container target
-- `socket_mounts`: host socket path source to container target
 - `required_host_env`: validation for any host env keys the target depends on
 
-Absolute mount source paths are allowed when they live under
-`hostWorkspaceDir`. Dagger should strip that prefix for repo-backed file mounts
-and workspace-local socket sources, keeping path normalization out of every CI
-wrapper.
+Absolute file mount source paths are allowed when they live under
+`hostWorkspaceDir`. Dagger should strip that prefix for repo-backed file mounts,
+keeping path normalization out of every CI wrapper.
+
+Docker socket forwarding is intentionally not part of target YAML. It stays a
+shared optional typed Dagger input.
 
 This also removes the need for target-specific TypeScript modules such as
 `deploy_server.ts` and `deploy_webapp.ts`.
@@ -209,7 +207,8 @@ That generic path should:
 
 - load one target YAML
 - prepare the container from `runtime.image` and `runtime.install`
-- apply generic `pass_env`, `env`, `file_mounts`, and `socket_mounts`
+- apply generic `pass_env`, `env`, and `file_mounts`
+- attach an optional shared Docker socket when the wrapper provides it
 - run the declared `deploy_script`
 - handle dry-run in one common way for all targets
 
@@ -222,7 +221,8 @@ clear execution summary, for example:
 - runtime image
 - install commands
 - env keys being exposed
-- file mounts and socket mounts being attached
+- file mounts being attached
+- whether the shared Docker socket is attached
 
 That gives predictable behavior without reintroducing service-specific dry-run
 code into the module.
@@ -232,12 +232,6 @@ code into the module.
 The workflow should keep the same thin wrapper shape:
 
 ```yaml
-- name: Prepare Dagger socket mount sources
-  if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
-  run: |
-    install -d "${GITHUB_WORKSPACE}/.dagger/runtime"
-    ln -snf /var/run/docker.sock "${GITHUB_WORKSPACE}/.dagger/runtime/docker.sock"
-
 - name: Write Dagger deploy env file
   run: |
     cat > "${RUNNER_TEMP}/dagger-deploy.env" <<EOF
@@ -254,21 +248,29 @@ The workflow should keep the same thin wrapper shape:
     WEBAPP_VITE_GRAPHQL_WS=${{ vars.WEBAPP_VITE_GRAPHQL_WS }}
     WEBAPP_URL=https://${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}.pages.dev
     GOOGLE_GHA_CREDS_PATH=${{ steps.auth.outputs.credentials_file_path }}
-    DOCKER_SOCKET_FILE=${{ github.workspace }}/.dagger/runtime/docker.sock
     EOF
 
 - name: Execute deployment plan
   working-directory: dagger
   env:
     DAGGER_NO_NAG: "1"
+    RELEASE_TARGETS_JSON: ${{ needs.detect.outputs.release_targets_json }}
   run: |
-    dagger call deploy-release \
-      --git-sha="${GITHUB_SHA}" \
-      --release-targets-json="${{ needs.detect.outputs.release_targets_json }}" \
-      --environment=prod \
-      --dry-run=false \
-      --deploy-env-file="${RUNNER_TEMP}/dagger-deploy.env" \
+    cmd=(
+      dagger call deploy-release
+      --git-sha="${GITHUB_SHA}"
+      --release-targets-json="${RELEASE_TARGETS_JSON}"
+      --environment=prod
+      --dry-run=false
+      --deploy-env-file="${RUNNER_TEMP}/dagger-deploy.env"
       --host-workspace-dir="${GITHUB_WORKSPACE}"
+    )
+
+    if [[ "${RELEASE_TARGETS_JSON}" == *'"server"'* ]]; then
+      cmd+=(--docker-socket=/var/run/docker.sock)
+    fi
+
+    "${cmd[@]}"
 ```
 
 That keeps provider wiring explicit but small, while Dagger owns runtime
@@ -285,11 +287,12 @@ interpretation from repository metadata and the flat env bridge.
 ## Phase 1: Keep The Generic Runtime Model
 
 - [x] Add a runtime model that supports `passEnv`, `env`, `dryRunDefaults`,
-      `requiredHostEnv`, `fileMounts`, and `socketMounts`.
-- [x] Add explicit types for file and socket mount specs.
+      `requiredHostEnv`, and `fileMounts`, plus one shared optional Docker
+      socket input.
+- [x] Add explicit types for file mount specs.
 - [x] Parse and normalize the flat deploy env file in one dedicated runtime
       helper.
-- [x] Resolve file and socket mounts generically from runtime data instead of
+- [x] Resolve file mounts generically from runtime data instead of
       target-specific Dagger function parameters.
 
 ## Phase 2: Keep CI Wrapper Wiring Thin
@@ -297,13 +300,13 @@ interpretation from repository metadata and the flat env bridge.
 - [x] Replace the old target-shaped deploy config JSON with one flat deploy env
       file.
 - [x] Keep the deploy step arguments thin: `gitSha`, `releaseTargetsJson`,
-      `environment`, `dryRun`, `deployEnvFile`, and `hostWorkspaceDir`.
+      `environment`, `dryRun`, `deployEnvFile`, `hostWorkspaceDir`, and
+      optional `dockerSocket`.
 - [x] Keep the final deploy invocation explicit, but small.
 - [x] Normalize absolute file mount source paths under `hostWorkspaceDir`
       inside Dagger so CI wrappers can keep mount source env values unchanged.
-- [x] Normalize absolute workspace-local socket mount source paths under
-      `hostWorkspaceDir` inside Dagger so wrappers can keep socket source env
-      values unchanged after creating repo-local socket symlinks.
+- [x] Keep Docker socket forwarding out of target YAML and use one shared
+      optional typed Dagger `dockerSocket` input instead.
 
 ## Phase 3: Move Repository Deploy Metadata To `.dagger/deploy/`
 
@@ -328,8 +331,7 @@ interpretation from repository metadata and the flat env bridge.
 - [x] Keep the target YAML model equivalent to the current spec model:
       `deploy_script`, `artifact_path`, `runtime.image`, `runtime.install`,
       `runtime.pass_env`, `runtime.env`, `runtime.dry_run_defaults`,
-      `runtime.required_host_env`, `runtime.file_mounts`, and
-      `runtime.socket_mounts`.
+      `runtime.required_host_env`, and `runtime.file_mounts`.
 - [x] Preserve ordered duplicate `runtime.install` entries when loading target
       YAML so repeated setup commands such as `apt-get update` remain intact.
 - [x] Add tests that load every target YAML referenced by the real service
@@ -358,8 +360,8 @@ interpretation from repository metadata and the flat env bridge.
       runtime scenario.
 - [x] Add tests that fail when a required `requiredHostEnv` key is missing in a
       live runtime scenario.
-- [x] Add tests that fail when a required `sourceVar` for a file or socket
-      mount is missing in a live runtime scenario.
+- [x] Add tests that fail when a required `sourceVar` for a file mount is
+      missing in a live runtime scenario.
 - [x] Add tests that validate target YAML schema requirements.
 - [x] Add tests that validate real target YAML deploy scripts still exist.
 - [x] Add tests that validate every service-mesh target has a matching target
@@ -382,9 +384,10 @@ interpretation from repository metadata and the flat env bridge.
 - `dagger call deploy-release` keeps a stable thin explicit interface.
 - CI wrappers provide plain env values and host-side mount source paths through
   one flat deploy env file.
-- Dagger maps absolute workspace-local mount paths under `hostWorkspaceDir`
-  back into repository-relative paths before using them for repo-backed file
-  mounts or workspace-local socket sources.
+- Dagger maps absolute workspace-local file mount paths under
+  `hostWorkspaceDir` back into repository-relative paths before using them for
+  repo-backed file mounts.
+- Docker socket forwarding is one optional shared typed input, not target YAML.
 - `.dagger/deploy/services-mesh.yaml` defines target graph and ordering.
 - `.dagger/deploy/targets/*.yaml` define target deploy metadata and runtime
   exposure rules.

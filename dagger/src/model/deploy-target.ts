@@ -3,11 +3,6 @@ export type FileMountSpec = {
   target: string
 }
 
-export type SocketMountSpec = {
-  source_var: string
-  target: string
-}
-
 export type DeployRuntimeSpec = {
   dry_run_defaults: Record<string, string>
   env: Record<string, string>
@@ -16,7 +11,6 @@ export type DeployRuntimeSpec = {
   install: string[]
   pass_env: string[]
   required_host_env: string[]
-  socket_mounts: SocketMountSpec[]
 }
 
 export type DeployTargetDefinition = {

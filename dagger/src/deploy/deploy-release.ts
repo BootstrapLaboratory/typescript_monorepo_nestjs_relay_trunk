@@ -1,4 +1,4 @@
-import { Directory, File } from "@dagger.io/dagger"
+import { Directory, File, Socket } from "@dagger.io/dagger"
 import type { DeployReleaseResult } from "../model/deploy-result.ts"
 import { buildDeploymentPlan } from "../planning/build-deployment-plan.ts"
 import { parseReleaseTargets } from "../planning/parse-release-targets.ts"
@@ -21,6 +21,7 @@ export async function deployRelease(
   dryRun: boolean = true,
   deployEnvFile?: File,
   hostWorkspaceDir: string = "",
+  dockerSocket?: Socket,
 ): Promise<string> {
   const hostEnv = deployEnvFile ? parseDeployEnvFile(await deployEnvFile.contents()) : {}
   const servicesMesh = await loadServicesMesh(repo)
@@ -51,6 +52,7 @@ export async function deployRelease(
     dryRun,
     hostEnv,
     hostWorkspaceDir,
+    dockerSocket,
   )
   const deployResult: DeployReleaseResult = {
     dryRun,

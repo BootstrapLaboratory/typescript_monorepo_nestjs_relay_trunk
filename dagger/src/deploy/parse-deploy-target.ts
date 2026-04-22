@@ -4,7 +4,6 @@ import type {
   DeployRuntimeSpec,
   DeployTargetDefinition,
   FileMountSpec,
-  SocketMountSpec,
 } from "../model/deploy-target.ts"
 
 const ENV_NAME_PATTERN = /^[A-Z][A-Z0-9_]*$/
@@ -78,11 +77,10 @@ function parseStringRecord(rawValue: unknown, name: string, keyName: string): Re
   return normalizedValues
 }
 
-function parseMountSpecs(
+function parseFileMountSpecs(
   rawValue: unknown,
   name: string,
-  typeName: "file" | "socket",
-): FileMountSpec[] | SocketMountSpec[] {
+): FileMountSpec[] {
   if (rawValue === undefined) {
     return []
   }
@@ -91,7 +89,7 @@ function parseMountSpecs(
     throw new Error(`${name} must be an array.`)
   }
 
-  const normalizedSpecs: Array<FileMountSpec | SocketMountSpec> = []
+  const normalizedSpecs: FileMountSpec[] = []
 
   for (const rawEntry of rawValue) {
     if (typeof rawEntry !== "object" || rawEntry === null || Array.isArray(rawEntry)) {
@@ -100,15 +98,15 @@ function parseMountSpecs(
 
     const sourceVar = parseRequiredString(
       "source_var" in rawEntry ? rawEntry.source_var : undefined,
-      `${typeName} mount source_var`,
+      "file mount source_var",
     )
     const target = parseRequiredString(
       "target" in rawEntry ? rawEntry.target : undefined,
-      `${typeName} mount target`,
+      "file mount target",
     )
 
     if (!ENV_NAME_PATTERN.test(sourceVar)) {
-      throw new Error(`${typeName} mount source_var "${sourceVar}" must match ${ENV_NAME_PATTERN}.`)
+      throw new Error(`file mount source_var "${sourceVar}" must match ${ENV_NAME_PATTERN}.`)
     }
 
     normalizedSpecs.push({
@@ -136,10 +134,9 @@ function parseRuntime(rawValue: unknown): DeployRuntimeSpec {
       "Deploy target runtime env",
       "Deploy target runtime env key",
     ),
-    file_mounts: parseMountSpecs(
+    file_mounts: parseFileMountSpecs(
       "file_mounts" in rawValue ? rawValue.file_mounts : undefined,
       "Deploy target runtime file_mounts",
-      "file",
     ) as FileMountSpec[],
     image: parseRequiredString(
       "image" in rawValue ? rawValue.image : undefined,
@@ -160,11 +157,6 @@ function parseRuntime(rawValue: unknown): DeployRuntimeSpec {
       "Deploy target runtime required_host_env",
       "Deploy target runtime required_host_env entry",
     ),
-    socket_mounts: parseMountSpecs(
-      "socket_mounts" in rawValue ? rawValue.socket_mounts : undefined,
-      "Deploy target runtime socket_mounts",
-      "socket",
-    ) as SocketMountSpec[],
   }
 }
 
