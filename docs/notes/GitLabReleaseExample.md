@@ -21,7 +21,7 @@ This example assumes:
 - a GitLab shell runner with `bash`, `curl`, `git`, `make`, `tar`, Docker, and
   Node 24 already available
 - `/var/run/docker.sock` is available to the job when `server` is in
-  `RELEASE_TARGETS_JSON`
+  `DEPLOY_TARGETS_JSON`
 - an earlier package stage has already produced:
   - `deploy-target-server.tgz` when `server` is selected
   - `apps/webapp/dist/` when `webapp` is selected
@@ -31,7 +31,7 @@ This example assumes:
 
 Common variables:
 
-- `RELEASE_TARGETS_JSON`
+- `DEPLOY_TARGETS_JSON`
 - `DEPLOY_ARTIFACT_PREFIX`
 - `DEPLOY_TAG_PREFIX`
 - `CLOUD_RUN_REGION`

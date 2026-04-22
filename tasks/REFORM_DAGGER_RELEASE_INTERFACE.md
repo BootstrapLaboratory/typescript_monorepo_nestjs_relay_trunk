@@ -254,11 +254,11 @@ The workflow should keep the same thin wrapper shape:
   working-directory: dagger
   env:
     DAGGER_NO_NAG: "1"
-    RELEASE_TARGETS_JSON: ${{ needs.detect.outputs.release_targets_json }}
+    DEPLOY_TARGETS_JSON: ${{ needs.detect.outputs.deploy_targets_json }}
   run: |
     dagger call deploy-release \
       --git-sha="${GITHUB_SHA}" \
-      --release-targets-json="${RELEASE_TARGETS_JSON}" \
+      --release-targets-json="${DEPLOY_TARGETS_JSON}" \
       --environment=prod \
       --dry-run=false \
       --deploy-env-file="${RUNNER_TEMP}/dagger-deploy.env" \

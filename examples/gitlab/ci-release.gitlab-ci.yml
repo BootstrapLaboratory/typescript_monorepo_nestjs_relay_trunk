@@ -24,7 +24,7 @@ deploy_release:
       artifacts: true
   script:
     - |
-      if [[ "${RELEASE_TARGETS_JSON}" == *'"server"'* ]]; then
+      if [[ "${DEPLOY_TARGETS_JSON}" == *'"server"'* ]]; then
         make ci-deploy-extract-target-artifact TARGET=server
       fi
     - cd dagger
@@ -48,7 +48,7 @@ deploy_release:
     - |
       dagger call deploy-release \
         --git-sha="${CI_COMMIT_SHA}" \
-        --release-targets-json="${RELEASE_TARGETS_JSON}" \
+        --release-targets-json="${DEPLOY_TARGETS_JSON}" \
         --environment=prod \
         --dry-run=false \
         --deploy-env-file="${CI_PROJECT_DIR}/dagger-deploy.env" \

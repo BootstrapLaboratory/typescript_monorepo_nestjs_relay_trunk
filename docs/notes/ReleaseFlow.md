@@ -30,7 +30,8 @@ The current GitHub Actions release graph is:
 
 Responsibilities by job:
 
-- `detect` computes `validate_targets_json` and `release_targets_json`.
+- `detect` computes `validate_targets_json` for PR validation scope and
+  `deploy_targets_json` for packaging and deployment scope.
 - `package` installs dependencies, verifies the committed GraphQL contract when
   `server` is in scope, builds the selected targets, and uploads deploy
   artifacts.

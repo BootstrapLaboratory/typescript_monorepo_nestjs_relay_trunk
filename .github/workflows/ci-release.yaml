@@ -32,9 +32,9 @@ jobs:
       mode: ${{ steps.plan.outputs.mode || steps.plan_manual.outputs.mode }}
       any_scope: ${{ steps.plan.outputs.any_scope || steps.plan_manual.outputs.any_scope }}
       pr_base_sha: ${{ steps.plan.outputs.pr_base_sha || steps.plan_manual.outputs.pr_base_sha }}
-      affected_projects_by_target_json: ${{ steps.plan.outputs.affected_projects_by_target_json || steps.plan_manual.outputs.affected_projects_by_target_json }}
+      affected_projects_by_deploy_target_json: ${{ steps.plan.outputs.affected_projects_by_deploy_target_json || steps.plan_manual.outputs.affected_projects_by_deploy_target_json }}
       validate_targets_json: ${{ steps.plan.outputs.validate_targets_json || steps.plan_manual.outputs.validate_targets_json }}
-      release_targets_json: ${{ steps.plan.outputs.release_targets_json || steps.plan_manual.outputs.release_targets_json }}
+      deploy_targets_json: ${{ steps.plan.outputs.deploy_targets_json || steps.plan_manual.outputs.deploy_targets_json }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@v5
@@ -51,7 +51,7 @@ jobs:
           package-manager-cache: false
 
       - id: plan
-        name: Compute Rush release plan
+        name: Compute Rush deploy plan
         if: github.event_name != 'workflow_call'
         env:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
@@ -61,7 +61,7 @@ jobs:
         run: node scripts/ci/compute-rush-plan.mjs
 
       - id: plan_manual
-        name: Compute Rush release plan
+        name: Compute Rush deploy plan
         if: github.event_name == 'workflow_call'
         env:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
@@ -201,22 +201,22 @@ jobs:
         uses: ./.github/actions/cached-install
 
       - name: Verify the committed GraphQL contract snapshot
-        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
+        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
         run: make ci-check-graphql-drift FAILURE_MODE=deploy
 
-      - name: Lint, test, and build selected release targets
-        run: make ci-package-release-targets RELEASE_TARGETS_JSON='${{ needs.detect.outputs.release_targets_json }}'
+      - name: Lint, test, and build selected deploy targets
+        run: make ci-package-release-targets DEPLOY_TARGETS_JSON='${{ needs.detect.outputs.deploy_targets_json }}'
 
       - name: Prepare pruned backend deploy bundle
-        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
+        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
         run: make ci-package-server-bundle
 
       - name: Archive backend deploy bundle
-        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
+        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
         run: make ci-package-archive-target TARGET=server
 
       - name: Upload backend deploy artifact
-        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
+        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
         uses: actions/upload-artifact@v5
         with:
           name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'server') }}
@@ -224,7 +224,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload webapp deploy artifact
-        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'webapp')
+        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'webapp')
         uses: actions/upload-artifact@v5
         with:
           name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'webapp') }}
@@ -253,7 +253,7 @@ jobs:
           echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
 
       - name: Confirm required Google Cloud configuration
-        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
+        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
         env:
           GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
           GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
@@ -265,7 +265,7 @@ jobs:
         run: make ci-deploy-server-check-gcp-config
 
       - id: auth
-        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
+        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
         name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v3
         with:
@@ -273,14 +273,14 @@ jobs:
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
 
       - name: Download backend deploy artifact
-        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
+        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
         uses: actions/download-artifact@v5
         with:
           name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'server') }}
           path: .
 
       - name: Confirm required Cloudflare configuration
-        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'webapp')
+        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'webapp')
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -290,14 +290,14 @@ jobs:
         run: make ci-deploy-webapp-check-config
 
       - name: Download webapp deploy artifact
-        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'webapp')
+        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'webapp')
         uses: actions/download-artifact@v5
         with:
           name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'webapp') }}
           path: apps/webapp/dist
 
       - name: Extract backend deploy artifact
-        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
+        if: contains(fromJSON(needs.detect.outputs.deploy_targets_json), 'server')
         run: make ci-deploy-extract-target-artifact TARGET=server
 
       - name: Write Dagger deploy env file
@@ -322,11 +322,11 @@ jobs:
         working-directory: dagger
         env:
           DAGGER_NO_NAG: "1"
-          RELEASE_TARGETS_JSON: ${{ needs.detect.outputs.release_targets_json }}
+          DEPLOY_TARGETS_JSON: ${{ needs.detect.outputs.deploy_targets_json }}
         run: |
           dagger call deploy-release \
             --git-sha="${GITHUB_SHA}" \
-            --release-targets-json="${RELEASE_TARGETS_JSON}" \
+            --release-targets-json="${DEPLOY_TARGETS_JSON}" \
             --environment=prod \
             --dry-run=false \
             --deploy-env-file="${RUNNER_TEMP}/dagger-deploy.env" \
