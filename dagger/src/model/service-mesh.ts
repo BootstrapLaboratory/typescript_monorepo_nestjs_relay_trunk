@@ -1,24 +1,27 @@
 export type ServiceDefinition = {
-  deploy_after: string[]
-}
+  deploy_after: string[];
+};
 
 export type ServiceMesh = {
-  services: Record<string, ServiceDefinition>
-}
+  services: Record<string, ServiceDefinition>;
+};
 
 export type ResolvedService = ServiceDefinition & {
-  target: string
-}
+  target: string;
+};
 
-export function resolveService(mesh: ServiceMesh, target: string): ResolvedService {
-  const service = mesh.services[target]
+export function resolveService(
+  mesh: ServiceMesh,
+  target: string,
+): ResolvedService {
+  const service = mesh.services[target];
 
   if (!service) {
-    throw new Error(`Unknown release target "${target}" in services mesh.`)
+    throw new Error(`Unknown release target "${target}" in services mesh.`);
   }
 
   return {
     target,
     ...service,
-  }
+  };
 }

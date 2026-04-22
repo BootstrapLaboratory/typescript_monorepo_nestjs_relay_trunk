@@ -1,16 +1,16 @@
-import { dag, Directory, Socket } from "@dagger.io/dagger"
+import { dag, Directory, Socket } from "@dagger.io/dagger";
 
-import type { DeployTargetDefinition } from "../model/deploy-target.ts"
-import type { DeployTargetResult } from "../model/deploy-result.ts"
-import { loadDeployTargetDefinition } from "./load-deploy-metadata.ts"
+import type { DeployTargetDefinition } from "../model/deploy-target.ts";
+import type { DeployTargetResult } from "../model/deploy-result.ts";
+import { loadDeployTargetDefinition } from "./load-deploy-metadata.ts";
 import {
   getRequiredRepoRelativeHostPathSource,
   resolveSpecEnvironment,
   validateRequiredHostEnv,
-} from "./runtime-env.ts"
+} from "./runtime-env.ts";
 
 function deployTagPrefixForEnvironment(environment: string): string {
-  return `deploy/${environment}`
+  return `deploy/${environment}`;
 }
 
 function formatDryRunSummary(
@@ -28,34 +28,38 @@ function formatDryRunSummary(
     `deploy_script=${definition.deploy_script}`,
     `artifact_path=${definition.artifact_path}`,
     `image=${definition.runtime.image}`,
-  ]
+  ];
 
   if (definition.runtime.install.length > 0) {
-    lines.push("install:")
-    lines.push(...definition.runtime.install.map((command) => `  - ${command}`))
+    lines.push("install:");
+    lines.push(
+      ...definition.runtime.install.map((command) => `  - ${command}`),
+    );
   }
 
-  const envEntries = Object.entries(envVars).sort(([left], [right]) => left.localeCompare(right))
+  const envEntries = Object.entries(envVars).sort(([left], [right]) =>
+    left.localeCompare(right),
+  );
   if (envEntries.length > 0) {
-    lines.push("env:")
-    lines.push(...envEntries.map(([name, value]) => `  - ${name}=${value}`))
+    lines.push("env:");
+    lines.push(...envEntries.map(([name, value]) => `  - ${name}=${value}`));
   }
 
   if (definition.runtime.file_mounts.length > 0) {
-    lines.push("file_mounts:")
+    lines.push("file_mounts:");
     lines.push(
       ...definition.runtime.file_mounts.map(
         (mount) => `  - source_var=${mount.source_var} target=${mount.target}`,
       ),
-    )
+    );
   }
 
   if (dockerSocketEnabled) {
-    lines.push("docker_socket:")
-    lines.push("  - /var/run/docker.sock")
+    lines.push("docker_socket:");
+    lines.push("  - /var/run/docker.sock");
   }
 
-  return `${lines.join("\n")}\n`
+  return `${lines.join("\n")}\n`;
 }
 
 export async function executeTarget(
@@ -69,22 +73,29 @@ export async function executeTarget(
   wave: number,
   dockerSocket?: Socket,
 ): Promise<DeployTargetResult> {
-  const definition = await loadDeployTargetDefinition(repo, target)
-  validateRequiredHostEnv(definition.runtime, hostEnv, dryRun, target)
+  const definition = await loadDeployTargetDefinition(repo, target);
+  validateRequiredHostEnv(definition.runtime, hostEnv, dryRun, target);
   const envVars = {
     ARTIFACT_PATH: definition.artifact_path,
     DEPLOY_TAG_PREFIX: deployTagPrefixForEnvironment(environment),
     DRY_RUN: dryRun ? "1" : "0",
     GIT_SHA: gitSha,
     ...resolveSpecEnvironment(definition.runtime, hostEnv, dryRun, target),
-  }
-  const commandParts = [`bash ${definition.deploy_script}`]
+  };
+  const commandParts = [`bash ${definition.deploy_script}`];
 
-  console.log(`[deploy-release] wave ${wave}: starting ${target}`)
+  console.log(`[deploy-release] wave ${wave}: starting ${target}`);
 
   if (dryRun) {
-    const output = formatDryRunSummary(definition, envVars, environment, gitSha, dockerSocket !== undefined, wave)
-    console.log(output.trimEnd())
+    const output = formatDryRunSummary(
+      definition,
+      envVars,
+      environment,
+      gitSha,
+      dockerSocket !== undefined,
+      wave,
+    );
+    console.log(output.trimEnd());
 
     return {
       artifactPath: envVars.ARTIFACT_PATH,
@@ -92,31 +103,49 @@ export async function executeTarget(
       status: "success",
       target,
       wave,
-    }
+    };
   }
 
-  let container = dag.container().from(definition.runtime.image).withDirectory("/workspace", repo).withWorkdir("/workspace")
+  let container = dag
+    .container()
+    .from(definition.runtime.image)
+    .withDirectory("/workspace", repo)
+    .withWorkdir("/workspace");
 
   if (definition.runtime.install.length > 0) {
-    container = container.withExec(["bash", "-lc", definition.runtime.install.join(" && ")])
+    container = container.withExec([
+      "bash",
+      "-lc",
+      definition.runtime.install.join(" && "),
+    ]);
   }
 
   for (const fileMount of definition.runtime.file_mounts) {
-    const sourcePath = getRequiredRepoRelativeHostPathSource(hostEnv, fileMount.source_var, target, hostWorkspaceDir)
-    container = container.withMountedFile(fileMount.target, repo.file(sourcePath))
+    const sourcePath = getRequiredRepoRelativeHostPathSource(
+      hostEnv,
+      fileMount.source_var,
+      target,
+      hostWorkspaceDir,
+    );
+    container = container.withMountedFile(
+      fileMount.target,
+      repo.file(sourcePath),
+    );
   }
 
   if (dockerSocket !== undefined) {
-    container = container.withUnixSocket("/var/run/docker.sock", dockerSocket)
+    container = container.withUnixSocket("/var/run/docker.sock", dockerSocket);
   }
 
   for (const [name, value] of Object.entries(envVars)) {
-    container = container.withEnvVariable(name, value)
+    container = container.withEnvVariable(name, value);
   }
 
-  const output = await container.withExec(["bash", "-lc", commandParts.join(" && ")]).stdout()
+  const output = await container
+    .withExec(["bash", "-lc", commandParts.join(" && ")])
+    .stdout();
 
-  console.log(`[deploy-release] wave ${wave}: finished ${target}`)
+  console.log(`[deploy-release] wave ${wave}: finished ${target}`);
 
   return {
     artifactPath: envVars.ARTIFACT_PATH,
@@ -124,5 +153,5 @@ export async function executeTarget(
     status: "success",
     target,
     wave,
-  }
+  };
 }

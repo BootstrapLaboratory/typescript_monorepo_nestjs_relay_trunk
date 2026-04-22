@@ -1,16 +1,16 @@
-import type { DeploymentPlan } from "./deployment-plan.ts"
+import type { DeploymentPlan } from "./deployment-plan.ts";
 
 export type DeployTargetResult = {
-  artifactPath: string
-  output: string
-  status: "success"
-  target: string
-  wave: number
-}
+  artifactPath: string;
+  output: string;
+  status: "success";
+  target: string;
+  wave: number;
+};
 
 export type DeployReleaseResult = {
-  dryRun: boolean
-  environment: string
-  plan: DeploymentPlan
-  results: DeployTargetResult[]
-}
+  dryRun: boolean;
+  environment: string;
+  plan: DeploymentPlan;
+  results: DeployTargetResult[];
+};

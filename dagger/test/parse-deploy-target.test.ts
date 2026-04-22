@@ -1,7 +1,7 @@
-import * as assert from "node:assert/strict"
-import { test } from "node:test"
+import * as assert from "node:assert/strict";
+import { test } from "node:test";
 
-import { parseDeployTarget } from "../src/deploy/parse-deploy-target.ts"
+import { parseDeployTarget } from "../src/deploy/parse-deploy-target.ts";
 
 test("parses deploy target runtime metadata", () => {
   const definition = parseDeployTarget(`
@@ -17,7 +17,7 @@ runtime:
     - WEBAPP_VITE_GRAPHQL_HTTP
   env:
     STATIC_ENV: always
-`)
+`);
 
   assert.deepStrictEqual(definition, {
     artifact_path: "/workspace/apps/webapp/dist",
@@ -34,8 +34,8 @@ runtime:
       pass_env: ["WEBAPP_URL", "WEBAPP_VITE_GRAPHQL_HTTP"],
       required_host_env: [],
     },
-  })
-})
+  });
+});
 
 test("preserves ordered duplicate install commands", () => {
   const definition = parseDeployTarget(`
@@ -49,14 +49,14 @@ runtime:
     - apt-get update
     - echo added repo
     - apt-get update
-`)
+`);
 
   assert.deepStrictEqual(definition.runtime.install, [
     "apt-get update",
     "echo added repo",
     "apt-get update",
-  ])
-})
+  ]);
+});
 
 test("fails when target runtime image is missing", () => {
   assert.throws(
@@ -69,8 +69,8 @@ artifact_path: /workspace/apps/webapp/dist
 runtime: {}
 `),
     /Deploy target runtime image must be a non-empty string\./,
-  )
-})
+  );
+});
 
 test("fails when file mount source_var is invalid", () => {
   assert.throws(
@@ -87,5 +87,5 @@ runtime:
       target: /tmp/gcp-credentials.json
 `),
     /file mount source_var "not-valid" must match/,
-  )
-})
+  );
+});

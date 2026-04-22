@@ -26,6 +26,10 @@ lint:
     - svgo@3.3.2
     - trufflehog@3.88.29
     - yamllint@1.37.1
+  ignore:
+    - linters: [ALL]
+      paths:
+        - libs/api/schema.gql
 actions:
   disabled:
     - trunk-announce

@@ -18,6 +18,7 @@ runtime:
 
   dry_run_defaults:
     CLOUDFLARE_ACCOUNT_ID: dry-run-account
+    # trunk-ignore(checkov/CKV_SECRET_6)
     CLOUDFLARE_API_TOKEN: dry-run-token
     CLOUDFLARE_PAGES_PROJECT_NAME: webapp
     WEBAPP_URL: https://webapp.pages.dev

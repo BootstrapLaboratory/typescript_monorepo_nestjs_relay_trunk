@@ -1,9 +1,9 @@
-import { parse as parseYaml } from "yaml"
+import { parse as parseYaml } from "yaml";
 
-import type { ServiceDefinition, ServiceMesh } from "../model/service-mesh.ts"
+import type { ServiceDefinition, ServiceMesh } from "../model/service-mesh.ts";
 
 export function parseServicesMesh(servicesMeshYaml: string): ServiceMesh {
-  const parsedValue = parseYaml(servicesMeshYaml)
+  const parsedValue = parseYaml(servicesMeshYaml);
 
   if (
     typeof parsedValue !== "object" ||
@@ -13,41 +13,52 @@ export function parseServicesMesh(servicesMeshYaml: string): ServiceMesh {
     parsedValue.services === null ||
     Array.isArray(parsedValue.services)
   ) {
-    throw new Error("services-mesh.yaml must define a top-level services mapping.")
+    throw new Error(
+      "services-mesh.yaml must define a top-level services mapping.",
+    );
   }
 
-  const normalizedServices: Record<string, ServiceDefinition> = {}
+  const normalizedServices: Record<string, ServiceDefinition> = {};
 
   for (const [target, rawService] of Object.entries(parsedValue.services)) {
     if (typeof target !== "string" || target.length === 0) {
-      throw new Error("Service mesh target names must be non-empty strings.")
+      throw new Error("Service mesh target names must be non-empty strings.");
     }
 
-    if (typeof rawService !== "object" || rawService === null || Array.isArray(rawService)) {
-      throw new Error(`Service mesh entry for "${target}" must be a mapping.`)
+    if (
+      typeof rawService !== "object" ||
+      rawService === null ||
+      Array.isArray(rawService)
+    ) {
+      throw new Error(`Service mesh entry for "${target}" must be a mapping.`);
     }
 
-    const rawDeployAfter = "deploy_after" in rawService ? rawService.deploy_after : []
+    const rawDeployAfter =
+      "deploy_after" in rawService ? rawService.deploy_after : [];
 
     if (!Array.isArray(rawDeployAfter)) {
-      throw new Error(`Service mesh deploy_after for "${target}" must be an array.`)
+      throw new Error(
+        `Service mesh deploy_after for "${target}" must be an array.`,
+      );
     }
 
-    const normalizedDeployAfter: string[] = []
+    const normalizedDeployAfter: string[] = [];
     for (const dependency of rawDeployAfter) {
       if (typeof dependency !== "string" || dependency.length === 0) {
-        throw new Error(`Service mesh deploy_after entries for "${target}" must be non-empty strings.`)
+        throw new Error(
+          `Service mesh deploy_after entries for "${target}" must be non-empty strings.`,
+        );
       }
 
       if (!normalizedDeployAfter.includes(dependency)) {
-        normalizedDeployAfter.push(dependency)
+        normalizedDeployAfter.push(dependency);
       }
     }
 
     normalizedServices[target] = {
       deploy_after: normalizedDeployAfter,
-    }
+    };
   }
 
-  return { services: normalizedServices }
+  return { services: normalizedServices };
 }

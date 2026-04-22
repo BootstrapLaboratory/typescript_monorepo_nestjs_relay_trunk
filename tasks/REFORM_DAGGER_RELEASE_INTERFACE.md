@@ -35,7 +35,7 @@ export async function deployRelease(
   deployEnvFile?: File,
   hostWorkspaceDir: string = "",
   dockerSocket?: Socket,
-): Promise<string>
+): Promise<string>;
 ```
 
 Notes:

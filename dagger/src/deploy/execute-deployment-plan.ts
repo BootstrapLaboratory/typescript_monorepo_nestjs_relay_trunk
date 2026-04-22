@@ -1,7 +1,7 @@
-import { Directory, Socket } from "@dagger.io/dagger"
-import type { DeploymentPlan } from "../model/deployment-plan.ts"
-import type { DeployTargetResult } from "../model/deploy-result.ts"
-import { executeTarget } from "./execute-target.ts"
+import { Directory, Socket } from "@dagger.io/dagger";
+import type { DeploymentPlan } from "../model/deployment-plan.ts";
+import type { DeployTargetResult } from "../model/deploy-result.ts";
+import { executeTarget } from "./execute-target.ts";
 
 export async function executeDeploymentPlan(
   repo: Directory,
@@ -13,13 +13,15 @@ export async function executeDeploymentPlan(
   hostWorkspaceDir: string,
   dockerSocket?: Socket,
 ): Promise<DeployTargetResult[]> {
-  const results: DeployTargetResult[] = []
+  const results: DeployTargetResult[] = [];
 
   for (const [index, wave] of plan.waves.entries()) {
-    const waveNumber = index + 1
-    const waveTargets = wave.map((entry) => entry.target).join(", ")
+    const waveNumber = index + 1;
+    const waveTargets = wave.map((entry) => entry.target).join(", ");
 
-    console.log(`[deploy-release] wave ${waveNumber}: ${waveTargets || "(empty)"}`)
+    console.log(
+      `[deploy-release] wave ${waveNumber}: ${waveTargets || "(empty)"}`,
+    );
 
     const waveResults = await Promise.all(
       wave.map(async (entry) => {
@@ -34,16 +36,19 @@ export async function executeDeploymentPlan(
             hostWorkspaceDir,
             waveNumber,
             dockerSocket,
-          )
+          );
         } catch (error) {
-          const message = error instanceof Error ? error.message : String(error)
-          throw new Error(`deploy-release failed for target "${entry.target}" in wave ${waveNumber}: ${message}`)
+          const message =
+            error instanceof Error ? error.message : String(error);
+          throw new Error(
+            `deploy-release failed for target "${entry.target}" in wave ${waveNumber}: ${message}`,
+          );
         }
       }),
-    )
+    );
 
-    results.push(...waveResults)
+    results.push(...waveResults);
   }
 
-  return results
+  return results;
 }

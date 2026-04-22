@@ -1,126 +1,149 @@
-import { parse as parseYaml } from "yaml"
+import { parse as parseYaml } from "yaml";
 
 import type {
   DeployRuntimeSpec,
   DeployTargetDefinition,
   FileMountSpec,
-} from "../model/deploy-target.ts"
+} from "../model/deploy-target.ts";
 
-const ENV_NAME_PATTERN = /^[A-Z][A-Z0-9_]*$/
+const ENV_NAME_PATTERN = /^[A-Z][A-Z0-9_]*$/;
 
 function parseRequiredString(rawValue: unknown, name: string): string {
   if (typeof rawValue !== "string" || rawValue.length === 0) {
-    throw new Error(`${name} must be a non-empty string.`)
+    throw new Error(`${name} must be a non-empty string.`);
   }
 
-  return rawValue
+  return rawValue;
 }
 
-function parseStringArray(rawValue: unknown, name: string, itemName: string): string[] {
+function parseStringArray(
+  rawValue: unknown,
+  name: string,
+  itemName: string,
+): string[] {
   if (rawValue === undefined) {
-    return []
+    return [];
   }
 
   if (!Array.isArray(rawValue)) {
-    throw new Error(`${name} must be an array.`)
+    throw new Error(`${name} must be an array.`);
   }
 
-  const normalizedValues: string[] = []
+  const normalizedValues: string[] = [];
 
   for (const rawEntry of rawValue) {
-    normalizedValues.push(parseRequiredString(rawEntry, itemName))
+    normalizedValues.push(parseRequiredString(rawEntry, itemName));
   }
 
-  return normalizedValues
+  return normalizedValues;
 }
 
-function parseEnvNameArray(rawValue: unknown, name: string, itemName: string): string[] {
-  const values = parseStringArray(rawValue, name, itemName)
-  const normalizedValues: string[] = []
+function parseEnvNameArray(
+  rawValue: unknown,
+  name: string,
+  itemName: string,
+): string[] {
+  const values = parseStringArray(rawValue, name, itemName);
+  const normalizedValues: string[] = [];
 
   for (const value of values) {
     if (!ENV_NAME_PATTERN.test(value)) {
-      throw new Error(`${itemName} must match ${ENV_NAME_PATTERN}.`)
+      throw new Error(`${itemName} must match ${ENV_NAME_PATTERN}.`);
     }
 
     if (!normalizedValues.includes(value)) {
-      normalizedValues.push(value)
+      normalizedValues.push(value);
     }
   }
 
-  return normalizedValues
+  return normalizedValues;
 }
 
-function parseStringRecord(rawValue: unknown, name: string, keyName: string): Record<string, string> {
+function parseStringRecord(
+  rawValue: unknown,
+  name: string,
+  keyName: string,
+): Record<string, string> {
   if (rawValue === undefined) {
-    return {}
+    return {};
   }
 
-  if (typeof rawValue !== "object" || rawValue === null || Array.isArray(rawValue)) {
-    throw new Error(`${name} must be a mapping.`)
+  if (
+    typeof rawValue !== "object" ||
+    rawValue === null ||
+    Array.isArray(rawValue)
+  ) {
+    throw new Error(`${name} must be a mapping.`);
   }
 
-  const normalizedValues: Record<string, string> = {}
+  const normalizedValues: Record<string, string> = {};
 
   for (const [rawKey, rawEntry] of Object.entries(rawValue)) {
     if (!ENV_NAME_PATTERN.test(rawKey)) {
-      throw new Error(`${keyName} "${rawKey}" must match ${ENV_NAME_PATTERN}.`)
+      throw new Error(`${keyName} "${rawKey}" must match ${ENV_NAME_PATTERN}.`);
     }
 
     if (typeof rawEntry !== "string") {
-      throw new Error(`${name} value for "${rawKey}" must be a string.`)
+      throw new Error(`${name} value for "${rawKey}" must be a string.`);
     }
 
-    normalizedValues[rawKey] = rawEntry
+    normalizedValues[rawKey] = rawEntry;
   }
 
-  return normalizedValues
+  return normalizedValues;
 }
 
-function parseFileMountSpecs(
-  rawValue: unknown,
-  name: string,
-): FileMountSpec[] {
+function parseFileMountSpecs(rawValue: unknown, name: string): FileMountSpec[] {
   if (rawValue === undefined) {
-    return []
+    return [];
   }
 
   if (!Array.isArray(rawValue)) {
-    throw new Error(`${name} must be an array.`)
+    throw new Error(`${name} must be an array.`);
   }
 
-  const normalizedSpecs: FileMountSpec[] = []
+  const normalizedSpecs: FileMountSpec[] = [];
 
   for (const rawEntry of rawValue) {
-    if (typeof rawEntry !== "object" || rawEntry === null || Array.isArray(rawEntry)) {
-      throw new Error(`${name} entries must be mappings.`)
+    if (
+      typeof rawEntry !== "object" ||
+      rawEntry === null ||
+      Array.isArray(rawEntry)
+    ) {
+      throw new Error(`${name} entries must be mappings.`);
     }
 
     const sourceVar = parseRequiredString(
       "source_var" in rawEntry ? rawEntry.source_var : undefined,
       "file mount source_var",
-    )
+    );
     const target = parseRequiredString(
       "target" in rawEntry ? rawEntry.target : undefined,
       "file mount target",
-    )
+    );
 
     if (!ENV_NAME_PATTERN.test(sourceVar)) {
-      throw new Error(`file mount source_var "${sourceVar}" must match ${ENV_NAME_PATTERN}.`)
+      throw new Error(
+        `file mount source_var "${sourceVar}" must match ${ENV_NAME_PATTERN}.`,
+      );
     }
 
     normalizedSpecs.push({
       source_var: sourceVar,
       target,
-    })
+    });
   }
 
-  return normalizedSpecs
+  return normalizedSpecs;
 }
 
 function parseRuntime(rawValue: unknown): DeployRuntimeSpec {
-  if (typeof rawValue !== "object" || rawValue === null || Array.isArray(rawValue)) {
-    throw new Error("Deploy target runtime must be a mapping.")
+  if (
+    typeof rawValue !== "object" ||
+    rawValue === null ||
+    Array.isArray(rawValue)
+  ) {
+    throw new Error("Deploy target runtime must be a mapping.");
   }
 
   return {
@@ -157,14 +180,20 @@ function parseRuntime(rawValue: unknown): DeployRuntimeSpec {
       "Deploy target runtime required_host_env",
       "Deploy target runtime required_host_env entry",
     ),
-  }
+  };
 }
 
-export function parseDeployTarget(deployTargetYaml: string): DeployTargetDefinition {
-  const parsedValue = parseYaml(deployTargetYaml)
+export function parseDeployTarget(
+  deployTargetYaml: string,
+): DeployTargetDefinition {
+  const parsedValue = parseYaml(deployTargetYaml);
 
-  if (typeof parsedValue !== "object" || parsedValue === null || Array.isArray(parsedValue)) {
-    throw new Error("Deploy target file must define a top-level mapping.")
+  if (
+    typeof parsedValue !== "object" ||
+    parsedValue === null ||
+    Array.isArray(parsedValue)
+  ) {
+    throw new Error("Deploy target file must define a top-level mapping.");
   }
 
   return {
@@ -180,6 +209,8 @@ export function parseDeployTarget(deployTargetYaml: string): DeployTargetDefinit
       "name" in parsedValue ? parsedValue.name : undefined,
       "Deploy target name",
     ),
-    runtime: parseRuntime("runtime" in parsedValue ? parsedValue.runtime : undefined),
-  }
+    runtime: parseRuntime(
+      "runtime" in parsedValue ? parsedValue.runtime : undefined,
+    ),
+  };
 }

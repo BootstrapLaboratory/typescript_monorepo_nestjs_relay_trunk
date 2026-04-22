@@ -1,8 +1,8 @@
 export type DeploymentWaveEntry = {
-  target: string
-}
+  target: string;
+};
 
 export type DeploymentPlan = {
-  selectedTargets: string[]
-  waves: DeploymentWaveEntry[][]
-}
+  selectedTargets: string[];
+  waves: DeploymentWaveEntry[][];
+};

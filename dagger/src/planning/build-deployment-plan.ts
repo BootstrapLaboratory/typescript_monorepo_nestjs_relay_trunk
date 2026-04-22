@@ -1,65 +1,70 @@
-import type { DeploymentPlan } from "../model/deployment-plan.ts"
-import type { ServiceMesh } from "../model/service-mesh.ts"
+import type { DeploymentPlan } from "../model/deployment-plan.ts";
+import type { ServiceMesh } from "../model/service-mesh.ts";
 
-export function buildDeploymentPlan(mesh: ServiceMesh, selectedTargets: string[]): DeploymentPlan {
-  const selectedTargetSet = new Set(selectedTargets)
+export function buildDeploymentPlan(
+  mesh: ServiceMesh,
+  selectedTargets: string[],
+): DeploymentPlan {
+  const selectedTargetSet = new Set(selectedTargets);
 
   for (const target of selectedTargets) {
     if (!(target in mesh.services)) {
-      throw new Error(`Unknown release target "${target}" in services mesh.`)
+      throw new Error(`Unknown release target "${target}" in services mesh.`);
     }
   }
 
   for (const [target, service] of Object.entries(mesh.services)) {
     for (const dependency of service.deploy_after) {
       if (!(dependency in mesh.services)) {
-        throw new Error(`Unknown dependency "${dependency}" referenced by "${target}".`)
+        throw new Error(
+          `Unknown dependency "${dependency}" referenced by "${target}".`,
+        );
       }
     }
   }
 
-  const inDegree = new Map<string, number>()
-  const dependents = new Map<string, string[]>()
+  const inDegree = new Map<string, number>();
+  const dependents = new Map<string, string[]>();
 
   for (const target of selectedTargets) {
-    inDegree.set(target, 0)
-    dependents.set(target, [])
+    inDegree.set(target, 0);
+    dependents.set(target, []);
   }
 
   for (const target of selectedTargets) {
-    const service = mesh.services[target]
+    const service = mesh.services[target];
     for (const dependency of service.deploy_after) {
       if (!selectedTargetSet.has(dependency)) {
-        continue
+        continue;
       }
 
-      dependents.get(dependency)?.push(target)
-      inDegree.set(target, (inDegree.get(target) ?? 0) + 1)
+      dependents.get(dependency)?.push(target);
+      inDegree.set(target, (inDegree.get(target) ?? 0) + 1);
     }
   }
 
-  const remainingTargets = new Set(selectedTargets)
-  const waves: DeploymentPlan["waves"] = []
+  const remainingTargets = new Set(selectedTargets);
+  const waves: DeploymentPlan["waves"] = [];
 
   while (remainingTargets.size > 0) {
     const waveTargets = [...remainingTargets]
       .filter((target) => (inDegree.get(target) ?? 0) === 0)
-      .sort()
+      .sort();
 
     if (waveTargets.length === 0) {
-      throw new Error("Cycle detected in services mesh deploy_after graph.")
+      throw new Error("Cycle detected in services mesh deploy_after graph.");
     }
 
     waves.push(
       waveTargets.map((target) => ({
         target,
       })),
-    )
+    );
 
     for (const target of waveTargets) {
-      remainingTargets.delete(target)
+      remainingTargets.delete(target);
       for (const dependent of dependents.get(target) ?? []) {
-        inDegree.set(dependent, (inDegree.get(dependent) ?? 0) - 1)
+        inDegree.set(dependent, (inDegree.get(dependent) ?? 0) - 1);
       }
     }
   }
@@ -67,5 +72,5 @@ export function buildDeploymentPlan(mesh: ServiceMesh, selectedTargets: string[]
   return {
     selectedTargets,
     waves,
-  }
+  };
 }
