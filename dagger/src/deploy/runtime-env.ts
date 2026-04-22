@@ -91,26 +91,3 @@ export function getRequiredMountSource(hostEnv: HostEnv, name: string, target: s
 
   return value
 }
-
-export function getRequiredRepoFileMountSource(hostEnv: HostEnv, name: string, target: string): string {
-  const value = getRequiredMountSource(hostEnv, name, target)
-  const normalized = value.replace(/\\/g, "/").replace(/^\.\//, "")
-
-  if (/^(?:\/|[A-Za-z]:[\\/])/.test(value)) {
-    throw new Error(
-      `Host environment variable "${name}" for target "${target}" must be a repository-relative file path, got absolute path "${value}".`,
-    )
-  }
-
-  if (
-    normalized.length === 0 ||
-    normalized === "." ||
-    normalized.split("/").some((segment) => segment === "..")
-  ) {
-    throw new Error(
-      `Host environment variable "${name}" for target "${target}" must stay within the repository, got "${value}".`,
-    )
-  }
-
-  return normalized
-}

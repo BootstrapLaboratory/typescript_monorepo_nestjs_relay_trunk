@@ -94,13 +94,8 @@ GitHub passes release runtime values through one flat `KEY=VALUE` file:
 That file carries:
 
 - 1:1 runtime env values such as `CLOUD_RUN_REGION`
-- repo-relative file mount sources such as `GOOGLE_GHA_CREDS_PATH`
+- host-side mount sources such as `GOOGLE_GHA_CREDS_PATH`
 - wrapper-specific runtime paths such as `DOCKER_SOCKET_FILE`
-
-For file-backed mounts, the wrapper should write repository-relative paths into
-`dagger-deploy.env` so Dagger can resolve those files through the checked-out
-repo context. Socket-backed mounts such as `DOCKER_SOCKET_FILE` still use host
-paths.
 
 Current target behavior:
 

@@ -3,12 +3,7 @@ import { dag, Directory } from "@dagger.io/dagger"
 import type { DeployTargetDefinition } from "../model/deploy-target.ts"
 import type { DeployTargetResult } from "../model/deploy-result.ts"
 import { loadDeployTargetDefinition } from "./load-deploy-metadata.ts"
-import {
-  getRequiredMountSource,
-  getRequiredRepoFileMountSource,
-  resolveSpecEnvironment,
-  validateRequiredHostEnv,
-} from "./runtime-env.ts"
+import { getRequiredMountSource, resolveSpecEnvironment, validateRequiredHostEnv } from "./runtime-env.ts"
 
 function deployTagPrefixForEnvironment(environment: string): string {
   return `deploy/${environment}`
@@ -104,8 +99,8 @@ export async function executeTarget(
   }
 
   for (const fileMount of definition.runtime.file_mounts) {
-    const sourcePath = getRequiredRepoFileMountSource(hostEnv, fileMount.source_var, target)
-    container = container.withMountedFile(fileMount.target, repo.file(sourcePath))
+    const sourcePath = getRequiredMountSource(hostEnv, fileMount.source_var, target)
+    container = container.withMountedFile(fileMount.target, dag.address(sourcePath).file())
   }
 
   for (const socketMount of definition.runtime.socket_mounts) {

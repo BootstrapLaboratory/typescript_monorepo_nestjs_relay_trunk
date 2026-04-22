@@ -97,11 +97,6 @@ CI should provide:
 Those values should be written into one flat deploy env file using the same env
 names the target YAML expects.
 
-For repo-backed file mounts, wrapper CI should normalize host file paths to
-repository-relative paths before writing them into the deploy env file. Socket
-mounts can keep host paths because they are resolved through host socket
-mounting, not through the checked-out repo directory.
-
 ### Repository Deploy Metadata
 
 Repository-owned deploy metadata should live under:
@@ -230,19 +225,7 @@ The workflow should keep the same thin wrapper shape:
 ```yaml
 - name: Write Dagger deploy env file
   run: |
-    credentials_file_path='${{ steps.auth.outputs.credentials_file_path }}'
-
-    case "${credentials_file_path}" in
-      "${GITHUB_WORKSPACE}"/*)
-        credentials_file_path="${credentials_file_path#${GITHUB_WORKSPACE}/}"
-        ;;
-      *)
-        echo "::error::Google credentials file must live under ${GITHUB_WORKSPACE} so Dagger can mount it from the checked-out repository."
-        exit 1
-        ;;
-    esac
-
-    cat > "${RUNNER_TEMP}/dagger-deploy.env" <<'EOF'
+    cat > "${RUNNER_TEMP}/dagger-deploy.env" <<EOF
     GCP_PROJECT_ID=${{ vars.GCP_PROJECT_ID }}
     GCP_ARTIFACT_REGISTRY_REPOSITORY=${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}
     CLOUD_RUN_SERVICE=${{ vars.CLOUD_RUN_SERVICE }}
@@ -255,10 +238,9 @@ The workflow should keep the same thin wrapper shape:
     WEBAPP_VITE_GRAPHQL_HTTP=${{ vars.WEBAPP_VITE_GRAPHQL_HTTP }}
     WEBAPP_VITE_GRAPHQL_WS=${{ vars.WEBAPP_VITE_GRAPHQL_WS }}
     WEBAPP_URL=https://${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}.pages.dev
+    GOOGLE_GHA_CREDS_PATH=${{ steps.auth.outputs.credentials_file_path }}
     DOCKER_SOCKET_FILE=/var/run/docker.sock
     EOF
-
-    printf 'GOOGLE_GHA_CREDS_PATH=%s\n' "${credentials_file_path}" >> "${RUNNER_TEMP}/dagger-deploy.env"
 
 - name: Execute deployment plan
   working-directory: dagger
@@ -301,9 +283,6 @@ interpretation from repository metadata and the flat env bridge.
 - [x] Keep the deploy step arguments thin: `gitSha`, `releaseTargetsJson`,
       `environment`, `dryRun`, and `deployEnvFile`.
 - [x] Keep the final deploy invocation explicit, but small.
-- [x] Normalize repo-backed file mount sources such as `GOOGLE_GHA_CREDS_PATH`
-      to repository-relative paths before writing them into the flat deploy env
-      file.
 
 ## Phase 3: Move Repository Deploy Metadata To `.dagger/deploy/`
 
@@ -382,8 +361,6 @@ interpretation from repository metadata and the flat env bridge.
 - `dagger call deploy-release` keeps a stable thin explicit interface.
 - CI wrappers provide plain env values and host-side mount source paths through
   one flat deploy env file.
-- Repo-backed file mount sources in that env file are repository-relative
-  paths.
 - `.dagger/deploy/services-mesh.yaml` defines target graph and ordering.
 - `.dagger/deploy/targets/*.yaml` define target deploy metadata and runtime
   exposure rules.

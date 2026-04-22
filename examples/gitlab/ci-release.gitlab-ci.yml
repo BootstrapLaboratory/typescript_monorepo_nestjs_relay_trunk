@@ -49,18 +49,6 @@ deploy_release:
     - dagger develop
     - cat "${CI_PROJECT_DIR}/deployment-plan.json"
     - |
-      credentials_file_path="${GCP_CREDENTIALS_FILE}"
-
-      case "${credentials_file_path}" in
-        "${CI_PROJECT_DIR}"/*)
-          credentials_file_path="${credentials_file_path#${CI_PROJECT_DIR}/}"
-          ;;
-        *)
-          echo "GCP_CREDENTIALS_FILE must point to a file under ${CI_PROJECT_DIR} so Dagger can mount it from the checked-out repository." >&2
-          exit 1
-          ;;
-      esac
-
       cat > "${CI_PROJECT_DIR}/dagger-deploy.env" <<EOF
       GCP_PROJECT_ID=${GCP_PROJECT_ID}
       GCP_ARTIFACT_REGISTRY_REPOSITORY=${GCP_ARTIFACT_REGISTRY_REPOSITORY}
@@ -74,7 +62,7 @@ deploy_release:
       WEBAPP_VITE_GRAPHQL_HTTP=${WEBAPP_VITE_GRAPHQL_HTTP}
       WEBAPP_VITE_GRAPHQL_WS=${WEBAPP_VITE_GRAPHQL_WS}
       WEBAPP_URL=${WEBAPP_URL}
-      GOOGLE_GHA_CREDS_PATH=${credentials_file_path}
+      GOOGLE_GHA_CREDS_PATH=${GCP_CREDENTIALS_FILE}
       DOCKER_SOCKET_FILE=/var/run/docker.sock
       EOF
     - |
