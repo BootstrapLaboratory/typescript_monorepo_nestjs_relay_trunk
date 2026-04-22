@@ -38,6 +38,27 @@ runtime:
   })
 })
 
+test("preserves ordered duplicate install commands", () => {
+  const definition = parseDeployTarget(`
+name: server
+deploy_script: scripts/ci/deploy-server.sh
+artifact_path: /workspace/common/deploy/server
+
+runtime:
+  image: node:24-bookworm-slim
+  install:
+    - apt-get update
+    - echo added repo
+    - apt-get update
+`)
+
+  assert.deepStrictEqual(definition.runtime.install, [
+    "apt-get update",
+    "echo added repo",
+    "apt-get update",
+  ])
+})
+
 test("fails when target runtime image is missing", () => {
   assert.throws(
     () =>

@@ -29,10 +29,7 @@ function parseStringArray(rawValue: unknown, name: string, itemName: string): st
   const normalizedValues: string[] = []
 
   for (const rawEntry of rawValue) {
-    const entry = parseRequiredString(rawEntry, itemName)
-    if (!normalizedValues.includes(entry)) {
-      normalizedValues.push(entry)
-    }
+    normalizedValues.push(parseRequiredString(rawEntry, itemName))
   }
 
   return normalizedValues
@@ -40,14 +37,19 @@ function parseStringArray(rawValue: unknown, name: string, itemName: string): st
 
 function parseEnvNameArray(rawValue: unknown, name: string, itemName: string): string[] {
   const values = parseStringArray(rawValue, name, itemName)
+  const normalizedValues: string[] = []
 
   for (const value of values) {
     if (!ENV_NAME_PATTERN.test(value)) {
       throw new Error(`${itemName} must match ${ENV_NAME_PATTERN}.`)
     }
+
+    if (!normalizedValues.includes(value)) {
+      normalizedValues.push(value)
+    }
   }
 
-  return values
+  return normalizedValues
 }
 
 function parseStringRecord(rawValue: unknown, name: string, keyName: string): Record<string, string> {

@@ -330,6 +330,8 @@ interpretation from repository metadata and the flat env bridge.
       `runtime.pass_env`, `runtime.env`, `runtime.dry_run_defaults`,
       `runtime.required_host_env`, `runtime.file_mounts`, and
       `runtime.socket_mounts`.
+- [x] Preserve ordered duplicate `runtime.install` entries when loading target
+      YAML so repeated setup commands such as `apt-get update` remain intact.
 - [x] Add tests that load every target YAML referenced by the real service
       mesh.
 
