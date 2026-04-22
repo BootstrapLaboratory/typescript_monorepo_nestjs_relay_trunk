@@ -169,20 +169,21 @@ JSON file.
 
 - [x] Read `deploy_targets` from `ci-plan.json`.
 - [x] Stop treating GitHub job outputs as the primary package contract.
-- [ ] Keep package selection behavior unchanged.
-- [ ] Verify that packaging still only runs on deployable targets.
+- [x] Keep package selection behavior unchanged.
+- [x] Verify that packaging still only runs on deployable targets.
 
 ## Phase 5: Make `deploy` Read The Plan File
 
 - [x] Download and restore `ci-plan.json`.
 - [x] Read deploy scope from `ci-plan.json`.
-- [ ] Keep deploy behavior unchanged.
+- [x] Keep deploy behavior unchanged.
 - [x] Continue using target metadata and stable artifact naming conventions for
       artifact locations.
 
 ## Phase 6: Prepare For Dagger Stage Entry Points
 
-- [ ] Define future Dagger `detect(...)` output in terms of `ci-plan.json`.
+- [x] Expose a first Dagger `detect(...)` slice that returns canonical
+      `ci-plan.json` content.
 - [ ] Define future Dagger `package(...)` input in terms of `ci-plan.json`.
 - [ ] Define future Dagger `deploy(...)` input in terms of `ci-plan.json`
       plus the existing target metadata and artifact naming conventions.
