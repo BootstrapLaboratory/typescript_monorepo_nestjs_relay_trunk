@@ -4,6 +4,7 @@ import { test } from "node:test"
 import type { DeployRuntimeSpec } from "../src/model/deploy-target.ts"
 import {
   getRequiredMountSource,
+  getRequiredRepoFileMountSource,
   parseDeployEnvFile,
   resolveSpecEnvironment,
   validateRequiredHostEnv,
@@ -96,5 +97,46 @@ test("fails in a live runtime when a required mount source env value is missing"
   assert.throws(
     () => getRequiredMountSource({}, "GOOGLE_GHA_CREDS_PATH", "server"),
     /GOOGLE_GHA_CREDS_PATH/,
+  )
+})
+
+test("accepts repository-relative file mount sources", () => {
+  assert.equal(
+    getRequiredRepoFileMountSource(
+      {
+        GOOGLE_GHA_CREDS_PATH: "./gha-creds.json",
+      },
+      "GOOGLE_GHA_CREDS_PATH",
+      "server",
+    ),
+    "gha-creds.json",
+  )
+})
+
+test("rejects absolute file mount sources for repo-mounted files", () => {
+  assert.throws(
+    () =>
+      getRequiredRepoFileMountSource(
+        {
+          GOOGLE_GHA_CREDS_PATH: "/home/runner/work/app/gha-creds.json",
+        },
+        "GOOGLE_GHA_CREDS_PATH",
+        "server",
+      ),
+    /repository-relative file path/,
+  )
+})
+
+test("rejects parent-directory traversal in repo-mounted file sources", () => {
+  assert.throws(
+    () =>
+      getRequiredRepoFileMountSource(
+        {
+          GOOGLE_GHA_CREDS_PATH: "../gha-creds.json",
+        },
+        "GOOGLE_GHA_CREDS_PATH",
+        "server",
+      ),
+    /must stay within the repository/,
   )
 })
