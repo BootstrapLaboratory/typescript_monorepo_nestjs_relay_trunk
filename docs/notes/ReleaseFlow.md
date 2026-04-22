@@ -32,7 +32,8 @@ Responsibilities by job:
 
 - `detect` computes the canonical
   [../../.dagger/runtime/ci-plan.json](../../.dagger/runtime/ci-plan.json)
-  handoff file, then derives thin GitHub scheduling outputs from that file.
+  handoff file by calling Dagger `detect`, then derives thin GitHub scheduling
+  outputs from that file.
 - `validate` restores `ci-plan.json` after checkout and reads validation scope
   from the file instead of treating GitHub job outputs as its primary contract.
 - `package` installs dependencies, verifies the committed GraphQL contract when

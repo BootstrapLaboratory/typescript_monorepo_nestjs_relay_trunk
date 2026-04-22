@@ -47,25 +47,28 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           package-manager-cache: false
 
-      - id: plan
-        name: Compute Rush deploy plan
-        if: github.event_name != 'workflow_call'
+      - name: Install Dagger CLI
+        run: |
+          mkdir -p "${RUNNER_TEMP}/bin"
+          curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR="${RUNNER_TEMP}/bin" sh
+          echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
+
+      - name: Compute canonical CI plan
         env:
+          DAGGER_NO_NAG: "1"
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
-          FORCE_TARGETS_JSON: "[]"
+          FORCE_TARGETS_JSON: ${{ github.event_name == 'workflow_call' && inputs.force_targets_json || '[]' }}
           DEPLOY_TAG_PREFIX: ${{ env.DEPLOY_TAG_PREFIX }}
-        run: node scripts/ci/compute-rush-plan.mjs
-
-      - id: plan_manual
-        name: Compute Rush deploy plan
-        if: github.event_name == 'workflow_call'
-        env:
-          GITHUB_EVENT_NAME: ${{ github.event_name }}
-          PR_BASE_SHA: ""
-          FORCE_TARGETS_JSON: ${{ inputs.force_targets_json }}
-          DEPLOY_TAG_PREFIX: ${{ env.DEPLOY_TAG_PREFIX }}
-        run: node scripts/ci/compute-rush-plan.mjs
+        working-directory: dagger
+        run: |
+          mkdir -p ../.dagger/runtime
+          dagger call detect \
+            --event-name="${GITHUB_EVENT_NAME}" \
+            --pr-base-sha="${PR_BASE_SHA}" \
+            --force-targets-json="${FORCE_TARGETS_JSON}" \
+            --deploy-tag-prefix="${DEPLOY_TAG_PREFIX}" \
+            > ../.dagger/runtime/ci-plan.json
 
       - id: finalize
         name: Finalize deploy plan outputs

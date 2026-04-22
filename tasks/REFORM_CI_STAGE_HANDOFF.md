@@ -184,6 +184,8 @@ JSON file.
 
 - [x] Expose a first Dagger `detect(...)` slice that returns canonical
       `ci-plan.json` content.
+- [x] Switch the GitHub `detect` job to call Dagger `detect(...)` as the
+      canonical plan producer.
 - [ ] Define future Dagger `package(...)` input in terms of `ci-plan.json`.
 - [ ] Define future Dagger `deploy(...)` input in terms of `ci-plan.json`
       plus the existing target metadata and artifact naming conventions.
