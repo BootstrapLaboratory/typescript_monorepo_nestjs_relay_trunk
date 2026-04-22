@@ -46,7 +46,8 @@ export class ReleaseOrchestrator {
     environment: string = "prod",
     dryRun: boolean = true,
     deployEnvFile?: File,
+    hostWorkspaceDir: string = "",
   ): Promise<string> {
-    return deployRelease(repo, gitSha, releaseTargetsJson, environment, dryRun, deployEnvFile)
+    return deployRelease(repo, gitSha, releaseTargetsJson, environment, dryRun, deployEnvFile, hostWorkspaceDir)
   }
 }

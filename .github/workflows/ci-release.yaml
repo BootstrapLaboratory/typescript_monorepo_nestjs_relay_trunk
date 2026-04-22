@@ -348,6 +348,12 @@ jobs:
           DEPLOYMENT_PLAN_JSON: ${{ needs.plan-deploy.outputs.deployment_plan_json }}
         run: printf '%s\n' "${DEPLOYMENT_PLAN_JSON}"
 
+      - name: Prepare Dagger socket mount sources
+        if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
+        run: |
+          install -d "${GITHUB_WORKSPACE}/.dagger/runtime"
+          ln -snf /var/run/docker.sock "${GITHUB_WORKSPACE}/.dagger/runtime/docker.sock"
+
       - name: Write Dagger deploy env file
         run: |
           cat > "${RUNNER_TEMP}/dagger-deploy.env" <<'EOF'
@@ -364,7 +370,7 @@ jobs:
           WEBAPP_VITE_GRAPHQL_WS=${{ vars.WEBAPP_VITE_GRAPHQL_WS }}
           WEBAPP_URL=https://${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}.pages.dev
           GOOGLE_GHA_CREDS_PATH=${{ steps.auth.outputs.credentials_file_path }}
-          DOCKER_SOCKET_FILE=/var/run/docker.sock
+          DOCKER_SOCKET_FILE=${{ github.workspace }}/.dagger/runtime/docker.sock
           EOF
 
       - name: Execute deployment plan
@@ -378,4 +384,5 @@ jobs:
             --release-targets-json="${RELEASE_TARGETS_JSON}" \
             --environment=prod \
             --dry-run=false \
-            --deploy-env-file="${RUNNER_TEMP}/dagger-deploy.env"
+            --deploy-env-file="${RUNNER_TEMP}/dagger-deploy.env" \
+            --host-workspace-dir="${GITHUB_WORKSPACE}"

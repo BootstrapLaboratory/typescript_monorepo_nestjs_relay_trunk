@@ -20,6 +20,7 @@ export async function deployRelease(
   environment: string = "prod",
   dryRun: boolean = true,
   deployEnvFile?: File,
+  hostWorkspaceDir: string = "",
 ): Promise<string> {
   const hostEnv = deployEnvFile ? parseDeployEnvFile(await deployEnvFile.contents()) : {}
   const servicesMesh = await loadServicesMesh(repo)
@@ -49,6 +50,7 @@ export async function deployRelease(
     environment,
     dryRun,
     hostEnv,
+    hostWorkspaceDir,
   )
   const deployResult: DeployReleaseResult = {
     dryRun,

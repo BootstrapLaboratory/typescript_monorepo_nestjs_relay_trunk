@@ -97,6 +97,16 @@ That file carries:
 - host-side mount sources such as `GOOGLE_GHA_CREDS_PATH`
 - wrapper-specific runtime paths such as `DOCKER_SOCKET_FILE`
 
+For file-backed mounts, the workflow also passes `--host-workspace-dir` to
+`deploy-release`. That lets Dagger strip the checked-out workspace prefix from
+absolute host file paths and mount them from the repository context with
+`repo.file(...)` instead of requiring CI-side path rewriting.
+
+For socket-backed mounts, the workflow creates a repo-local symlink under
+`.dagger/runtime/` first, writes that workspace-local path into
+`DOCKER_SOCKET_FILE`, and passes the same `--host-workspace-dir` prefix. Dagger
+then strips the workspace prefix before loading the socket source.
+
 Current target behavior:
 
 - `server` runs dist migrations, builds and pushes the backend image, deploys

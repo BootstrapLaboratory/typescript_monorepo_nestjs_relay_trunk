@@ -4,6 +4,7 @@ import { test } from "node:test"
 import type { DeployRuntimeSpec } from "../src/model/deploy-target.ts"
 import {
   getRequiredMountSource,
+  getRequiredRepoRelativeHostPathSource,
   parseDeployEnvFile,
   resolveSpecEnvironment,
   validateRequiredHostEnv,
@@ -96,5 +97,76 @@ test("fails in a live runtime when a required mount source env value is missing"
   assert.throws(
     () => getRequiredMountSource({}, "GOOGLE_GHA_CREDS_PATH", "server"),
     /GOOGLE_GHA_CREDS_PATH/,
+  )
+})
+
+test("normalizes a workspace-backed mount source under hostWorkspaceDir to a repo-relative path", () => {
+  assert.equal(
+    getRequiredRepoRelativeHostPathSource(
+      {
+        GOOGLE_GHA_CREDS_PATH: "/home/runner/work/beltapp/beltapp/gha-creds.json",
+      },
+      "GOOGLE_GHA_CREDS_PATH",
+      "server",
+      "/home/runner/work/beltapp/beltapp",
+    ),
+    "gha-creds.json",
+  )
+})
+
+test("keeps an already repo-relative file mount source unchanged", () => {
+  assert.equal(
+    getRequiredRepoRelativeHostPathSource(
+      {
+        GOOGLE_GHA_CREDS_PATH: "./secrets/gha-creds.json",
+      },
+      "GOOGLE_GHA_CREDS_PATH",
+      "server",
+      "/home/runner/work/beltapp/beltapp",
+    ),
+    "secrets/gha-creds.json",
+  )
+})
+
+test("fails when an absolute workspace-backed mount source is outside hostWorkspaceDir", () => {
+  assert.throws(
+    () =>
+      getRequiredRepoRelativeHostPathSource(
+        {
+          GOOGLE_GHA_CREDS_PATH: "/tmp/gha-creds.json",
+        },
+        "GOOGLE_GHA_CREDS_PATH",
+        "server",
+        "/home/runner/work/beltapp/beltapp",
+      ),
+    /hostWorkspaceDir/,
+  )
+})
+
+test("fails when an absolute workspace-backed mount source is provided without hostWorkspaceDir", () => {
+  assert.throws(
+    () =>
+      getRequiredRepoRelativeHostPathSource(
+        {
+          GOOGLE_GHA_CREDS_PATH: "/home/runner/work/beltapp/beltapp/gha-creds.json",
+        },
+        "GOOGLE_GHA_CREDS_PATH",
+        "server",
+      ),
+    /hostWorkspaceDir/,
+  )
+})
+
+test("normalizes a workspace-backed socket source under hostWorkspaceDir to a repo-relative path", () => {
+  assert.equal(
+    getRequiredRepoRelativeHostPathSource(
+      {
+        DOCKER_SOCKET_FILE: "/home/runner/work/beltapp/beltapp/.dagger/runtime/docker.sock",
+      },
+      "DOCKER_SOCKET_FILE",
+      "server",
+      "/home/runner/work/beltapp/beltapp",
+    ),
+    ".dagger/runtime/docker.sock",
   )
 })

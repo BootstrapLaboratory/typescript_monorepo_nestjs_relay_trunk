@@ -49,7 +49,10 @@ Server variables when `server` is selected:
 `GCP_CREDENTIALS_FILE` should be a GitLab **file** variable so the environment
 variable contains the temporary file path to the JSON credentials. The GitLab
 wrapper writes that path into `GOOGLE_GHA_CREDS_PATH` inside the flat deploy env
-file that Dagger consumes.
+file that Dagger consumes. The wrapper also passes `--host-workspace-dir` so
+Dagger can convert absolute workspace-local mount paths into repo-relative
+mounts. For the Docker socket, the wrapper first creates a repo-local symlink
+under `.dagger/runtime/` and then writes that path into `DOCKER_SOCKET_FILE`.
 
 Webapp variables when `webapp` is selected:
 

@@ -45,6 +45,11 @@ deploy_release:
       if [[ "${RELEASE_TARGETS_JSON}" == *'"server"'* ]]; then
         make ci-deploy-extract-target-artifact TARGET=server
       fi
+    - |
+      if [[ "${RELEASE_TARGETS_JSON}" == *'"server"'* ]]; then
+        install -d "${CI_PROJECT_DIR}/.dagger/runtime"
+        ln -snf /var/run/docker.sock "${CI_PROJECT_DIR}/.dagger/runtime/docker.sock"
+      fi
     - cd dagger
     - dagger develop
     - cat "${CI_PROJECT_DIR}/deployment-plan.json"
@@ -63,7 +68,7 @@ deploy_release:
       WEBAPP_VITE_GRAPHQL_WS=${WEBAPP_VITE_GRAPHQL_WS}
       WEBAPP_URL=${WEBAPP_URL}
       GOOGLE_GHA_CREDS_PATH=${GCP_CREDENTIALS_FILE}
-      DOCKER_SOCKET_FILE=/var/run/docker.sock
+      DOCKER_SOCKET_FILE=${CI_PROJECT_DIR}/.dagger/runtime/docker.sock
       EOF
     - |
       dagger call deploy-release \
@@ -71,4 +76,5 @@ deploy_release:
         --release-targets-json="${RELEASE_TARGETS_JSON}" \
         --environment=prod \
         --dry-run=false \
-        --deploy-env-file="${CI_PROJECT_DIR}/dagger-deploy.env"
+        --deploy-env-file="${CI_PROJECT_DIR}/dagger-deploy.env" \
+        --host-workspace-dir="${CI_PROJECT_DIR}"

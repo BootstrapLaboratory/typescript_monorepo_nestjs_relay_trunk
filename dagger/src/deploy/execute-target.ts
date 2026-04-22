@@ -3,7 +3,11 @@ import { dag, Directory } from "@dagger.io/dagger"
 import type { DeployTargetDefinition } from "../model/deploy-target.ts"
 import type { DeployTargetResult } from "../model/deploy-result.ts"
 import { loadDeployTargetDefinition } from "./load-deploy-metadata.ts"
-import { getRequiredMountSource, resolveSpecEnvironment, validateRequiredHostEnv } from "./runtime-env.ts"
+import {
+  getRequiredRepoRelativeHostPathSource,
+  resolveSpecEnvironment,
+  validateRequiredHostEnv,
+} from "./runtime-env.ts"
 
 function deployTagPrefixForEnvironment(environment: string): string {
   return `deploy/${environment}`
@@ -64,6 +68,7 @@ export async function executeTarget(
   environment: string,
   dryRun: boolean,
   hostEnv: Record<string, string>,
+  hostWorkspaceDir: string,
   wave: number,
 ): Promise<DeployTargetResult> {
   const definition = await loadDeployTargetDefinition(repo, target)
@@ -99,12 +104,12 @@ export async function executeTarget(
   }
 
   for (const fileMount of definition.runtime.file_mounts) {
-    const sourcePath = getRequiredMountSource(hostEnv, fileMount.source_var, target)
-    container = container.withMountedFile(fileMount.target, dag.address(sourcePath).file())
+    const sourcePath = getRequiredRepoRelativeHostPathSource(hostEnv, fileMount.source_var, target, hostWorkspaceDir)
+    container = container.withMountedFile(fileMount.target, repo.file(sourcePath))
   }
 
   for (const socketMount of definition.runtime.socket_mounts) {
-    const sourcePath = getRequiredMountSource(hostEnv, socketMount.source_var, target)
+    const sourcePath = getRequiredRepoRelativeHostPathSource(hostEnv, socketMount.source_var, target, hostWorkspaceDir)
     container = container.withUnixSocket(socketMount.target, dag.address(sourcePath).socket())
   }
 

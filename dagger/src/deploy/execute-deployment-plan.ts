@@ -10,6 +10,7 @@ export async function executeDeploymentPlan(
   environment: string,
   dryRun: boolean,
   hostEnv: Record<string, string>,
+  hostWorkspaceDir: string,
 ): Promise<DeployTargetResult[]> {
   const results: DeployTargetResult[] = []
 
@@ -29,6 +30,7 @@ export async function executeDeploymentPlan(
             environment,
             dryRun,
             hostEnv,
+            hostWorkspaceDir,
             waveNumber,
           )
         } catch (error) {
