@@ -307,6 +307,8 @@ interpretation from repository metadata and the flat env bridge.
       inside Dagger so CI wrappers can keep mount source env values unchanged.
 - [x] Keep Docker socket forwarding out of target YAML and use one shared
       optional typed Dagger `dockerSocket` input instead.
+- [x] Keep `dagger develop` out of the hot release path once generated module
+      support files are committed and validated separately.
 
 ## Phase 3: Move Repository Deploy Metadata To `.dagger/deploy/`
 
