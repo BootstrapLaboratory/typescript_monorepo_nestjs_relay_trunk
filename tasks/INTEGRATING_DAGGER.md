@@ -6,8 +6,7 @@ Current GitHub Actions release graph:
 
 1. `detect`
 2. `package`
-3. `plan-deploy`
-4. `deploy`
+3. `deploy`
 
 Current source of truth:
 
@@ -24,8 +23,9 @@ Current runtime model:
 
 - GitHub and other CI wrappers package artifacts outside Dagger
 - CI writes one flat `dagger-deploy.env` file
-- `plan-release` computes waves from the selected targets and the service mesh
-- `deploy-release` executes those waves through one generic target runtime path
+- `deploy-release` computes waves from the selected targets and the service
+  mesh internally, logs the plan, and then executes it through one generic
+  target runtime path
 - portable target scripts remain under [../scripts/ci](../scripts/ci)
 
 Current documentation:

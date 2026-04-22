@@ -26,8 +26,7 @@ The current GitHub Actions release graph is:
 
 1. `detect`
 2. `package`
-3. `plan-deploy`
-4. `deploy`
+3. `deploy`
 
 Responsibilities by job:
 
@@ -35,13 +34,9 @@ Responsibilities by job:
 - `package` installs dependencies, verifies the committed GraphQL contract when
   `server` is in scope, builds the selected targets, and uploads deploy
   artifacts.
-- `plan-deploy` prepares the Dagger module and calls `plan-release` against
-  [.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml).
 - `deploy` downloads the packaged artifacts, prepares cloud configuration and
   credentials, writes one flat deploy env file, and calls `deploy-release`.
-
-The `plan-deploy -> deploy` split keeps deployment planning and execution
-separate in workflow logs and job boundaries.
+  Dagger computes and logs the deployment plan internally before executing it.
 
 ## Release Artifacts
 
@@ -58,9 +53,9 @@ during deployment.
 
 [dagger/src/index.ts](../../dagger/src/index.ts) exposes the release entrypoints:
 
-- `plan-release` computes deployment waves from the selected targets and the
-  services mesh.
-- `deploy-release` executes those waves through one generic target runtime path.
+- `deploy-release` executes the release through one generic target runtime
+  path. Planning stays internal to `deploy-release`, which computes and logs
+  deployment waves before executing them.
 
 Deployment order comes from
 [.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml), so

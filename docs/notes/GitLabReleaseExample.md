@@ -7,7 +7,6 @@ by [ci-release.yaml](../../.github/workflows/ci-release.yaml).
 The goal is not to create a second release architecture. The GitLab example
 reuses the same Dagger interface:
 
-- `dagger call plan-release`
 - `dagger call deploy-release`
 
 It also uses the same repository metadata:
@@ -76,6 +75,8 @@ another name, update the `needs` entries in the example file.
 - This example intentionally keeps packaging outside Dagger, matching the
   current GitHub release flow documented in
   [ReleaseFlow.md](./ReleaseFlow.md).
+- `deploy-release` computes and logs the deployment plan internally before
+  executing it, so GitLab does not need a separate planning stage.
 - `deploy-release` still calls the same portable target scripts under
   [scripts/ci](../../scripts/ci), so deploy semantics stay aligned across CI
   providers.

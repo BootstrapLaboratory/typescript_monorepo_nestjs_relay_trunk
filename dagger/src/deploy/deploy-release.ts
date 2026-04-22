@@ -6,17 +6,15 @@ import { executeDeploymentPlan } from "./execute-deployment-plan.ts";
 import { loadServicesMesh } from "./load-deploy-metadata.ts";
 import { parseDeployEnvFile } from "./runtime-env.ts";
 
-export async function planRelease(
+async function buildReleasePlan(
   repo: Directory,
   releaseTargetsJson: string = "[]",
-): Promise<string> {
+): Promise<ReturnType<typeof buildDeploymentPlan>> {
   const servicesMesh = await loadServicesMesh(repo);
-  const deploymentPlan = buildDeploymentPlan(
+  return buildDeploymentPlan(
     servicesMesh,
     parseReleaseTargets(releaseTargetsJson),
   );
-
-  return JSON.stringify(deploymentPlan, null, 2);
 }
 
 export async function deployRelease(
@@ -32,11 +30,7 @@ export async function deployRelease(
   const hostEnv = deployEnvFile
     ? parseDeployEnvFile(await deployEnvFile.contents())
     : {};
-  const servicesMesh = await loadServicesMesh(repo);
-  const deploymentPlan = buildDeploymentPlan(
-    servicesMesh,
-    parseReleaseTargets(releaseTargetsJson),
-  );
+  const deploymentPlan = await buildReleasePlan(repo, releaseTargetsJson);
 
   if (deploymentPlan.selectedTargets.length === 0) {
     const emptyResult: DeployReleaseResult = {
@@ -54,6 +48,7 @@ export async function deployRelease(
   console.log(
     `[deploy-release] selected targets: ${deploymentPlan.selectedTargets.join(", ")} | environment=${environment} | dryRun=${dryRun}`,
   );
+  console.log(JSON.stringify(deploymentPlan, null, 2));
 
   const results = await executeDeploymentPlan(
     repo,

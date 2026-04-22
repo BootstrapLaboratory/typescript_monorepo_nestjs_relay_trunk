@@ -1,6 +1,5 @@
 stages:
   - package
-  - plan_deploy
   - deploy
 
 variables:
@@ -17,28 +16,11 @@ variables:
     - export PATH="${CI_PROJECT_DIR}/.bin:${PATH}"
     - git fetch --force --tags origin
 
-plan_deploy:
-  stage: plan_deploy
-  extends: .with_dagger
-  needs:
-    - job: package_release
-      artifacts: true
-  script:
-    - cd dagger
-    - dagger develop
-    - deployment_plan_json="$(dagger call plan-release --release-targets-json="${RELEASE_TARGETS_JSON}")"
-    - printf '%s\n' "${deployment_plan_json}" | tee "${CI_PROJECT_DIR}/deployment-plan.json"
-  artifacts:
-    paths:
-      - deployment-plan.json
-
 deploy_release:
   stage: deploy
   extends: .with_dagger
   needs:
     - job: package_release
-      artifacts: true
-    - job: plan_deploy
       artifacts: true
   script:
     - |
@@ -47,7 +29,6 @@ deploy_release:
       fi
     - cd dagger
     - dagger develop
-    - cat "${CI_PROJECT_DIR}/deployment-plan.json"
     - |
       cat > "${CI_PROJECT_DIR}/dagger-deploy.env" <<EOF
       GCP_PROJECT_ID=${GCP_PROJECT_ID}

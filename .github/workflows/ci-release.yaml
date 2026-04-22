@@ -231,42 +231,11 @@ jobs:
           path: apps/webapp/dist
           if-no-files-found: error
 
-  plan-deploy:
+  deploy:
     needs:
       - detect
       - package
     if: needs.package.result == 'success'
-    runs-on: ubuntu-latest
-    outputs:
-      deployment_plan_json: ${{ steps.plan.outputs.deployment_plan_json }}
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-
-      - name: Install Dagger CLI
-        run: |
-          mkdir -p "${RUNNER_TEMP}/bin"
-          curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR="${RUNNER_TEMP}/bin" sh
-          echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
-
-      - id: plan
-        name: Compute deployment waves
-        working-directory: dagger
-        env:
-          DAGGER_NO_NAG: "1"
-          RELEASE_TARGETS_JSON: ${{ needs.detect.outputs.release_targets_json }}
-        run: |
-          deployment_plan_json="$(dagger call plan-release --repo=.. --release-targets-json="${RELEASE_TARGETS_JSON}")"
-          printf 'deployment_plan_json<<EOF\n%s\nEOF\n' "${deployment_plan_json}" >> "${GITHUB_OUTPUT}"
-          printf '%s\n' "${deployment_plan_json}"
-
-  deploy:
-    needs:
-      - detect
-      - plan-deploy
-    if: needs.plan-deploy.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -330,11 +299,6 @@ jobs:
       - name: Extract backend deploy artifact
         if: contains(fromJSON(needs.detect.outputs.release_targets_json), 'server')
         run: make ci-deploy-extract-target-artifact TARGET=server
-
-      - name: Show deployment plan
-        env:
-          DEPLOYMENT_PLAN_JSON: ${{ needs.plan-deploy.outputs.deployment_plan_json }}
-        run: printf '%s\n' "${DEPLOYMENT_PLAN_JSON}"
 
       - name: Write Dagger deploy env file
         run: |

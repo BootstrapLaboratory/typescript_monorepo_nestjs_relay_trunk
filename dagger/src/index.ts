@@ -7,7 +7,7 @@ import {
   Socket,
 } from "@dagger.io/dagger";
 
-import { deployRelease, planRelease } from "./deploy/deploy-release.ts";
+import { deployRelease } from "./deploy/deploy-release.ts";
 import { parseReleaseTargets } from "./planning/parse-release-targets.ts";
 
 @object()
@@ -32,17 +32,6 @@ export class ReleaseOrchestrator {
     }
 
     return `Selected release targets: ${normalizedTargets.join(", ")}`;
-  }
-
-  /**
-   * Computes deployment waves from the canonical services mesh and selected release targets.
-   */
-  @func()
-  async planRelease(
-    @argument({ defaultPath: ".." }) repo: Directory,
-    releaseTargetsJson: string = "[]",
-  ): Promise<string> {
-    return planRelease(repo, releaseTargetsJson);
   }
 
   /**

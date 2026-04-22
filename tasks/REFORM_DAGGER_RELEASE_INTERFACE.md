@@ -256,21 +256,14 @@ The workflow should keep the same thin wrapper shape:
     DAGGER_NO_NAG: "1"
     RELEASE_TARGETS_JSON: ${{ needs.detect.outputs.release_targets_json }}
   run: |
-    cmd=(
-      dagger call deploy-release
-      --git-sha="${GITHUB_SHA}"
-      --release-targets-json="${RELEASE_TARGETS_JSON}"
-      --environment=prod
-      --dry-run=false
-      --deploy-env-file="${RUNNER_TEMP}/dagger-deploy.env"
-      --host-workspace-dir="${GITHUB_WORKSPACE}"
-    )
-
-    if [[ "${RELEASE_TARGETS_JSON}" == *'"server"'* ]]; then
-      cmd+=(--docker-socket=/var/run/docker.sock)
-    fi
-
-    "${cmd[@]}"
+    dagger call deploy-release \
+      --git-sha="${GITHUB_SHA}" \
+      --release-targets-json="${RELEASE_TARGETS_JSON}" \
+      --environment=prod \
+      --dry-run=false \
+      --deploy-env-file="${RUNNER_TEMP}/dagger-deploy.env" \
+      --host-workspace-dir="${GITHUB_WORKSPACE}" \
+      --docker-socket=/var/run/docker.sock
 ```
 
 That keeps provider wiring explicit but small, while Dagger owns runtime
@@ -307,6 +300,9 @@ interpretation from repository metadata and the flat env bridge.
       inside Dagger so CI wrappers can keep mount source env values unchanged.
 - [x] Keep Docker socket forwarding out of target YAML and use one shared
       optional typed Dagger `dockerSocket` input instead.
+- [x] Keep deployment planning internal to `deployRelease(...)` instead of
+      exposing a separate public `planRelease(...)` entrypoint and standalone
+      CI planning job.
 - [x] Keep `dagger develop` out of the hot release path once generated module
       support files are committed and validated separately.
 
@@ -388,6 +384,8 @@ interpretation from repository metadata and the flat env bridge.
 - `dagger call deploy-release` keeps a stable thin explicit interface.
 - CI wrappers provide plain env values and host-side mount source paths through
   one flat deploy env file.
+- Deployment planning is internal to `deployRelease(...)`, not a separate
+  public Dagger API or CI stage.
 - Dagger maps absolute workspace-local file mount paths under
   `hostWorkspaceDir` back into repository-relative paths before using them for
   repo-backed file mounts.
