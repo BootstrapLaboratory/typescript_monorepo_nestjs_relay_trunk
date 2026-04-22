@@ -4,6 +4,9 @@ artifact_path: /workspace/apps/webapp/dist
 
 runtime:
   image: node:24-bookworm-slim
+  install:
+    - apt-get update
+    - apt-get install -y git
 
   pass_env:
     - CLOUDFLARE_ACCOUNT_ID
