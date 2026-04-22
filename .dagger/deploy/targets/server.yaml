@@ -1,0 +1,48 @@
+name: server
+deploy_script: scripts/ci/deploy-server.sh
+artifact_path: /workspace/common/deploy/server
+
+runtime:
+  image: node:24-bookworm-slim
+  install:
+    - apt-get update
+    - apt-get install -y ca-certificates curl gnupg git docker.io
+    - install -d -m 0755 /etc/apt/keyrings
+    - curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/google-cloud-cli.gpg
+    - echo "deb [signed-by=/etc/apt/keyrings/google-cloud-cli.gpg] https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list
+    - apt-get update
+    - apt-get install -y google-cloud-cli
+
+  pass_env:
+    - CLOUD_RUN_CORS_ORIGIN
+    - CLOUD_RUN_REGION
+    - CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT
+    - CLOUD_RUN_SERVICE
+    - GCP_ARTIFACT_REGISTRY_REPOSITORY
+    - GCP_PROJECT_ID
+
+  env:
+    CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: /tmp/gcp-credentials.json
+    DOCKER_HOST: unix:///var/run/docker.sock
+    GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp-credentials.json
+    GOOGLE_GHA_CREDS_PATH: /tmp/gcp-credentials.json
+
+  dry_run_defaults:
+    CLOUD_RUN_CORS_ORIGIN: https://example.invalid
+    CLOUD_RUN_REGION: europe-west4
+    CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT: dry-run-runtime@example.invalid
+    CLOUD_RUN_SERVICE: server
+    GCP_ARTIFACT_REGISTRY_REPOSITORY: dry-run-repository
+    GCP_PROJECT_ID: dry-run-project
+
+  required_host_env:
+    - DOCKER_SOCKET_FILE
+    - GOOGLE_GHA_CREDS_PATH
+
+  file_mounts:
+    - source_var: GOOGLE_GHA_CREDS_PATH
+      target: /tmp/gcp-credentials.json
+
+  socket_mounts:
+    - source_var: DOCKER_SOCKET_FILE
+      target: /var/run/docker.sock

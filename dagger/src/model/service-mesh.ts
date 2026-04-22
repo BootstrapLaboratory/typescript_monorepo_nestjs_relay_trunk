@@ -1,8 +1,5 @@
 export type ServiceDefinition = {
-  artifact_path: string
   deploy_after: string[]
-  deploy_script: string
-  executor: string
 }
 
 export type ServiceMesh = {

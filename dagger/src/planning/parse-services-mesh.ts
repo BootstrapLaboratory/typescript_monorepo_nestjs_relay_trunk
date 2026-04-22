@@ -2,14 +2,6 @@ import { parse as parseYaml } from "yaml"
 
 import type { ServiceDefinition, ServiceMesh } from "../model/service-mesh.ts"
 
-function parseRequiredString(rawValue: unknown, name: string): string {
-  if (typeof rawValue !== "string" || rawValue.length === 0) {
-    throw new Error(`${name} must be a non-empty string.`)
-  }
-
-  return rawValue
-}
-
 export function parseServicesMesh(servicesMeshYaml: string): ServiceMesh {
   const parsedValue = parseYaml(servicesMeshYaml)
 
@@ -35,10 +27,7 @@ export function parseServicesMesh(servicesMeshYaml: string): ServiceMesh {
       throw new Error(`Service mesh entry for "${target}" must be a mapping.`)
     }
 
-    const rawExecutor = "executor" in rawService ? rawService.executor : undefined
     const rawDeployAfter = "deploy_after" in rawService ? rawService.deploy_after : []
-    const rawDeployScript = "deploy_script" in rawService ? rawService.deploy_script : undefined
-    const rawArtifactPath = "artifact_path" in rawService ? rawService.artifact_path : undefined
 
     if (!Array.isArray(rawDeployAfter)) {
       throw new Error(`Service mesh deploy_after for "${target}" must be an array.`)
@@ -56,10 +45,7 @@ export function parseServicesMesh(servicesMeshYaml: string): ServiceMesh {
     }
 
     normalizedServices[target] = {
-      artifact_path: parseRequiredString(rawArtifactPath, `Service mesh artifact_path for "${target}"`),
       deploy_after: normalizedDeployAfter,
-      deploy_script: parseRequiredString(rawDeployScript, `Service mesh deploy_script for "${target}"`),
-      executor: parseRequiredString(rawExecutor, `Service mesh executor for "${target}"`),
     }
   }
 

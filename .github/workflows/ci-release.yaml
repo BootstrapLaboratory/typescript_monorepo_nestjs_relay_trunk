@@ -348,42 +348,23 @@ jobs:
           DEPLOYMENT_PLAN_JSON: ${{ needs.plan-deploy.outputs.deployment_plan_json }}
         run: printf '%s\n' "${DEPLOYMENT_PLAN_JSON}"
 
-      - name: Write Dagger deploy config
-        env:
-          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
-          GCP_ARTIFACT_REGISTRY_REPOSITORY: ${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}
-          CLOUD_RUN_SERVICE: ${{ vars.CLOUD_RUN_SERVICE }}
-          CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT: ${{ vars.CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT }}
-          CLOUD_RUN_CORS_ORIGIN: ${{ vars.CLOUD_RUN_CORS_ORIGIN }}
-          CLOUD_RUN_REGION: ${{ env.CLOUD_RUN_REGION }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
-          WEBAPP_VITE_GRAPHQL_HTTP: ${{ vars.WEBAPP_VITE_GRAPHQL_HTTP }}
-          WEBAPP_VITE_GRAPHQL_WS: ${{ vars.WEBAPP_VITE_GRAPHQL_WS }}
-          WEBAPP_URL: https://${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}.pages.dev
+      - name: Write Dagger deploy env file
         run: |
-          cat > "${RUNNER_TEMP}/dagger-deploy-config.json" <<EOF
-          {
-            "server": {
-              "artifactPath": "/workspace/common/deploy/server",
-              "gcpProjectId": "${GCP_PROJECT_ID}",
-              "gcpArtifactRegistryRepository": "${GCP_ARTIFACT_REGISTRY_REPOSITORY}",
-              "cloudRunService": "${CLOUD_RUN_SERVICE}",
-              "cloudRunRuntimeServiceAccount": "${CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT}",
-              "cloudRunCorsOrigin": "${CLOUD_RUN_CORS_ORIGIN}",
-              "cloudRunRegion": "${CLOUD_RUN_REGION}"
-            },
-            "webapp": {
-              "artifactPath": "/workspace/apps/webapp/dist",
-              "cloudflareApiToken": "${CLOUDFLARE_API_TOKEN}",
-              "cloudflareAccountId": "${CLOUDFLARE_ACCOUNT_ID}",
-              "cloudflarePagesProjectName": "${CLOUDFLARE_PAGES_PROJECT_NAME}",
-              "webappGraphqlHttp": "${WEBAPP_VITE_GRAPHQL_HTTP}",
-              "webappGraphqlWs": "${WEBAPP_VITE_GRAPHQL_WS}",
-              "webappUrl": "${WEBAPP_URL}"
-            }
-          }
+          cat > "${RUNNER_TEMP}/dagger-deploy.env" <<'EOF'
+          GCP_PROJECT_ID=${{ vars.GCP_PROJECT_ID }}
+          GCP_ARTIFACT_REGISTRY_REPOSITORY=${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}
+          CLOUD_RUN_SERVICE=${{ vars.CLOUD_RUN_SERVICE }}
+          CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT=${{ vars.CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT }}
+          CLOUD_RUN_CORS_ORIGIN=${{ vars.CLOUD_RUN_CORS_ORIGIN }}
+          CLOUD_RUN_REGION=${{ env.CLOUD_RUN_REGION }}
+          CLOUDFLARE_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID=${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PAGES_PROJECT_NAME=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+          WEBAPP_VITE_GRAPHQL_HTTP=${{ vars.WEBAPP_VITE_GRAPHQL_HTTP }}
+          WEBAPP_VITE_GRAPHQL_WS=${{ vars.WEBAPP_VITE_GRAPHQL_WS }}
+          WEBAPP_URL=https://${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}.pages.dev
+          GOOGLE_GHA_CREDS_PATH=${{ steps.auth.outputs.credentials_file_path }}
+          DOCKER_SOCKET_FILE=/var/run/docker.sock
           EOF
 
       - name: Execute deployment plan
@@ -392,19 +373,9 @@ jobs:
           DAGGER_NO_NAG: "1"
           RELEASE_TARGETS_JSON: ${{ needs.detect.outputs.release_targets_json }}
         run: |
-          cmd=(
-            dagger call deploy-release
-            --repo=..
-            --git-sha="${GITHUB_SHA}"
-            --release-targets-json="${RELEASE_TARGETS_JSON}"
-            --environment=prod
-            --dry-run=false
-            --deploy-config-file="${RUNNER_TEMP}/dagger-deploy-config.json"
-          )
-
-          if [[ "${RELEASE_TARGETS_JSON}" == *'"server"'* ]]; then
-            cmd+=(--docker-socket=/var/run/docker.sock)
-            cmd+=(--gcp-credentials-file='${{ steps.auth.outputs.credentials_file_path }}')
-          fi
-
-          "${cmd[@]}"
+          dagger call deploy-release \
+            --git-sha="${GITHUB_SHA}" \
+            --release-targets-json="${RELEASE_TARGETS_JSON}" \
+            --environment=prod \
+            --dry-run=false \
+            --deploy-env-file="${RUNNER_TEMP}/dagger-deploy.env"

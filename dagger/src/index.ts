@@ -1,4 +1,4 @@
-import { Directory, File, Socket, func, object } from "@dagger.io/dagger"
+import { argument, Directory, File, func, object } from "@dagger.io/dagger"
 
 import { deployRelease, planRelease } from "./deploy/deploy-release.ts"
 import { parseReleaseTargets } from "./planning/parse-release-targets.ts"
@@ -31,33 +31,22 @@ export class ReleaseOrchestrator {
    * Computes deployment waves from the canonical services mesh and selected release targets.
    */
   @func()
-  async planRelease(repo: Directory, releaseTargetsJson: string = "[]"): Promise<string> {
+  async planRelease(@argument({ defaultPath: ".." }) repo: Directory, releaseTargetsJson: string = "[]"): Promise<string> {
     return planRelease(repo, releaseTargetsJson)
   }
 
   /**
-   * Executes the release plan in wave order, dispatching target-specific executors in parallel within each wave.
+   * Executes the release plan in wave order, applying generic target runtime handling in parallel within each wave.
    */
   @func()
   async deployRelease(
-    repo: Directory,
+    @argument({ defaultPath: ".." }) repo: Directory,
     gitSha: string,
     releaseTargetsJson: string = "[]",
     environment: string = "prod",
     dryRun: boolean = true,
-    deployConfigFile?: File,
-    dockerSocket?: Socket,
-    gcpCredentialsFile?: File,
+    deployEnvFile?: File,
   ): Promise<string> {
-    return deployRelease(
-      repo,
-      gitSha,
-      releaseTargetsJson,
-      environment,
-      dryRun,
-      deployConfigFile,
-      dockerSocket,
-      gcpCredentialsFile,
-    )
+    return deployRelease(repo, gitSha, releaseTargetsJson, environment, dryRun, deployEnvFile)
   }
 }

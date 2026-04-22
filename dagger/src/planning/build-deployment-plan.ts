@@ -53,7 +53,6 @@ export function buildDeploymentPlan(mesh: ServiceMesh, selectedTargets: string[]
     waves.push(
       waveTargets.map((target) => ({
         target,
-        executor: mesh.services[target].executor,
       })),
     )
 

@@ -1,15 +1,10 @@
-import { Directory, File, Socket } from "@dagger.io/dagger"
-
-import { parseDeployConfig } from "../model/deploy-config.ts"
+import { Directory, File } from "@dagger.io/dagger"
 import type { DeployReleaseResult } from "../model/deploy-result.ts"
 import { buildDeploymentPlan } from "../planning/build-deployment-plan.ts"
 import { parseReleaseTargets } from "../planning/parse-release-targets.ts"
-import { parseServicesMesh } from "../planning/parse-services-mesh.ts"
 import { executeDeploymentPlan } from "./execute-deployment-plan.ts"
-
-async function loadServicesMesh(repo: Directory) {
-  return parseServicesMesh(await repo.file("deploy/services-mesh.yaml").contents())
-}
+import { loadServicesMesh } from "./load-deploy-metadata.ts"
+import { parseDeployEnvFile } from "./runtime-env.ts"
 
 export async function planRelease(repo: Directory, releaseTargetsJson: string = "[]"): Promise<string> {
   const servicesMesh = await loadServicesMesh(repo)
@@ -24,13 +19,11 @@ export async function deployRelease(
   releaseTargetsJson: string = "[]",
   environment: string = "prod",
   dryRun: boolean = true,
-  deployConfigFile?: File,
-  dockerSocket?: Socket,
-  gcpCredentialsFile?: File,
+  deployEnvFile?: File,
 ): Promise<string> {
+  const hostEnv = deployEnvFile ? parseDeployEnvFile(await deployEnvFile.contents()) : {}
   const servicesMesh = await loadServicesMesh(repo)
   const deploymentPlan = buildDeploymentPlan(servicesMesh, parseReleaseTargets(releaseTargetsJson))
-  const deployConfig = deployConfigFile ? parseDeployConfig(await deployConfigFile.contents()) : {}
 
   if (deploymentPlan.selectedTargets.length === 0) {
     const emptyResult: DeployReleaseResult = {
@@ -51,14 +44,11 @@ export async function deployRelease(
 
   const results = await executeDeploymentPlan(
     repo,
-    servicesMesh,
     deploymentPlan,
     gitSha,
     environment,
     dryRun,
-    deployConfig,
-    dockerSocket,
-    gcpCredentialsFile,
+    hostEnv,
   )
   const deployResult: DeployReleaseResult = {
     dryRun,

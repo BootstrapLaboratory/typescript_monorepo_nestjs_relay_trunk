@@ -15,6 +15,9 @@ deploy support modules under [`../dagger/src`](../dagger/src).
   Dagger API surface.
 - Keep pure planning and parsing code independent from container execution.
 - Keep deployment behavior in action-oriented executor modules.
+- Keep static executor behavior declarative where possible so adding a new
+  executor mostly means adding configuration, not editing TypeScript control
+  flow.
 - Make static target metadata model-driven instead of hardcoded in `switch`
   statements.
 - Use explicit executor names such as `deploy_server` and `deploy_webapp`
@@ -24,6 +27,8 @@ deploy support modules under [`../dagger/src`](../dagger/src).
 - Keep deploy config focused on environment-specific values and secrets.
 - Keep build and validation concerns separate from deploy execution so future
   Rush-based packaging and validation work does not distort the deploy layout.
+- Keep the service mesh focused on target graph and target metadata, and prefer
+  companion executor-spec files for reusable executor runtime configuration.
 
 ## Recommended Service Mesh Shape
 
@@ -76,7 +81,11 @@ dagger/src/
     deploy-release.ts
     execute-deployment-plan.ts
     execute-target.ts
+    executor-specs/
+      deploy_server.ts
+      deploy_webapp.ts
     executors/
+      load-executor-spec.ts
       registry.ts
       deploy_server.ts
       deploy_webapp.ts
@@ -91,6 +100,7 @@ Recommended responsibilities:
 - `model/`: shared types only
 - `planning/`: JSON/YAML parsing plus deployment-wave planning
 - `deploy/`: deployment orchestration and execution flow
+- `deploy/executor-specs/`: declarative executor definitions keyed by executor id
 - `deploy/executors/`: executor-specific deploy behavior
 - `build/`: future build orchestration such as Rush-driven packaging
 - `validate/`: future validation orchestration that is not part of deployment
@@ -99,6 +109,94 @@ Initial executor mapping:
 
 - `deploy_server` -> `deploy/executors/deploy_server.ts`
 - `deploy_webapp` -> `deploy/executors/deploy_webapp.ts`
+
+## Recommended Executor-Spec Shape
+
+Keep the service mesh responsible for choosing the executor id:
+
+```yaml
+services:
+  server:
+    executor: deploy_server
+```
+
+Move reusable executor runtime details into companion executor-spec files such
+as [`../dagger/src/deploy/executor-specs`](../dagger/src/deploy/executor-specs).
+
+Recommended direction:
+
+```ts
+export const spec: DeployExecutorSpec = {
+  image: "node:24-bookworm-slim",
+  dryRunPreparationCommand: "mkdir -p ${artifact_path}/apps/server",
+  install: [
+    "apt-get update",
+    "apt-get install -y ca-certificates curl gnupg git docker.io",
+  ],
+  passEnv: [
+    "CLOUD_RUN_REGION",
+    "CLOUD_RUN_SERVICE",
+    "CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT",
+  ],
+  dryRunDefaults: {
+    CLOUD_RUN_REGION: "europe-west4",
+    CLOUD_RUN_SERVICE: "server",
+  },
+  requiredInputs: ["dockerSocket", "gcpCredentialsFile"],
+  socketMounts: [
+    {
+      source: "dockerSocket",
+      target: "/var/run/docker.sock",
+      env: {
+        DOCKER_HOST: "unix:///var/run/docker.sock",
+      },
+    },
+  ],
+  fileMounts: [
+    {
+      source: "gcpCredentialsFile",
+      target: "/tmp/gcp-credentials.json",
+      env: {
+        GOOGLE_APPLICATION_CREDENTIALS: "/tmp/gcp-credentials.json",
+        CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: "/tmp/gcp-credentials.json",
+        GOOGLE_GHA_CREDS_PATH: "/tmp/gcp-credentials.json",
+      },
+    },
+  ],
+}
+```
+
+Why this shape is preferable to pushing everything into the service mesh:
+
+- the service mesh stays readable and target-oriented
+- executor runtime behavior remains reusable across multiple targets
+- adding a new executor becomes "add a new companion spec file" instead of
+  editing central registry logic
+- real-mesh tests can verify that every referenced executor id resolves to a
+  valid executor spec and runnable script path
+- GitHub job env, deploy config env, and executor container env can stay 1:1,
+  which makes the end-to-end data flow easier to understand and debug
+
+Preferred deploy-config direction:
+
+```json
+{
+  "server": {
+    "env": {
+      "CLOUD_RUN_REGION": "europe-west4",
+      "CLOUD_RUN_SERVICE": "api"
+    }
+  }
+}
+```
+
+This keeps the path simple:
+
+- GitHub Actions defines the env var
+- the workflow writes the same env var name into `dagger-deploy-config.json`
+- Dagger passes the same env var name into the executor container
+
+Only non-env inputs such as files and sockets need special handling.
 
 ## Phase 0: Enrich the Domain Model
 
@@ -188,6 +286,15 @@ Initial executor mapping:
 - [x] Run a dry-run `dagger call deploy-release` command for `webapp`.
 - [x] Confirm the refactor does not change the deployment plan JSON shape.
 - [x] Confirm the refactor does not change the deploy-release result JSON shape.
+
+## Phase 8: Make Deploy Executors Descriptor-Driven
+
+The next refactor is broader than module splitting. It reforms the public Dagger
+release interface so CI env becomes the source of truth and deploy executors use
+companion specs plus declarative mount handling.
+
+That work is tracked separately in
+[REFORM_DAGGER_RELEASE_INTERFACE.md](./REFORM_DAGGER_RELEASE_INTERFACE.md).
 
 ## Extra Ideas
 

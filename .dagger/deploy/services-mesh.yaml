@@ -1,0 +1,7 @@
+services:
+  server:
+    deploy_after: []
+
+  webapp:
+    deploy_after:
+      - server

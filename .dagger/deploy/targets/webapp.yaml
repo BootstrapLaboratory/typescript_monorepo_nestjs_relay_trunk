@@ -1,0 +1,22 @@
+name: webapp
+deploy_script: scripts/ci/deploy-webapp.sh
+artifact_path: /workspace/apps/webapp/dist
+
+runtime:
+  image: node:24-bookworm-slim
+
+  pass_env:
+    - CLOUDFLARE_ACCOUNT_ID
+    - CLOUDFLARE_API_TOKEN
+    - CLOUDFLARE_PAGES_PROJECT_NAME
+    - WEBAPP_URL
+    - WEBAPP_VITE_GRAPHQL_HTTP
+    - WEBAPP_VITE_GRAPHQL_WS
+
+  dry_run_defaults:
+    CLOUDFLARE_ACCOUNT_ID: dry-run-account
+    CLOUDFLARE_API_TOKEN: dry-run-token
+    CLOUDFLARE_PAGES_PROJECT_NAME: webapp
+    WEBAPP_URL: https://webapp.pages.dev
+    WEBAPP_VITE_GRAPHQL_HTTP: https://api.example.invalid/graphql
+    WEBAPP_VITE_GRAPHQL_WS: wss://api.example.invalid/graphql
