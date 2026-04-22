@@ -7,6 +7,7 @@ import {
   Socket,
 } from "@dagger.io/dagger";
 
+import { detect as detectCiPlan } from "./detect/detect.ts";
 import { deployRelease } from "./deploy/deploy-release.ts";
 import { parseReleaseTargets } from "./planning/parse-release-targets.ts";
 
@@ -18,6 +19,26 @@ export class ReleaseOrchestrator {
   @func()
   ping(): string {
     return "release-orchestrator ready";
+  }
+
+  /**
+   * Computes the canonical CI plan JSON for detect/package/deploy handoff.
+   */
+  @func()
+  async detect(
+    @argument({ defaultPath: ".." }) repo: Directory,
+    eventName: string = "push",
+    forceTargetsJson: string = "[]",
+    prBaseSha: string = "",
+    deployTagPrefix: string = "deploy/prod",
+  ): Promise<string> {
+    return detectCiPlan(
+      repo,
+      eventName,
+      forceTargetsJson,
+      prBaseSha,
+      deployTagPrefix,
+    );
   }
 
   /**
