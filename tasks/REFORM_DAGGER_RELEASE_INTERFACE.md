@@ -344,13 +344,13 @@ interpretation from repository metadata and the flat env bridge.
 
 ## Phase 8: Update Wrapper Docs
 
-- [ ] Update the GitHub release docs to describe `.dagger/deploy/` as the
+- [x] Update the GitHub release docs to describe `.dagger/deploy/` as the
       repository metadata source of truth.
-- [ ] Update the GitHub release docs to describe the flat deploy env file
+- [x] Update the GitHub release docs to describe the flat deploy env file
       bridge and the thin explicit deploy call.
-- [ ] Update the GitLab example to follow the same interface and repository
+- [x] Update the GitLab example to follow the same interface and repository
       metadata layout.
-- [ ] Remove stale references to `deploy/services-mesh.yaml`,
+- [x] Remove stale references to `deploy/services-mesh.yaml`,
       `dagger/src/deploy/executor-specs/*.ts`, and target-specific TypeScript
       executors from repository docs once the refactor is complete.
 

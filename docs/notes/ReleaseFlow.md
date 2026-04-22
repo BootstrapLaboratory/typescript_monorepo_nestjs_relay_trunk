@@ -36,9 +36,9 @@ Responsibilities by job:
   `server` is in scope, builds the selected targets, and uploads deploy
   artifacts.
 - `plan-deploy` prepares the Dagger module and calls `plan-release` against
-  [deploy/services-mesh.yaml](../../deploy/services-mesh.yaml).
+  [.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml).
 - `deploy` downloads the packaged artifacts, prepares cloud configuration and
-  credentials, and calls `deploy-release`.
+  credentials, writes one flat deploy env file, and calls `deploy-release`.
 
 The `plan-deploy -> deploy` split keeps deployment planning and execution
 separate in workflow logs and job boundaries.
@@ -60,19 +60,42 @@ during deployment.
 
 - `plan-release` computes deployment waves from the selected targets and the
   services mesh.
-- `deploy-release` executes those waves and dispatches target-specific
-  executors.
+- `deploy-release` executes those waves through one generic target runtime path.
 
 Deployment order comes from
-[deploy/services-mesh.yaml](../../deploy/services-mesh.yaml), so target ordering
-stays in one canonical place.
+[.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml), so
+target ordering stays in one canonical place.
 
-## Target Executors
+Target-specific deploy metadata comes from:
 
-`deploy-release` calls the portable target scripts directly:
+- [.dagger/deploy/targets/server.yaml](../../.dagger/deploy/targets/server.yaml)
+- [.dagger/deploy/targets/webapp.yaml](../../.dagger/deploy/targets/webapp.yaml)
+
+Those target YAML files define:
+
+- `deploy_script`
+- `artifact_path`
+- runtime image/toolchain preparation
+- env pass-through and static env
+- file/socket mounts
+- dry-run defaults and host-env requirements
+
+## Runtime Contract
+
+`deploy-release` still calls the portable target scripts directly:
 
 - [scripts/ci/deploy-server.sh](../../scripts/ci/deploy-server.sh)
 - [scripts/ci/deploy-webapp.sh](../../scripts/ci/deploy-webapp.sh)
+
+GitHub passes release runtime values through one flat `KEY=VALUE` file:
+
+- `dagger-deploy.env`
+
+That file carries:
+
+- 1:1 runtime env values such as `CLOUD_RUN_REGION`
+- host-side mount sources such as `GOOGLE_GHA_CREDS_PATH`
+- wrapper-specific runtime paths such as `DOCKER_SOCKET_FILE`
 
 Current target behavior:
 
@@ -80,6 +103,17 @@ Current target behavior:
   Cloud Run, runs post-deploy smoke tests, and updates the deploy tag.
 - `webapp` publishes the prebuilt frontend with Wrangler, validates the
   deployed routes, and updates the deploy tag.
+
+Dry-run is generic for every target. Instead of target-specific dry-run code,
+the Dagger runtime prints a summary of:
+
+- target name
+- deploy script path
+- artifact path
+- runtime image
+- install commands
+- env keys being exposed
+- file and socket mounts being attached
 
 ## Operational Notes
 

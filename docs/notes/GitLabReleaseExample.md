@@ -10,6 +10,11 @@ reuses the same Dagger interface:
 - `dagger call plan-release`
 - `dagger call deploy-release`
 
+It also uses the same repository metadata:
+
+- [.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml)
+- [.dagger/deploy/targets](../../.dagger/deploy/targets)
+
 ## Assumptions
 
 This example assumes:
@@ -42,7 +47,9 @@ Server variables when `server` is selected:
 - `GCP_CREDENTIALS_FILE`
 
 `GCP_CREDENTIALS_FILE` should be a GitLab **file** variable so the environment
-variable contains the temporary file path to the JSON credentials.
+variable contains the temporary file path to the JSON credentials. The GitLab
+wrapper writes that path into `GOOGLE_GHA_CREDS_PATH` inside the flat deploy env
+file that Dagger consumes.
 
 Webapp variables when `webapp` is selected:
 
@@ -69,6 +76,9 @@ another name, update the `needs` entries in the example file.
 - `deploy-release` still calls the same portable target scripts under
   [scripts/ci](../../scripts/ci), so deploy semantics stay aligned across CI
   providers.
+- Dagger runtime behavior now comes from repo metadata under
+  [.dagger/deploy](../../.dagger/deploy), not from target-specific TypeScript
+  executor modules.
 - The current deploy-tag helper still writes the git identity as
   `github-actions[bot]`. That does not block GitLab execution, but if you want
   provider-specific tag attribution, that is a follow-up hardening task rather

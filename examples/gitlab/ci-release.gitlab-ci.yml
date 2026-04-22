@@ -26,7 +26,7 @@ plan_deploy:
   script:
     - cd dagger
     - dagger develop
-    - deployment_plan_json="$(dagger call plan-release --repo=.. --release-targets-json="${RELEASE_TARGETS_JSON}")"
+    - deployment_plan_json="$(dagger call plan-release --release-targets-json="${RELEASE_TARGETS_JSON}")"
     - printf '%s\n' "${deployment_plan_json}" | tee "${CI_PROJECT_DIR}/deployment-plan.json"
   artifacts:
     paths:
@@ -49,42 +49,26 @@ deploy_release:
     - dagger develop
     - cat "${CI_PROJECT_DIR}/deployment-plan.json"
     - |
-      cat > "${CI_PROJECT_DIR}/dagger-deploy-config.json" <<EOF
-      {
-        "server": {
-          "artifactPath": "/workspace/common/deploy/server",
-          "gcpProjectId": "${GCP_PROJECT_ID}",
-          "gcpArtifactRegistryRepository": "${GCP_ARTIFACT_REGISTRY_REPOSITORY}",
-          "cloudRunService": "${CLOUD_RUN_SERVICE}",
-          "cloudRunRuntimeServiceAccount": "${CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT}",
-          "cloudRunCorsOrigin": "${CLOUD_RUN_CORS_ORIGIN}",
-          "cloudRunRegion": "${CLOUD_RUN_REGION}"
-        },
-        "webapp": {
-          "artifactPath": "/workspace/apps/webapp/dist",
-          "cloudflareApiToken": "${CLOUDFLARE_API_TOKEN}",
-          "cloudflareAccountId": "${CLOUDFLARE_ACCOUNT_ID}",
-          "cloudflarePagesProjectName": "${CLOUDFLARE_PAGES_PROJECT_NAME}",
-          "webappGraphqlHttp": "${WEBAPP_VITE_GRAPHQL_HTTP}",
-          "webappGraphqlWs": "${WEBAPP_VITE_GRAPHQL_WS}",
-          "webappUrl": "${WEBAPP_URL}"
-        }
-      }
+      cat > "${CI_PROJECT_DIR}/dagger-deploy.env" <<EOF
+      GCP_PROJECT_ID=${GCP_PROJECT_ID}
+      GCP_ARTIFACT_REGISTRY_REPOSITORY=${GCP_ARTIFACT_REGISTRY_REPOSITORY}
+      CLOUD_RUN_SERVICE=${CLOUD_RUN_SERVICE}
+      CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT=${CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT}
+      CLOUD_RUN_CORS_ORIGIN=${CLOUD_RUN_CORS_ORIGIN}
+      CLOUD_RUN_REGION=${CLOUD_RUN_REGION}
+      CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      CLOUDFLARE_ACCOUNT_ID=${CLOUDFLARE_ACCOUNT_ID}
+      CLOUDFLARE_PAGES_PROJECT_NAME=${CLOUDFLARE_PAGES_PROJECT_NAME}
+      WEBAPP_VITE_GRAPHQL_HTTP=${WEBAPP_VITE_GRAPHQL_HTTP}
+      WEBAPP_VITE_GRAPHQL_WS=${WEBAPP_VITE_GRAPHQL_WS}
+      WEBAPP_URL=${WEBAPP_URL}
+      GOOGLE_GHA_CREDS_PATH=${GCP_CREDENTIALS_FILE}
+      DOCKER_SOCKET_FILE=/var/run/docker.sock
       EOF
     - |
-      cmd=(
-        dagger call deploy-release
-        --repo=..
-        --git-sha="${CI_COMMIT_SHA}"
-        --release-targets-json="${RELEASE_TARGETS_JSON}"
-        --environment=prod
-        --dry-run=false
-        --deploy-config-file="${CI_PROJECT_DIR}/dagger-deploy-config.json"
-      )
-
-      if [[ "${RELEASE_TARGETS_JSON}" == *'"server"'* ]]; then
-        cmd+=(--docker-socket=/var/run/docker.sock)
-        cmd+=(--gcp-credentials-file="${GCP_CREDENTIALS_FILE}")
-      fi
-
-      "${cmd[@]}"
+      dagger call deploy-release \
+        --git-sha="${CI_COMMIT_SHA}" \
+        --release-targets-json="${RELEASE_TARGETS_JSON}" \
+        --environment=prod \
+        --dry-run=false \
+        --deploy-env-file="${CI_PROJECT_DIR}/dagger-deploy.env"
