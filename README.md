@@ -46,3 +46,6 @@ Step-by-step deployment docs live here:
 
 - [Cloud Run backend deployment](deploy/cloudrun/README.md)
 - [Cloudflare Pages frontend deployment](deploy/cloudflare-pages/README.md)
+
+Happy coding!
+🤘💪🤣😍❤
