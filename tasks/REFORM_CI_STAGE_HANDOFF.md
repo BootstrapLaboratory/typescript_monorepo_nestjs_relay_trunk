@@ -163,7 +163,7 @@ JSON file.
 - [x] Stop treating GitHub job outputs as the primary validation contract.
 - [x] Read `validate_targets` and `pr_base_sha` from `ci-plan.json`.
 - [x] Keep PR validation behavior unchanged.
-- [ ] Verify that library-only changes still trigger validation.
+- [x] Verify that library-only changes still trigger validation.
 
 ## Phase 4: Make `package` Read The Plan File
 
