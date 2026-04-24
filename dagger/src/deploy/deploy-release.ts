@@ -4,7 +4,7 @@ import { buildDeploymentPlan } from "../planning/build-deployment-plan.ts";
 import { parseReleaseTargets } from "../planning/parse-release-targets.ts";
 import { executeDeploymentPlan } from "./execute-deployment-plan.ts";
 import { loadServicesMesh } from "./load-deploy-metadata.ts";
-import { parsePackageManifest } from "./parse-package-manifest.ts";
+import { parsePackageManifest } from "../package-stage/package-manifest.ts";
 import { parseDeployEnvFile } from "./runtime-env.ts";
 
 async function buildReleasePlan(

@@ -1,19 +1,18 @@
 import { dag, Directory, File } from "@dagger.io/dagger";
 
 import { parseCiPlan } from "../ci-plan/parse-ci-plan.ts";
-import type { PackageManifest } from "../model/package-manifest.ts";
 import { loadPackageTargetDefinition } from "./load-package-metadata.ts";
 import { buildPackageActionPlan } from "./package-action-plan.ts";
+import {
+  createEmptyPackageManifest,
+  formatPackageManifest,
+} from "./package-manifest.ts";
 
 const WORKDIR = "/workspace";
 const PACKAGE_IMAGE = "node:24-bookworm-slim";
 const PACKAGE_INSTALL_COMMAND =
   "apt-get update && apt-get install -y ca-certificates git";
 const PACKAGE_MANIFEST_PATH = ".dagger/runtime/package-manifest.json";
-
-function packageManifestContents(manifest: PackageManifest): string {
-  return `${JSON.stringify(manifest, null, 2)}\n`;
-}
 
 export async function packageDeployTargets(
   repo: Directory,
@@ -26,7 +25,7 @@ export async function packageDeployTargets(
     console.log("[package] no deploy targets selected");
     return repo.withNewFile(
       PACKAGE_MANIFEST_PATH,
-      `${JSON.stringify({ artifacts: {} }, null, 2)}\n`,
+      formatPackageManifest(createEmptyPackageManifest()),
     );
   }
 
@@ -77,5 +76,5 @@ export async function packageDeployTargets(
 
   return container
     .directory(WORKDIR)
-    .withNewFile(PACKAGE_MANIFEST_PATH, packageManifestContents({ artifacts }));
+    .withNewFile(PACKAGE_MANIFEST_PATH, formatPackageManifest({ artifacts }));
 }

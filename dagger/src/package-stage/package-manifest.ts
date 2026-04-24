@@ -72,29 +72,27 @@ function parseArtifact(
   }
 }
 
-export function parsePackageManifest(source: string): PackageManifest {
-  const parsedValue = JSON.parse(source);
-
+export function validatePackageManifest(rawValue: unknown): PackageManifest {
   if (
-    typeof parsedValue !== "object" ||
-    parsedValue === null ||
-    Array.isArray(parsedValue)
+    typeof rawValue !== "object" ||
+    rawValue === null ||
+    Array.isArray(rawValue)
   ) {
     throw new Error("Package manifest must be a JSON object.");
   }
 
   if (
-    !("artifacts" in parsedValue) ||
-    typeof parsedValue.artifacts !== "object" ||
-    parsedValue.artifacts === null ||
-    Array.isArray(parsedValue.artifacts)
+    !("artifacts" in rawValue) ||
+    typeof rawValue.artifacts !== "object" ||
+    rawValue.artifacts === null ||
+    Array.isArray(rawValue.artifacts)
   ) {
     throw new Error('Package manifest field "artifacts" must be an object.');
   }
 
   return {
     artifacts: Object.fromEntries(
-      Object.entries(parsedValue.artifacts).map(([target, artifact]) => {
+      Object.entries(rawValue.artifacts).map(([target, artifact]) => {
         if (target.length === 0) {
           throw new Error(
             'Package manifest field "artifacts" must use non-empty target names.',
@@ -104,5 +102,19 @@ export function parsePackageManifest(source: string): PackageManifest {
         return [target, parseArtifact(artifact, target)];
       }),
     ),
+  };
+}
+
+export function parsePackageManifest(source: string): PackageManifest {
+  return validatePackageManifest(JSON.parse(source));
+}
+
+export function formatPackageManifest(manifest: PackageManifest): string {
+  return `${JSON.stringify(validatePackageManifest(manifest), null, 2)}\n`;
+}
+
+export function createEmptyPackageManifest(): PackageManifest {
+  return {
+    artifacts: {},
   };
 }

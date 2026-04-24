@@ -21,16 +21,8 @@ GitHub already calls Dagger for deploy-target build/package:
 - `build-deploy-targets`
 - `package-deploy-targets`
 
-Build and package planning now run in Dagger TypeScript. The remaining package
-helper scripts are obsolete migration leftovers and should be deleted after the
-manifest helper is also moved:
-
-- [../scripts/ci/package-deploy-targets.mjs](../scripts/ci/package-deploy-targets.mjs)
-- [../scripts/ci/package-manifest.mjs](../scripts/ci/package-manifest.mjs)
-
-The next cleanup should move the logic behind those scripts into the Dagger
-module itself, where TypeScript parsing/planning can be tested with the Dagger
-test suite.
+Build, package planning, and package manifest writing now run in Dagger
+TypeScript, where parsing and planning are covered by the Dagger test suite.
 
 ## Principles
 
@@ -57,9 +49,8 @@ test suite.
 
 ## Phase 2: Move Package Planning Logic
 
-- [x] Move package target action planning from
-      [../scripts/ci/package-deploy-targets.mjs](../scripts/ci/package-deploy-targets.mjs)
-      into Dagger TypeScript.
+- [x] Move package target action planning from the former package helper into
+      Dagger TypeScript.
 - [x] Reuse existing Dagger package target YAML parser from
       [../dagger/src/package-stage](../dagger/src/package-stage).
 - [x] Generate package commands for `rush_deploy_archive` artifacts in Dagger
@@ -71,26 +62,26 @@ test suite.
 
 ## Phase 3: Move Package Manifest Logic
 
-- [ ] Move package manifest schema/type handling from
-      [../scripts/ci/package-manifest.mjs](../scripts/ci/package-manifest.mjs)
+- [x] Move package manifest schema/type handling from the former package
+      manifest helper
       into Dagger TypeScript.
-- [ ] Keep manifest schema compatible with the deployed contract:
+- [x] Keep manifest schema compatible with the deployed contract:
       `artifacts.<target>.kind`, `path`, and `deploy_path`.
-- [ ] Write `.dagger/runtime/package-manifest.json` from Dagger TypeScript.
-- [ ] Keep deploy consuming the same package manifest shape.
-- [ ] Add Dagger tests for manifest writing/planning.
+- [x] Write `.dagger/runtime/package-manifest.json` from Dagger TypeScript.
+- [x] Keep deploy consuming the same package manifest shape.
+- [x] Add Dagger tests for manifest writing/planning.
 
 ## Phase 4: Remove Obsolete Package Scripts
 
-- [ ] Delete [../scripts/ci/package-deploy-targets.mjs](../scripts/ci/package-deploy-targets.mjs)
+- [x] Delete the obsolete package deploy-target helper
       after Dagger TypeScript owns package materialization.
-- [ ] Delete [../scripts/ci/package-deploy-targets.test.mjs](../scripts/ci/package-deploy-targets.test.mjs)
+- [x] Delete the obsolete package deploy-target helper tests
       after equivalent Dagger tests exist.
-- [ ] Delete [../scripts/ci/package-manifest.mjs](../scripts/ci/package-manifest.mjs)
+- [x] Delete the obsolete package manifest helper
       after equivalent Dagger code owns manifest writing.
-- [ ] Delete [../scripts/ci/package-manifest.test.mjs](../scripts/ci/package-manifest.test.mjs)
+- [x] Delete the obsolete package manifest helper tests
       after equivalent Dagger tests exist.
-- [ ] Update docs to remove references to the old package helper scripts.
+- [x] Update docs to remove references to the old package helper scripts.
 
 ## Phase 5: Real CI Validation
 

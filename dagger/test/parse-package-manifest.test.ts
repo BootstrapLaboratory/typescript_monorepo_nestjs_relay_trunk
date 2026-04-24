@@ -1,7 +1,11 @@
 import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { parsePackageManifest } from "../src/deploy/parse-package-manifest.ts";
+import {
+  formatPackageManifest,
+  parsePackageManifest,
+  validatePackageManifest,
+} from "../src/package-stage/package-manifest.ts";
 
 test("parses package manifest artifacts", () => {
   assert.deepStrictEqual(
@@ -65,5 +69,52 @@ test("fails when artifact kind is unsupported", () => {
         }
       }`),
     /kind must be "archive" or "directory"/,
+  );
+});
+
+test("formats normalized package manifest JSON", () => {
+  assert.equal(
+    formatPackageManifest({
+      artifacts: {
+        server: {
+          deploy_path: "common/deploy/server",
+          kind: "archive",
+          path: "deploy-target-server.tgz",
+        },
+      },
+    }),
+    `{
+  "artifacts": {
+    "server": {
+      "deploy_path": "common/deploy/server",
+      "kind": "archive",
+      "path": "deploy-target-server.tgz"
+    }
+  }
+}
+`,
+  );
+});
+
+test("validates package manifest objects", () => {
+  assert.deepStrictEqual(
+    validatePackageManifest({
+      artifacts: {
+        webapp: {
+          deploy_path: "apps/webapp/dist",
+          kind: "directory",
+          path: "apps/webapp/dist",
+        },
+      },
+    }),
+    {
+      artifacts: {
+        webapp: {
+          deploy_path: "apps/webapp/dist",
+          kind: "directory",
+          path: "apps/webapp/dist",
+        },
+      },
+    },
   );
 });
