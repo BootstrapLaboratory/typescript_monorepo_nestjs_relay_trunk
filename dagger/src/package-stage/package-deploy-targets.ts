@@ -1,12 +1,19 @@
 import { dag, Directory, File } from "@dagger.io/dagger";
 
 import { parseCiPlan } from "../ci-plan/parse-ci-plan.ts";
+import type { PackageManifest } from "../model/package-manifest.ts";
+import { loadPackageTargetDefinition } from "./load-package-metadata.ts";
+import { buildPackageActionPlan } from "./package-action-plan.ts";
 
 const WORKDIR = "/workspace";
 const PACKAGE_IMAGE = "node:24-bookworm-slim";
 const PACKAGE_INSTALL_COMMAND =
   "apt-get update && apt-get install -y ca-certificates git";
-const EMPTY_PACKAGE_MANIFEST_PATH = ".dagger/runtime/package-manifest.json";
+const PACKAGE_MANIFEST_PATH = ".dagger/runtime/package-manifest.json";
+
+function packageManifestContents(manifest: PackageManifest): string {
+  return `${JSON.stringify(manifest, null, 2)}\n`;
+}
 
 export async function packageDeployTargets(
   repo: Directory,
@@ -18,12 +25,25 @@ export async function packageDeployTargets(
   if (ciPlan.deploy_targets.length === 0) {
     console.log("[package] no deploy targets selected");
     return repo.withNewFile(
-      EMPTY_PACKAGE_MANIFEST_PATH,
+      PACKAGE_MANIFEST_PATH,
       `${JSON.stringify({ artifacts: {} }, null, 2)}\n`,
     );
   }
 
-  const container = dag
+  const packagePlans = await Promise.all(
+    ciPlan.deploy_targets.map(async (target) => ({
+      plan: buildPackageActionPlan(
+        target,
+        await loadPackageTargetDefinition(repo, target),
+        artifactPrefix,
+      ),
+      target,
+    })),
+  );
+  const artifacts = Object.fromEntries(
+    packagePlans.map(({ plan, target }) => [target, plan.artifact]),
+  );
+  let container = dag
     .container()
     .from(PACKAGE_IMAGE)
     .withDirectory(WORKDIR, repo)
@@ -35,13 +55,27 @@ export async function packageDeployTargets(
       "install",
       "--max-install-attempts",
       "1",
-    ])
-    .withEnvVariable(
-      "DEPLOY_TARGETS_JSON",
-      JSON.stringify(ciPlan.deploy_targets),
-    )
-    .withEnvVariable("DEPLOY_ARTIFACT_PREFIX", artifactPrefix)
-    .withExec(["node", "scripts/ci/package-deploy-targets.mjs"]);
+    ]);
 
-  return container.directory(WORKDIR);
+  for (const { plan, target } of packagePlans) {
+    console.log(`[package] ${target}: ${plan.artifact.kind}`);
+
+    for (const validation of plan.validations) {
+      if (validation.kind === "directory") {
+        container = container.withExec(["test", "-d", validation.path], {
+          expand: false,
+        });
+      }
+    }
+
+    for (const { command, args } of plan.commands) {
+      container = container.withExec([command, ...args], {
+        expand: false,
+      });
+    }
+  }
+
+  return container
+    .directory(WORKDIR)
+    .withNewFile(PACKAGE_MANIFEST_PATH, packageManifestContents({ artifacts }));
 }

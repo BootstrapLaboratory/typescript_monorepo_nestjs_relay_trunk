@@ -21,7 +21,9 @@ GitHub already calls Dagger for deploy-target build/package:
 - `build-deploy-targets`
 - `package-deploy-targets`
 
-The package Dagger function still wraps existing CI helper scripts:
+Build and package planning now run in Dagger TypeScript. The remaining package
+helper scripts are obsolete migration leftovers and should be deleted after the
+manifest helper is also moved:
 
 - [../scripts/ci/package-deploy-targets.mjs](../scripts/ci/package-deploy-targets.mjs)
 - [../scripts/ci/package-manifest.mjs](../scripts/ci/package-manifest.mjs)
@@ -55,15 +57,15 @@ test suite.
 
 ## Phase 2: Move Package Planning Logic
 
-- [ ] Move package target action planning from
+- [x] Move package target action planning from
       [../scripts/ci/package-deploy-targets.mjs](../scripts/ci/package-deploy-targets.mjs)
       into Dagger TypeScript.
-- [ ] Reuse existing Dagger package target YAML parser from
+- [x] Reuse existing Dagger package target YAML parser from
       [../dagger/src/package-stage](../dagger/src/package-stage).
-- [ ] Generate package commands for `rush_deploy_archive` artifacts in Dagger
+- [x] Generate package commands for `rush_deploy_archive` artifacts in Dagger
       TypeScript.
-- [ ] Validate `directory` artifacts in Dagger TypeScript.
-- [ ] Add focused Dagger tests for package command planning and validation.
+- [x] Validate `directory` artifacts in Dagger TypeScript.
+- [x] Add focused Dagger tests for package command planning and validation.
 
 ## Phase 3: Move Package Manifest Logic
 
