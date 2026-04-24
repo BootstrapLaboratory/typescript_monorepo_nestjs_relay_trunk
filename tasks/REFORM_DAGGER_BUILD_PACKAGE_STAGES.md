@@ -301,7 +301,7 @@ Recommended migration order:
 - [x] Remove deploy dependency on static package artifact paths.
 - [x] Keep deploy target YAML focused on scripts, runtime env, mounts, and
       provider toolchains.
-- [ ] Preserve successful Cloud Run and Cloudflare deploy behavior.
+- [x] Preserve successful Cloud Run and Cloudflare deploy behavior.
 
 ## Phase 6: Future Release Stage Preparation
 
