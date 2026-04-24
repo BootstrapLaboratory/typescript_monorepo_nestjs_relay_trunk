@@ -275,11 +275,14 @@ Recommended migration order:
 
 ## Phase 3: Package Manifest
 
-- [ ] Define the exact `package-manifest.json` schema.
-- [ ] Add writer and reader tests for `package-manifest.json`.
-- [ ] Make package artifact paths relative to the repository or runtime
+- [x] Define the exact `package-manifest.json` schema.
+- [x] Add writer and reader tests for `package-manifest.json`.
+- [x] Make package artifact paths relative to the repository or runtime
       workspace, not hidden in deploy metadata.
-- [ ] Ensure manifest entries preserve current artifact naming.
+- [x] Ensure manifest entries preserve current artifact naming.
+- [x] Write `.dagger/runtime/package-manifest.json` from the package stage.
+- [x] Upload and download `package-manifest.json` as a GitHub artifact so the
+      deploy job has the package-to-deploy handoff available.
 
 ## Phase 4: Dagger Package Entry Point
 

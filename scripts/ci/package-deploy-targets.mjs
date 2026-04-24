@@ -4,6 +4,11 @@ import { access, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import {
+  resolvePackageManifestPath,
+  writePackageManifestFile,
+} from "./package-manifest.mjs";
+
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(SCRIPT_DIR, "..", "..");
 
@@ -262,6 +267,10 @@ async function loadPackageTarget(target) {
 export async function packageDeployTargets({
   artifactPrefix = "deploy-target",
   deployTargetsJson = "[]",
+  loadPackageTargetDefinition = loadPackageTarget,
+  packageManifestPath = undefined,
+  runPackageCommand = runCommand,
+  validatePackageDirectory = validateDirectory,
 } = {}) {
   const targets = parseDeployTargetsJson(deployTargetsJson);
 
@@ -272,31 +281,40 @@ export async function packageDeployTargets({
   const artifacts = {};
 
   for (const target of targets) {
-    const definition = await loadPackageTarget(target);
+    const definition = await loadPackageTargetDefinition(target);
     const packagePlan = buildPackageActions(target, definition, artifactPrefix);
 
     console.log(`[package] ${target}: ${packagePlan.artifact.kind}`);
 
     for (const validation of packagePlan.validations) {
       if (validation.kind === "directory") {
-        await validateDirectory(validation.path);
+        await validatePackageDirectory(validation.path);
       }
     }
 
     for (const { command, args } of packagePlan.commands) {
-      runCommand(command, args);
+      runPackageCommand(command, args);
     }
 
     artifacts[target] = packagePlan.artifact;
   }
 
-  return { artifacts };
+  const manifest = { artifacts };
+  writePackageManifestFile(
+    manifest,
+    packageManifestPath === undefined
+      ? resolvePackageManifestPath()
+      : packageManifestPath,
+  );
+
+  return manifest;
 }
 
 async function main() {
   await packageDeployTargets({
     artifactPrefix: process.env.DEPLOY_ARTIFACT_PREFIX ?? "deploy-target",
     deployTargetsJson: process.env.DEPLOY_TARGETS_JSON ?? "[]",
+    packageManifestPath: process.env.PACKAGE_MANIFEST_PATH,
   });
 }
 

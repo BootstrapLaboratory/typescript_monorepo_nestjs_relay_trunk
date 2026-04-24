@@ -1,8 +1,12 @@
 import * as assert from "node:assert/strict";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 import { test } from "node:test";
 
 import {
   buildPackageActions,
+  packageDeployTargets,
   parseDeployTargetsJson,
   parsePackageTargetMetadata,
 } from "./package-deploy-targets.mjs";
@@ -136,4 +140,47 @@ test("rejects metadata with mismatched target name", () => {
       ),
     /must declare name "server", got "webapp"/,
   );
+});
+
+test("writes a package manifest for directory artifacts", async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), "package-deploy-targets-"));
+  const manifestPath = join(tempDir, "package-manifest.json");
+  const validatedPaths = [];
+
+  try {
+    const manifest = await packageDeployTargets({
+      deployTargetsJson: '["webapp"]',
+      loadPackageTargetDefinition: async (target) => ({
+        artifact: {
+          kind: "directory",
+          path: `dist/${target}`,
+        },
+        name: target,
+      }),
+      packageManifestPath: manifestPath,
+      validatePackageDirectory: async (relativePath) => {
+        validatedPaths.push(relativePath);
+      },
+    });
+
+    assert.deepStrictEqual(manifest, {
+      artifacts: {
+        webapp: {
+          kind: "directory",
+          path: "dist/webapp",
+        },
+      },
+    });
+    assert.deepStrictEqual(validatedPaths, ["dist/webapp"]);
+    assert.deepStrictEqual(JSON.parse(await readFile(manifestPath, "utf8")), {
+      artifacts: {
+        webapp: {
+          kind: "directory",
+          path: "dist/webapp",
+        },
+      },
+    });
+  } finally {
+    await rm(tempDir, { force: true, recursive: true });
+  }
 });

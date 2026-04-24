@@ -239,6 +239,16 @@ jobs:
       - name: Package selected deploy targets
         run: make ci-package-deploy-targets DEPLOY_TARGETS_JSON='${{ steps.ci_plan.outputs.deploy_targets_json }}'
 
+      - name: Stage package manifest artifact
+        run: cp .dagger/runtime/package-manifest.json "${RUNNER_TEMP}/package-manifest.json"
+
+      - name: Upload package manifest artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: package-manifest
+          path: ${{ runner.temp }}/package-manifest.json
+          if-no-files-found: error
+
       - name: Upload backend deploy artifact
         if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
         uses: actions/upload-artifact@v5
@@ -285,6 +295,12 @@ jobs:
       - id: ci_plan
         name: Load CI plan
         run: node scripts/ci/finalize-ci-plan.mjs
+
+      - name: Download package manifest artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: package-manifest
+          path: .dagger/runtime
 
       - name: Install Dagger CLI
         run: |
