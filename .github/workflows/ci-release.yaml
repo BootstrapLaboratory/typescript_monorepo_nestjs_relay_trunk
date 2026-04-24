@@ -136,9 +136,8 @@ jobs:
       - name: Install dependencies with caching
         uses: ./.github/actions/cached-install
 
-      - name: Verify the committed GraphQL contract snapshot
-        if: contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
-        run: make ci-check-graphql-drift FAILURE_MODE=merge
+      - name: Verify affected Rush projects
+        run: make ci-validate-verify-affected FROM_SHA="${{ steps.ci_plan.outputs.pr_base_sha }}"
 
       - name: Lint affected Rush projects
         run: make ci-validate-lint-affected FROM_SHA="${{ steps.ci_plan.outputs.pr_base_sha }}"
@@ -234,11 +233,7 @@ jobs:
       - name: Install dependencies with caching
         uses: ./.github/actions/cached-install
 
-      - name: Verify the committed GraphQL contract snapshot
-        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
-        run: make ci-check-graphql-drift FAILURE_MODE=deploy
-
-      - name: Lint, test, and build selected deploy targets
+      - name: Verify, lint, test, and build selected deploy targets
         run: make ci-package-release-targets DEPLOY_TARGETS_JSON='${{ steps.ci_plan.outputs.deploy_targets_json }}'
 
       - name: Prepare pruned backend deploy bundle

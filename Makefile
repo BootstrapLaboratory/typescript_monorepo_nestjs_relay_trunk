@@ -11,7 +11,7 @@ DEPLOY_ARTIFACT_NAME ?= $(DEPLOY_ARTIFACT_PREFIX)-$(TARGET)
 DEPLOY_ARTIFACT_ARCHIVE ?= $(DEPLOY_ARTIFACT_NAME).tgz
 
 .PHONY: \
-	ci-check-graphql-drift \
+	ci-validate-verify-affected \
 	ci-validate-lint-affected \
 	ci-validate-test-affected \
 	ci-validate-build-affected \
@@ -28,8 +28,9 @@ DEPLOY_ARTIFACT_ARCHIVE ?= $(DEPLOY_ARTIFACT_NAME).tgz
 	ci-deploy-server-check-gcp-config \
 	ci-deploy-webapp-check-config
 
-ci-check-graphql-drift:
-	@FAILURE_MODE="$(FAILURE_MODE)" bash scripts/ci/check-graphql-drift.sh
+ci-validate-verify-affected:
+	@test -n "$(FROM_SHA)" || (echo "FROM_SHA is required" >&2; exit 1)
+	@FAILURE_MODE="$${FAILURE_MODE:-merge}" $(RUSH) verify --from "git:$(FROM_SHA)"
 
 ci-validate-lint-affected:
 	@test -n "$(FROM_SHA)" || (echo "FROM_SHA is required" >&2; exit 1)

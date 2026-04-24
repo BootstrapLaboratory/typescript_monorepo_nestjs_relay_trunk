@@ -7,6 +7,21 @@
   "commands": [
     {
       "commandKind": "bulk",
+      "name": "verify",
+      "summary": "Run verification scripts for the selected projects.",
+      "description": "Runs each selected project's verify script from its own project folder when one is present.",
+      "safeForSimultaneousRushProcesses": true,
+      "shellCommand": "npm run verify --if-present",
+      "enableParallelism": true,
+      "ignoreDependencyOrder": true,
+      "ignoreMissingScript": true,
+      "allowWarningsInSuccessfulBuild": true,
+      "incremental": false,
+      "watchForChanges": false,
+      "disableBuildCache": true
+    },
+    {
+      "commandKind": "bulk",
       "name": "lint",
       "summary": "Run lint scripts for the selected projects.",
       "description": "Runs each selected project's lint script from its own project folder.",

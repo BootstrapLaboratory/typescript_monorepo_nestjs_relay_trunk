@@ -16,6 +16,7 @@
     "start:dev": "cross-env NODE_ENV=development nest start --watch",
     "start:debug": "cross-env NODE_ENV=development nest start --debug --watch",
     "start:prod": "node dist/main",
+    "verify": "bash ../../scripts/ci/check-graphql-drift.sh",
     "graphql:schema": "node -r ts-node/register ./src/scripts/generate-schema.ts",
     "graphql:schema:watch": "node --watch --watch-path=src -r ts-node/register ./src/scripts/generate-schema.ts",
     "typeorm": "node -r ts-node/register ./node_modules/typeorm/cli.js",

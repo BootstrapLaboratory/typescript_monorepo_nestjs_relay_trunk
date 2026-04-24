@@ -2,14 +2,15 @@
 
 ## Goal
 
-Introduce provider-neutral handoff artifacts between `detect`, `package`, and
-`deploy`, so the same contracts can work in:
+Introduce provider-neutral handoff artifacts between `detect`, `build`,
+`package`, and `deploy`, so the same contracts can work in:
 
 - separate GitHub Actions jobs
 - separate GitLab CI jobs
-- future Dagger entrypoints such as `detect(...)`, `package(...)`, `deploy(...)`
+- future Dagger entrypoints such as `detect(...)`, `build(...)`,
+  `package(...)`, `deploy(...)`
 - a future Dagger `workflow(...)` function that naturally calls
-  `detect -> package -> deploy`
+  `detect -> build -> package -> deploy`
 
 The central idea is:
 
@@ -44,7 +45,7 @@ The target shape should be:
    [../.dagger/runtime/ci-plan.json](../.dagger/runtime/ci-plan.json)
 2. `detect` runs one small finalize step that reads `ci-plan.json` and emits
    CI-provider outputs as derived projections of that file
-3. `validate`, `package`, and `deploy` consume `ci-plan.json`
+3. `validate`, `build`, `package`, and `deploy` consume `ci-plan.json`
 4. GitHub and GitLab only adapt that file into job scheduling and artifact
    transfer
 5. Dagger can later call the same stages directly using the same JSON contract
@@ -72,13 +73,14 @@ Notes:
 - `deploy_targets` is the deploy/package scope
 - `any_scope` should stay derived, not stored
 
-No `package-manifest.json` is needed in the first pass. Current deploy artifact
-paths already come from:
+The completed first pass did not need `package-manifest.json`, because GitHub
+still owned artifact transfer and the current artifact naming convention was
+stable enough for `server` and `webapp`.
 
-- [../.dagger/deploy/targets](../.dagger/deploy/targets)
-
-and the CI artifact naming convention is already stable enough for the current
-`server` and `webapp` flow.
+The next package-stage reform should introduce
+[../.dagger/runtime/package-manifest.json](../.dagger/runtime/package-manifest.json)
+as the canonical handoff from `package` to `deploy`. That follow-up is tracked
+in [REFORM_DAGGER_BUILD_PACKAGE_STAGES.md](./REFORM_DAGGER_BUILD_PACKAGE_STAGES.md).
 
 ## Design Principles
 
@@ -87,8 +89,8 @@ and the CI artifact naming convention is already stable enough for the current
 - Keep file paths stable under [../.dagger/runtime](../.dagger/runtime).
 - Make downstream stages read structured JSON instead of scattered job outputs.
 - Keep the stage contracts reusable from both CI and Dagger.
-- Avoid introducing a second manifest when existing target metadata and artifact
-  conventions already provide the needed information.
+- Introduce additional runtime manifests only at stage boundaries where they
+  remove coupling, such as the planned package-to-deploy manifest.
 
 ## GitHub-Specific Constraint
 
@@ -131,6 +133,8 @@ JSON file.
 - [x] Record that no `package-manifest.json` is needed in the first pass.
 - [x] Record that any optional convenience outputs remain derived projections
       of `ci-plan.json`, not an independent contract.
+- [x] Record that a later package-stage reform may introduce
+      `package-manifest.json` as a package-to-deploy handoff.
 
 ## Phase 1: Make `detect` Produce `ci-plan.json`
 
@@ -186,23 +190,24 @@ JSON file.
       `ci-plan.json` content.
 - [x] Switch the GitHub `detect` job to call Dagger `detect(...)` as the
       canonical plan producer.
+- [ ] Define future Dagger `build(...)` input in terms of `ci-plan.json`.
 - [ ] Define future Dagger `package(...)` input in terms of `ci-plan.json`.
-- [ ] Define future Dagger `deploy(...)` input in terms of `ci-plan.json`
-      plus the existing target metadata and artifact naming conventions.
+- [ ] Define future Dagger `deploy(...)` input in terms of `ci-plan.json`,
+      `package-manifest.json`, and deploy target metadata.
 - [ ] Define a future `workflow(...)` function that can call the same stages
       internally without changing their contracts.
 
 ## Stop Point
 
-- `detect`, `validate`, `package`, and `deploy` exchange one canonical plan
-  file under
+- `detect`, `validate`, `build`, `package`, and `deploy` exchange one
+  canonical plan file under
   [../.dagger/runtime](../.dagger/runtime).
 - GitHub outputs are reduced to a very thin scheduling adapter derived from
   that plan file.
 - any optional convenience outputs are still only projections of that plan
   file, not a second contract.
 - downstream stage logic reads structured JSON instead of many job outputs.
-- existing target metadata and artifact naming conventions remain the source of
-  truth for deploy artifact locations.
+- the next package-stage reform can promote package artifact locations into a
+  dedicated package-to-deploy manifest.
 - the same contract is ready for both split CI jobs and a future single Dagger
   `workflow(...)` implementation.

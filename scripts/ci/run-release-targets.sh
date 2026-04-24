@@ -34,6 +34,7 @@ fi
 
 cd "${REPO_ROOT}"
 
+FAILURE_MODE="${FAILURE_MODE:-deploy}" node common/scripts/install-run-rush.js verify "${targets[@]}"
 node common/scripts/install-run-rush.js lint "${targets[@]}"
 node common/scripts/install-run-rush.js test "${targets[@]}"
 node common/scripts/install-run-rush.js build "${targets[@]}"
