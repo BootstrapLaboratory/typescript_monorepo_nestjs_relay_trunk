@@ -295,14 +295,13 @@ Recommended migration order:
 - [x] Materialize `rush_deploy_archive` artifacts from package metadata.
 - [x] Materialize `directory` artifacts from package metadata.
 - [x] Write `package-manifest.json`.
-- [x] Keep current GitHub artifact upload behavior working during migration by
-      leaving the GitHub package job on the proven Make/script bridge for this
-      slice.
+- [x] Keep current GitHub artifact upload behavior working during migration.
 - [x] Make the Dagger package entrypoint return a workspace directory so CI can
       explicitly export artifacts during the later cutover.
 - [x] Add a composed Dagger wrapper that runs build and package as separate
       stages but exports the final packaged workspace once.
 - [x] Switch the GitHub package job to the Dagger build/package entrypoints.
+- [x] Verify the Dagger-backed package job in real GitHub CI.
 
 ## Phase 5: Deploy Consumes Package Manifest
 
