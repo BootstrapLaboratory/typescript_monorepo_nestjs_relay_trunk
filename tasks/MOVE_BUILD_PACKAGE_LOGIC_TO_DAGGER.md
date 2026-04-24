@@ -66,6 +66,8 @@ test suite.
       TypeScript.
 - [x] Validate `directory` artifacts in Dagger TypeScript.
 - [x] Add focused Dagger tests for package command planning and validation.
+- [x] Verify the Dagger-backed package job in real CI after package planning
+      moved into Dagger TypeScript.
 
 ## Phase 3: Move Package Manifest Logic
 
