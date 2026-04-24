@@ -9,6 +9,7 @@ import {
 
 import { detect as detectCiPlan } from "./detect/detect.ts";
 import { deployRelease } from "./deploy/deploy-release.ts";
+import { buildAndPackageDeployTargets } from "./package-stage/build-and-package-deploy-targets.ts";
 import { buildDeployTargets } from "./build-stage/build-deploy-targets.ts";
 import { packageDeployTargets } from "./package-stage/package-deploy-targets.ts";
 import { parseReleaseTargets } from "./planning/parse-release-targets.ts";
@@ -78,6 +79,18 @@ export class ReleaseOrchestrator {
     artifactPrefix: string = "deploy-target",
   ): Promise<Directory> {
     return packageDeployTargets(repo, ciPlanFile, artifactPrefix);
+  }
+
+  /**
+   * Runs build and package as separate stages while exporting the final packaged workspace once.
+   */
+  @func()
+  async buildAndPackageDeployTargets(
+    @argument({ defaultPath: ".." }) repo: Directory,
+    ciPlanFile: File,
+    artifactPrefix: string = "deploy-target",
+  ): Promise<Directory> {
+    return buildAndPackageDeployTargets(repo, ciPlanFile, artifactPrefix);
   }
 
   /**

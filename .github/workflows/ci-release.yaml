@@ -230,14 +230,22 @@ jobs:
         name: Load CI plan
         run: node scripts/ci/finalize-ci-plan.mjs
 
-      - name: Install dependencies with caching
-        uses: ./.github/actions/cached-install
+      - name: Install Dagger CLI
+        run: |
+          mkdir -p "${RUNNER_TEMP}/bin"
+          curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR="${RUNNER_TEMP}/bin" sh
+          echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
 
-      - name: Build selected deploy targets
-        run: make ci-build-deploy-targets DEPLOY_TARGETS_JSON='${{ steps.ci_plan.outputs.deploy_targets_json }}'
-
-      - name: Package selected deploy targets
-        run: make ci-package-deploy-targets DEPLOY_TARGETS_JSON='${{ steps.ci_plan.outputs.deploy_targets_json }}'
+      - name: Build and package selected deploy targets
+        working-directory: dagger
+        env:
+          DAGGER_NO_NAG: "1"
+        run: |
+          dagger call build-and-package-deploy-targets \
+            --repo=.. \
+            --ci-plan-file=../.dagger/runtime/ci-plan.json \
+            --artifact-prefix="${DEPLOY_ARTIFACT_PREFIX}" \
+            export --path=..
 
       - name: Stage package manifest artifact
         run: cp .dagger/runtime/package-manifest.json "${RUNNER_TEMP}/package-manifest.json"

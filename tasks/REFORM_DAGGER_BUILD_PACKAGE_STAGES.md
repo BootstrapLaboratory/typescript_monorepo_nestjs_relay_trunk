@@ -300,7 +300,9 @@ Recommended migration order:
       slice.
 - [x] Make the Dagger package entrypoint return a workspace directory so CI can
       explicitly export artifacts during the later cutover.
-- [ ] Switch the GitHub package job to the Dagger build/package entrypoints.
+- [x] Add a composed Dagger wrapper that runs build and package as separate
+      stages but exports the final packaged workspace once.
+- [x] Switch the GitHub package job to the Dagger build/package entrypoints.
 
 ## Phase 5: Deploy Consumes Package Manifest
 

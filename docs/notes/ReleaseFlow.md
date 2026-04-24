@@ -36,9 +36,9 @@ Responsibilities by job:
   outputs from that file.
 - `validate` restores `ci-plan.json` after checkout and reads validation scope
   from the file instead of treating GitHub job outputs as its primary contract.
-- `package` installs dependencies, verifies the committed GraphQL contract when
-  `server` is in scope, builds the selected targets, and uploads deploy
-  artifacts after restoring `ci-plan.json`.
+- `package` calls Dagger to build and package selected deploy targets, exports
+  the packaged workspace, and uploads deploy artifacts after restoring
+  `ci-plan.json`.
 - `deploy` restores `ci-plan.json`, downloads the packaged artifacts, prepares
   cloud configuration and credentials, writes one flat deploy env file, and
   calls `deploy-release`. Dagger computes and logs the deployment plan
@@ -52,8 +52,8 @@ Responsibilities by job:
 - `webapp` is packaged as the prebuilt
   [apps/webapp/dist](../../apps/webapp/dist) directory.
 
-GitHub Actions currently owns packaging. Dagger consumes those packaged outputs
-during deployment.
+Dagger owns build and package materialization. GitHub Actions remains the
+provider-specific artifact upload adapter.
 
 ## Dagger Responsibilities
 
@@ -63,15 +63,15 @@ during deployment.
   verify/lint/test/build stage for selected deploy targets.
 - `package-deploy-targets` reads `ci-plan.json`, materializes deploy artifacts
   from `.dagger/package` metadata, and writes `package-manifest.json`.
+- `build-and-package-deploy-targets` composes those two stages for CI so the
+  packaged workspace can be exported once.
 - `deploy-release` executes the release through one generic target runtime
   path. Planning stays internal to `deploy-release`, which computes and logs
   deployment waves before executing them.
 
-GitHub still uses the Make/script package bridge while the Dagger package
-entrypoints are being migrated into the release workflow. The Dagger build and
-package entrypoints return a workspace `Directory`; the eventual GitHub cutover
-must explicitly export that directory or selected artifact paths before using
-GitHub artifact upload steps.
+The Dagger build and package entrypoints return a workspace `Directory`.
+GitHub exports the packaged workspace before using provider-specific artifact
+upload steps.
 
 Deployment order comes from
 [.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml), so
@@ -145,5 +145,6 @@ the Dagger runtime prints a summary of:
 - The reusable
   [ci-release.yaml](../../.github/workflows/ci-release.yaml) workflow is the
   operational source of truth for GitHub releases.
-- GitHub Actions remains the trigger, packaging host, and credentials boundary.
-  Dagger owns deployment ordering and release execution.
+- GitHub Actions remains the trigger, artifact upload adapter, and credentials
+  boundary. Dagger owns deploy-target build/package materialization,
+  deployment ordering, and release execution.
