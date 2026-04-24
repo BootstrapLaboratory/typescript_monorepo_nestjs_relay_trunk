@@ -14,4 +14,9 @@ export class NewMessageInput {
   @Length(1, 1024)
   @AutoMap()
   body!: string;
+
+  @Field({ nullable: false })
+  @Length(1, 1024)
+  @AutoMap()
+  email!: string;
 }
