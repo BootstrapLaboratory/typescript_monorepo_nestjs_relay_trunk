@@ -233,16 +233,11 @@ jobs:
       - name: Install dependencies with caching
         uses: ./.github/actions/cached-install
 
-      - name: Verify, lint, test, and build selected deploy targets
-        run: make ci-package-release-targets DEPLOY_TARGETS_JSON='${{ steps.ci_plan.outputs.deploy_targets_json }}'
+      - name: Build selected deploy targets
+        run: make ci-build-deploy-targets DEPLOY_TARGETS_JSON='${{ steps.ci_plan.outputs.deploy_targets_json }}'
 
-      - name: Prepare pruned backend deploy bundle
-        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
-        run: make ci-package-server-bundle
-
-      - name: Archive backend deploy bundle
-        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
-        run: make ci-package-archive-target TARGET=server
+      - name: Package selected deploy targets
+        run: make ci-package-deploy-targets DEPLOY_TARGETS_JSON='${{ steps.ci_plan.outputs.deploy_targets_json }}'
 
       - name: Upload backend deploy artifact
         if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')

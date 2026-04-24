@@ -262,6 +262,17 @@ Recommended migration order:
       packaging.
 - [x] Keep package metadata out of `.dagger/deploy/targets`.
 
+## Phase 2.5: Generic CI Package Bridge
+
+- [x] Rename the current deploy-target build task to
+      `ci-build-deploy-targets`.
+- [x] Add `ci-package-deploy-targets` as a generic package materializer backed
+      by `.dagger/package/targets`.
+- [x] Materialize `rush_deploy_archive` artifacts from package metadata.
+- [x] Validate `directory` artifacts from package metadata.
+- [x] Replace server-specific bundle/archive steps in the GitHub package job.
+- [x] Keep GitHub upload steps as the provider-specific adapter for now.
+
 ## Phase 3: Package Manifest
 
 - [ ] Define the exact `package-manifest.json` schema.

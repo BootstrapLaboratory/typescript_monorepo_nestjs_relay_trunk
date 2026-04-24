@@ -22,8 +22,8 @@ DEPLOY_ARTIFACT_ARCHIVE ?= $(DEPLOY_ARTIFACT_NAME).tgz
 	ci-validate-stop-server \
 	ci-package-server-bundle \
 	ci-validate-build-server-container \
-	ci-package-release-targets \
-	ci-package-archive-target \
+	ci-build-deploy-targets \
+	ci-package-deploy-targets \
 	ci-deploy-extract-target-artifact \
 	ci-deploy-server-check-gcp-config \
 	ci-deploy-webapp-check-config
@@ -75,12 +75,11 @@ ci-validate-build-server-container:
 	@test -n "$(IMAGE_TAG)" || (echo "IMAGE_TAG is required" >&2; exit 1)
 	@docker build --pull -f apps/server/Dockerfile -t "$(IMAGE_TAG)" .
 
-ci-package-release-targets:
-	@DEPLOY_TARGETS_JSON='$(DEPLOY_TARGETS_JSON)' bash scripts/ci/run-release-targets.sh
+ci-build-deploy-targets:
+	@DEPLOY_TARGETS_JSON='$(DEPLOY_TARGETS_JSON)' bash scripts/ci/build-deploy-targets.sh
 
-ci-package-archive-target:
-	@test -n "$(TARGET)" || (echo "TARGET is required" >&2; exit 1)
-	@tar -czf "$(DEPLOY_ARTIFACT_ARCHIVE)" -C common/deploy "$(TARGET)"
+ci-package-deploy-targets:
+	@DEPLOY_TARGETS_JSON='$(DEPLOY_TARGETS_JSON)' DEPLOY_ARTIFACT_PREFIX="$(DEPLOY_ARTIFACT_PREFIX)" node scripts/ci/package-deploy-targets.mjs
 
 ci-deploy-extract-target-artifact:
 	@test -n "$(TARGET)" || (echo "TARGET is required" >&2; exit 1)
