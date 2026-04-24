@@ -59,9 +59,19 @@ during deployment.
 
 [dagger/src/index.ts](../../dagger/src/index.ts) exposes the release entrypoints:
 
+- `build-deploy-targets` reads `ci-plan.json` and runs the generic Rush
+  verify/lint/test/build stage for selected deploy targets.
+- `package-deploy-targets` reads `ci-plan.json`, materializes deploy artifacts
+  from `.dagger/package` metadata, and writes `package-manifest.json`.
 - `deploy-release` executes the release through one generic target runtime
   path. Planning stays internal to `deploy-release`, which computes and logs
   deployment waves before executing them.
+
+GitHub still uses the Make/script package bridge while the Dagger package
+entrypoints are being migrated into the release workflow. The Dagger build and
+package entrypoints return a workspace `Directory`; the eventual GitHub cutover
+must explicitly export that directory or selected artifact paths before using
+GitHub artifact upload steps.
 
 Deployment order comes from
 [.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml), so

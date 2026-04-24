@@ -190,8 +190,8 @@ JSON file.
       `ci-plan.json` content.
 - [x] Switch the GitHub `detect` job to call Dagger `detect(...)` as the
       canonical plan producer.
-- [ ] Define future Dagger `build(...)` input in terms of `ci-plan.json`.
-- [ ] Define future Dagger `package(...)` input in terms of `ci-plan.json`.
+- [x] Define future Dagger `build(...)` input in terms of `ci-plan.json`.
+- [x] Define future Dagger `package(...)` input in terms of `ci-plan.json`.
 - [ ] Define future Dagger `deploy(...)` input in terms of `ci-plan.json`,
       `package-manifest.json`, and deploy target metadata.
 - [ ] Define a future `workflow(...)` function that can call the same stages

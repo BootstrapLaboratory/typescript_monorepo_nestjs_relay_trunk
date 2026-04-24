@@ -9,6 +9,8 @@ import {
 
 import { detect as detectCiPlan } from "./detect/detect.ts";
 import { deployRelease } from "./deploy/deploy-release.ts";
+import { buildDeployTargets } from "./build-stage/build-deploy-targets.ts";
+import { packageDeployTargets } from "./package-stage/package-deploy-targets.ts";
 import { parseReleaseTargets } from "./planning/parse-release-targets.ts";
 
 @object()
@@ -53,6 +55,29 @@ export class ReleaseOrchestrator {
     }
 
     return `Selected release targets: ${normalizedTargets.join(", ")}`;
+  }
+
+  /**
+   * Runs the generic Rush build stage for deploy targets selected by ci-plan.json.
+   */
+  @func()
+  async buildDeployTargets(
+    @argument({ defaultPath: ".." }) repo: Directory,
+    ciPlanFile: File,
+  ): Promise<Directory> {
+    return buildDeployTargets(repo, ciPlanFile);
+  }
+
+  /**
+   * Materializes deploy package artifacts for deploy targets selected by ci-plan.json.
+   */
+  @func()
+  async packageDeployTargets(
+    @argument({ defaultPath: ".." }) repo: Directory,
+    ciPlanFile: File,
+    artifactPrefix: string = "deploy-target",
+  ): Promise<Directory> {
+    return packageDeployTargets(repo, ciPlanFile, artifactPrefix);
   }
 
   /**

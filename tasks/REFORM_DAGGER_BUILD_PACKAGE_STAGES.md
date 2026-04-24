@@ -286,14 +286,21 @@ Recommended migration order:
 - [x] Upload and download `package-manifest.json` as a GitHub artifact so the
       deploy job has the package-to-deploy handoff available.
 
-## Phase 4: Dagger Package Entry Point
+## Phase 4: Dagger Build And Package Entry Points
 
-- [ ] Add a Dagger package entrypoint that reads `ci-plan.json`.
-- [ ] Run the generic build stage for deploy targets before packaging.
-- [ ] Materialize `rush_deploy_archive` artifacts from package metadata.
-- [ ] Materialize `directory` artifacts from package metadata.
-- [ ] Write `package-manifest.json`.
-- [ ] Keep current GitHub artifact upload behavior working during migration.
+- [x] Add a Dagger build entrypoint that reads `ci-plan.json`.
+- [x] Keep build separate from package so it only runs Rush
+      verify/lint/test/build for selected deploy targets.
+- [x] Add a Dagger package entrypoint that reads `ci-plan.json`.
+- [x] Materialize `rush_deploy_archive` artifacts from package metadata.
+- [x] Materialize `directory` artifacts from package metadata.
+- [x] Write `package-manifest.json`.
+- [x] Keep current GitHub artifact upload behavior working during migration by
+      leaving the GitHub package job on the proven Make/script bridge for this
+      slice.
+- [x] Make the Dagger package entrypoint return a workspace directory so CI can
+      explicitly export artifacts during the later cutover.
+- [ ] Switch the GitHub package job to the Dagger build/package entrypoints.
 
 ## Phase 5: Deploy Consumes Package Manifest
 
