@@ -50,7 +50,7 @@ test suite.
       TypeScript.
 - [x] Delete the obsolete build shell wrapper.
 - [x] Add or update Dagger tests for build command planning.
-- [ ] Verify the Dagger-backed package job in real CI after the shell wrapper is
+- [x] Verify the Dagger-backed package job in real CI after the shell wrapper is
       removed.
 
 ## Phase 2: Move Package Planning Logic
