@@ -21,9 +21,8 @@ GitHub already calls Dagger for deploy-target build/package:
 - `build-deploy-targets`
 - `package-deploy-targets`
 
-However, the Dagger functions still wrap existing CI helper scripts:
+The package Dagger function still wraps existing CI helper scripts:
 
-- [../scripts/ci/build-deploy-targets.sh](../scripts/ci/build-deploy-targets.sh)
 - [../scripts/ci/package-deploy-targets.mjs](../scripts/ci/package-deploy-targets.mjs)
 - [../scripts/ci/package-manifest.mjs](../scripts/ci/package-manifest.mjs)
 
@@ -43,15 +42,14 @@ test suite.
 
 ## Phase 1: Move Build Stage Logic
 
-- [ ] Port deploy target JSON parsing from
-      [../scripts/ci/build-deploy-targets.sh](../scripts/ci/build-deploy-targets.sh)
-      into Dagger TypeScript.
-- [ ] Generate Rush `--to <target>` arguments from `ci-plan.json` inside
+- [x] Port deploy target JSON parsing from the former build shell wrapper into
+      Dagger TypeScript.
+- [x] Generate Rush `--to <target>` arguments from `ci-plan.json` inside
       [../dagger/src/build-stage](../dagger/src/build-stage).
-- [ ] Run Rush `verify`, `lint`, `test`, and `build` directly from Dagger
+- [x] Run Rush `verify`, `lint`, `test`, and `build` directly from Dagger
       TypeScript.
-- [ ] Delete [../scripts/ci/build-deploy-targets.sh](../scripts/ci/build-deploy-targets.sh).
-- [ ] Add or update Dagger tests for build command planning.
+- [x] Delete the obsolete build shell wrapper.
+- [x] Add or update Dagger tests for build command planning.
 - [ ] Verify the Dagger-backed package job in real CI after the shell wrapper is
       removed.
 

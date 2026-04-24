@@ -1,20 +1,12 @@
 import { dag, Directory, File } from "@dagger.io/dagger";
 
-import type { CiPlan } from "../model/ci-plan.ts";
 import { parseCiPlan } from "../ci-plan/parse-ci-plan.ts";
+import { buildRushBuildSteps } from "./rush-build-plan.ts";
 
 const WORKDIR = "/workspace";
 const BUILD_IMAGE = "node:24-bookworm-slim";
 const BUILD_INSTALL_COMMAND =
   "apt-get update && apt-get install -y ca-certificates git";
-
-function deployTargetsJson(ciPlan: CiPlan): string {
-  return JSON.stringify(ciPlan.deploy_targets);
-}
-
-function hasDeployTargets(ciPlan: CiPlan): boolean {
-  return ciPlan.deploy_targets.length > 0;
-}
 
 export async function buildDeployTargets(
   repo: Directory,
@@ -22,12 +14,12 @@ export async function buildDeployTargets(
 ): Promise<Directory> {
   const ciPlan = parseCiPlan(await ciPlanFile.contents());
 
-  if (!hasDeployTargets(ciPlan)) {
+  if (ciPlan.deploy_targets.length === 0) {
     console.log("[build] no deploy targets selected");
     return repo;
   }
 
-  const container = dag
+  let container = dag
     .container()
     .from(BUILD_IMAGE)
     .withDirectory(WORKDIR, repo)
@@ -40,8 +32,13 @@ export async function buildDeployTargets(
       "--max-install-attempts",
       "1",
     ])
-    .withEnvVariable("DEPLOY_TARGETS_JSON", deployTargetsJson(ciPlan))
-    .withExec(["bash", "scripts/ci/build-deploy-targets.sh"]);
+    .withEnvVariable("FAILURE_MODE", "deploy");
+
+  for (const { command, args } of buildRushBuildSteps(ciPlan)) {
+    container = container.withExec([command, ...args], {
+      expand: false,
+    });
+  }
 
   return container.directory(WORKDIR);
 }
