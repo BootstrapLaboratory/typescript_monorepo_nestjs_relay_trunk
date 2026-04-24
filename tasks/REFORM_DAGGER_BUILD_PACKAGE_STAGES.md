@@ -251,15 +251,16 @@ Recommended migration order:
       script.
 - [x] Keep Rush lint/test/build generic over selected project lists.
 - [x] Keep PR validation and deploy build scopes separate but reusable.
+- [x] Verify the Rush `verify` slice in real GitHub CI.
 
 ## Phase 2: Package Metadata
 
-- [ ] Create `.dagger/package/targets/server.yaml`.
-- [ ] Create `.dagger/package/targets/webapp.yaml`.
-- [ ] Add parser and tests for package target metadata.
-- [ ] Validate that package target names match known deploy targets for deploy
+- [x] Create `.dagger/package/targets/server.yaml`.
+- [x] Create `.dagger/package/targets/webapp.yaml`.
+- [x] Add parser and tests for package target metadata.
+- [x] Validate that package target names match known deploy targets for deploy
       packaging.
-- [ ] Keep package metadata out of `.dagger/deploy/targets`.
+- [x] Keep package metadata out of `.dagger/deploy/targets`.
 
 ## Phase 3: Package Manifest
 

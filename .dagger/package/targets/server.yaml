@@ -1,0 +1,7 @@
+name: server
+
+artifact:
+  kind: rush_deploy_archive
+  project: server
+  scenario: server
+  output: common/deploy/server

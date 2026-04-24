@@ -1,0 +1,5 @@
+name: webapp
+
+artifact:
+  kind: directory
+  path: apps/webapp/dist
