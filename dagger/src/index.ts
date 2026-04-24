@@ -66,6 +66,7 @@ export class ReleaseOrchestrator {
     environment: string = "prod",
     dryRun: boolean = true,
     deployEnvFile?: File,
+    packageManifestFile?: File,
     hostWorkspaceDir: string = "",
     dockerSocket?: Socket,
   ): Promise<string> {
@@ -76,6 +77,7 @@ export class ReleaseOrchestrator {
       environment,
       dryRun,
       deployEnvFile,
+      packageManifestFile,
       hostWorkspaceDir,
       dockerSocket,
     );

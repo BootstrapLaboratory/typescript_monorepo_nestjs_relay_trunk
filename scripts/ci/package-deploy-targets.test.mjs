@@ -61,6 +61,7 @@ test("builds commands for a rush deploy archive artifact", () => {
     ),
     {
       artifact: {
+        deploy_path: "common/deploy/server",
         kind: "archive",
         path: "deploy-target-server.tgz",
       },
@@ -110,6 +111,7 @@ test("builds validations for a directory artifact", () => {
     ),
     {
       artifact: {
+        deploy_path: "apps/webapp/dist",
         kind: "directory",
         path: "apps/webapp/dist",
       },
@@ -166,6 +168,7 @@ test("writes a package manifest for directory artifacts", async () => {
     assert.deepStrictEqual(manifest, {
       artifacts: {
         webapp: {
+          deploy_path: "dist/webapp",
           kind: "directory",
           path: "dist/webapp",
         },
@@ -175,6 +178,7 @@ test("writes a package manifest for directory artifacts", async () => {
     assert.deepStrictEqual(JSON.parse(await readFile(manifestPath, "utf8")), {
       artifacts: {
         webapp: {
+          deploy_path: "dist/webapp",
           kind: "directory",
           path: "dist/webapp",
         },

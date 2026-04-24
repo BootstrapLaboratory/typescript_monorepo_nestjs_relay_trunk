@@ -15,10 +15,12 @@ test("validates package manifest artifacts", () => {
     validatePackageManifest({
       artifacts: {
         server: {
+          deploy_path: "common/deploy/server",
           kind: "archive",
           path: "deploy-target-server.tgz",
         },
         webapp: {
+          deploy_path: "apps/webapp/dist",
           kind: "directory",
           path: "apps/webapp/dist",
         },
@@ -27,10 +29,12 @@ test("validates package manifest artifacts", () => {
     {
       artifacts: {
         server: {
+          deploy_path: "common/deploy/server",
           kind: "archive",
           path: "deploy-target-server.tgz",
         },
         webapp: {
+          deploy_path: "apps/webapp/dist",
           kind: "directory",
           path: "apps/webapp/dist",
         },
@@ -45,6 +49,7 @@ test("rejects unsupported artifact kinds", () => {
       validatePackageManifest({
         artifacts: {
           server: {
+            deploy_path: "common/deploy/server",
             kind: "container",
             path: "deploy-target-server.tgz",
           },
@@ -63,6 +68,7 @@ test("writes and reads package manifest files", async () => {
       {
         artifacts: {
           server: {
+            deploy_path: "common/deploy/server",
             kind: "archive",
             path: "deploy-target-server.tgz",
           },
@@ -74,6 +80,7 @@ test("writes and reads package manifest files", async () => {
     assert.deepStrictEqual(readPackageManifestFile(manifestPath), {
       artifacts: {
         server: {
+          deploy_path: "common/deploy/server",
           kind: "archive",
           path: "deploy-target-server.tgz",
         },

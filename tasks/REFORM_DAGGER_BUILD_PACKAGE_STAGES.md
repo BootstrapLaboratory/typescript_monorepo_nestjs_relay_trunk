@@ -170,11 +170,13 @@ The package stage should produce a manifest like:
   "artifacts": {
     "server": {
       "kind": "archive",
-      "path": "deploy-target-server.tgz"
+      "path": "deploy-target-server.tgz",
+      "deploy_path": "common/deploy/server"
     },
     "webapp": {
       "kind": "directory",
-      "path": "apps/webapp/dist"
+      "path": "apps/webapp/dist",
+      "deploy_path": "apps/webapp/dist"
     }
   }
 }
@@ -295,9 +297,9 @@ Recommended migration order:
 
 ## Phase 5: Deploy Consumes Package Manifest
 
-- [ ] Update deploy to read `package-manifest.json`.
-- [ ] Remove deploy dependency on static package artifact paths.
-- [ ] Keep deploy target YAML focused on scripts, runtime env, mounts, and
+- [x] Update deploy to read `package-manifest.json`.
+- [x] Remove deploy dependency on static package artifact paths.
+- [x] Keep deploy target YAML focused on scripts, runtime env, mounts, and
       provider toolchains.
 - [ ] Preserve successful Cloud Run and Cloudflare deploy behavior.
 

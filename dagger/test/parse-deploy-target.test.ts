@@ -7,7 +7,6 @@ test("parses deploy target runtime metadata", () => {
   const definition = parseDeployTarget(`
 name: webapp
 deploy_script: scripts/ci/deploy-webapp.sh
-artifact_path: /workspace/apps/webapp/dist
 
 runtime:
   image: node:24-bookworm-slim
@@ -20,7 +19,6 @@ runtime:
 `);
 
   assert.deepStrictEqual(definition, {
-    artifact_path: "/workspace/apps/webapp/dist",
     deploy_script: "scripts/ci/deploy-webapp.sh",
     name: "webapp",
     runtime: {
@@ -41,7 +39,6 @@ test("preserves ordered duplicate install commands", () => {
   const definition = parseDeployTarget(`
 name: server
 deploy_script: scripts/ci/deploy-server.sh
-artifact_path: /workspace/common/deploy/server
 
 runtime:
   image: node:24-bookworm-slim
@@ -64,7 +61,6 @@ test("fails when target runtime image is missing", () => {
       parseDeployTarget(`
 name: webapp
 deploy_script: scripts/ci/deploy-webapp.sh
-artifact_path: /workspace/apps/webapp/dist
 
 runtime: {}
 `),
@@ -78,7 +74,6 @@ test("fails when file mount source_var is invalid", () => {
       parseDeployTarget(`
 name: server
 deploy_script: scripts/ci/deploy-server.sh
-artifact_path: /workspace/common/deploy/server
 
 runtime:
   image: node:24-bookworm-slim

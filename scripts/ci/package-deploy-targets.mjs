@@ -183,6 +183,7 @@ export function buildPackageActions(target, definition, artifactPrefix) {
     case "directory":
       return {
         artifact: {
+          deploy_path: definition.artifact.path,
           kind: "directory",
           path: definition.artifact.path,
         },
@@ -202,6 +203,7 @@ export function buildPackageActions(target, definition, artifactPrefix) {
 
       return {
         artifact: {
+          deploy_path: definition.artifact.output,
           kind: "archive",
           path: archivePath,
         },

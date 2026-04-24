@@ -1,6 +1,5 @@
 name: webapp
 deploy_script: scripts/ci/deploy-webapp.sh
-artifact_path: /workspace/apps/webapp/dist
 
 runtime:
   image: node:24-bookworm-slim

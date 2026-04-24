@@ -75,11 +75,14 @@ Target-specific deploy metadata comes from:
 Those target YAML files define:
 
 - `deploy_script`
-- `artifact_path`
 - runtime image/toolchain preparation
 - env pass-through and static env
 - file mounts
 - dry-run defaults and host-env requirements
+
+Deploy artifact locations come from the package-stage handoff file
+`.dagger/runtime/package-manifest.json`. `deploy-release` reads the manifest
+and sets `ARTIFACT_PATH` from each artifact's `deploy_path`.
 
 ## Runtime Contract
 

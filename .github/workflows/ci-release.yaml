@@ -386,5 +386,6 @@ jobs:
             --environment=prod \
             --dry-run=false \
             --deploy-env-file="${RUNNER_TEMP}/dagger-deploy.env" \
+            --package-manifest-file="${GITHUB_WORKSPACE}/.dagger/runtime/package-manifest.json" \
             --host-workspace-dir="${GITHUB_WORKSPACE}" \
             --docker-socket=/var/run/docker.sock

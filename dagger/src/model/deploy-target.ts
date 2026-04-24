@@ -14,7 +14,6 @@ export type DeployRuntimeSpec = {
 };
 
 export type DeployTargetDefinition = {
-  artifact_path: string;
   deploy_script: string;
   name: string;
   runtime: DeployRuntimeSpec;

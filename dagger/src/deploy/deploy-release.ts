@@ -4,6 +4,7 @@ import { buildDeploymentPlan } from "../planning/build-deployment-plan.ts";
 import { parseReleaseTargets } from "../planning/parse-release-targets.ts";
 import { executeDeploymentPlan } from "./execute-deployment-plan.ts";
 import { loadServicesMesh } from "./load-deploy-metadata.ts";
+import { parsePackageManifest } from "./parse-package-manifest.ts";
 import { parseDeployEnvFile } from "./runtime-env.ts";
 
 async function buildReleasePlan(
@@ -24,6 +25,7 @@ export async function deployRelease(
   environment: string = "prod",
   dryRun: boolean = true,
   deployEnvFile?: File,
+  packageManifestFile?: File,
   hostWorkspaceDir: string = "",
   dockerSocket?: Socket,
 ): Promise<string> {
@@ -31,6 +33,10 @@ export async function deployRelease(
     ? parseDeployEnvFile(await deployEnvFile.contents())
     : {};
   const deploymentPlan = await buildReleasePlan(repo, releaseTargetsJson);
+  const packageManifest =
+    packageManifestFile === undefined
+      ? undefined
+      : parsePackageManifest(await packageManifestFile.contents());
 
   if (deploymentPlan.selectedTargets.length === 0) {
     const emptyResult: DeployReleaseResult = {
@@ -45,6 +51,10 @@ export async function deployRelease(
     return JSON.stringify(emptyResult, null, 2);
   }
 
+  if (packageManifest === undefined) {
+    throw new Error("packageManifestFile is required when release targets are selected.");
+  }
+
   console.log(
     `[deploy-release] selected targets: ${deploymentPlan.selectedTargets.join(", ")} | environment=${environment} | dryRun=${dryRun}`,
   );
@@ -53,6 +63,7 @@ export async function deployRelease(
   const results = await executeDeploymentPlan(
     repo,
     deploymentPlan,
+    packageManifest,
     gitSha,
     environment,
     dryRun,

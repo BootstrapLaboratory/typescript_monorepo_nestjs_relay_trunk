@@ -197,10 +197,6 @@ export function parseDeployTarget(
   }
 
   return {
-    artifact_path: parseRequiredString(
-      "artifact_path" in parsedValue ? parsedValue.artifact_path : undefined,
-      "Deploy target artifact_path",
-    ),
     deploy_script: parseRequiredString(
       "deploy_script" in parsedValue ? parsedValue.deploy_script : undefined,
       "Deploy target deploy_script",

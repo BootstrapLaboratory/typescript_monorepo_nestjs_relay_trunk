@@ -2,6 +2,7 @@ import { dag, Directory, Socket } from "@dagger.io/dagger";
 
 import type { DeployTargetDefinition } from "../model/deploy-target.ts";
 import type { DeployTargetResult } from "../model/deploy-result.ts";
+import type { PackageManifestArtifact } from "../model/package-manifest.ts";
 import { loadDeployTargetDefinition } from "./load-deploy-metadata.ts";
 import {
   getRequiredRepoRelativeHostPathSource,
@@ -15,6 +16,8 @@ function deployTagPrefixForEnvironment(environment: string): string {
 
 function formatDryRunSummary(
   definition: DeployTargetDefinition,
+  artifact: PackageManifestArtifact,
+  artifactPath: string,
   envVars: Record<string, string>,
   environment: string,
   gitSha: string,
@@ -26,7 +29,9 @@ function formatDryRunSummary(
     `environment=${environment}`,
     `gitSha=${gitSha}`,
     `deploy_script=${definition.deploy_script}`,
-    `artifact_path=${definition.artifact_path}`,
+    `package_artifact_kind=${artifact.kind}`,
+    `package_artifact_path=${artifact.path}`,
+    `artifact_path=${artifactPath}`,
     `image=${definition.runtime.image}`,
   ];
 
@@ -65,6 +70,7 @@ function formatDryRunSummary(
 export async function executeTarget(
   repo: Directory,
   target: string,
+  artifact: PackageManifestArtifact,
   gitSha: string,
   environment: string,
   dryRun: boolean,
@@ -75,8 +81,9 @@ export async function executeTarget(
 ): Promise<DeployTargetResult> {
   const definition = await loadDeployTargetDefinition(repo, target);
   validateRequiredHostEnv(definition.runtime, hostEnv, dryRun, target);
+  const artifactPath = `/workspace/${artifact.deploy_path}`;
   const envVars = {
-    ARTIFACT_PATH: definition.artifact_path,
+    ARTIFACT_PATH: artifactPath,
     DEPLOY_TAG_PREFIX: deployTagPrefixForEnvironment(environment),
     DRY_RUN: dryRun ? "1" : "0",
     GIT_SHA: gitSha,
@@ -89,6 +96,8 @@ export async function executeTarget(
   if (dryRun) {
     const output = formatDryRunSummary(
       definition,
+      artifact,
+      artifactPath,
       envVars,
       environment,
       gitSha,

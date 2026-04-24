@@ -1,11 +1,13 @@
 import { Directory, Socket } from "@dagger.io/dagger";
 import type { DeploymentPlan } from "../model/deployment-plan.ts";
 import type { DeployTargetResult } from "../model/deploy-result.ts";
+import type { PackageManifest } from "../model/package-manifest.ts";
 import { executeTarget } from "./execute-target.ts";
 
 export async function executeDeploymentPlan(
   repo: Directory,
   plan: DeploymentPlan,
+  packageManifest: PackageManifest,
   gitSha: string,
   environment: string,
   dryRun: boolean,
@@ -26,9 +28,18 @@ export async function executeDeploymentPlan(
     const waveResults = await Promise.all(
       wave.map(async (entry) => {
         try {
+          const artifact = packageManifest.artifacts[entry.target];
+
+          if (artifact === undefined) {
+            throw new Error(
+              `package manifest does not define artifact for target "${entry.target}".`,
+            );
+          }
+
           return await executeTarget(
             repo,
             entry.target,
+            artifact,
             gitSha,
             environment,
             dryRun,

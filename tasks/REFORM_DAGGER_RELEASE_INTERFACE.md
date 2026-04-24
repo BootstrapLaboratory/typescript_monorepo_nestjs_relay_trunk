@@ -33,6 +33,7 @@ export async function deployRelease(
   environment: string = "prod",
   dryRun: boolean = true,
   deployEnvFile?: File,
+  packageManifestFile?: File,
   hostWorkspaceDir: string = "",
   dockerSocket?: Socket,
 ): Promise<string>;
@@ -44,6 +45,8 @@ Notes:
   need to pass it explicitly
 - `deployEnvFile` should stay a flat `KEY=VALUE` file containing runtime env
   values and any host-side path sources needed by mounts
+- `packageManifestFile` should carry package-stage artifact paths and deploy
+  workspace paths from `.dagger/runtime/package-manifest.json`
 - `hostWorkspaceDir` should let Dagger map absolute host mount paths under the
   checked-out workspace back to repository-relative paths for repo-backed file
   mounts
@@ -148,7 +151,6 @@ Recommended direction:
 ```yaml
 name: server
 deploy_script: scripts/ci/deploy-server.sh
-artifact_path: /workspace/common/deploy/server
 
 runtime:
   image: node:24-bookworm-slim
@@ -262,6 +264,7 @@ The workflow should keep the same thin wrapper shape:
       --environment=prod \
       --dry-run=false \
       --deploy-env-file="${RUNNER_TEMP}/dagger-deploy.env" \
+      --package-manifest-file="${GITHUB_WORKSPACE}/.dagger/runtime/package-manifest.json" \
       --host-workspace-dir="${GITHUB_WORKSPACE}" \
       --docker-socket=/var/run/docker.sock
 ```
@@ -327,7 +330,7 @@ interpretation from repository metadata and the flat env bridge.
       [../.dagger/deploy/targets/webapp.yaml](../.dagger/deploy/targets/webapp.yaml).
 - [x] Add YAML parsing and validation for target runtime metadata.
 - [x] Keep the target YAML model equivalent to the current spec model:
-      `deploy_script`, `artifact_path`, `runtime.image`, `runtime.install`,
+      `deploy_script`, `runtime.image`, `runtime.install`,
       `runtime.pass_env`, `runtime.env`, `runtime.dry_run_defaults`,
       `runtime.required_host_env`, and `runtime.file_mounts`.
 - [x] Preserve ordered duplicate `runtime.install` entries when loading target

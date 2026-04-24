@@ -24,8 +24,22 @@ function normalizeArtifact(value, targetName) {
           `Package manifest artifact "${targetName}" path must be a non-empty string.`,
         );
       }
+      if (
+        typeof value.deploy_path !== "string" ||
+        value.deploy_path.length === 0
+      ) {
+        throw new Error(
+          `Package manifest artifact "${targetName}" deploy_path must be a non-empty string.`,
+        );
+      }
+      if (value.deploy_path.startsWith("/")) {
+        throw new Error(
+          `Package manifest artifact "${targetName}" deploy_path must be relative.`,
+        );
+      }
 
       return {
+        deploy_path: value.deploy_path,
         kind: "archive",
         path: value.path,
       };
@@ -36,8 +50,22 @@ function normalizeArtifact(value, targetName) {
           `Package manifest artifact "${targetName}" path must be a non-empty string.`,
         );
       }
+      if (
+        typeof value.deploy_path !== "string" ||
+        value.deploy_path.length === 0
+      ) {
+        throw new Error(
+          `Package manifest artifact "${targetName}" deploy_path must be a non-empty string.`,
+        );
+      }
+      if (value.deploy_path.startsWith("/")) {
+        throw new Error(
+          `Package manifest artifact "${targetName}" deploy_path must be relative.`,
+        );
+      }
 
       return {
+        deploy_path: value.deploy_path,
         kind: "directory",
         path: value.path,
       };
