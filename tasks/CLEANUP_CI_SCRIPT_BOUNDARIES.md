@@ -136,15 +136,15 @@ should not keep production tests in the root CI script folder.
 
 ## Phase 1: Move Detect Planning Into Dagger
 
-- [ ] Port CI plan schema helpers from `ci-plan.mjs` into Dagger TypeScript.
-- [ ] Port `compute-rush-plan-core.mjs` into Dagger TypeScript.
-- [ ] Reuse Dagger deploy metadata loaders instead of
+- [x] Port CI plan schema helpers from `ci-plan.mjs` into Dagger TypeScript.
+- [x] Port `compute-rush-plan-core.mjs` into Dagger TypeScript.
+- [x] Reuse Dagger deploy metadata loaders instead of
       `deploy-target-metadata.mjs`.
-- [ ] Replace `dagger/src/detect/detect.ts` shell-out to
+- [x] Replace `dagger/src/detect/detect.ts` shell-out to
       `scripts/ci/compute-ci-plan.mjs` with direct TypeScript planning.
-- [ ] Replace `dagger/src/workflow/build-package-runner.ts` shell-out to
+- [x] Replace `dagger/src/workflow/build-package-runner.ts` shell-out to
       `scripts/ci/compute-ci-plan.mjs` with direct TypeScript planning.
-- [ ] Migrate detect planner tests from `scripts/ci/*.test.mjs` to
+- [x] Migrate detect planner tests from `scripts/ci/*.test.mjs` to
       `dagger/test`.
 - [ ] Delete obsolete detect scripts after Dagger tests cover the same cases.
 

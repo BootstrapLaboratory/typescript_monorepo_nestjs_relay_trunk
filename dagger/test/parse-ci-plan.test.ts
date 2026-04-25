@@ -1,7 +1,11 @@
 import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { parseCiPlan } from "../src/ci-plan/parse-ci-plan.ts";
+import {
+  createCiPlan,
+  formatCiPlan,
+  parseCiPlan,
+} from "../src/ci-plan/parse-ci-plan.ts";
 
 test("parses canonical CI plan handoff", () => {
   assert.deepStrictEqual(
@@ -54,4 +58,26 @@ test("fails when mode is unsupported", () => {
       }`),
     /CI plan field "mode" must be either "pull_request" or "release"\./,
   );
+});
+
+test("creates and formats canonical CI plan handoff JSON", () => {
+  const ciPlan = createCiPlan({
+    affectedProjectsByDeployTarget: {
+      server: ["api-contract", "server"],
+    },
+    deployTargets: ["server"],
+    mode: "release",
+    prBaseSha: "",
+    validateTargets: [],
+  });
+
+  assert.deepStrictEqual(JSON.parse(formatCiPlan(ciPlan)), {
+    affected_projects_by_deploy_target: {
+      server: ["api-contract", "server"],
+    },
+    deploy_targets: ["server"],
+    mode: "release",
+    pr_base_sha: "",
+    validate_targets: [],
+  });
 });

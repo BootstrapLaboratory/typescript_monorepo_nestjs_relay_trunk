@@ -1,7 +1,9 @@
 import { dag, Directory } from "@dagger.io/dagger";
 
+import { formatCiPlan } from "../ci-plan/parse-ci-plan.ts";
+import { computeCiPlan } from "./compute-ci-plan.ts";
+
 const DETECT_WORKDIR = "/workspace";
-const DETECT_OUTPUT_PATH = "/tmp/ci-plan.json";
 const DETECT_IMAGE = "node:24-bookworm-slim";
 const DETECT_INSTALL_COMMAND =
   "apt-get update && apt-get install -y git";
@@ -18,13 +20,16 @@ export async function detect(
     .from(DETECT_IMAGE)
     .withMountedDirectory(DETECT_WORKDIR, repo)
     .withWorkdir(DETECT_WORKDIR)
-    .withExec(["bash", "-lc", DETECT_INSTALL_COMMAND])
-    .withEnvVariable("GITHUB_EVENT_NAME", eventName)
-    .withEnvVariable("FORCE_TARGETS_JSON", forceTargetsJson)
-    .withEnvVariable("PR_BASE_SHA", prBaseSha)
-    .withEnvVariable("DEPLOY_TAG_PREFIX", deployTagPrefix)
-    .withEnvVariable("CI_PLAN_PATH", DETECT_OUTPUT_PATH)
-    .withExec(["node", "scripts/ci/compute-ci-plan.mjs"]);
+    .withExec(["bash", "-lc", DETECT_INSTALL_COMMAND]);
 
-  return await container.file(DETECT_OUTPUT_PATH).contents();
+  return formatCiPlan(
+    await computeCiPlan(
+      repo,
+      container,
+      eventName,
+      forceTargetsJson,
+      prBaseSha,
+      deployTagPrefix,
+    ),
+  );
 }

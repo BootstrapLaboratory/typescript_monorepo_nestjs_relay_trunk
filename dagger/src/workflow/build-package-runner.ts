@@ -3,13 +3,14 @@ import { CacheSharingMode, dag, Container, Directory } from "@dagger.io/dagger";
 import type { CiPlan } from "../model/ci-plan.ts";
 import type { PackageManifestArtifact } from "../model/package-manifest.ts";
 import { buildRushBuildSteps } from "../build-stage/rush-build-plan.ts";
+import { formatCiPlan } from "../ci-plan/parse-ci-plan.ts";
+import { computeCiPlan } from "../detect/compute-ci-plan.ts";
 import { loadPackageTargetDefinition } from "../package-stage/load-package-metadata.ts";
 import { buildPackageActionPlan } from "../package-stage/package-action-plan.ts";
 import {
   createEmptyPackageManifest,
   formatPackageManifest,
 } from "../package-stage/package-manifest.ts";
-import { parseCiPlan } from "../ci-plan/parse-ci-plan.ts";
 
 const WORKDIR = "/workspace";
 const WORKFLOW_IMAGE = "node:24-bookworm-slim";
@@ -61,20 +62,11 @@ function installRush(container: Container): Container {
     ]);
 }
 
-function buildDetectContainer(
+function buildDetectedContainer(
   container: Container,
-  eventName: string,
-  forceTargetsJson: string,
-  prBaseSha: string,
-  deployTagPrefix: string,
+  ciPlan: CiPlan,
 ): Container {
-  return container
-    .withEnvVariable("GITHUB_EVENT_NAME", eventName)
-    .withEnvVariable("FORCE_TARGETS_JSON", forceTargetsJson)
-    .withEnvVariable("PR_BASE_SHA", prBaseSha)
-    .withEnvVariable("DEPLOY_TAG_PREFIX", deployTagPrefix)
-    .withEnvVariable("CI_PLAN_PATH", CI_PLAN_CONTAINER_PATH)
-    .withExec(["node", "scripts/ci/compute-ci-plan.mjs"]);
+  return container.withNewFile(CI_PLAN_CONTAINER_PATH, formatCiPlan(ciPlan));
 }
 
 function runBuildStage(container: Container, ciPlan: CiPlan): Container {
@@ -160,16 +152,16 @@ export async function runBuildPackageWorkflow(
   deployTagPrefix: string,
   artifactPrefix: string,
 ): Promise<BuildPackageWorkflowResult> {
-  const detectedContainer = buildDetectContainer(
-    prepareContainer(repo),
+  const baseContainer = prepareContainer(repo);
+  const ciPlan = await computeCiPlan(
+    repo,
+    baseContainer,
     eventName,
     forceTargetsJson,
     prBaseSha,
     deployTagPrefix,
   );
-  const ciPlan = parseCiPlan(
-    await detectedContainer.file(CI_PLAN_CONTAINER_PATH).contents(),
-  );
+  const detectedContainer = buildDetectedContainer(baseContainer, ciPlan);
 
   if (ciPlan.deploy_targets.length === 0) {
     return {

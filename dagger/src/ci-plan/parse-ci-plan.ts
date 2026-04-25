@@ -1,5 +1,13 @@
 import type { CiPlan } from "../model/ci-plan.ts";
 
+export type CiPlanSource = {
+  affectedProjectsByDeployTarget: Record<string, string[]>;
+  deployTargets: string[];
+  mode: CiPlan["mode"];
+  prBaseSha: string;
+  validateTargets: string[];
+};
+
 function parseStringArray(rawValue: unknown, name: string): string[] {
   if (!Array.isArray(rawValue)) {
     throw new Error(`CI plan field "${name}" must be an array of strings.`);
@@ -46,9 +54,7 @@ function parseAffectedProjectsByDeployTarget(
   );
 }
 
-export function parseCiPlan(source: string): CiPlan {
-  const parsedValue = JSON.parse(source);
-
+export function normalizeCiPlan(parsedValue: unknown): CiPlan {
   if (
     typeof parsedValue !== "object" ||
     parsedValue === null ||
@@ -91,4 +97,22 @@ export function parseCiPlan(source: string): CiPlan {
       "validate_targets",
     ),
   };
+}
+
+export function createCiPlan(source: CiPlanSource): CiPlan {
+  return normalizeCiPlan({
+    affected_projects_by_deploy_target: source.affectedProjectsByDeployTarget,
+    deploy_targets: source.deployTargets,
+    mode: source.mode,
+    pr_base_sha: source.prBaseSha,
+    validate_targets: source.validateTargets,
+  });
+}
+
+export function formatCiPlan(ciPlan: CiPlan): string {
+  return `${JSON.stringify(normalizeCiPlan(ciPlan), null, 2)}\n`;
+}
+
+export function parseCiPlan(source: string): CiPlan {
+  return normalizeCiPlan(JSON.parse(source));
 }
