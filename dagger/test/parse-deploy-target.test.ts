@@ -6,7 +6,7 @@ import { parseDeployTarget } from "../src/deploy/parse-deploy-target.ts";
 test("parses deploy target runtime metadata", () => {
   const definition = parseDeployTarget(`
 name: webapp
-deploy_script: scripts/ci/deploy-webapp.sh
+deploy_script: deploy/cloudflare-pages/scripts/deploy-webapp.sh
 
 runtime:
   image: node:24-bookworm-slim
@@ -19,7 +19,7 @@ runtime:
 `);
 
   assert.deepStrictEqual(definition, {
-    deploy_script: "scripts/ci/deploy-webapp.sh",
+    deploy_script: "deploy/cloudflare-pages/scripts/deploy-webapp.sh",
     name: "webapp",
     runtime: {
       dry_run_defaults: {},
@@ -38,7 +38,7 @@ runtime:
 test("preserves ordered duplicate install commands", () => {
   const definition = parseDeployTarget(`
 name: server
-deploy_script: scripts/ci/deploy-server.sh
+deploy_script: deploy/cloudrun/scripts/deploy-server.sh
 
 runtime:
   image: node:24-bookworm-slim
@@ -60,7 +60,7 @@ test("fails when target runtime image is missing", () => {
     () =>
       parseDeployTarget(`
 name: webapp
-deploy_script: scripts/ci/deploy-webapp.sh
+deploy_script: deploy/cloudflare-pages/scripts/deploy-webapp.sh
 
 runtime: {}
 `),
@@ -73,7 +73,7 @@ test("fails when file mount source_var is invalid", () => {
     () =>
       parseDeployTarget(`
 name: server
-deploy_script: scripts/ci/deploy-server.sh
+deploy_script: deploy/cloudrun/scripts/deploy-server.sh
 
 runtime:
   image: node:24-bookworm-slim

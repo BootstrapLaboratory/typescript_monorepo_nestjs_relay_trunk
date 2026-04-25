@@ -2,14 +2,23 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
+# shellcheck disable=SC1091
+source "${SCRIPT_DIR}/lib/paths.sh"
+
 ARTIFACT_PATH="${ARTIFACT_PATH:-${REPO_ROOT}/apps/webapp/dist}"
 DEPLOY_TAG_PREFIX="${DEPLOY_TAG_PREFIX:-deploy/prod}"
 WRANGLER_COMMAND="${WRANGLER_COMMAND:-npx --yes wrangler}"
 DRY_RUN="${DRY_RUN:-0}"
 
-MISSING_PREFIX="Missing required webapp deploy environment:" \
-  bash "${SCRIPT_DIR}/require-envs.sh" \
+require_env() {
+  local name="$1"
+  if [[ -z "${!name:-}" ]]; then
+    echo "Missing required webapp deploy environment: ${name}" >&2
+    exit 1
+  fi
+}
+
+for name in \
   GIT_SHA \
   CLOUDFLARE_API_TOKEN \
   CLOUDFLARE_ACCOUNT_ID \
@@ -17,6 +26,9 @@ MISSING_PREFIX="Missing required webapp deploy environment:" \
   WEBAPP_VITE_GRAPHQL_HTTP \
   WEBAPP_VITE_GRAPHQL_WS \
   WEBAPP_URL
+do
+  require_env "${name}"
+done
 
 if [[ ! -d "${ARTIFACT_PATH}" ]]; then
   echo "ARTIFACT_PATH must point to a built webapp directory: ${ARTIFACT_PATH}" >&2
@@ -39,7 +51,7 @@ else
   TARGET=webapp \
   DEPLOY_TAG_PREFIX="${DEPLOY_TAG_PREFIX}" \
   GIT_SHA="${GIT_SHA}" \
-    bash "${SCRIPT_DIR}/update-deploy-tag.sh"
+    bash "${REPO_ROOT}/scripts/ci/update-deploy-tag.sh"
 fi
 
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then

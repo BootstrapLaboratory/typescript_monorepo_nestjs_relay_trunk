@@ -147,7 +147,7 @@ Recommended repository-owned metadata:
 
 ```yaml
 name: server
-deploy_script: scripts/ci/deploy-server.sh
+deploy_script: deploy/cloudrun/scripts/deploy-server.sh
 
 runtime:
   image: node:24-bookworm-slim

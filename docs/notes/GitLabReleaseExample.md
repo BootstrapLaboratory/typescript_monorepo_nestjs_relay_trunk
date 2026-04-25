@@ -76,9 +76,10 @@ another name, update the `needs` entries in the example file.
   [ReleaseFlow.md](./ReleaseFlow.md).
 - `deploy-release` computes and logs the deployment plan internally before
   executing it, so GitLab does not need a separate planning stage.
-- `deploy-release` still calls the same portable target scripts under
-  [scripts/ci](../../scripts/ci), so deploy semantics stay aligned across CI
-  providers.
+- `deploy-release` calls provider-owned target scripts from
+  [.dagger/deploy/targets](../../.dagger/deploy/targets), so deploy semantics
+  stay aligned across CI providers without keeping deploy adapters in
+  `scripts/ci`.
 - Dagger runtime behavior now comes from repo metadata under
   [.dagger/deploy](../../.dagger/deploy), not from target-specific TypeScript
   executor modules.

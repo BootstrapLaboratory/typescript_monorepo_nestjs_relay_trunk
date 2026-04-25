@@ -96,8 +96,8 @@ and sets `ARTIFACT_PATH` from each artifact's `deploy_path`.
 
 `deploy-release` still calls the portable target scripts directly:
 
-- [scripts/ci/deploy-server.sh](../../scripts/ci/deploy-server.sh)
-- [scripts/ci/deploy-webapp.sh](../../scripts/ci/deploy-webapp.sh)
+- [deploy/cloudrun/scripts/deploy-server.sh](../../deploy/cloudrun/scripts/deploy-server.sh)
+- [deploy/cloudflare-pages/scripts/deploy-webapp.sh](../../deploy/cloudflare-pages/scripts/deploy-webapp.sh)
 
 GitHub passes release runtime values through one flat `KEY=VALUE` file:
 

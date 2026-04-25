@@ -2,14 +2,23 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
+# shellcheck disable=SC1091
+source "${SCRIPT_DIR}/lib/paths.sh"
+
 ARTIFACT_PATH="${ARTIFACT_PATH:-${REPO_ROOT}/common/deploy/server}"
 DEPLOY_TAG_PREFIX="${DEPLOY_TAG_PREFIX:-deploy/prod}"
 IMAGE_NAME="${IMAGE_NAME:-}"
 DRY_RUN="${DRY_RUN:-0}"
 
-MISSING_PREFIX="Missing required server deploy environment:" \
-  bash "${SCRIPT_DIR}/require-envs.sh" \
+require_env() {
+  local name="$1"
+  if [[ -z "${!name:-}" ]]; then
+    echo "Missing required server deploy environment: ${name}" >&2
+    exit 1
+  fi
+}
+
+for name in \
   GIT_SHA \
   GCP_PROJECT_ID \
   GCP_ARTIFACT_REGISTRY_REPOSITORY \
@@ -17,6 +26,9 @@ MISSING_PREFIX="Missing required server deploy environment:" \
   CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT \
   CLOUD_RUN_CORS_ORIGIN \
   CLOUD_RUN_REGION
+do
+  require_env "${name}"
+done
 
 if [[ ! -d "${ARTIFACT_PATH}/apps/server" ]]; then
   echo "ARTIFACT_PATH must point to an extracted backend deploy bundle: ${ARTIFACT_PATH}" >&2
@@ -100,7 +112,7 @@ else
   TARGET=server \
   DEPLOY_TAG_PREFIX="${DEPLOY_TAG_PREFIX}" \
   GIT_SHA="${GIT_SHA}" \
-    bash "${SCRIPT_DIR}/update-deploy-tag.sh"
+    bash "${REPO_ROOT}/scripts/ci/update-deploy-tag.sh"
 fi
 
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then

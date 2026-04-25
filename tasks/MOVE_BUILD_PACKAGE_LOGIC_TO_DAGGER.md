@@ -95,5 +95,6 @@ TypeScript, where parsing and planning are covered by the Dagger test suite.
 - Dagger TypeScript owns deploy-target build and package materialization logic.
 - Package artifact upload remains a CI-provider adapter.
 - The only remaining portable runtime scripts are deploy target scripts such as
-  [../scripts/ci/deploy-server.sh](../scripts/ci/deploy-server.sh) and
-  [../scripts/ci/deploy-webapp.sh](../scripts/ci/deploy-webapp.sh).
+  [../deploy/cloudrun/scripts/deploy-server.sh](../deploy/cloudrun/scripts/deploy-server.sh)
+  and
+  [../deploy/cloudflare-pages/scripts/deploy-webapp.sh](../deploy/cloudflare-pages/scripts/deploy-webapp.sh).

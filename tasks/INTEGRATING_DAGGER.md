@@ -24,7 +24,9 @@ Current runtime model:
 - Dagger `workflow` composes detect, build, package, and deploy in one
   invocation
 - `deploy-release` remains available as the lower-level deployment executor
-- portable target scripts remain under [../scripts/ci](../scripts/ci)
+- portable target scripts live with provider modules such as
+  [../deploy/cloudrun/scripts](../deploy/cloudrun/scripts) and
+  [../deploy/cloudflare-pages/scripts](../deploy/cloudflare-pages/scripts)
 
 Current documentation:
 
