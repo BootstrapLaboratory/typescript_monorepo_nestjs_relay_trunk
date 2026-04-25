@@ -10,6 +10,12 @@ import {
 } from "../toolchain-images/options.ts";
 import { parseToolchainImageProviders } from "../toolchain-images/parse-providers.ts";
 import { toolchainImageProvidersPath } from "../toolchain-images/metadata-paths.ts";
+import {
+  parseRushCachePolicy,
+  parseRushCacheProvider,
+} from "../rush-cache/options.ts";
+import { parseRushCacheProviders } from "../rush-cache/parse-providers.ts";
+import { rushCacheProvidersPath } from "../rush-cache/metadata-paths.ts";
 import { parseDeployEnvFile } from "../stages/deploy/runtime-env.ts";
 import { runBuildPackageWorkflow } from "./build-package-runner.ts";
 
@@ -29,6 +35,8 @@ export async function workflow(
   hostWorkspaceDir: string = "",
   toolchainImageProvider: string = "off",
   toolchainImagePolicy: string = "lazy",
+  rushCacheProvider: string = "off",
+  rushCachePolicy: string = "lazy",
   dockerSocket?: Socket,
 ): Promise<string> {
   logSection("Release workflow");
@@ -46,12 +54,17 @@ export async function workflow(
   const parsedToolchainImageProvider =
     parseToolchainImageProvider(toolchainImageProvider);
   parseToolchainImagePolicy(toolchainImagePolicy);
+  const parsedRushCacheProvider = parseRushCacheProvider(rushCacheProvider);
+  parseRushCachePolicy(rushCachePolicy);
   const toolchainImageProviders =
     parsedToolchainImageProvider === "off"
       ? undefined
       : parseToolchainImageProviders(
           await repo.file(toolchainImageProvidersPath).contents(),
         );
+  const rushCacheProviders = parseRushCacheProviders(
+    await repo.file(rushCacheProvidersPath).contents(),
+  );
 
   const { ciPlan, repo: packagedRepo } = await runBuildPackageWorkflow(
     repo,
@@ -62,6 +75,8 @@ export async function workflow(
     artifactPrefix,
     {
       hostEnv,
+      rushCacheProvider: parsedRushCacheProvider,
+      rushCacheProviders,
       toolchainImageProvider: parsedToolchainImageProvider,
       toolchainImageProviders,
     },

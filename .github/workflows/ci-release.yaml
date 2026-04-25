@@ -18,7 +18,8 @@ env:
   DEPLOY_ARTIFACT_PREFIX: deploy-target
   DEPLOY_TAG_PREFIX: deploy/prod
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  NODE_VERSION: "24"
+  RUSH_CACHE_POLICY: lazy
+  RUSH_CACHE_PROVIDER: github
   TOOLCHAIN_IMAGE_POLICY: lazy
   TOOLCHAIN_IMAGE_PROVIDER: github
 
@@ -47,15 +48,6 @@ jobs:
           mkdir -p "${RUNNER_TEMP}/bin"
           curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR="${RUNNER_TEMP}/bin" sh
           echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
-
-      - name: Setup NodeJS version ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v5
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          package-manager-cache: false
-
-      - name: Install dependencies with caching
-        uses: ./.github/actions/cached-install
 
       - id: auth
         name: Authenticate to Google Cloud
@@ -108,4 +100,6 @@ jobs:
             --host-workspace-dir="${GITHUB_WORKSPACE}" \
             --toolchain-image-provider="${TOOLCHAIN_IMAGE_PROVIDER}" \
             --toolchain-image-policy="${TOOLCHAIN_IMAGE_POLICY}" \
+            --rush-cache-provider="${RUSH_CACHE_PROVIDER}" \
+            --rush-cache-policy="${RUSH_CACHE_POLICY}" \
             --docker-socket=/var/run/docker.sock

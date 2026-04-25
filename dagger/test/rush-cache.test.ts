@@ -2,6 +2,10 @@ import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { buildGithubRushCacheReference } from "../src/rush-cache/github-reference.ts";
+import {
+  parseRushCachePolicy,
+  parseRushCacheProvider,
+} from "../src/rush-cache/options.ts";
 import { parseRushCacheProviders } from "../src/rush-cache/parse-providers.ts";
 import {
   buildGithubRushCacheResolvePlan,
@@ -425,5 +429,22 @@ test("detects missing Rush cache image errors without hiding auth failures", () 
   assert.equal(
     isMissingRushCacheImageError(new Error("pull access denied")),
     false,
+  );
+});
+
+test("parses supported Rush cache options", () => {
+  assert.equal(parseRushCacheProvider("off"), "off");
+  assert.equal(parseRushCacheProvider("github"), "github");
+  assert.equal(parseRushCachePolicy("lazy"), "lazy");
+});
+
+test("rejects unsupported Rush cache options", () => {
+  assert.throws(
+    () => parseRushCacheProvider("gitlab"),
+    /Unsupported Rush cache provider "gitlab"\./,
+  );
+  assert.throws(
+    () => parseRushCachePolicy("prewarm"),
+    /Unsupported Rush cache policy "prewarm"\./,
   );
 });

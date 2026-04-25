@@ -150,14 +150,14 @@ ghcr.io/<owner>/<repo>/rush-delivery-caches/rush-install:<hash>
 
 ### Phase 4: Workflow Integration
 
-- [ ] Add `rushCacheProvider` and `rushCachePolicy` parameters to public
+- [x] Add `rushCacheProvider` and `rushCachePolicy` parameters to public
   workflow APIs.
-- [ ] Make detect/build/package share the installed Rush container returned by
+- [x] Make detect/build/package share the installed Rush container returned by
   the cache resolver.
-- [ ] Remove `.github/actions/cached-install` from `ci-release.yaml`.
-- [ ] Remove Node setup from `ci-release.yaml` if it is only needed by the old
+- [x] Remove `.github/actions/cached-install` from `ci-release.yaml`.
+- [x] Remove Node setup from `ci-release.yaml` if it is only needed by the old
   host-side cache action.
-- [ ] Pass GitHub credentials only through the existing Dagger deploy env file.
+- [x] Pass GitHub credentials only through the existing Dagger deploy env file.
 
 ### Phase 5: Validation
 

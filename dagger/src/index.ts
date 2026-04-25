@@ -183,6 +183,8 @@ export class RushDelivery {
     hostWorkspaceDir: string = "",
     toolchainImageProvider: string = "off",
     toolchainImagePolicy: string = "lazy",
+    rushCacheProvider: string = "off",
+    rushCachePolicy: string = "lazy",
     dockerSocket?: Socket,
   ): Promise<string> {
     return runWorkflow(
@@ -199,6 +201,8 @@ export class RushDelivery {
       hostWorkspaceDir,
       toolchainImageProvider,
       toolchainImagePolicy,
+      rushCacheProvider,
+      rushCachePolicy,
       dockerSocket,
     );
   }
