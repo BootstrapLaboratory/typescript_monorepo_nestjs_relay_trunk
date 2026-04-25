@@ -36,7 +36,10 @@ function buildAffectedProjectsByTarget(
   );
 }
 
-function buildDeployTagName(targetName: string, deployTagPrefix: string): string {
+function buildDeployTagName(
+  targetName: string,
+  deployTagPrefix: string,
+): string {
   return `${deployTagPrefix}/${targetName}`;
 }
 
@@ -109,7 +112,9 @@ export async function computeRushPlan({
     const affectedProjectsByDeployTarget = buildAffectedProjectsByTarget(
       deployTargets,
       (deployTarget) =>
-        targetIsAffected(affectedProjects, deployTarget) ? affectedProjects : [],
+        targetIsAffected(affectedProjects, deployTarget)
+          ? affectedProjects
+          : [],
     );
 
     return {

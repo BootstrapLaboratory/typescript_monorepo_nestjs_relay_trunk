@@ -52,14 +52,13 @@ function prepareContainer(repo: Directory): Container {
 }
 
 function installRush(container: Container): Container {
-  return withRushCaches(container)
-    .withExec([
-      "node",
-      "common/scripts/install-run-rush.js",
-      "install",
-      "--max-install-attempts",
-      "1",
-    ]);
+  return withRushCaches(container).withExec([
+    "node",
+    "common/scripts/install-run-rush.js",
+    "install",
+    "--max-install-attempts",
+    "1",
+  ]);
 }
 
 function buildDetectedContainer(
@@ -120,9 +119,12 @@ async function runPackageStage(
 
     for (const validation of plan.validations) {
       if (validation.kind === "directory") {
-        nextContainer = nextContainer.withExec(["test", "-d", validation.path], {
-          expand: false,
-        });
+        nextContainer = nextContainer.withExec(
+          ["test", "-d", validation.path],
+          {
+            expand: false,
+          },
+        );
       }
     }
 
@@ -166,12 +168,9 @@ export async function runBuildPackageWorkflow(
   if (ciPlan.deploy_targets.length === 0) {
     return {
       ciPlan,
-      repo: (await runPackageStage(
-        repo,
-        detectedContainer,
-        ciPlan,
-        artifactPrefix,
-      )).directory(WORKDIR),
+      repo: (
+        await runPackageStage(repo, detectedContainer, ciPlan, artifactPrefix)
+      ).directory(WORKDIR),
     };
   }
 

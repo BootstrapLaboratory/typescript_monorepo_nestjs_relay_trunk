@@ -5,8 +5,7 @@ import { computeCiPlan } from "./compute-ci-plan.ts";
 
 const DETECT_WORKDIR = "/workspace";
 const DETECT_IMAGE = "node:24-bookworm-slim";
-const DETECT_INSTALL_COMMAND =
-  "apt-get update && apt-get install -y git";
+const DETECT_INSTALL_COMMAND = "apt-get update && apt-get install -y git";
 
 export async function detect(
   repo: Directory,

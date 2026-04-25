@@ -52,7 +52,9 @@ export async function deployRelease(
   }
 
   if (packageManifest === undefined) {
-    throw new Error("packageManifestFile is required when release targets are selected.");
+    throw new Error(
+      "packageManifestFile is required when release targets are selected.",
+    );
   }
 
   console.log(

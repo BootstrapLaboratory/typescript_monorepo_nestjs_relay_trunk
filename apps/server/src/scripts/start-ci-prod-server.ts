@@ -8,8 +8,7 @@ const DEFAULT_SERVER_PID_FILE = '/tmp/server-smoke.pid';
 function startServer(): void {
   const serverSmokeLog =
     process.env.SERVER_SMOKE_LOG || DEFAULT_SERVER_SMOKE_LOG;
-  const serverPidFile =
-    process.env.SERVER_PID_FILE || DEFAULT_SERVER_PID_FILE;
+  const serverPidFile = process.env.SERVER_PID_FILE || DEFAULT_SERVER_PID_FILE;
   const logFd = openSync(serverSmokeLog, 'w');
 
   rmSync(serverPidFile, { force: true });
