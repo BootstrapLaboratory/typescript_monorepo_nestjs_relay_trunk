@@ -42,6 +42,7 @@ steps:
         DATABASE_NAME: chatdb
         DATABASE_USER: chatuser
         DATABASE_PASSWORD: chatpass
+        DATABASE_SSL: "false"
         DATABASE_SYNCHRONIZE: "false"
         PUBSUB_DRIVER: redis
         REDIS_URL: redis://redis:6379
@@ -50,4 +51,4 @@ steps:
     command: bash
     args: ["deploy/cloudrun/tests/validate-post-deploy-smoke.sh"]
     env:
-      SERVICE_URL: http://server:3100
+      SERVICE_URL: http://127.0.0.1:3100

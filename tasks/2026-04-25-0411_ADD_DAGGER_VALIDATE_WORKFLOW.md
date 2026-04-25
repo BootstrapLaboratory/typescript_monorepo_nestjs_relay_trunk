@@ -153,8 +153,10 @@ steps:
 
   - name: server
     service:
-      command: node
-      args: ["apps/server/dist/main.js"]
+      command: npm
+      args: ["--prefix", "apps/server", "run", "start:prod"]
+      ports:
+        - 3100
       env:
         NODE_ENV: production
         HOST: 0.0.0.0
@@ -165,6 +167,8 @@ steps:
         DATABASE_NAME: chatdb
         DATABASE_USER: chatuser
         DATABASE_PASSWORD: chatpass
+        DATABASE_SSL: "false"
+        DATABASE_SYNCHRONIZE: "false"
         PUBSUB_DRIVER: redis
         REDIS_URL: redis://redis:6379
 
@@ -172,7 +176,7 @@ steps:
     command: bash
     args: ["deploy/cloudrun/tests/validate-post-deploy-smoke.sh"]
     env:
-      SERVICE_URL: http://server:3100
+      SERVICE_URL: http://127.0.0.1:3100
 ```
 
 Dagger's job is to parse this generic shape and execute:
@@ -230,6 +234,13 @@ The separate workflow keeps release and validation credential boundaries clear.
   `validate_targets`.
 - Do not add a second runtime-only heuristic yet; Rush owns affected-scope
   selection.
+- Backing services declared under `services` use Dagger service bindings by
+  metadata name.
+- Foreground service steps run as local background processes inside later
+  command-step containers. Those command steps should reach foreground services
+  through `127.0.0.1:<port>`. This keeps long-running foreground services out of
+  Dagger `Container.sync()` graphs while still preserving generic metadata
+  execution.
 
 ## Phase 1: Planning And Rush Scope
 
@@ -264,14 +275,16 @@ The separate workflow keeps release and validation credential boundaries clear.
 
 ## Phase 4: Generic Validation Runner
 
-- [ ] Create a Dagger validation runner that executes validation target
+- [x] Create a Dagger validation runner that executes validation target
       metadata generically.
-- [ ] Support service containers declared by metadata.
-- [ ] Support command steps declared by metadata.
-- [ ] Support foreground service steps declared by metadata.
-- [ ] Bind metadata services into later steps by service name.
-- [ ] Ensure logs are visible when a metadata-driven validation step fails.
-- [ ] Skip metadata validation for projects without matching metadata files.
+- [x] Support service containers declared by metadata.
+- [x] Support command steps declared by metadata.
+- [x] Support foreground service steps declared by metadata.
+- [x] Bind backing metadata services into later steps by service name.
+- [x] Run foreground service steps as local background processes that later
+      command steps can validate through localhost.
+- [x] Ensure logs are visible when a metadata-driven validation step fails.
+- [x] Skip metadata validation for projects without matching metadata files.
 
 ## Phase 5: GitHub PR Workflow
 
@@ -285,10 +298,10 @@ The separate workflow keeps release and validation credential boundaries clear.
 
 ## Phase 6: Validation
 
-- [ ] Run Dagger unit tests.
-- [ ] Run Dagger TypeScript typecheck.
-- [ ] Run the Dagger validation entrypoint locally in a no-op case.
-- [ ] Run the Dagger validation entrypoint locally for a forced server target,
+- [x] Run Dagger unit tests.
+- [x] Run Dagger TypeScript typecheck.
+- [x] Run the Dagger validation entrypoint locally in a no-op case.
+- [x] Run the Dagger validation entrypoint locally for a forced server target,
       if feasible.
 - [ ] Run a real GitHub pull-request validation.
 - [ ] Confirm release workflows still stay green after validation wiring.
@@ -298,5 +311,3 @@ The separate workflow keeps release and validation credential boundaries clear.
 - Should `ci-validate.yaml` also support `workflow_dispatch` for manual
   validation with `validateTargetsJson`, or should manual debugging stay a
   local Dagger-only path for now?
-- How should logs from metadata-declared services be surfaced on validation
-  failure?

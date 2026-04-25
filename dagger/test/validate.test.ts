@@ -6,6 +6,7 @@ import {
   createValidationSummary,
   formatValidationSummary,
   parseValidateTargetsJson,
+  shouldUseManualValidationTargets,
 } from "../src/validate/validation-result.ts";
 import type { CiPlan } from "../src/model/ci-plan.ts";
 
@@ -49,6 +50,16 @@ test("creates a manual validation plan from override targets", () => {
       pr_base_sha: "",
       validate_targets: ["server"],
     },
+  );
+});
+
+test("uses manual validation targets for non-PR calls even when empty", () => {
+  assert.equal(shouldUseManualValidationTargets("workflow_dispatch", []), true);
+  assert.equal(shouldUseManualValidationTargets("push", []), true);
+  assert.equal(shouldUseManualValidationTargets("pull_request", []), false);
+  assert.equal(
+    shouldUseManualValidationTargets("pull_request", ["server"]),
+    true,
   );
 });
 

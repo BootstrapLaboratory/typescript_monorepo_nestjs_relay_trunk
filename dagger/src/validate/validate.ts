@@ -14,9 +14,16 @@ import {
   createValidationSummary,
   formatValidationSummary,
   parseValidateTargetsJson,
+  shouldUseManualValidationTargets,
 } from "./validation-result.ts";
+import { runValidationMetadataStage } from "./validation-runner.ts";
 
 const CI_PLAN_PATH = ".dagger/runtime/ci-plan.json";
+
+type ValidationContext = {
+  baseContainer?: Container;
+  ciPlan: CiPlan;
+};
 
 function runValidationStage(container: Container, ciPlan: CiPlan): Container {
   if (ciPlan.validate_targets.length === 0) {
@@ -38,24 +45,56 @@ function runValidationStage(container: Container, ciPlan: CiPlan): Container {
   return nextContainer;
 }
 
-async function resolveValidationCiPlan(
+async function runValidationStages(
   repo: Directory,
   container: Container,
+  ciPlan: CiPlan,
+): Promise<Container> {
+  const rushValidatedContainer = runValidationStage(container, ciPlan);
+
+  if (ciPlan.validate_targets.length === 0) {
+    return rushValidatedContainer;
+  }
+
+  return (
+    await runValidationMetadataStage(
+      repo,
+      rushValidatedContainer,
+      ciPlan.validate_targets,
+    )
+  ).container;
+}
+
+async function resolveValidationContext(
+  repo: Directory,
   eventName: string,
   prBaseSha: string,
   validateTargetsJson: string,
-): Promise<CiPlan> {
+): Promise<ValidationContext> {
   const validateTargets = parseValidateTargetsJson(validateTargetsJson);
 
-  if (validateTargets.length > 0) {
-    return createManualValidationCiPlan(
-      eventName,
-      prBaseSha,
-      validateTargets,
-    );
+  if (shouldUseManualValidationTargets(eventName, validateTargets)) {
+    return {
+      ciPlan: createManualValidationCiPlan(
+        eventName,
+        prBaseSha,
+        validateTargets,
+      ),
+    };
   }
 
-  return computeCiPlan(repo, container, eventName, "[]", prBaseSha);
+  const baseContainer = prepareRushContainer(repo);
+
+  return {
+    baseContainer,
+    ciPlan: await computeCiPlan(
+      repo,
+      baseContainer,
+      eventName,
+      "[]",
+      prBaseSha,
+    ),
+  };
 }
 
 export async function validate(
@@ -64,20 +103,26 @@ export async function validate(
   prBaseSha: string = "",
   validateTargetsJson: string = "[]",
 ): Promise<string> {
-  const baseContainer = prepareRushContainer(repo);
-  const ciPlan = await resolveValidationCiPlan(
+  const { baseContainer, ciPlan } = await resolveValidationContext(
     repo,
-    baseContainer,
     eventName,
     prBaseSha,
     validateTargetsJson,
   );
-  const detectedContainer = baseContainer.withNewFile(
-    `${RUSH_WORKDIR}/${CI_PLAN_PATH}`,
-    formatCiPlan(ciPlan),
-  );
 
-  await runValidationStage(detectedContainer, ciPlan).sync();
+  if (ciPlan.validate_targets.length === 0) {
+    console.log("[validate] no validate targets selected");
+    return formatValidationSummary(createValidationSummary(ciPlan));
+  }
+
+  const validationContainer = baseContainer ?? prepareRushContainer(repo);
+  const detectedContainer = validationContainer
+    .withExec(["mkdir", "-p", `${RUSH_WORKDIR}/.dagger/runtime`], {
+      expand: false,
+    })
+    .withNewFile(`${RUSH_WORKDIR}/${CI_PLAN_PATH}`, formatCiPlan(ciPlan));
+
+  await (await runValidationStages(repo, detectedContainer, ciPlan)).sync();
 
   return formatValidationSummary(createValidationSummary(ciPlan));
 }

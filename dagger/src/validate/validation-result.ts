@@ -51,6 +51,13 @@ export function parseValidateTargetsJson(validateTargetsJson: string): string[] 
   }
 }
 
+export function shouldUseManualValidationTargets(
+  eventName: string,
+  validateTargets: string[],
+): boolean {
+  return eventName !== "pull_request" || validateTargets.length > 0;
+}
+
 export function createManualValidationCiPlan(
   eventName: string,
   prBaseSha: string,
