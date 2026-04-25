@@ -10,11 +10,11 @@ import type {
   ToolchainImageProvider,
   ToolchainImageProvidersDefinition,
 } from "../model/toolchain-image.ts";
+import { rushWorkflowToolchainSpec } from "../rush/container.ts";
 import {
   buildResolvedToolchainContainer,
   resolveToolchainImage,
 } from "../toolchain-images/resolve.ts";
-import { sourceToolchainImageSpec } from "../toolchain-images/spec.ts";
 import {
   buildGitAskPassScript,
   buildLocalCopySourceCommand,
@@ -22,9 +22,6 @@ import {
   GIT_TOKEN_ENV,
   shellQuote,
 } from "./source-commands.ts";
-
-const SOURCE_IMAGE = "node:24-bookworm-slim";
-const SOURCE_INSTALL_COMMAND = "apt-get update && apt-get install -y ca-certificates git";
 
 export type ResolveSourceOptions = {
   hostEnv?: Record<string, string>;
@@ -62,7 +59,7 @@ async function sourceBaseContainer(
 ): Promise<Container> {
   return buildResolvedToolchainContainer(
     await resolveToolchainImage(
-      sourceToolchainImageSpec(SOURCE_IMAGE, [SOURCE_INSTALL_COMMAND]),
+      rushWorkflowToolchainSpec(),
       {
         hostEnv: options.hostEnv,
         provider: options.toolchainImageProvider,
