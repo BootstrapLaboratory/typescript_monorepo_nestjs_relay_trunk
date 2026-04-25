@@ -141,12 +141,12 @@ ghcr.io/<owner>/<repo>/rush-delivery-caches/rush-install:<hash>
 
 ### Phase 3: Dagger Cache Resolver
 
-- [ ] Implement provider `off` using Dagger cache volume behavior only.
-- [ ] Implement provider `github` using GHCR pull/build/publish.
-- [ ] Reuse the existing GitHub registry-auth pattern from toolchain images
+- [x] Implement provider `off` using Dagger cache volume behavior only.
+- [x] Implement provider `github` using GHCR pull/build/publish.
+- [x] Reuse the existing GitHub registry-auth pattern from toolchain images
   where possible.
-- [ ] Use `RUSH_TEMP_FOLDER=/rush-cache/temp` for Rush commands.
-- [ ] Ensure no host-restored `common/temp` paths are required by Dagger.
+- [x] Use `RUSH_TEMP_FOLDER=/rush-cache/temp` for Rush commands.
+- [x] Ensure no host-restored `common/temp` paths are required by Dagger.
 
 ### Phase 4: Workflow Integration
 

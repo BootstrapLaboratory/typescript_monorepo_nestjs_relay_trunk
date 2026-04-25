@@ -4,6 +4,12 @@ import { test } from "node:test";
 import { buildGithubRushCacheReference } from "../src/rush-cache/github-reference.ts";
 import { parseRushCacheProviders } from "../src/rush-cache/parse-providers.ts";
 import {
+  buildGithubRushCacheResolvePlan,
+  isMissingRushCacheImageError,
+  rushCacheTempFolder,
+  rushCacheVolumeName,
+} from "../src/rush-cache/resolve-plan.ts";
+import {
   buildRushCacheSpec,
   hashRushCacheSpec,
   normalizeRushCacheSpec,
@@ -290,5 +296,134 @@ test("fails when GitHub Rush cache repository is not owner/repo", () => {
         tag: "sha256-abc123",
       }),
     /must use owner\/repo form/,
+  );
+});
+
+test("uses the first configured Rush cache path as RUSH_TEMP_FOLDER", () => {
+  assert.equal(
+    rushCacheTempFolder({
+      key_files: ["rush.json"],
+      paths: ["/rush-cache/temp", "/rush-cache/pnpm-store"],
+      version: "v1",
+    }),
+    "/rush-cache/temp",
+  );
+});
+
+test("fails when resolving a Rush cache temp folder without paths", () => {
+  assert.throws(
+    () =>
+      rushCacheTempFolder({
+        key_files: ["rush.json"],
+        paths: [],
+        version: "v1",
+      }),
+    /must define at least one cache path/,
+  );
+});
+
+test("builds stable Dagger cache volume names from Rush cache spec and path", () => {
+  const spec = buildRushCacheSpec({
+    config: {
+      key_files: ["rush.json"],
+      paths: ["/rush-cache/temp"],
+      version: "v1",
+    },
+    keyFiles: [{ contents: "rush", path: "rush.json" }],
+    toolchainIdentity: "rush-workflow:sha256-abc123",
+  });
+
+  assert.equal(
+    rushCacheVolumeName(spec, "/rush-cache/temp"),
+    rushCacheVolumeName(spec, "/rush-cache/temp"),
+  );
+  assert.notEqual(
+    rushCacheVolumeName(spec, "/rush-cache/temp"),
+    rushCacheVolumeName(spec, "/rush-cache/pnpm-store"),
+  );
+  assert.match(
+    rushCacheVolumeName(spec, "/rush-cache/temp"),
+    /^rush-delivery-rush-cache-[a-f0-9]+-[a-f0-9]+$/,
+  );
+});
+
+test("builds a GitHub Rush cache resolve plan from provider metadata", () => {
+  const providers = parseRushCacheProviders(`
+cache:
+  version: v1
+  key_files:
+    - rush.json
+  paths:
+    - /rush-cache/temp
+providers:
+  github:
+    kind: github_container_registry
+    repository_env: GITHUB_REPOSITORY
+    token_env: GITHUB_TOKEN
+    username_env: GITHUB_ACTOR
+`);
+  const spec = buildRushCacheSpec({
+    config: providers.cache,
+    keyFiles: [{ contents: "rush", path: "rush.json" }],
+    toolchainIdentity: "rush-workflow:sha256-abc123",
+  });
+  const plan = buildGithubRushCacheResolvePlan(spec, providers, {
+    GITHUB_ACTOR: "octocat",
+    GITHUB_REPOSITORY: "BeltOrg/beltapp",
+    GITHUB_TOKEN: "secret-token",
+  });
+
+  assert.deepStrictEqual(plan, {
+    reference: {
+      imagePath: "beltorg/beltapp/rush-delivery-caches/rush-install",
+      reference: `ghcr.io/beltorg/beltapp/rush-delivery-caches/rush-install:${rushCacheTag(spec)}`,
+      registry: "ghcr.io",
+      repository: "beltorg/beltapp",
+      tag: rushCacheTag(spec),
+    },
+    registryAuth: {
+      address: "ghcr.io",
+      token: "secret-token",
+      tokenSecretName: `rush-cache-${hashRushCacheSpec(spec)}-github-token`,
+      username: "octocat",
+    },
+  });
+});
+
+test("fails when GitHub Rush cache provider env is missing", () => {
+  const providers = parseRushCacheProviders(`
+cache:
+  version: v1
+  key_files:
+    - rush.json
+  paths:
+    - /rush-cache/temp
+providers:
+  github:
+    kind: github_container_registry
+    repository_env: GITHUB_REPOSITORY
+    token_env: GITHUB_TOKEN
+    username_env: GITHUB_ACTOR
+`);
+  const spec = buildRushCacheSpec({
+    config: providers.cache,
+    keyFiles: [{ contents: "rush", path: "rush.json" }],
+    toolchainIdentity: "rush-workflow:sha256-abc123",
+  });
+
+  assert.throws(
+    () => buildGithubRushCacheResolvePlan(spec, providers, {}),
+    /requires host env GITHUB_REPOSITORY/,
+  );
+});
+
+test("detects missing Rush cache image errors without hiding auth failures", () => {
+  assert.equal(
+    isMissingRushCacheImageError(new Error("manifest unknown")),
+    true,
+  );
+  assert.equal(
+    isMissingRushCacheImageError(new Error("pull access denied")),
+    false,
   );
 });

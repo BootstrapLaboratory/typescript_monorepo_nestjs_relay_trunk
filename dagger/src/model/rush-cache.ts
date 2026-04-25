@@ -35,6 +35,15 @@ export type RushCacheReference = {
   tag: string;
 };
 
+export type RushCacheResolution = {
+  cacheHit: boolean;
+  paths: string[];
+  provider: RushCacheProvider;
+  reference?: RushCacheReference;
+  spec: RushCacheSpec;
+  tempFolder: string;
+};
+
 export type GithubRushCacheProviderDefinition = {
   image_namespace: string;
   kind: "github_container_registry";
