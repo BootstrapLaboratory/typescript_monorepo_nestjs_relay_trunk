@@ -241,6 +241,8 @@ The separate workflow keeps release and validation credential boundaries clear.
   through `127.0.0.1:<port>`. This keeps long-running foreground services out of
   Dagger `Container.sync()` graphs while still preserving generic metadata
   execution.
+- `ci-validate.yaml` is fully automatic and only runs for pull requests.
+  Manual validation stays a local Dagger command.
 
 ## Phase 1: Planning And Rush Scope
 
@@ -290,10 +292,10 @@ The separate workflow keeps release and validation credential boundaries clear.
 
 - [x] Decide whether validation lives in a separate workflow or inside
       `ci-release.yaml`.
-- [ ] Add `.github/workflows/ci-validate.yaml`.
-- [ ] Keep provider deploy credentials out of PR validation.
-- [ ] Keep workflow permissions minimal.
-- [ ] Document the PR validation entrypoint in
+- [x] Add `.github/workflows/ci-validate.yaml`.
+- [x] Keep provider deploy credentials out of PR validation.
+- [x] Keep workflow permissions minimal.
+- [x] Document the PR validation entrypoint in
       [../docs/notes/ReleaseFlow.md](../docs/notes/ReleaseFlow.md).
 
 ## Phase 6: Validation
@@ -308,6 +310,5 @@ The separate workflow keeps release and validation credential boundaries clear.
 
 ## Remaining Open Questions
 
-- Should `ci-validate.yaml` also support `workflow_dispatch` for manual
-  validation with `validateTargetsJson`, or should manual debugging stay a
-  local Dagger-only path for now?
+- None for the local implementation. The remaining checks require real GitHub
+  workflow runs.

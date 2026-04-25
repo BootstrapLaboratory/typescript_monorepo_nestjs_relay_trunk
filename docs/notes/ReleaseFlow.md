@@ -8,6 +8,8 @@ release orchestrator.
 - Automatic releases run through
   [ci-release.yaml](../../.github/workflows/ci-release.yaml) on pushes to
   `main`.
+- Pull-request validation runs through
+  [ci-validate.yaml](../../.github/workflows/ci-validate.yaml).
 - Manual target-scoped releases use the wrapper workflows:
   - [deploy-server.yaml](../../.github/workflows/deploy-server.yaml)
   - [deploy-webapp.yaml](../../.github/workflows/deploy-webapp.yaml)
@@ -19,6 +21,12 @@ The supported release path is the single-job Dagger workflow:
 
 ```bash
 dagger call workflow
+```
+
+The supported pull-request validation path is:
+
+```bash
+dagger call validate
 ```
 
 Example invocation from another CI provider:
@@ -40,6 +48,20 @@ Responsibilities:
 - Dagger `workflow` computes the CI plan, builds selected deploy targets,
   materializes deploy artifacts, writes the package manifest, computes the
   deployment plan, and executes it.
+
+The current GitHub Actions validation graph is:
+
+1. `dagger-validate`
+
+Responsibilities:
+
+- GitHub checks out the repository, installs the Dagger CLI, and calls Dagger
+  `validate`.
+- Dagger `validate` computes affected Rush projects for pull requests, runs
+  Rush `verify`, `lint`, `test`, and `build` for those projects, and executes
+  optional validation metadata under `.dagger/validate`.
+- The validation workflow intentionally avoids deploy credentials, provider
+  secrets, deploy env files, and Docker socket setup.
 
 ## Deploy Artifacts
 
@@ -69,6 +91,8 @@ entrypoints:
 - `deploy-release` executes the release through one generic target runtime
   path. Planning stays internal to `deploy-release`, which computes and logs
   deployment waves before executing them.
+- `validate` runs Dagger-owned pull-request validation for affected Rush
+  projects and optional repository-owned validation scenarios.
 
 The Dagger build and package entrypoints still exist for focused local or
 debugging calls. The operational GitHub release workflow now uses the composed
@@ -143,6 +167,27 @@ the Dagger runtime prints a summary of:
 - file mounts being attached
 - whether the shared Docker socket is attached
 
+## Pull-Request Validation
+
+Pull-request validation is intentionally separate from release execution:
+
+- [ci-validate.yaml](../../.github/workflows/ci-validate.yaml) runs on
+  `pull_request` with `contents: read`.
+- It passes `github.event.pull_request.base.sha` to Dagger so the Rush affected
+  project list is computed inside the reusable Dagger code.
+- It does not pass deploy credentials, Cloud provider secrets, deploy env
+  files, or Docker socket access.
+
+Validation target metadata lives under:
+
+- [.dagger/validate/targets](../../.dagger/validate/targets)
+
+If a Rush project has no validation metadata, Rush `verify`, `lint`, `test`,
+and `build` are the full validation for that project. When metadata exists,
+Dagger runs it generically: backing services, ordered command steps,
+foreground service steps, per-step environment, and service bindings are all
+declared by YAML instead of hardcoded in Dagger TypeScript.
+
 ## Adding A Deploy Target
 
 To add a deployable Rush project, keep the framework generic and add metadata
@@ -177,5 +222,6 @@ instead of editing Dagger internals:
 - GitHub Actions remains the trigger, checkout, credentials, and host-runtime
   boundary. Dagger owns deploy-target detection, build/package materialization,
   deployment ordering, and release execution.
-- Pull-request validation should be added as a future Dagger-owned workflow
-  instead of reviving the old split-job GitHub artifact handoff.
+- Pull-request validation is Dagger-owned through
+  [ci-validate.yaml](../../.github/workflows/ci-validate.yaml) instead of a
+  split-job GitHub artifact handoff.
