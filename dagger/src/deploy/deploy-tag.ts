@@ -1,5 +1,6 @@
 const GIT_AUTHOR_NAME = "github-actions[bot]";
-const GIT_AUTHOR_EMAIL = "41898282+github-actions[bot]@users.noreply.github.com";
+const GIT_AUTHOR_EMAIL =
+  "41898282+github-actions[bot]@users.noreply.github.com";
 
 export function deployTagPrefixForEnvironment(environment: string): string {
   return `deploy/${environment}`;

@@ -19,11 +19,7 @@ test("quotes shell values safely", () => {
 });
 
 test("builds the generic deploy tag update command", () => {
-  const command = buildUpdateDeployTagCommand(
-    "prod",
-    "server",
-    "abc123",
-  );
+  const command = buildUpdateDeployTagCommand("prod", "server", "abc123");
 
   assert.match(
     command,

@@ -155,9 +155,7 @@ export async function executeTarget(
     container = container.withEnvVariable(name, value);
   }
 
-  const output = await container
-    .withExec(["bash", "-lc", command])
-    .stdout();
+  const output = await container.withExec(["bash", "-lc", command]).stdout();
 
   console.log(`[deploy-release] wave ${wave}: finished ${target}`);
 

@@ -18,7 +18,7 @@ services:
 steps:
   - name: migrations
     command: npm
-    args: ["--prefix", "apps/server", "run", "ci:migration:run"]
+    args: [--prefix, apps/server, run, ci:migration:run]
     env:
       DATABASE_HOST: postgres
       DATABASE_PORT: "5432"
@@ -29,7 +29,7 @@ steps:
   - name: server
     service:
       command: npm
-      args: ["--prefix", "apps/server", "run", "start:prod"]
+      args: [--prefix, apps/server, run, start:prod]
       ports:
         - 3100
       env:
@@ -49,6 +49,6 @@ steps:
 
   - name: smoke
     command: bash
-    args: ["deploy/cloudrun/tests/validate-post-deploy-smoke.sh"]
+    args: [deploy/cloudrun/tests/validate-post-deploy-smoke.sh]
     env:
       SERVICE_URL: http://127.0.0.1:3100

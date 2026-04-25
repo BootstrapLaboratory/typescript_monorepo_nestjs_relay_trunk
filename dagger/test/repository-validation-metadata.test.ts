@@ -16,9 +16,7 @@ const realValidationTargetsDirectory = path.join(
 
 test("loads every committed validation target metadata file", async () => {
   const entries = await readdir(realValidationTargetsDirectory);
-  const targetFiles = entries
-    .filter((entry) => entry.endsWith(".yaml"))
-    .sort();
+  const targetFiles = entries.filter((entry) => entry.endsWith(".yaml")).sort();
 
   assert.ok(
     targetFiles.length > 0,

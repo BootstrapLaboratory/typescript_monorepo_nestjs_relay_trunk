@@ -20,9 +20,13 @@ export function prepareRushContainer(repo: Directory): Container {
 
 export function withRushCaches(container: Container): Container {
   return container
-    .withMountedCache(RUSH_HOME_CACHE_PATH, dag.cacheVolume("cache-rush-home"), {
-      sharing: CacheSharingMode.Locked,
-    })
+    .withMountedCache(
+      RUSH_HOME_CACHE_PATH,
+      dag.cacheVolume("cache-rush-home"),
+      {
+        sharing: CacheSharingMode.Locked,
+      },
+    )
     .withMountedCache(
       RUSH_INSTALL_RUN_CACHE_PATH,
       dag.cacheVolume("cache-rush-install-run"),

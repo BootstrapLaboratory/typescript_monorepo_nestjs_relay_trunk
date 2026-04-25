@@ -28,7 +28,10 @@ function parseIdentifier(rawValue: unknown, name: string): string {
   return value;
 }
 
-function parseMapping(rawValue: unknown, name: string): Record<string, unknown> {
+function parseMapping(
+  rawValue: unknown,
+  name: string,
+): Record<string, unknown> {
   if (
     typeof rawValue !== "object" ||
     rawValue === null ||
@@ -104,7 +107,10 @@ function parsePorts(rawValue: unknown, name: string): number[] {
 function parseValidationServices(
   rawValue: unknown,
 ): Record<string, ValidationServiceDefinition> {
-  const rawServices = parseOptionalMapping(rawValue, "Validation target services");
+  const rawServices = parseOptionalMapping(
+    rawValue,
+    "Validation target services",
+  );
   const services: Record<string, ValidationServiceDefinition> = {};
 
   for (const [serviceName, rawService] of Object.entries(rawServices)) {

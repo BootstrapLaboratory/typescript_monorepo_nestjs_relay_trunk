@@ -79,9 +79,7 @@ function withServiceBindings(
   return nextContainer;
 }
 
-function createBackingService(
-  service: ValidationServiceDefinition,
-): Service {
+function createBackingService(service: ValidationServiceDefinition): Service {
   return withExposedPorts(
     withEnv(dag.container().from(service.image), service.env),
     service.ports,

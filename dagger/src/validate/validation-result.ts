@@ -9,7 +9,10 @@ export type ValidationSummary = {
   validate_targets: string[];
 };
 
-function normalizeStringArray(parsedValue: unknown, fieldName: string): string[] {
+function normalizeStringArray(
+  parsedValue: unknown,
+  fieldName: string,
+): string[] {
   if (!Array.isArray(parsedValue)) {
     throw new Error(`${fieldName} must be a JSON array.`);
   }
@@ -36,7 +39,9 @@ function resolveValidationMode(eventName: string): CiPlan["mode"] {
   return eventName === "pull_request" ? "pull_request" : "release";
 }
 
-export function parseValidateTargetsJson(validateTargetsJson: string): string[] {
+export function parseValidateTargetsJson(
+  validateTargetsJson: string,
+): string[] {
   try {
     return normalizeStringArray(
       JSON.parse(validateTargetsJson),
