@@ -43,19 +43,15 @@ only.
 
 ## PR Validation Caveat
 
-The previous split-job [ci-release.yaml](../.github/workflows/ci-release.yaml)
-also included pull-request validation with Postgres/Redis-backed server smoke
-tests. That validation flow is not yet modeled inside Dagger.
-
-For this slice, the new operational release workflow focuses on push/manual
-release execution. The previous split-job workflow is preserved as
-[../examples/github/ci-release.split-jobs.yaml](../examples/github/ci-release.split-jobs.yaml)
-so the old GitHub artifact-handoff and PR-validation shape remains available as
-a reference.
+The composed workflow focuses on push/manual release execution. Pull-request
+validation with Postgres/Redis-backed server smoke tests should be added later
+as a Dagger-owned validation workflow instead of reviving the old split-job
+GitHub artifact handoff.
 
 ## Checklist
 
-- [x] Preserve the previous split-job GitHub workflow under `examples/github`.
+- [x] Remove the previous split-job GitHub workflow example after the composed
+      Dagger workflow was validated in real CI.
 - [x] Add a Dagger `workflow` entrypoint.
 - [x] Compose `detect -> build -> package -> deploy` inside Dagger.
 - [x] Replace `.github/workflows/ci-release.yaml` with one
@@ -69,6 +65,6 @@ a reference.
 
 - [x] Run Dagger unit tests.
 - [x] Validate workflow YAML syntax.
-- [ ] Run real GitHub `deploy-server`.
-- [ ] Run real GitHub `deploy-webapp`.
-- [ ] Run real `main` release where both deploy targets are selected.
+- [x] Run real GitHub `deploy-server`.
+- [x] Run real GitHub `deploy-webapp`.
+- [x] Run real `main` release where both deploy targets are selected.

@@ -107,7 +107,7 @@ release flow after the composed Dagger `workflow` cutover.
 | Script                                                                                                                       | Phase                 | Current callers                                                                                | Recommended owner                                                                                       |
 | ---------------------------------------------------------------------------------------------------------------------------- | --------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | Deleted root detect script layer                                                                                             | detect                | formerly Dagger detect and legacy split-job adapters                                           | Dagger TypeScript now owns CI plan schema, Rush planning, and target metadata loading.                  |
-| Split-job CI plan output extraction                                                                                          | legacy GitHub adapter | [../examples/github/ci-release.split-jobs.yaml](../examples/github/ci-release.split-jobs.yaml) | The example derives outputs directly from `ci-plan.json`; no root helper script remains.                |
+| Deleted split-job GitHub example                                                                                             | legacy GitHub adapter | formerly a preserved GitHub split-job workflow example                                        | Removed after the composed Dagger workflow was validated in real CI.                                    |
 | Deleted root GraphQL drift helper                                                                                            | build verify          | formerly `apps/server` Rush `verify` script                                                    | Replaced by server-owned package scripts in [../apps/server/package.json](../apps/server/package.json). |
 | Deleted root server migration helper                                                                                         | validate              | legacy split-job example                                                                       | Replaced by `apps/server` package script `ci:migration:run`.                                            |
 | Deleted root server start helper                                                                                             | validate              | legacy split-job example                                                                       | Replaced by `apps/server` package script `ci:start:prod-smoke`.                                         |
@@ -128,8 +128,8 @@ folder.
 - [x] Keep deploy target names loaded from `.dagger` metadata only.
 - [x] Decide whether provider deploy scripts live under `deploy/*/scripts` or
       under `apps/*/scripts/deploy`.
-- [x] Decide whether the split-job GitHub example should be refreshed or kept
-      as a historical sample with self-contained helper scripts.
+- [x] Decide whether the split-job GitHub example should be refreshed, kept, or
+      removed. It was removed to reduce confusion.
 
 ## Phase 1: Move Detect Planning Into Dagger
 
@@ -199,11 +199,11 @@ folder.
 - [x] Update [../docs/notes/ReleaseFlow.md](../docs/notes/ReleaseFlow.md) with
       the new script ownership boundaries.
 - [x] Update target YAML examples in task docs.
-- [x] Refresh [../examples/github/ci-release.split-jobs.yaml](../examples/github/ci-release.split-jobs.yaml)
-      or mark it as legacy with self-contained assumptions.
+- [x] Remove the legacy GitHub split-job example to keep the supported release
+      path clear.
 - [x] Update GitLab example references if they still call removed Makefile
       targets.
-- [ ] Document the rule for adding a new deploy target:
+- [x] Document the rule for adding a new deploy target:
       add Rush project, add package metadata, add deploy metadata, and provide
       a target/provider deploy script if needed.
 
@@ -213,9 +213,9 @@ folder.
 - [x] Run Dagger TypeScript typecheck.
 - [x] Run shell syntax checks for moved deploy scripts.
 - [ ] Run remaining script tests, if any scripts remain.
-- [ ] Run the composed GitHub `ci-release` workflow.
-- [ ] Run forced `deploy-server`.
-- [ ] Run forced `deploy-webapp`.
+- [x] Run the composed GitHub `ci-release` workflow.
+- [x] Run forced `deploy-server`.
+- [x] Run forced `deploy-webapp`.
 - [x] Confirm no Dagger source file invokes `scripts/ci`.
 - [x] Confirm root `scripts/ci` no longer contains project-specific or
       framework-owned release logic.

@@ -15,6 +15,12 @@ release orchestrator.
 Both wrapper workflows call the same reusable release workflow with different
 `force_targets_json` inputs.
 
+The supported release path is the single-job Dagger workflow:
+
+```bash
+dagger call workflow
+```
+
 Example invocation from another CI provider:
 
 - [GitLabReleaseExample.md](./GitLabReleaseExample.md)
@@ -35,17 +41,14 @@ Responsibilities:
   materializes deploy artifacts, writes the package manifest, computes the
   deployment plan, and executes it.
 
-The previous split-job workflow that used GitHub artifact upload/download as
-the stage handoff is preserved as
-[../../examples/github/ci-release.split-jobs.yaml](../../examples/github/ci-release.split-jobs.yaml).
-
 ## Deploy Artifacts
 
-- `server` is packaged into
-  [common/deploy/server](../../common/deploy/server) and uploaded as an archive
-  before deployment.
+- `server` is materialized with `rush deploy` into
+  [common/deploy/server](../../common/deploy/server), archived as a package
+  artifact, and exposed to deploy through `.dagger/runtime/package-manifest.json`.
 - `webapp` is packaged as the prebuilt
-  [apps/webapp/dist](../../apps/webapp/dist) directory.
+  [apps/webapp/dist](../../apps/webapp/dist) directory and exposed through the
+  same package manifest.
 
 Dagger owns build and package materialization. GitHub Actions remains the
 provider-specific bootstrap and credentials adapter.
@@ -140,6 +143,30 @@ the Dagger runtime prints a summary of:
 - file mounts being attached
 - whether the shared Docker socket is attached
 
+## Adding A Deploy Target
+
+To add a deployable Rush project, keep the framework generic and add metadata
+instead of editing Dagger internals:
+
+1. Add the Rush project in `rush.json` and give the project a stable package
+   name.
+2. Add package metadata under `.dagger/package/targets/<target>.yaml`. The
+   `name` should match the Rush project name. Use `kind: directory` for an
+   already-built directory artifact or `kind: rush_deploy_archive` when Dagger
+   should run `rush deploy` and archive the result.
+3. Add deploy graph metadata in `.dagger/deploy/services-mesh.yaml`. Use
+   `deploy_after` to express ordering dependencies between deploy targets.
+4. Add deploy runtime metadata under `.dagger/deploy/targets/<target>.yaml`.
+   This file declares the target `deploy_script`, container image, install
+   commands, env pass-through, static env, dry-run defaults, required host env,
+   and file mounts.
+5. Put target/provider behavior near its owner, for example under
+   `apps/<project>/scripts` for project-specific logic or
+   `deploy/<provider>/scripts` for provider operations.
+6. Let Dagger handle the shared mechanics: target selection, Rush build,
+   package materialization, deployment ordering, runtime env/mount exposure,
+   and deploy tag updates.
+
 ## Operational Notes
 
 - The committed GraphQL contract is enforced during the Dagger build stage by
@@ -150,7 +177,5 @@ the Dagger runtime prints a summary of:
 - GitHub Actions remains the trigger, checkout, credentials, and host-runtime
   boundary. Dagger owns deploy-target detection, build/package materialization,
   deployment ordering, and release execution.
-- Pull-request validation from the previous split-job workflow is not yet part
-  of the composed Dagger workflow. The preserved split-job example remains the
-  reference for that older validation shape until a Dagger-owned validation
-  design is added.
+- Pull-request validation should be added as a future Dagger-owned workflow
+  instead of reviving the old split-job GitHub artifact handoff.
