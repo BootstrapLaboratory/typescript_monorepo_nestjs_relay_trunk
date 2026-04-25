@@ -1,4 +1,4 @@
-import { CacheSharingMode, dag, Container, Directory } from "@dagger.io/dagger";
+import { Container, Directory } from "@dagger.io/dagger";
 import type {
   ToolchainImageProvider,
   ToolchainImageProvidersDefinition,
@@ -16,9 +16,6 @@ const RUSH_INSTALL_COMMANDS = [
   "apt-get update",
   "apt-get install -y ca-certificates git",
 ];
-const RUSH_HOME_CACHE_PATH = "/root/.rush";
-const RUSH_INSTALL_RUN_CACHE_PATH = `${RUSH_WORKDIR}/common/temp/install-run`;
-const RUSH_PNPM_STORE_CACHE_PATH = `${RUSH_WORKDIR}/common/temp/pnpm-store`;
 
 export type RushToolchainImageOptions = {
   hostEnv?: Record<string, string>;
@@ -40,29 +37,8 @@ export async function prepareRushContainer(
     .withWorkdir(RUSH_WORKDIR);
 }
 
-export function withRushCaches(container: Container): Container {
-  return container
-    .withMountedCache(
-      RUSH_HOME_CACHE_PATH,
-      dag.cacheVolume("cache-rush-home"),
-      {
-        sharing: CacheSharingMode.Locked,
-      },
-    )
-    .withMountedCache(
-      RUSH_INSTALL_RUN_CACHE_PATH,
-      dag.cacheVolume("cache-rush-install-run"),
-      { sharing: CacheSharingMode.Locked },
-    )
-    .withMountedCache(
-      RUSH_PNPM_STORE_CACHE_PATH,
-      dag.cacheVolume("cache-rush-pnpm-store"),
-      { sharing: CacheSharingMode.Locked },
-    );
-}
-
 export function installRush(container: Container): Container {
-  return withRushCaches(container).withExec([
+  return container.withExec([
     "node",
     "common/scripts/install-run-rush.js",
     "install",
