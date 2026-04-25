@@ -3,6 +3,8 @@ import { test } from "node:test";
 
 import { parseDeployTarget } from "../src/stages/deploy/parse-deploy-target.ts";
 import { buildGithubToolchainImageReference } from "../src/toolchain-images/github-reference.ts";
+import { parseToolchainImageProviders } from "../src/toolchain-images/parse-providers.ts";
+import { resolveToolchainImage } from "../src/toolchain-images/resolve.ts";
 import {
   deployTargetToolchainImageSpec,
   hashToolchainImageSpec,
@@ -136,5 +138,91 @@ test("fails when GitHub toolchain image repository is not owner/repo", () => {
         tag: "sha256-abc123",
       }),
     /must use owner\/repo form/,
+  );
+});
+
+test("resolves provider off to the current base image and install commands", () => {
+  const spec = {
+    baseImage: "node:24-bookworm-slim",
+    env: {},
+    install: ["apt-get update", "apt-get install -y git"],
+    kind: "deploy-executor" as const,
+    name: "webapp",
+    version: TOOLCHAIN_IMAGE_SPEC_VERSION,
+  };
+
+  assert.deepStrictEqual(resolveToolchainImage(spec), {
+    image: "node:24-bookworm-slim",
+    install: ["apt-get update", "apt-get install -y git"],
+    prebuilt: false,
+    provider: "off",
+  });
+});
+
+test("parses GitHub toolchain image provider metadata", () => {
+  const providers = parseToolchainImageProviders(`
+providers:
+  github:
+    kind: github_container_registry
+    registry: ghcr.io
+    image_namespace: custom-toolchains
+    repository_env: GITHUB_REPOSITORY
+    token_env: GITHUB_TOKEN
+`);
+
+  assert.deepStrictEqual(providers, {
+    providers: {
+      github: {
+        image_namespace: "custom-toolchains",
+        kind: "github_container_registry",
+        registry: "ghcr.io",
+        repository_env: "GITHUB_REPOSITORY",
+        token_env: "GITHUB_TOKEN",
+      },
+    },
+  });
+});
+
+test("fills GitHub provider metadata defaults", () => {
+  const providers = parseToolchainImageProviders(`
+providers:
+  github:
+    kind: github_container_registry
+    repository_env: GITHUB_REPOSITORY
+    token_env: GITHUB_TOKEN
+`);
+
+  assert.deepStrictEqual(providers.providers.github, {
+    image_namespace: "rush-delivery-toolchains",
+    kind: "github_container_registry",
+    registry: "ghcr.io",
+    repository_env: "GITHUB_REPOSITORY",
+    token_env: "GITHUB_TOKEN",
+  });
+});
+
+test("fails when provider metadata contains unsupported providers", () => {
+  assert.throws(
+    () =>
+      parseToolchainImageProviders(`
+providers:
+  gitlab:
+    kind: gitlab_container_registry
+`),
+    /Toolchain image providers has unsupported field: gitlab\./,
+  );
+});
+
+test("fails when GitHub provider env names are invalid", () => {
+  assert.throws(
+    () =>
+      parseToolchainImageProviders(`
+providers:
+  github:
+    kind: github_container_registry
+    repository_env: github_repository
+    token_env: GITHUB_TOKEN
+`),
+    /repository_env "github_repository" must match/,
   );
 });

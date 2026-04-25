@@ -29,3 +29,25 @@ export type ToolchainImageReference = {
   repository: string;
   tag: string;
 };
+
+export type GithubToolchainImageProviderDefinition = {
+  image_namespace: string;
+  kind: "github_container_registry";
+  registry: string;
+  repository_env: string;
+  token_env: string;
+};
+
+export type ToolchainImageProvidersDefinition = {
+  providers: {
+    github?: GithubToolchainImageProviderDefinition;
+  };
+};
+
+export type ToolchainImageResolution = {
+  image: string;
+  install: string[];
+  prebuilt: boolean;
+  provider: ToolchainImageProvider;
+  reference?: ToolchainImageReference;
+};

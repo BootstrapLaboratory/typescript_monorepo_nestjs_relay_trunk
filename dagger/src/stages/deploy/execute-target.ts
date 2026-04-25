@@ -4,6 +4,11 @@ import type { DeployTargetDefinition } from "../../model/deploy-target.ts";
 import type { DeployTargetResult } from "../../model/deploy-result.ts";
 import type { PackageManifestArtifact } from "../../model/package-manifest.ts";
 import { logSubsection } from "../../logging/sections.ts";
+import { deployTargetToolchainImageSpec } from "../../toolchain-images/spec.ts";
+import {
+  applyToolchainImageResolution,
+  resolveToolchainImage,
+} from "../../toolchain-images/resolve.ts";
 import { loadDeployTargetDefinition } from "./load-deploy-metadata.ts";
 import {
   getRequiredRepoRelativeHostPathSource,
@@ -122,19 +127,16 @@ export async function executeTarget(
     };
   }
 
+  const toolchainImage = resolveToolchainImage(
+    deployTargetToolchainImageSpec(definition),
+  );
   let container = dag
     .container()
-    .from(definition.runtime.image)
+    .from(toolchainImage.image)
     .withDirectory("/workspace", repo)
     .withWorkdir("/workspace");
 
-  if (definition.runtime.install.length > 0) {
-    container = container.withExec([
-      "bash",
-      "-lc",
-      definition.runtime.install.join(" && "),
-    ]);
-  }
+  container = applyToolchainImageResolution(container, toolchainImage);
 
   for (const fileMount of definition.runtime.file_mounts) {
     const sourcePath = getRequiredRepoRelativeHostPathSource(

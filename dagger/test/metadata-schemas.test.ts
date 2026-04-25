@@ -55,6 +55,10 @@ test("committed Dagger metadata files satisfy their JSON schemas", async () => {
       schemaPath: ".dagger/schemas/package-target.schema.json",
     },
     {
+      metadataPaths: [".dagger/toolchain-images/providers.yaml"],
+      schemaPath: ".dagger/schemas/toolchain-image-providers.schema.json",
+    },
+    {
       metadataPaths: await listYamlFiles(".dagger/validate/targets"),
       schemaPath: ".dagger/schemas/validation-target.schema.json",
     },

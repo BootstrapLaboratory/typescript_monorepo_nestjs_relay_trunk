@@ -95,7 +95,7 @@ providers:
   github:
     kind: github_container_registry
     registry: ghcr.io
-    namespace_env: GITHUB_REPOSITORY_OWNER
+    image_namespace: rush-delivery-toolchains
     repository_env: GITHUB_REPOSITORY
     token_env: GITHUB_TOKEN
 ```
@@ -130,8 +130,8 @@ Provider metadata location: `.dagger/toolchain-images/providers.yaml`.
 - [x] Add unit tests for stable hash generation and hash changes when toolchain
       inputs change.
 - [x] Add a provider-neutral image reference model.
-- [ ] Implement `off` behavior with the current container construction path.
-- [ ] Add provider metadata parsing and validation.
+- [x] Implement `off` behavior with the current container construction path.
+- [x] Add provider metadata parsing and validation.
 - [ ] Implement the GitHub Container Registry provider adapter.
 - [x] Add tests for GHCR image reference generation without contacting GitHub.
 - [ ] Wire deploy executor stages to resolve toolchain images lazily.
