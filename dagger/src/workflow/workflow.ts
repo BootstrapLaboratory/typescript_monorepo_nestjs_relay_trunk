@@ -17,6 +17,8 @@ import {
 import { parseRushCacheProviders } from "../rush-cache/parse-providers.ts";
 import { rushCacheProvidersPath } from "../rush-cache/metadata-paths.ts";
 import { parseDeployEnvFile } from "../stages/deploy/runtime-env.ts";
+import { buildSourcePlan } from "../source/source-plan.ts";
+import { resolveSource } from "../source/resolve-source.ts";
 import { runBuildPackageWorkflow } from "./build-package-runner.ts";
 
 const PACKAGE_MANIFEST_PATH = ".dagger/runtime/package-manifest.json";
@@ -37,20 +39,47 @@ export async function workflow(
   toolchainImagePolicy: string = "lazy",
   rushCacheProvider: string = "off",
   rushCachePolicy: string = "lazy",
+  sourceMode: string = "local_copy",
+  sourceRepositoryUrl: string = "",
+  sourceRef: string = "",
+  sourceAuthTokenEnv: string = "",
+  sourceAuthUsername: string = "",
   dockerSocket?: Socket,
 ): Promise<string> {
   logSection("Release workflow");
+  const hostEnv = deployEnvFile
+    ? parseDeployEnvFile(await deployEnvFile.contents())
+    : {};
+  const sourcePlan = buildSourcePlan({
+    authTokenEnv:
+      sourceAuthTokenEnv.length === 0 ? undefined : sourceAuthTokenEnv,
+    authUsername:
+      sourceAuthUsername.length === 0 ? undefined : sourceAuthUsername,
+    commitSha: gitSha,
+    deployTagPrefix,
+    mode: sourceMode,
+    prBaseSha,
+    ref: sourceRef.length === 0 ? undefined : sourceRef,
+    repositoryUrl:
+      sourceRepositoryUrl.length === 0 ? undefined : sourceRepositoryUrl,
+  });
+
+  logSection("Source acquisition");
+  console.log(`[source] mode=${sourcePlan.mode}`);
+
+  const sourceRepo = resolveSource(sourcePlan, {
+    hostEnv,
+    repo,
+  });
+
   logSection("Metadata contract");
 
   console.log(
     formatMetadataContractValidationResult(
-      await validateMetadataContract(repo),
+      await validateMetadataContract(sourceRepo),
     ),
   );
 
-  const hostEnv = deployEnvFile
-    ? parseDeployEnvFile(await deployEnvFile.contents())
-    : {};
   const parsedToolchainImageProvider =
     parseToolchainImageProvider(toolchainImageProvider);
   parseToolchainImagePolicy(toolchainImagePolicy);
@@ -60,14 +89,14 @@ export async function workflow(
     parsedToolchainImageProvider === "off"
       ? undefined
       : parseToolchainImageProviders(
-          await repo.file(toolchainImageProvidersPath).contents(),
+          await sourceRepo.file(toolchainImageProvidersPath).contents(),
         );
   const rushCacheProviders = parseRushCacheProviders(
-    await repo.file(rushCacheProvidersPath).contents(),
+    await sourceRepo.file(rushCacheProvidersPath).contents(),
   );
 
   const { ciPlan, repo: packagedRepo } = await runBuildPackageWorkflow(
-    repo,
+    sourceRepo,
     eventName,
     forceTargetsJson,
     prBaseSha,

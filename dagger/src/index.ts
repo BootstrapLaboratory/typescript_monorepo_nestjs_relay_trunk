@@ -185,6 +185,11 @@ export class RushDelivery {
     toolchainImagePolicy: string = "lazy",
     rushCacheProvider: string = "off",
     rushCachePolicy: string = "lazy",
+    sourceMode: string = "local_copy",
+    sourceRepositoryUrl: string = "",
+    sourceRef: string = "",
+    sourceAuthTokenEnv: string = "",
+    sourceAuthUsername: string = "",
     dockerSocket?: Socket,
   ): Promise<string> {
     return runWorkflow(
@@ -203,6 +208,11 @@ export class RushDelivery {
       toolchainImagePolicy,
       rushCacheProvider,
       rushCachePolicy,
+      sourceMode,
+      sourceRepositoryUrl,
+      sourceRef,
+      sourceAuthTokenEnv,
+      sourceAuthUsername,
       dockerSocket,
     );
   }

@@ -86,11 +86,11 @@ to run the workflow.
 
 ### Phase 3: Workflow Integration
 
-- [ ] Make `workflow` resolve the source directory before metadata contract,
+- [x] Make `workflow` resolve the source directory before metadata contract,
   detect, build, package, and deploy stages.
-- [ ] Keep the existing `repo: Directory` input working through `local_copy` for
+- [x] Keep the existing `repo: Directory` input working through `local_copy` for
   local development and incremental rollout.
-- [ ] Update build/package/deploy code to consume the resolved source directory
+- [x] Update build/package/deploy code to consume the resolved source directory
   rather than assuming the caller-provided directory is the workflow source.
 - [ ] Confirm deploy file mounts and credentials still work when source is
   internally cloned.
@@ -118,8 +118,8 @@ to run the workflow.
 
 ### Phase 6: Validation
 
-- [ ] Run Dagger unit tests.
-- [ ] Run `dagger call self-check --repo=..`.
+- [x] Run Dagger unit tests.
+- [x] Run `dagger call self-check --repo=..`.
 - [ ] Run local workflow dry-run with local-copy source mode.
 - [ ] Run local workflow dry-run with Git source mode.
 - [ ] Run real GitHub CI for a PR validation path.
