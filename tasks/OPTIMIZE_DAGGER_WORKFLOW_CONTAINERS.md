@@ -46,6 +46,9 @@ Deploy stays isolated:
 - [x] Run detect once inside the shared workflow container.
 - [x] Run Rush install once for build/package, after detect selects deploy
       targets.
+- [x] Mount Dagger-native Rush caches for `install-run`, `node_modules`, and
+      `pnpm-store`.
+- [x] Use generic framework cache names instead of project-specific names.
 - [x] Reuse existing build-stage command planning logic.
 - [x] Reuse existing package-stage metadata and action planning logic.
 - [x] Keep public focused Dagger entrypoints unchanged.
