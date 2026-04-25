@@ -75,6 +75,7 @@ function formatDryRunSummary(
 
 export async function executeTarget(
   repo: Directory,
+  runtimeMountRepo: Directory,
   target: string,
   artifact: PackageManifestArtifact,
   gitSha: string,
@@ -151,7 +152,7 @@ export async function executeTarget(
     );
     container = container.withMountedFile(
       fileMount.target,
-      repo.file(sourcePath),
+      runtimeMountRepo.file(sourcePath),
     );
   }
 

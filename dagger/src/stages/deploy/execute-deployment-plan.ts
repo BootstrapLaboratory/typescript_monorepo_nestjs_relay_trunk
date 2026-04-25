@@ -11,6 +11,7 @@ import { executeTarget } from "./execute-target.ts";
 
 export async function executeDeploymentPlan(
   repo: Directory,
+  runtimeMountRepo: Directory,
   plan: DeploymentPlan,
   packageManifest: PackageManifest,
   gitSha: string,
@@ -46,6 +47,7 @@ export async function executeDeploymentPlan(
 
           return await executeTarget(
             repo,
+            runtimeMountRepo,
             entry.target,
             artifact,
             gitSha,

@@ -127,5 +127,6 @@ export async function workflow(
     toolchainImageProvider,
     toolchainImagePolicy,
     dockerSocket,
+    repo,
   );
 }

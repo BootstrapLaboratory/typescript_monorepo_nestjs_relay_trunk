@@ -38,6 +38,7 @@ export async function deployRelease(
   toolchainImageProvider: string = "off",
   toolchainImagePolicy: string = "lazy",
   dockerSocket?: Socket,
+  runtimeMountRepo?: Directory,
 ): Promise<string> {
   logSection("Deploy release");
 
@@ -85,6 +86,7 @@ export async function deployRelease(
 
   const results = await executeDeploymentPlan(
     repo,
+    runtimeMountRepo ?? repo,
     deploymentPlan,
     packageManifest,
     gitSha,
