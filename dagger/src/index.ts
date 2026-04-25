@@ -15,6 +15,7 @@ import { packageDeployTargets } from "./stages/package-stage/package-deploy-targ
 import { parseReleaseTargets } from "./planning/parse-release-targets.ts";
 import { validate as validateRelease } from "./stages/validate/validate.ts";
 import { workflow as runWorkflow } from "./workflow/workflow.ts";
+import { selfCheck as runSelfCheck } from "./self-check/self-check.ts";
 import {
   assertMetadataContract,
   validateMetadataContract as validateMetadataContractForRepo,
@@ -29,6 +30,16 @@ export class RushDelivery {
   @func()
   ping(): string {
     return "rush-delivery ready";
+  }
+
+  /**
+   * Runs the framework's local typecheck, unit tests, and metadata contract validation.
+   */
+  @func()
+  async selfCheck(
+    @argument({ defaultPath: ".." }) repo: Directory,
+  ): Promise<string> {
+    return runSelfCheck(repo);
   }
 
   /**
