@@ -1,0 +1,405 @@
+# Previously validated split-job GitHub release workflow.
+#
+# This example preserves the artifact-handoff shape used before the Dagger
+# `workflow` entrypoint composed detect, build, package, and deploy in one
+# invocation.
+
+name: ci-release
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_call:
+    inputs:
+      force_targets_json:
+        default: "[]"
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  CLOUD_RUN_REGION: europe-west4
+  NODE_VERSION: "24"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  DEPLOY_ARTIFACT_PREFIX: deploy-target
+  DEPLOY_TAG_PREFIX: deploy/prod
+
+concurrency:
+  group: ci-release-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      mode: ${{ steps.finalize.outputs.mode }}
+      has_validate_scope: ${{ steps.finalize.outputs.has_validate_scope }}
+      has_deploy_scope: ${{ steps.finalize.outputs.has_deploy_scope }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Fetch remote tags
+        run: git fetch --force --tags origin
+
+      - name: Setup NodeJS version ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: false
+
+      - name: Install Dagger CLI
+        run: |
+          mkdir -p "${RUNNER_TEMP}/bin"
+          curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR="${RUNNER_TEMP}/bin" sh
+          echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
+
+      - name: Compute canonical CI plan
+        env:
+          DAGGER_NO_NAG: "1"
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
+          FORCE_TARGETS_JSON: ${{ inputs.force_targets_json || '[]' }}
+          DEPLOY_TAG_PREFIX: ${{ env.DEPLOY_TAG_PREFIX }}
+        working-directory: dagger
+        run: |
+          mkdir -p ../.dagger/runtime
+          dagger call detect \
+            --event-name="${GITHUB_EVENT_NAME}" \
+            --pr-base-sha="${PR_BASE_SHA}" \
+            --force-targets-json="${FORCE_TARGETS_JSON}" \
+            --deploy-tag-prefix="${DEPLOY_TAG_PREFIX}" \
+            > ../.dagger/runtime/ci-plan.json
+
+      - id: finalize
+        name: Finalize deploy plan outputs
+        run: node scripts/ci/finalize-ci-plan.mjs
+
+      - name: Stage CI plan artifact
+        run: cp .dagger/runtime/ci-plan.json "${RUNNER_TEMP}/ci-plan.json"
+
+      - name: Upload CI plan artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: ci-plan
+          path: ${{ runner.temp }}/ci-plan.json
+          if-no-files-found: error
+
+  validate:
+    needs: detect
+    if: github.event_name == 'pull_request' && needs.detect.outputs.has_validate_scope == 'true'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: chatdb
+          POSTGRES_USER: chatuser
+          POSTGRES_PASSWORD: chatpass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U chatuser -d chatdb"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup NodeJS version ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: false
+
+      - name: Download CI plan artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: ci-plan
+          path: .dagger/runtime
+
+      - id: ci_plan
+        name: Load CI plan
+        run: node scripts/ci/finalize-ci-plan.mjs
+
+      - name: Install dependencies with caching
+        uses: ./.github/actions/cached-install
+
+      - name: Verify affected Rush projects
+        run: make ci-validate-verify-affected FROM_SHA="${{ steps.ci_plan.outputs.pr_base_sha }}"
+
+      - name: Lint affected Rush projects
+        run: make ci-validate-lint-affected FROM_SHA="${{ steps.ci_plan.outputs.pr_base_sha }}"
+
+      - name: Test affected Rush projects
+        run: make ci-validate-test-affected FROM_SHA="${{ steps.ci_plan.outputs.pr_base_sha }}"
+
+      - name: Build affected Rush projects
+        run: make ci-validate-build-affected FROM_SHA="${{ steps.ci_plan.outputs.pr_base_sha }}"
+
+      - name: Run production-like database migrations
+        if: contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
+        env:
+          NODE_ENV: production
+          DATABASE_HOST: 127.0.0.1
+          DATABASE_PORT: "5432"
+          DATABASE_NAME: chatdb
+          DATABASE_USER: chatuser
+          DATABASE_PASSWORD: chatpass
+          DATABASE_SYNCHRONIZE: "false"
+          DATABASE_SSL: "false"
+        run: make ci-validate-server-migrations
+
+      - name: Start backend with production-like env
+        if: contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
+        env:
+          NODE_ENV: production
+          HOST: 127.0.0.1
+          PORT: "3100"
+          GRAPHQL_PATH: /graphql
+          CORS_ORIGIN: http://localhost:5173
+          DATABASE_HOST: 127.0.0.1
+          DATABASE_PORT: "5432"
+          DATABASE_NAME: chatdb
+          DATABASE_USER: chatuser
+          DATABASE_PASSWORD: chatpass
+          DATABASE_SYNCHRONIZE: "false"
+          DATABASE_SSL: "false"
+          PUBSUB_DRIVER: redis
+          REDIS_URL: redis://127.0.0.1:6379
+          LOG_VERBOSE_PUBSUB: "false"
+          LOG_GRAPHQL_SUBSCRIPTIONS: "false"
+        run: make ci-validate-start-server
+
+      - name: Run backend smoke tests
+        if: contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
+        env:
+          SERVICE_URL: http://127.0.0.1:3100
+        run: make ci-validate-server-smoke SERVICE_URL=http://127.0.0.1:3100
+
+      - name: Show backend logs on failure
+        if: failure() && contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
+        run: make ci-validate-show-server-logs
+
+      - name: Stop backend
+        if: always() && contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
+        run: make ci-validate-stop-server
+
+      - name: Prepare pruned backend deploy bundle
+        if: contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
+        run: make ci-package-server-bundle
+
+      - name: Build runtime-only backend container
+        if: contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
+        run: make ci-validate-build-server-container IMAGE_TAG=local/server-cloudrun:${{ github.sha }}
+
+  package:
+    needs: detect
+    if: github.event_name != 'pull_request' && needs.detect.outputs.has_deploy_scope == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup NodeJS version ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: false
+
+      - name: Download CI plan artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: ci-plan
+          path: .dagger/runtime
+
+      - id: ci_plan
+        name: Load CI plan
+        run: node scripts/ci/finalize-ci-plan.mjs
+
+      - name: Install Dagger CLI
+        run: |
+          mkdir -p "${RUNNER_TEMP}/bin"
+          curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR="${RUNNER_TEMP}/bin" sh
+          echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
+
+      - name: Build and package selected deploy targets
+        working-directory: dagger
+        env:
+          DAGGER_NO_NAG: "1"
+        run: |
+          dagger call build-and-package-deploy-targets \
+            --repo=.. \
+            --ci-plan-file=../.dagger/runtime/ci-plan.json \
+            --artifact-prefix="${DEPLOY_ARTIFACT_PREFIX}" \
+            export --path=..
+
+      - name: Stage package manifest artifact
+        run: cp .dagger/runtime/package-manifest.json "${RUNNER_TEMP}/package-manifest.json"
+
+      - name: Upload package manifest artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: package-manifest
+          path: ${{ runner.temp }}/package-manifest.json
+          if-no-files-found: error
+
+      - name: Upload backend deploy artifact
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
+        uses: actions/upload-artifact@v5
+        with:
+          name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'server') }}
+          path: ${{ format('{0}-{1}.tgz', env.DEPLOY_ARTIFACT_PREFIX, 'server') }}
+          if-no-files-found: error
+
+      - name: Upload webapp deploy artifact
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'webapp')
+        uses: actions/upload-artifact@v5
+        with:
+          name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'webapp') }}
+          path: apps/webapp/dist
+          if-no-files-found: error
+
+  deploy:
+    needs:
+      - detect
+      - package
+    if: needs.detect.outputs.has_deploy_scope == 'true' && needs.package.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup NodeJS version ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: false
+
+      - name: Download CI plan artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: ci-plan
+          path: .dagger/runtime
+
+      - id: ci_plan
+        name: Load CI plan
+        run: node scripts/ci/finalize-ci-plan.mjs
+
+      - name: Download package manifest artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: package-manifest
+          path: .dagger/runtime
+
+      - name: Install Dagger CLI
+        run: |
+          mkdir -p "${RUNNER_TEMP}/bin"
+          curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR="${RUNNER_TEMP}/bin" sh
+          echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
+
+      - name: Confirm required Google Cloud configuration
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
+        env:
+          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+          GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          GCP_SERVICE_ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          GCP_ARTIFACT_REGISTRY_REPOSITORY: ${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}
+          CLOUD_RUN_SERVICE: ${{ vars.CLOUD_RUN_SERVICE }}
+          CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT: ${{ vars.CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT }}
+          CLOUD_RUN_CORS_ORIGIN: ${{ vars.CLOUD_RUN_CORS_ORIGIN }}
+        run: make ci-deploy-server-check-gcp-config
+
+      - id: auth
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
+        name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+
+      - name: Download backend deploy artifact
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
+        uses: actions/download-artifact@v5
+        with:
+          name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'server') }}
+          path: .
+
+      - name: Confirm required Cloudflare configuration
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'webapp')
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+          WEBAPP_VITE_GRAPHQL_HTTP: ${{ vars.WEBAPP_VITE_GRAPHQL_HTTP }}
+          WEBAPP_VITE_GRAPHQL_WS: ${{ vars.WEBAPP_VITE_GRAPHQL_WS }}
+        run: make ci-deploy-webapp-check-config
+
+      - name: Download webapp deploy artifact
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'webapp')
+        uses: actions/download-artifact@v5
+        with:
+          name: ${{ format('{0}-{1}', env.DEPLOY_ARTIFACT_PREFIX, 'webapp') }}
+          path: apps/webapp/dist
+
+      - name: Extract backend deploy artifact
+        if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
+        run: make ci-deploy-extract-target-artifact TARGET=server
+
+      - name: Write Dagger deploy env file
+        run: |
+          cat > "${RUNNER_TEMP}/dagger-deploy.env" <<'EOF'
+          GCP_PROJECT_ID=${{ vars.GCP_PROJECT_ID }}
+          GCP_ARTIFACT_REGISTRY_REPOSITORY=${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}
+          CLOUD_RUN_SERVICE=${{ vars.CLOUD_RUN_SERVICE }}
+          CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT=${{ vars.CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT }}
+          CLOUD_RUN_CORS_ORIGIN=${{ vars.CLOUD_RUN_CORS_ORIGIN }}
+          CLOUD_RUN_REGION=${{ env.CLOUD_RUN_REGION }}
+          CLOUDFLARE_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID=${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PAGES_PROJECT_NAME=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+          WEBAPP_VITE_GRAPHQL_HTTP=${{ vars.WEBAPP_VITE_GRAPHQL_HTTP }}
+          WEBAPP_VITE_GRAPHQL_WS=${{ vars.WEBAPP_VITE_GRAPHQL_WS }}
+          WEBAPP_URL=https://${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}.pages.dev
+          GOOGLE_GHA_CREDS_PATH=${{ steps.auth.outputs.credentials_file_path }}
+          EOF
+
+      - name: Execute deployment plan
+        working-directory: dagger
+        env:
+          DAGGER_NO_NAG: "1"
+          DEPLOY_TARGETS_JSON: ${{ steps.ci_plan.outputs.deploy_targets_json }}
+        run: |
+          dagger call deploy-release \
+            --git-sha="${GITHUB_SHA}" \
+            --release-targets-json="${DEPLOY_TARGETS_JSON}" \
+            --environment=prod \
+            --dry-run=false \
+            --deploy-env-file="${RUNNER_TEMP}/dagger-deploy.env" \
+            --package-manifest-file="${GITHUB_WORKSPACE}/.dagger/runtime/package-manifest.json" \
+            --host-workspace-dir="${GITHUB_WORKSPACE}" \
+            --docker-socket=/var/run/docker.sock

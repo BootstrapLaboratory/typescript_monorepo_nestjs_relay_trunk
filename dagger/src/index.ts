@@ -13,6 +13,7 @@ import { buildAndPackageDeployTargets } from "./package-stage/build-and-package-
 import { buildDeployTargets } from "./build-stage/build-deploy-targets.ts";
 import { packageDeployTargets } from "./package-stage/package-deploy-targets.ts";
 import { parseReleaseTargets } from "./planning/parse-release-targets.ts";
+import { workflow as runWorkflow } from "./workflow/workflow.ts";
 
 @object()
 export class ReleaseOrchestrator {
@@ -116,6 +117,40 @@ export class ReleaseOrchestrator {
       dryRun,
       deployEnvFile,
       packageManifestFile,
+      hostWorkspaceDir,
+      dockerSocket,
+    );
+  }
+
+  /**
+   * Runs the deploy-oriented workflow as one Dagger composition: detect, build, package, then deploy.
+   */
+  @func()
+  async workflow(
+    @argument({ defaultPath: ".." }) repo: Directory,
+    gitSha: string,
+    eventName: string = "push",
+    forceTargetsJson: string = "[]",
+    prBaseSha: string = "",
+    deployTagPrefix: string = "deploy/prod",
+    artifactPrefix: string = "deploy-target",
+    environment: string = "prod",
+    dryRun: boolean = true,
+    deployEnvFile?: File,
+    hostWorkspaceDir: string = "",
+    dockerSocket?: Socket,
+  ): Promise<string> {
+    return runWorkflow(
+      repo,
+      gitSha,
+      eventName,
+      forceTargetsJson,
+      prBaseSha,
+      deployTagPrefix,
+      artifactPrefix,
+      environment,
+      dryRun,
+      deployEnvFile,
       hostWorkspaceDir,
       dockerSocket,
     );

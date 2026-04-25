@@ -4,9 +4,7 @@ The Dagger release integration is complete.
 
 Current GitHub Actions release graph:
 
-1. `detect`
-2. `package`
-3. `deploy`
+1. `dagger-workflow`
 
 Current source of truth:
 
@@ -21,11 +19,11 @@ Current source of truth:
 
 Current runtime model:
 
-- GitHub and other CI wrappers package artifacts outside Dagger
+- GitHub and other CI wrappers prepare provider/bootstrap context
 - CI writes one flat `dagger-deploy.env` file
-- `deploy-release` computes waves from the selected targets and the service
-  mesh internally, logs the plan, and then executes it through one generic
-  target runtime path
+- Dagger `workflow` composes detect, build, package, and deploy in one
+  invocation
+- `deploy-release` remains available as the lower-level deployment executor
 - portable target scripts remain under [../scripts/ci](../scripts/ci)
 
 Current documentation:
@@ -38,4 +36,5 @@ Current documentation:
   [../examples/gitlab/ci-release.gitlab-ci.yml](../examples/gitlab/ci-release.gitlab-ci.yml)
 
 The current interface and remaining hardening work are tracked in
-[REFORM_DAGGER_RELEASE_INTERFACE.md](./REFORM_DAGGER_RELEASE_INTERFACE.md).
+[REFORM_DAGGER_RELEASE_INTERFACE.md](./REFORM_DAGGER_RELEASE_INTERFACE.md) and
+[ADD_DAGGER_WORKFLOW_ENTRYPOINT.md](./ADD_DAGGER_WORKFLOW_ENTRYPOINT.md).

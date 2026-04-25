@@ -24,25 +24,20 @@ Example invocation from another CI provider:
 
 The current GitHub Actions release graph is:
 
-1. `detect`
-2. `package`
-3. `deploy`
+1. `dagger-workflow`
 
-Responsibilities by job:
+Responsibilities:
 
-- `detect` computes the canonical
-  [../../.dagger/runtime/ci-plan.json](../../.dagger/runtime/ci-plan.json)
-  handoff file by calling Dagger `detect`, then derives thin GitHub scheduling
-  outputs from that file.
-- `validate` restores `ci-plan.json` after checkout and reads validation scope
-  from the file instead of treating GitHub job outputs as its primary contract.
-- `package` calls Dagger to build and package selected deploy targets, exports
-  the packaged workspace, and uploads deploy artifacts after restoring
-  `ci-plan.json`.
-- `deploy` restores `ci-plan.json`, downloads the packaged artifacts, prepares
-  cloud configuration and credentials, writes one flat deploy env file, and
-  calls `deploy-release`. Dagger computes and logs the deployment plan
-  internally before executing it.
+- GitHub checks out the repository, fetches deploy tags, installs the Dagger
+  CLI, prepares provider credentials, writes one flat deploy env file, and
+  calls Dagger `workflow`.
+- Dagger `workflow` computes the CI plan, builds selected deploy targets,
+  materializes deploy artifacts, writes the package manifest, computes the
+  deployment plan, and executes it.
+
+The previous split-job workflow that used GitHub artifact upload/download as
+the stage handoff is preserved as
+[../../examples/github/ci-release.split-jobs.yaml](../../examples/github/ci-release.split-jobs.yaml).
 
 ## Deploy Artifacts
 
@@ -53,13 +48,15 @@ Responsibilities by job:
   [apps/webapp/dist](../../apps/webapp/dist) directory.
 
 Dagger owns build and package materialization. GitHub Actions remains the
-provider-specific artifact upload adapter.
+provider-specific bootstrap and credentials adapter.
 
 ## Dagger Responsibilities
 
 [dagger/src/index.ts](../../dagger/src/index.ts) exposes the deploy-flow
 entrypoints:
 
+- `workflow` composes detect, build, package, and deploy in one Dagger
+  invocation.
 - `build-deploy-targets` reads `ci-plan.json` and runs the generic Rush
   verify/lint/test/build stage for selected deploy targets.
 - `package-deploy-targets` reads `ci-plan.json`, materializes deploy artifacts
@@ -70,9 +67,9 @@ entrypoints:
   path. Planning stays internal to `deploy-release`, which computes and logs
   deployment waves before executing them.
 
-The Dagger build and package entrypoints return a workspace `Directory`.
-GitHub exports the packaged workspace before using provider-specific artifact
-upload steps.
+The Dagger build and package entrypoints still exist for focused local or
+debugging calls. The operational GitHub release workflow now uses the composed
+`workflow` entrypoint.
 
 Deployment order comes from
 [.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml), so
@@ -112,13 +109,14 @@ That file carries:
 - host-side mount sources such as `GOOGLE_GHA_CREDS_PATH`
 
 For file-backed mounts, the workflow also passes `--host-workspace-dir` to
-`deploy-release`. That lets Dagger strip the checked-out workspace prefix from
-absolute host file paths and mount them from the repository context with
-`repo.file(...)` instead of requiring CI-side path rewriting.
+the Dagger `workflow` entrypoint. That lets Dagger strip the checked-out
+workspace prefix from absolute host file paths and mount them from the
+repository context with `repo.file(...)` instead of requiring CI-side path
+rewriting.
 
 Docker socket handling is a shared special case instead of target YAML
-metadata. The wrapper passes
-`--docker-socket=/var/run/docker.sock` directly to `deploy-release`.
+metadata. The wrapper passes `--docker-socket=/var/run/docker.sock` directly to
+the Dagger `workflow` entrypoint, which forwards it to deploy execution.
 
 Current target behavior:
 
@@ -146,6 +144,10 @@ the Dagger runtime prints a summary of:
 - The reusable
   [ci-release.yaml](../../.github/workflows/ci-release.yaml) workflow is the
   operational source of truth for GitHub releases.
-- GitHub Actions remains the trigger, artifact upload adapter, and credentials
-  boundary. Dagger owns deploy-target build/package materialization,
+- GitHub Actions remains the trigger, checkout, credentials, and host-runtime
+  boundary. Dagger owns deploy-target detection, build/package materialization,
   deployment ordering, and release execution.
+- Pull-request validation from the previous split-job workflow is not yet part
+  of the composed Dagger workflow. The preserved split-job example remains the
+  reference for that older validation shape until a Dagger-owned validation
+  design is added.

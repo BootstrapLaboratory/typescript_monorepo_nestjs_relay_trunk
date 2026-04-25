@@ -1,8 +1,7 @@
 # GitLab Release Example
 
-This note shows one way to invoke the same Dagger release entrypoints from
-GitLab CI after your packaging stage has produced the same deploy artifacts used
-by [ci-release.yaml](../../.github/workflows/ci-release.yaml).
+This note shows one way to invoke the lower-level Dagger deploy entrypoint from
+GitLab CI after your packaging stage has produced deploy artifacts.
 
 The goal is not to create a second release architecture. The GitLab example
 reuses the same Dagger interface:
@@ -72,8 +71,8 @@ another name, update the `needs` entries in the example file.
 
 ## Notes
 
-- This example intentionally keeps packaging outside Dagger, matching the
-  current GitHub release flow documented in
+- This example intentionally keeps packaging outside Dagger. The current GitHub
+  release flow uses the higher-level Dagger `workflow` entrypoint documented in
   [ReleaseFlow.md](./ReleaseFlow.md).
 - `deploy-release` computes and logs the deployment plan internally before
   executing it, so GitLab does not need a separate planning stage.
