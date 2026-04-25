@@ -8,3 +8,5 @@
   `tasks/2026-04-25-0345_ADD_DAGGER_VALIDATE_WORKFLOW.md`
 - When all checklist items in a task file are fully completed, move the task
   file to `tasks/completed`.
+- Do not modify files under `tasks/completed`; completed task files are an
+  archive. If follow-up work is needed, create a new task file under `tasks`.
