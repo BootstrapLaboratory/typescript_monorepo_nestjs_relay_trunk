@@ -102,20 +102,38 @@ providers:
 
 Provider metadata location: `.dagger/toolchain-images/providers.yaml`.
 
+## Current Runtime Inventory
+
+- `stages/deploy/execute-target.ts`: deploy executor runtime from target
+  metadata. First optimization candidate because it repeats target-specific
+  toolchain installation.
+- `stages/build-stage/build-deploy-targets.ts`: shared Rush build runtime.
+  Defer until deploy executor toolchains prove the model.
+- `stages/package-stage/package-deploy-targets.ts`: shared Rush package
+  runtime. Defer until deploy executor toolchains prove the model.
+- `stages/detect/detect.ts`: lightweight detect runtime. Not a first-slice
+  candidate.
+- `rush/container.ts`: shared Rush helper runtime. Not a first-slice candidate
+  while workflow keeps build/package in one prepared container.
+- `stages/validate/validation-runner.ts`: validation service containers are
+  workload dependencies, not reusable framework toolchains.
+- `self-check/self-check.ts`: framework health-check runtime. Not part of the
+  release/deploy workflow optimization path.
+
 ## Implementation Checklist
 
 ### Phase 1: Lazy Deploy Toolchain Images
 
-- [ ] Inventory every current Dagger container/runtime setup path and identify
+- [x] Inventory every current Dagger container/runtime setup path and identify
       which ones are toolchain-image candidates.
-- [ ] Define `ToolchainImageSpec` and its normalized/hashable representation.
-- [ ] Add unit tests for stable hash generation and hash changes when toolchain
+- [x] Define `ToolchainImageSpec` and its normalized/hashable representation.
+- [x] Add unit tests for stable hash generation and hash changes when toolchain
       inputs change.
-- [ ] Add a provider-neutral image reference model.
+- [x] Add a provider-neutral image reference model.
 - [ ] Implement `off` behavior with the current container construction path.
 - [ ] Add provider metadata parsing and validation.
 - [ ] Implement the GitHub Container Registry provider adapter.
-- [ ] Add tests for GHCR image reference generation without contacting GitHub.
+- [x] Add tests for GHCR image reference generation without contacting GitHub.
 - [ ] Wire deploy executor stages to resolve toolchain images lazily.
 
 ### Phase 2: Follow-Up Toolchain Image Operations
