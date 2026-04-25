@@ -93,6 +93,8 @@ entrypoints:
   deployment waves before executing them.
 - `validate` runs Dagger-owned pull-request validation for affected Rush
   projects and optional repository-owned validation scenarios.
+- `validate-metadata-contract` validates the cross-file Rush and `.dagger`
+  metadata contract before expensive workflow stages run.
 
 The Dagger build and package entrypoints still exist for focused local or
 debugging calls. The operational GitHub release workflow now uses the composed
@@ -101,6 +103,10 @@ debugging calls. The operational GitHub release workflow now uses the composed
 Deployment order comes from
 [.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml), so
 target ordering stays in one canonical place.
+
+The framework metadata contract is documented in
+[DaggerFrameworkContract.md](./DaggerFrameworkContract.md). Use it when adding
+or changing deploy, package, or validation targets.
 
 Target-specific deploy metadata comes from:
 
@@ -191,26 +197,15 @@ declared by YAML instead of hardcoded in Dagger TypeScript.
 ## Adding A Deploy Target
 
 To add a deployable Rush project, keep the framework generic and add metadata
-instead of editing Dagger internals:
+instead of editing Dagger internals. The full checklist is in
+[DaggerFrameworkContract.md](./DaggerFrameworkContract.md).
 
-1. Add the Rush project in `rush.json` and give the project a stable package
-   name.
-2. Add package metadata under `.dagger/package/targets/<target>.yaml`. The
-   `name` should match the Rush project name. Use `kind: directory` for an
-   already-built directory artifact or `kind: rush_deploy_archive` when Dagger
-   should run `rush deploy` and archive the result.
-3. Add deploy graph metadata in `.dagger/deploy/services-mesh.yaml`. Use
-   `deploy_after` to express ordering dependencies between deploy targets.
-4. Add deploy runtime metadata under `.dagger/deploy/targets/<target>.yaml`.
-   This file declares the target `deploy_script`, container image, install
-   commands, env pass-through, static env, dry-run defaults, required host env,
-   and file mounts.
-5. Put target/provider behavior near its owner, for example under
-   `apps/<project>/scripts` for project-specific logic or
-   `deploy/<provider>/scripts` for provider operations.
-6. Let Dagger handle the shared mechanics: target selection, Rush build,
-   package materialization, deployment ordering, runtime env/mount exposure,
-   and deploy tag updates.
+After editing metadata, run:
+
+```bash
+cd dagger
+dagger call validate-metadata-contract --repo=..
+```
 
 ## Operational Notes
 
