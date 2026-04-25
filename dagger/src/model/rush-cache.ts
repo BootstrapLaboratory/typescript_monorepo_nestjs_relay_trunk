@@ -8,6 +8,33 @@ export type RushCacheConfig = {
   version: string;
 };
 
+export type RushCacheKeyFile = {
+  contents: string;
+  path: string;
+};
+
+export type RushCacheSpec = {
+  keyFiles: RushCacheKeyFile[];
+  paths: string[];
+  toolchainIdentity: string;
+  version: string;
+};
+
+export type NormalizedRushCacheSpec = {
+  key_files: RushCacheKeyFile[];
+  paths: string[];
+  toolchain_identity: string;
+  version: string;
+};
+
+export type RushCacheReference = {
+  imagePath: string;
+  reference: string;
+  registry: string;
+  repository: string;
+  tag: string;
+};
+
 export type GithubRushCacheProviderDefinition = {
   image_namespace: string;
   kind: "github_container_registry";

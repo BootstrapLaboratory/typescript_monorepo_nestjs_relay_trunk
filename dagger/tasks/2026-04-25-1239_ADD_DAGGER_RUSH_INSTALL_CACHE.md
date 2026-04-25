@@ -131,13 +131,13 @@ ghcr.io/<owner>/<repo>/rush-delivery-caches/rush-install:<hash>
 
 ### Phase 2: Cache Spec And Keying
 
-- [ ] Add a normalized Rush install cache spec model.
-- [ ] Hash configured `cache.key_files`, configured `cache.paths`, and Rush
+- [x] Add a normalized Rush install cache spec model.
+- [x] Hash configured `cache.key_files`, configured `cache.paths`, and Rush
   workflow toolchain identity.
-- [ ] Add tests proving hash stability and invalidation on lockfile/config
+- [x] Add tests proving hash stability and invalidation on lockfile/config
   changes.
-- [ ] Add tests proving configured cache path changes invalidate the cache.
-- [ ] Generate provider-specific cache image references.
+- [x] Add tests proving configured cache path changes invalidate the cache.
+- [x] Generate provider-specific cache image references.
 
 ### Phase 3: Dagger Cache Resolver
 
