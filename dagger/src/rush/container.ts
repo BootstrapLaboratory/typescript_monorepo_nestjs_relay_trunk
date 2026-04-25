@@ -20,6 +20,17 @@ const RUSH_INSTALL_COMMANDS = [
   "apt-get update",
   "apt-get install -y ca-certificates git",
 ];
+const RUSH_INSTALL_ARGS = [
+  "node",
+  "common/scripts/install-run-rush.js",
+  "install",
+  "--max-install-attempts",
+  "1",
+];
+
+export type RushInstallOptions = {
+  beforeInstallCommand?: string;
+};
 
 export type RushToolchainImageOptions = {
   hostEnv?: Record<string, string>;
@@ -51,12 +62,24 @@ export async function prepareRushContainer(
     .withWorkdir(RUSH_WORKDIR);
 }
 
-export function installRush(container: Container): Container {
-  return container.withExec([
-    "node",
-    "common/scripts/install-run-rush.js",
-    "install",
-    "--max-install-attempts",
-    "1",
-  ]);
+export function installRush(
+  container: Container,
+  options: RushInstallOptions = {},
+): Container {
+  if (options.beforeInstallCommand !== undefined) {
+    return container.withExec(
+      [
+        "bash",
+        "-lc",
+        `${options.beforeInstallCommand} && ${RUSH_INSTALL_ARGS.join(" ")}`,
+      ],
+      {
+        expand: false,
+      },
+    );
+  }
+
+  return container.withExec(RUSH_INSTALL_ARGS, {
+    expand: false,
+  });
 }

@@ -40,14 +40,10 @@ function withRushCacheArchive(
   container: Container,
   cacheContainer: Container,
 ): Container {
-  return container
-    .withFile(
-      RUSH_CACHE_ARCHIVE_WORK_PATH,
-      cacheContainer.file(RUSH_CACHE_ARCHIVE_IMAGE_PATH),
-    )
-    .withExec(["bash", "-lc", buildRushCacheRestoreCommand()], {
-      expand: false,
-    });
+  return container.withFile(
+    RUSH_CACHE_ARCHIVE_WORK_PATH,
+    cacheContainer.file(RUSH_CACHE_ARCHIVE_IMAGE_PATH),
+  );
 }
 
 export async function resolveRushInstallCache(
@@ -110,6 +106,7 @@ async function resolveGithubRushInstallCache(
       provider: "github",
       reference: plan.reference,
       registryAuth,
+      restoreCommand: buildRushCacheRestoreCommand(),
       spec,
     };
   } catch (error) {

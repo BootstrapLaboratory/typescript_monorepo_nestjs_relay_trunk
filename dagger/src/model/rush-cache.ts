@@ -40,6 +40,7 @@ export type RushCacheResolution = {
   paths: string[];
   provider: RushCacheProvider;
   reference?: RushCacheReference;
+  restoreCommand?: string;
   spec: RushCacheSpec;
 };
 

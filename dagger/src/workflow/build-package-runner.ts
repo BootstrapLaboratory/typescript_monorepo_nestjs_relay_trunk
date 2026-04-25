@@ -215,7 +215,9 @@ export async function runBuildPackageWorkflow(
       providers: options.rushCacheProviders,
     },
   );
-  const rushContainer = installRush(resolvedCache.container);
+  const rushContainer = installRush(resolvedCache.container, {
+    beforeInstallCommand: resolvedCache.restoreCommand,
+  });
 
   await publishResolvedRushInstallCache(rushContainer, resolvedCache);
 
