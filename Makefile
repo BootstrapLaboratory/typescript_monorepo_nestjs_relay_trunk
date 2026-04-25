@@ -43,10 +43,10 @@ ci-validate-build-affected:
 	@$(RUSH) build --from "git:$(FROM_SHA)"
 
 ci-validate-server-migrations:
-	@bash scripts/ci/run-server-migrations.sh
+	@npm --prefix apps/server run ci:migration:run
 
 ci-validate-start-server:
-	@SERVER_SMOKE_LOG="$(SERVER_SMOKE_LOG)" SERVER_PID_FILE="$(SERVER_PID_FILE)" bash scripts/ci/start-local-server.sh
+	@SERVER_SMOKE_LOG="$(SERVER_SMOKE_LOG)" SERVER_PID_FILE="$(SERVER_PID_FILE)" npm --prefix apps/server run ci:start:prod-smoke
 
 ci-validate-server-smoke:
 	@test -n "$(SERVICE_URL)" || (echo "SERVICE_URL is required" >&2; exit 1)

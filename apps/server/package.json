@@ -16,6 +16,8 @@
     "start:dev": "cross-env NODE_ENV=development nest start --watch",
     "start:debug": "cross-env NODE_ENV=development nest start --debug --watch",
     "start:prod": "node dist/main",
+    "ci:migration:run": "node -r ts-node/register ./src/scripts/run-ci-migrations.ts",
+    "ci:start:prod-smoke": "node -r ts-node/register ./src/scripts/start-ci-prod-server.ts",
     "verify": "npm run graphql:check-contract",
     "graphql:schema": "node -r ts-node/register ./src/scripts/generate-schema.ts",
     "graphql:check-contract": "npm run graphql:schema && (git -C ../.. diff --quiet -- libs/api/schema.gql || (echo \"GraphQL contract drift detected.\" >&2; echo \"Run npm --prefix apps/server run graphql:schema and commit libs/api/schema.gql.\" >&2; git -C ../.. --no-pager diff -- libs/api/schema.gql; exit 1))",

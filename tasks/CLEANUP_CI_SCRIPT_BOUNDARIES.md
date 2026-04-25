@@ -108,8 +108,8 @@ release flow after the composed Dagger `workflow` cutover.
 | Deleted root detect script layer | detect | formerly Dagger detect and legacy split-job adapters | Dagger TypeScript now owns CI plan schema, Rush planning, and target metadata loading. |
 | Split-job CI plan output extraction | legacy GitHub adapter | [../examples/github/ci-release.split-jobs.yaml](../examples/github/ci-release.split-jobs.yaml) | The example derives outputs directly from `ci-plan.json`; no root helper script remains. |
 | Deleted root GraphQL drift helper | build verify | formerly `apps/server` Rush `verify` script | Replaced by server-owned package scripts in [../apps/server/package.json](../apps/server/package.json). |
-| [../scripts/ci/run-server-migrations.sh](../scripts/ci/run-server-migrations.sh) | validate | legacy Makefile split-job path | Move under `apps/server/scripts` if PR validation keeps this local migration check. |
-| [../scripts/ci/start-local-server.sh](../scripts/ci/start-local-server.sh) | validate | legacy Makefile split-job path | Move under `apps/server/scripts` if local server smoke validation stays. |
+| Deleted root server migration helper | validate | legacy Makefile split-job path | Replaced by `apps/server` package script `ci:migration:run`. |
+| Deleted root server start helper | validate | legacy Makefile split-job path | Replaced by `apps/server` package script `ci:start:prod-smoke`. |
 | [../scripts/ci/deploy-server.sh](../scripts/ci/deploy-server.sh) | deploy | `.dagger/deploy/targets/server.yaml` | Move out of root CI scripts, preferably to `deploy/cloudrun/scripts/deploy-server.sh` or a server-owned deploy module. |
 | [../scripts/ci/deploy-webapp.sh](../scripts/ci/deploy-webapp.sh) | deploy | `.dagger/deploy/targets/webapp.yaml` | Move out of root CI scripts, preferably to `deploy/cloudflare-pages/scripts/deploy-webapp.sh` or a webapp-owned deploy module. |
 | [../scripts/ci/validate-webapp-routes.sh](../scripts/ci/validate-webapp-routes.sh) | deploy smoke | `deploy-webapp.sh` | Move with the webapp or Cloudflare Pages deploy module. |
@@ -149,13 +149,13 @@ should not keep production tests in the root CI script folder.
 - [x] Move GraphQL contract drift checking out of root `scripts/ci`.
 - [x] Update [../apps/server/package.json](../apps/server/package.json) so
       `verify` calls the server-owned script.
-- [ ] Convert project-owned shell helpers into `package.json` scripts whenever
+- [x] Convert project-owned shell helpers into `package.json` scripts whenever
       that makes the command simpler and keeps behavior inside the owning Rush
       project.
-- [ ] Keep Rush `verify` as the generic build-stage command.
-- [ ] Move or retire server local migration and start-server validation helpers
+- [x] Keep Rush `verify` as the generic build-stage command.
+- [x] Move or retire server local migration and start-server validation helpers
       from the legacy split-job path.
-- [ ] Update tests/docs that reference the old root script paths.
+- [x] Update tests/docs that reference the old root script paths.
 
 ## Phase 3: Move Target Deploy Adapters
 
