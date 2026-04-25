@@ -1,4 +1,8 @@
 # Tasks files Convention
 
-- when you are creating tasks files under `tasks` directory prepend filename with current date
--
+- When creating task files under `tasks`, prepend the filename with the current
+  date and time in `YYYY-MM-DD-HHMM` format.
+- Use this filename shape:
+  `tasks/YYYY-MM-DD-HHMM_SHORT_TASK_NAME_IN_UPPER_SNAKE_CASE.md`
+- Example:
+  `tasks/2026-04-25-0345_ADD_DAGGER_VALIDATE_WORKFLOW.md`
