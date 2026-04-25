@@ -57,7 +57,7 @@ export async function packageDeployTargets(
       "install",
       "--max-install-attempts",
       "1",
-  ]);
+    ]);
 
   for (const { plan, target } of packagePlans) {
     logSubsection(`Package target: ${target}`);

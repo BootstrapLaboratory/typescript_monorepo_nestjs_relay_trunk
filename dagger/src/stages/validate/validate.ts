@@ -33,9 +33,7 @@ function runValidationStage(container: Container, ciPlan: CiPlan): Container {
   }
 
   logSection("Rush validation");
-  console.log(
-    `[validate] Rush targets: ${ciPlan.validate_targets.join(", ")}`,
-  );
+  console.log(`[validate] Rush targets: ${ciPlan.validate_targets.join(", ")}`);
 
   let nextContainer = installRush(container).withEnvVariable(
     "FAILURE_MODE",
