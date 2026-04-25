@@ -125,8 +125,8 @@ to run the workflow.
 
 - [x] Run Dagger unit tests.
 - [x] Run `dagger call self-check --repo=..`.
-- [ ] Run local workflow dry-run with local-copy source mode.
-- [ ] Run local workflow dry-run with Git source mode.
+- [x] Run local workflow dry-run with local-copy source mode.
+- [x] Run local workflow dry-run with Git source mode.
 - [ ] Run real GitHub CI for a PR validation path.
 - [ ] Run real GitHub CI for a release/deploy path.
 
