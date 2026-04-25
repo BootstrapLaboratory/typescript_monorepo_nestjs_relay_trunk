@@ -2,8 +2,9 @@
 
 ## Goal
 
-Move the remaining mixed responsibilities out of [../scripts/ci](../scripts/ci)
-and into the owners that match the reusable Rush plus Dagger framework.
+Remove the former root `scripts/ci` helper layer and move its remaining mixed
+responsibilities into the owners that match the reusable Rush plus Dagger
+framework.
 
 The target architecture is:
 
@@ -16,9 +17,9 @@ The target architecture is:
 - GitHub Actions stays a thin bootstrap layer for checkout, credentials, and
   one Dagger call.
 
-## Current Problem
+## Original Problem
 
-[../scripts/ci](../scripts/ci) currently mixes several categories:
+The former root `scripts/ci` folder mixed several categories:
 
 - Dagger-called detect planning scripts.
 - Legacy split-job GitHub output adapters.
@@ -108,26 +109,26 @@ release flow after the composed Dagger `workflow` cutover.
 | Deleted root detect script layer                                                                                             | detect                | formerly Dagger detect and legacy split-job adapters                                           | Dagger TypeScript now owns CI plan schema, Rush planning, and target metadata loading.                  |
 | Split-job CI plan output extraction                                                                                          | legacy GitHub adapter | [../examples/github/ci-release.split-jobs.yaml](../examples/github/ci-release.split-jobs.yaml) | The example derives outputs directly from `ci-plan.json`; no root helper script remains.                |
 | Deleted root GraphQL drift helper                                                                                            | build verify          | formerly `apps/server` Rush `verify` script                                                    | Replaced by server-owned package scripts in [../apps/server/package.json](../apps/server/package.json). |
-| Deleted root server migration helper                                                                                         | validate              | legacy Makefile split-job path                                                                 | Replaced by `apps/server` package script `ci:migration:run`.                                            |
-| Deleted root server start helper                                                                                             | validate              | legacy Makefile split-job path                                                                 | Replaced by `apps/server` package script `ci:start:prod-smoke`.                                         |
+| Deleted root server migration helper                                                                                         | validate              | legacy split-job example                                                                       | Replaced by `apps/server` package script `ci:migration:run`.                                            |
+| Deleted root server start helper                                                                                             | validate              | legacy split-job example                                                                       | Replaced by `apps/server` package script `ci:start:prod-smoke`.                                         |
 | [../deploy/cloudrun/scripts/deploy-server.sh](../deploy/cloudrun/scripts/deploy-server.sh)                                   | deploy                | `.dagger/deploy/targets/server.yaml`                                                           | Provider-owned Cloud Run deploy adapter.                                                                |
 | [../deploy/cloudflare-pages/scripts/deploy-webapp.sh](../deploy/cloudflare-pages/scripts/deploy-webapp.sh)                   | deploy                | `.dagger/deploy/targets/webapp.yaml`                                                           | Provider-owned Cloudflare Pages deploy adapter.                                                         |
 | [../deploy/cloudflare-pages/scripts/validate-webapp-routes.sh](../deploy/cloudflare-pages/scripts/validate-webapp-routes.sh) | deploy smoke          | `deploy-webapp.sh`                                                                             | Cloudflare Pages route validation colocated with the webapp deploy adapter.                             |
 | Deleted root deploy tag helper                                                                                               | deploy state          | formerly target deploy scripts                                                                 | Replaced by Dagger deploy orchestration as a generic post-target success step.                          |
-| [../scripts/ci/require-envs.sh](../scripts/ci/require-envs.sh)                                                               | shell helper          | legacy Makefile checks                                                                         | Delete after the legacy Makefile checks are retired or moved.                                           |
+| Deleted root env helper                                                                                                      | shell helper          | formerly legacy Makefile checks                                                                | Replaced by self-contained example checks; root Makefile removed.                                       |
 
-Tests under [../scripts/ci](../scripts/ci) should move with their production
-code. Detect planner tests should become Dagger tests. Example-only adapters
-should not keep production tests in the root CI script folder.
+Detect planner tests moved to Dagger tests. Example-only adapters should stay
+self-contained under `examples`, not keep production tests in a root CI script
+folder.
 
 ## Phase 0: Lock The Boundary
 
-- [ ] Confirm `scripts/ci` is not treated as a reusable framework API.
-- [ ] Keep Rush as the only Dagger framework assumption.
-- [ ] Keep deploy target names loaded from `.dagger` metadata only.
-- [ ] Decide whether provider deploy scripts live under `deploy/*/scripts` or
+- [x] Confirm `scripts/ci` is not treated as a reusable framework API.
+- [x] Keep Rush as the only Dagger framework assumption.
+- [x] Keep deploy target names loaded from `.dagger` metadata only.
+- [x] Decide whether provider deploy scripts live under `deploy/*/scripts` or
       under `apps/*/scripts/deploy`.
-- [ ] Decide whether the split-job GitHub example should be refreshed or kept
+- [x] Decide whether the split-job GitHub example should be refreshed or kept
       as a historical sample with self-contained helper scripts.
 
 ## Phase 1: Move Detect Planning Into Dagger
@@ -161,7 +162,7 @@ should not keep production tests in the root CI script folder.
 
 - [x] Move the server deploy adapter out of root `scripts/ci`.
 - [x] Move the webapp deploy adapter out of root `scripts/ci`.
-- [ ] For app-owned deploy preparation, prefer package scripts over new
+- [x] For app-owned deploy preparation, prefer package scripts over new
       repo-global shell helpers when the package script is clearer.
 - [x] Move webapp route validation with the webapp or Cloudflare Pages adapter.
 - [x] Update `.dagger/deploy/targets/*.yaml` `deploy_script` paths.
@@ -183,14 +184,14 @@ should not keep production tests in the root CI script folder.
 
 ## Phase 5: Remove Root CI Helper Layer
 
-- [ ] Remove `require-envs.sh` after legacy Makefile checks no longer depend on
+- [x] Remove `require-envs.sh` after legacy Makefile checks no longer depend on
       it.
-- [ ] Remove obsolete Makefile CI targets that only exist for the old
+- [x] Remove obsolete Makefile CI targets that only exist for the old
       split-job workflow.
-- [ ] Move any retained example-only helper scripts under `examples`.
-- [ ] Keep [../scripts](../scripts) for real repository utilities, not release
+- [x] Move any retained example-only helper scripts under `examples`.
+- [x] Keep [../scripts](../scripts) for real repository utilities, not release
       framework internals.
-- [ ] Delete or archive [../scripts/ci](../scripts/ci) if no production scripts
+- [x] Delete or archive `scripts/ci` if no production scripts
       remain.
 
 ## Phase 6: Documentation And Examples
@@ -198,7 +199,7 @@ should not keep production tests in the root CI script folder.
 - [x] Update [../docs/notes/ReleaseFlow.md](../docs/notes/ReleaseFlow.md) with
       the new script ownership boundaries.
 - [x] Update target YAML examples in task docs.
-- [ ] Refresh [../examples/github/ci-release.split-jobs.yaml](../examples/github/ci-release.split-jobs.yaml)
+- [x] Refresh [../examples/github/ci-release.split-jobs.yaml](../examples/github/ci-release.split-jobs.yaml)
       or mark it as legacy with self-contained assumptions.
 - [x] Update GitLab example references if they still call removed Makefile
       targets.
@@ -221,7 +222,7 @@ should not keep production tests in the root CI script folder.
 
 ## Stop Point
 
-- Dagger no longer shells out to [../scripts/ci](../scripts/ci).
+- Dagger no longer shells out to the former root `scripts/ci` layer.
 - Root CI scripts no longer encode deploy target behavior.
 - Target deploy scripts live with their project or provider module.
 - Detect, build, package, deploy orchestration is testable in Dagger

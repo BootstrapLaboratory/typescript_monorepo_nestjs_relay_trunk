@@ -17,11 +17,12 @@ It also uses the same repository metadata:
 
 This example assumes:
 
-- a GitLab shell runner with `bash`, `curl`, `git`, `make`, `tar`, Docker, and
+- a GitLab shell runner with `bash`, `curl`, `git`, `tar`, Docker, and
   Node 24 already available
 - `/var/run/docker.sock` is available to the job when `server` is in
   `DEPLOY_TARGETS_JSON`
 - an earlier package stage has already produced:
+  - `.dagger/runtime/package-manifest.json`
   - `deploy-target-server.tgz` when `server` is selected
   - `apps/webapp/dist/` when `webapp` is selected
 - the checked-out repository remote can push deploy tags back to `origin`
@@ -77,8 +78,8 @@ another name, update the `needs` entries in the example file.
   executing it, so GitLab does not need a separate planning stage.
 - `deploy-release` calls provider-owned target scripts from
   [.dagger/deploy/targets](../../.dagger/deploy/targets), so deploy semantics
-  stay aligned across CI providers without keeping deploy adapters in
-  `scripts/ci`.
+  stay aligned across CI providers without keeping deploy adapters in a root CI
+  helper folder.
 - Dagger runtime behavior now comes from repo metadata under
   [.dagger/deploy](../../.dagger/deploy), not from target-specific TypeScript
   executor modules.

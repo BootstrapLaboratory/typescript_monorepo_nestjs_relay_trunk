@@ -2,7 +2,8 @@
 #
 # This example preserves the artifact-handoff shape used before the Dagger
 # `workflow` entrypoint composed detect, build, package, and deploy in one
-# invocation.
+# invocation. It is self-contained and does not depend on the removed root
+# Makefile or scripts/ci helper layer.
 
 name: ci-release
 
@@ -171,16 +172,16 @@ jobs:
         uses: ./.github/actions/cached-install
 
       - name: Verify affected Rush projects
-        run: make ci-validate-verify-affected FROM_SHA="${{ steps.ci_plan.outputs.pr_base_sha }}"
+        run: FAILURE_MODE=merge node common/scripts/install-run-rush.js verify --from "git:${{ steps.ci_plan.outputs.pr_base_sha }}"
 
       - name: Lint affected Rush projects
-        run: make ci-validate-lint-affected FROM_SHA="${{ steps.ci_plan.outputs.pr_base_sha }}"
+        run: node common/scripts/install-run-rush.js lint --from "git:${{ steps.ci_plan.outputs.pr_base_sha }}"
 
       - name: Test affected Rush projects
-        run: make ci-validate-test-affected FROM_SHA="${{ steps.ci_plan.outputs.pr_base_sha }}"
+        run: node common/scripts/install-run-rush.js test --from "git:${{ steps.ci_plan.outputs.pr_base_sha }}"
 
       - name: Build affected Rush projects
-        run: make ci-validate-build-affected FROM_SHA="${{ steps.ci_plan.outputs.pr_base_sha }}"
+        run: node common/scripts/install-run-rush.js build --from "git:${{ steps.ci_plan.outputs.pr_base_sha }}"
 
       - name: Run production-like database migrations
         if: contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
@@ -193,7 +194,7 @@ jobs:
           DATABASE_PASSWORD: chatpass
           DATABASE_SYNCHRONIZE: "false"
           DATABASE_SSL: "false"
-        run: make ci-validate-server-migrations
+        run: npm --prefix apps/server run ci:migration:run
 
       - name: Start backend with production-like env
         if: contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
@@ -214,29 +215,38 @@ jobs:
           REDIS_URL: redis://127.0.0.1:6379
           LOG_VERBOSE_PUBSUB: "false"
           LOG_GRAPHQL_SUBSCRIPTIONS: "false"
-        run: make ci-validate-start-server
+        run: npm --prefix apps/server run ci:start:prod-smoke
 
       - name: Run backend smoke tests
         if: contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
         env:
           SERVICE_URL: http://127.0.0.1:3100
-        run: make ci-validate-server-smoke SERVICE_URL=http://127.0.0.1:3100
+        run: bash deploy/cloudrun/tests/validate-post-deploy-smoke.sh
 
       - name: Show backend logs on failure
         if: failure() && contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
-        run: make ci-validate-show-server-logs
+        run: cat /tmp/server-smoke.log
 
       - name: Stop backend
         if: always() && contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
-        run: make ci-validate-stop-server
+        run: |
+          server_pid=""
+          if [[ -f /tmp/server-smoke.pid ]]; then
+            server_pid="$(cat /tmp/server-smoke.pid)"
+          fi
+          if [[ -n "${server_pid}" ]]; then
+            kill "${server_pid}" || true
+            wait "${server_pid}" || true
+          fi
+          rm -f /tmp/server-smoke.pid
 
       - name: Prepare pruned backend deploy bundle
         if: contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
-        run: make ci-package-server-bundle
+        run: node common/scripts/install-run-rush.js deploy -p server -s server -t common/deploy/server --overwrite
 
       - name: Build runtime-only backend container
         if: contains(fromJSON(steps.ci_plan.outputs.validate_targets_json), 'server')
-        run: make ci-validate-build-server-container IMAGE_TAG=local/server-cloudrun:${{ github.sha }}
+        run: docker build --pull -f apps/server/Dockerfile -t "local/server-cloudrun:${{ github.sha }}" .
 
   package:
     needs: detect
@@ -388,7 +398,23 @@ jobs:
           CLOUD_RUN_SERVICE: ${{ vars.CLOUD_RUN_SERVICE }}
           CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT: ${{ vars.CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT }}
           CLOUD_RUN_CORS_ORIGIN: ${{ vars.CLOUD_RUN_CORS_ORIGIN }}
-        run: make ci-deploy-server-check-gcp-config
+        run: |
+          missing=0
+          for name in \
+            GCP_PROJECT_ID \
+            GCP_WORKLOAD_IDENTITY_PROVIDER \
+            GCP_SERVICE_ACCOUNT \
+            GCP_ARTIFACT_REGISTRY_REPOSITORY \
+            CLOUD_RUN_SERVICE \
+            CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT \
+            CLOUD_RUN_CORS_ORIGIN
+          do
+            if [[ -z "${!name:-}" ]]; then
+              echo "::error::Missing required GitHub Actions variable: ${name}"
+              missing=1
+            fi
+          done
+          exit "${missing}"
 
       - id: auth
         if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
@@ -413,7 +439,21 @@ jobs:
           CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
           WEBAPP_VITE_GRAPHQL_HTTP: ${{ vars.WEBAPP_VITE_GRAPHQL_HTTP }}
           WEBAPP_VITE_GRAPHQL_WS: ${{ vars.WEBAPP_VITE_GRAPHQL_WS }}
-        run: make ci-deploy-webapp-check-config
+        run: |
+          missing=0
+          for name in \
+            CLOUDFLARE_API_TOKEN \
+            CLOUDFLARE_ACCOUNT_ID \
+            CLOUDFLARE_PAGES_PROJECT_NAME \
+            WEBAPP_VITE_GRAPHQL_HTTP \
+            WEBAPP_VITE_GRAPHQL_WS
+          do
+            if [[ -z "${!name:-}" ]]; then
+              echo "::error::Missing required Cloudflare GitHub configuration: ${name}"
+              missing=1
+            fi
+          done
+          exit "${missing}"
 
       - name: Download webapp deploy artifact
         if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'webapp')
@@ -424,7 +464,9 @@ jobs:
 
       - name: Extract backend deploy artifact
         if: contains(fromJSON(steps.ci_plan.outputs.deploy_targets_json), 'server')
-        run: make ci-deploy-extract-target-artifact TARGET=server
+        run: |
+          mkdir -p common/deploy
+          tar -xzf "${DEPLOY_ARTIFACT_PREFIX}-server.tgz" -C common/deploy
 
       - name: Write Dagger deploy env file
         run: |

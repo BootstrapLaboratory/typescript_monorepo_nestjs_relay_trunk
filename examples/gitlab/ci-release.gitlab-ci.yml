@@ -24,7 +24,8 @@ deploy_release:
   script:
     - |
       if [[ "${DEPLOY_TARGETS_JSON}" == *'"server"'* ]]; then
-        make ci-deploy-extract-target-artifact TARGET=server
+        mkdir -p common/deploy
+        tar -xzf "${DEPLOY_ARTIFACT_PREFIX}-server.tgz" -C common/deploy
       fi
     - cd dagger
     - dagger develop
@@ -51,5 +52,6 @@ deploy_release:
         --environment=prod \
         --dry-run=false \
         --deploy-env-file="${CI_PROJECT_DIR}/dagger-deploy.env" \
+        --package-manifest-file="${CI_PROJECT_DIR}/.dagger/runtime/package-manifest.json" \
         --host-workspace-dir="${CI_PROJECT_DIR}" \
         --docker-socket=/var/run/docker.sock
