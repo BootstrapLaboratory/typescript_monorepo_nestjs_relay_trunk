@@ -16,7 +16,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "api-contract": "1.0.0",
+    "api-contract": "0.0.1",
     "graphql-ws": "^6.0.8",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
