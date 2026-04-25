@@ -110,6 +110,22 @@ Future `release` should publish built library/package artifacts to registries,
 for example npm. It should be separate from deploy because not every Rush
 project is deployable, and not every release target is a service.
 
+Terminology decision:
+
+- `deploy_targets` means services/apps that produce deploy artifacts and run
+  provider deploy scripts.
+- `release_targets` is reserved for future package/library publishing scopes,
+  such as npm packages.
+- build inputs should stay generic Rush project names so the same build stage
+  can run for either deploy scopes or future release scopes.
+- package metadata for deploy artifacts stays under `.dagger/package`.
+- future registry-publishing metadata should live outside `.dagger/deploy` and
+  `.dagger/package`, most likely under `.dagger/release/targets`.
+
+That keeps the model honest: deploy is about running services somewhere,
+package is about materializing deploy artifacts, and future release is about
+publishing versioned packages to registries.
+
 ## Metadata Layout
 
 Recommended repository-owned metadata:
@@ -313,10 +329,10 @@ Recommended migration order:
 
 ## Phase 6: Future Release Stage Preparation
 
-- [ ] Reserve release-oriented naming for package/library publishing.
-- [ ] Keep `deploy_targets` distinct from future `release_targets`.
-- [ ] Design future npm publishing metadata separately from deploy metadata.
-- [ ] Allow build to run for deploy scopes and release scopes independently.
+- [x] Reserve release-oriented naming for package/library publishing.
+- [x] Keep `deploy_targets` distinct from future `release_targets`.
+- [x] Design future npm publishing metadata separately from deploy metadata.
+- [x] Allow build to run for deploy scopes and release scopes independently.
 
 ## Stop Point
 

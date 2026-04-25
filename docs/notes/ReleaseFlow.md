@@ -44,7 +44,7 @@ Responsibilities by job:
   calls `deploy-release`. Dagger computes and logs the deployment plan
   internally before executing it.
 
-## Release Artifacts
+## Deploy Artifacts
 
 - `server` is packaged into
   [common/deploy/server](../../common/deploy/server) and uploaded as an archive
@@ -57,7 +57,8 @@ provider-specific artifact upload adapter.
 
 ## Dagger Responsibilities
 
-[dagger/src/index.ts](../../dagger/src/index.ts) exposes the release entrypoints:
+[dagger/src/index.ts](../../dagger/src/index.ts) exposes the deploy-flow
+entrypoints:
 
 - `build-deploy-targets` reads `ci-plan.json` and runs the generic Rush
   verify/lint/test/build stage for selected deploy targets.
@@ -140,8 +141,8 @@ the Dagger runtime prints a summary of:
 
 ## Operational Notes
 
-- The committed GraphQL contract is enforced during `package` whenever `server`
-  is in the release scope.
+- The committed GraphQL contract is enforced during the Dagger build stage by
+  the server project's Rush `verify` script.
 - The reusable
   [ci-release.yaml](../../.github/workflows/ci-release.yaml) workflow is the
   operational source of truth for GitHub releases.
