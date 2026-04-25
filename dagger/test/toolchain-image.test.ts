@@ -3,8 +3,15 @@ import { test } from "node:test";
 
 import { parseDeployTarget } from "../src/stages/deploy/parse-deploy-target.ts";
 import { buildGithubToolchainImageReference } from "../src/toolchain-images/github-reference.ts";
+import {
+  parseToolchainImagePolicy,
+  parseToolchainImageProvider,
+} from "../src/toolchain-images/options.ts";
 import { parseToolchainImageProviders } from "../src/toolchain-images/parse-providers.ts";
-import { resolveToolchainImage } from "../src/toolchain-images/resolve.ts";
+import {
+  isMissingToolchainImageError,
+  resolveOffToolchainImage,
+} from "../src/toolchain-images/resolve-plan.ts";
 import {
   deployTargetToolchainImageSpec,
   hashToolchainImageSpec,
@@ -151,7 +158,7 @@ test("resolves provider off to the current base image and install commands", () 
     version: TOOLCHAIN_IMAGE_SPEC_VERSION,
   };
 
-  assert.deepStrictEqual(resolveToolchainImage(spec), {
+  assert.deepStrictEqual(resolveOffToolchainImage(spec), {
     image: "node:24-bookworm-slim",
     install: ["apt-get update", "apt-get install -y git"],
     prebuilt: false,
@@ -168,6 +175,7 @@ providers:
     image_namespace: custom-toolchains
     repository_env: GITHUB_REPOSITORY
     token_env: GITHUB_TOKEN
+    username_env: GITHUB_ACTOR
 `);
 
   assert.deepStrictEqual(providers, {
@@ -178,6 +186,7 @@ providers:
         registry: "ghcr.io",
         repository_env: "GITHUB_REPOSITORY",
         token_env: "GITHUB_TOKEN",
+        username_env: "GITHUB_ACTOR",
       },
     },
   });
@@ -190,6 +199,7 @@ providers:
     kind: github_container_registry
     repository_env: GITHUB_REPOSITORY
     token_env: GITHUB_TOKEN
+    username_env: GITHUB_ACTOR
 `);
 
   assert.deepStrictEqual(providers.providers.github, {
@@ -198,6 +208,7 @@ providers:
     registry: "ghcr.io",
     repository_env: "GITHUB_REPOSITORY",
     token_env: "GITHUB_TOKEN",
+    username_env: "GITHUB_ACTOR",
   });
 });
 
@@ -222,7 +233,36 @@ providers:
     kind: github_container_registry
     repository_env: github_repository
     token_env: GITHUB_TOKEN
+    username_env: GITHUB_ACTOR
 `),
     /repository_env "github_repository" must match/,
+  );
+});
+
+test("parses supported toolchain image options", () => {
+  assert.equal(parseToolchainImageProvider("off"), "off");
+  assert.equal(parseToolchainImageProvider("github"), "github");
+  assert.equal(parseToolchainImagePolicy("lazy"), "lazy");
+});
+
+test("rejects unsupported toolchain image options", () => {
+  assert.throws(
+    () => parseToolchainImageProvider("gitlab"),
+    /Unsupported toolchain image provider "gitlab"\./,
+  );
+  assert.throws(
+    () => parseToolchainImagePolicy("prewarm"),
+    /Unsupported toolchain image policy "prewarm"\./,
+  );
+});
+
+test("detects missing image errors without treating auth failures as misses", () => {
+  assert.equal(
+    isMissingToolchainImageError(new Error("manifest unknown")),
+    true,
+  );
+  assert.equal(
+    isMissingToolchainImageError(new Error("pull access denied")),
+    false,
   );
 });

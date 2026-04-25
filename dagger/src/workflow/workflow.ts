@@ -20,6 +20,8 @@ export async function workflow(
   dryRun: boolean = true,
   deployEnvFile?: File,
   hostWorkspaceDir: string = "",
+  toolchainImageProvider: string = "off",
+  toolchainImagePolicy: string = "lazy",
   dockerSocket?: Socket,
 ): Promise<string> {
   logSection("Release workflow");
@@ -53,6 +55,8 @@ export async function workflow(
     deployEnvFile,
     packagedRepo.file(PACKAGE_MANIFEST_PATH),
     hostWorkspaceDir,
+    toolchainImageProvider,
+    toolchainImagePolicy,
     dockerSocket,
   );
 }

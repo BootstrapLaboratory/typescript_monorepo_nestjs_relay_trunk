@@ -132,6 +132,8 @@ export class RushDelivery {
     deployEnvFile?: File,
     packageManifestFile?: File,
     hostWorkspaceDir: string = "",
+    toolchainImageProvider: string = "off",
+    toolchainImagePolicy: string = "lazy",
     dockerSocket?: Socket,
   ): Promise<string> {
     await assertMetadataContract(repo);
@@ -145,6 +147,8 @@ export class RushDelivery {
       deployEnvFile,
       packageManifestFile,
       hostWorkspaceDir,
+      toolchainImageProvider,
+      toolchainImagePolicy,
       dockerSocket,
     );
   }
@@ -177,6 +181,8 @@ export class RushDelivery {
     dryRun: boolean = true,
     deployEnvFile?: File,
     hostWorkspaceDir: string = "",
+    toolchainImageProvider: string = "off",
+    toolchainImagePolicy: string = "lazy",
     dockerSocket?: Socket,
   ): Promise<string> {
     return runWorkflow(
@@ -191,6 +197,8 @@ export class RushDelivery {
       dryRun,
       deployEnvFile,
       hostWorkspaceDir,
+      toolchainImageProvider,
+      toolchainImagePolicy,
       dockerSocket,
     );
   }

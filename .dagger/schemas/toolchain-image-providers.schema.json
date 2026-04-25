@@ -13,7 +13,7 @@
         "github": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["kind", "repository_env", "token_env"],
+          "required": ["kind", "repository_env", "token_env", "username_env"],
           "properties": {
             "kind": {
               "const": "github_container_registry"
@@ -37,6 +37,10 @@
             "token_env": {
               "$ref": "#/$defs/envName",
               "description": "Host env key containing the registry token."
+            },
+            "username_env": {
+              "$ref": "#/$defs/envName",
+              "description": "Host env key containing the registry username."
             }
           }
         }

@@ -53,7 +53,14 @@ function parseGithubProvider(
 
   assertKnownKeys(
     rawValue as Record<string, unknown>,
-    ["image_namespace", "kind", "registry", "repository_env", "token_env"],
+    [
+      "image_namespace",
+      "kind",
+      "registry",
+      "repository_env",
+      "token_env",
+      "username_env",
+    ],
     "GitHub toolchain image provider",
   );
 
@@ -87,6 +94,10 @@ function parseGithubProvider(
     token_env: parseEnvName(
       "token_env" in rawValue ? rawValue.token_env : undefined,
       "GitHub toolchain image provider token_env",
+    ),
+    username_env: parseEnvName(
+      "username_env" in rawValue ? rawValue.username_env : undefined,
+      "GitHub toolchain image provider username_env",
     ),
   };
 }

@@ -98,6 +98,7 @@ providers:
     image_namespace: rush-delivery-toolchains
     repository_env: GITHUB_REPOSITORY
     token_env: GITHUB_TOKEN
+    username_env: GITHUB_ACTOR
 ```
 
 Provider metadata location: `.dagger/toolchain-images/providers.yaml`.
@@ -132,9 +133,9 @@ Provider metadata location: `.dagger/toolchain-images/providers.yaml`.
 - [x] Add a provider-neutral image reference model.
 - [x] Implement `off` behavior with the current container construction path.
 - [x] Add provider metadata parsing and validation.
-- [ ] Implement the GitHub Container Registry provider adapter.
+- [x] Implement the GitHub Container Registry provider adapter.
 - [x] Add tests for GHCR image reference generation without contacting GitHub.
-- [ ] Wire deploy executor stages to resolve toolchain images lazily.
+- [x] Wire deploy executor stages to resolve toolchain images lazily.
 
 ### Phase 2: Follow-Up Toolchain Image Operations
 
@@ -144,9 +145,9 @@ Provider metadata location: `.dagger/toolchain-images/providers.yaml`.
 
 ## GitHub Actions Follow-Up
 
-- [ ] Add `packages: write` only to workflows that publish prebuilt images.
-- [ ] Pass `GITHUB_TOKEN`, `GITHUB_REPOSITORY_OWNER`, and `GITHUB_REPOSITORY`
-      only when the GitHub provider is selected.
+- [x] Add `packages: write` only to workflows that publish prebuilt images.
+- [x] Pass `GITHUB_TOKEN`, `GITHUB_REPOSITORY`, and `GITHUB_ACTOR` only when
+      the GitHub provider is selected.
 - [ ] Add a scheduled prewarm workflow after lazy usage is proven stable.
 - [ ] Confirm image cleanup/retention strategy for old hash-tagged images.
 

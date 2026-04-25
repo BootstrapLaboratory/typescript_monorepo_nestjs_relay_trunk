@@ -2,6 +2,10 @@ import { Directory, Socket } from "@dagger.io/dagger";
 import type { DeploymentPlan } from "../../model/deployment-plan.ts";
 import type { DeployTargetResult } from "../../model/deploy-result.ts";
 import type { PackageManifest } from "../../model/package-manifest.ts";
+import type {
+  ToolchainImageProvider,
+  ToolchainImageProvidersDefinition,
+} from "../../model/toolchain-image.ts";
 import { logSubsection } from "../../logging/sections.ts";
 import { executeTarget } from "./execute-target.ts";
 
@@ -14,6 +18,8 @@ export async function executeDeploymentPlan(
   dryRun: boolean,
   hostEnv: Record<string, string>,
   hostWorkspaceDir: string,
+  toolchainImageProvider: ToolchainImageProvider = "off",
+  toolchainImageProviders?: ToolchainImageProvidersDefinition,
   dockerSocket?: Socket,
 ): Promise<DeployTargetResult[]> {
   const results: DeployTargetResult[] = [];
@@ -48,6 +54,8 @@ export async function executeDeploymentPlan(
             hostEnv,
             hostWorkspaceDir,
             waveNumber,
+            toolchainImageProvider,
+            toolchainImageProviders,
             dockerSocket,
           );
         } catch (error) {

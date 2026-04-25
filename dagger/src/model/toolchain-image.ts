@@ -36,6 +36,7 @@ export type GithubToolchainImageProviderDefinition = {
   registry: string;
   repository_env: string;
   token_env: string;
+  username_env: string;
 };
 
 export type ToolchainImageProvidersDefinition = {

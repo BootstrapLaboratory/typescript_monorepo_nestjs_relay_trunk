@@ -1,8 +1,15 @@
 import { Directory, File, Socket } from "@dagger.io/dagger";
 import type { DeployReleaseResult } from "../../model/deploy-result.ts";
+import type { ToolchainImageProvidersDefinition } from "../../model/toolchain-image.ts";
 import { buildDeploymentPlan } from "../../planning/build-deployment-plan.ts";
 import { logSection } from "../../logging/sections.ts";
 import { parseReleaseTargets } from "../../planning/parse-release-targets.ts";
+import {
+  parseToolchainImagePolicy,
+  parseToolchainImageProvider,
+} from "../../toolchain-images/options.ts";
+import { parseToolchainImageProviders } from "../../toolchain-images/parse-providers.ts";
+import { toolchainImageProvidersPath } from "../../toolchain-images/metadata-paths.ts";
 import { executeDeploymentPlan } from "./execute-deployment-plan.ts";
 import { loadServicesMesh } from "./load-deploy-metadata.ts";
 import { parsePackageManifest } from "../package-stage/package-manifest.ts";
@@ -28,6 +35,8 @@ export async function deployRelease(
   deployEnvFile?: File,
   packageManifestFile?: File,
   hostWorkspaceDir: string = "",
+  toolchainImageProvider: string = "off",
+  toolchainImagePolicy: string = "lazy",
   dockerSocket?: Socket,
 ): Promise<string> {
   logSection("Deploy release");
@@ -36,6 +45,15 @@ export async function deployRelease(
     ? parseDeployEnvFile(await deployEnvFile.contents())
     : {};
   const deploymentPlan = await buildReleasePlan(repo, releaseTargetsJson);
+  const parsedToolchainImageProvider =
+    parseToolchainImageProvider(toolchainImageProvider);
+  parseToolchainImagePolicy(toolchainImagePolicy);
+  const toolchainImageProviders: ToolchainImageProvidersDefinition | undefined =
+    parsedToolchainImageProvider === "off"
+      ? undefined
+      : parseToolchainImageProviders(
+          await repo.file(toolchainImageProvidersPath).contents(),
+        );
   const packageManifest =
     packageManifestFile === undefined
       ? undefined
@@ -74,6 +92,8 @@ export async function deployRelease(
     dryRun,
     hostEnv,
     hostWorkspaceDir,
+    parsedToolchainImageProvider,
+    toolchainImageProviders,
     dockerSocket,
   );
   const deployResult: DeployReleaseResult = {
