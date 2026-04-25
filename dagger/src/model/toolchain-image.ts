@@ -1,4 +1,4 @@
-export type ToolchainImageKind = "deploy-executor";
+export type ToolchainImageKind = "deploy-executor" | "rush";
 
 export type ToolchainImageProvider = "off" | "github";
 

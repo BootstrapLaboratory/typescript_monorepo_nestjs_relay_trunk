@@ -22,6 +22,20 @@ export function deployTargetToolchainImageSpec(
   };
 }
 
+export function rushToolchainImageSpec(
+  baseImage: string,
+  install: string[],
+): ToolchainImageSpec {
+  return {
+    baseImage,
+    env: {},
+    install: [...install],
+    kind: "rush",
+    name: "workflow",
+    version: TOOLCHAIN_IMAGE_SPEC_VERSION,
+  };
+}
+
 export function normalizeToolchainImageSpec(
   spec: ToolchainImageSpec,
 ): NormalizedToolchainImageSpec {
@@ -54,5 +68,7 @@ export function toolchainImageName(spec: ToolchainImageSpec): string {
   switch (spec.kind) {
     case "deploy-executor":
       return `deploy-${spec.name}`;
+    case "rush":
+      return `rush-${spec.name}`;
   }
 }

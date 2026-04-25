@@ -16,6 +16,7 @@ import {
   deployTargetToolchainImageSpec,
   hashToolchainImageSpec,
   normalizeToolchainImageSpec,
+  rushToolchainImageSpec,
   toolchainImageName,
   toolchainImageTag,
   TOOLCHAIN_IMAGE_HASH_LENGTH,
@@ -51,6 +52,26 @@ runtime:
     name: "server",
     version: TOOLCHAIN_IMAGE_SPEC_VERSION,
   });
+});
+
+test("builds the generic Rush workflow toolchain spec", () => {
+  assert.deepStrictEqual(
+    rushToolchainImageSpec("node:24-bookworm-slim", [
+      "apt-get update",
+      "apt-get install -y ca-certificates git",
+    ]),
+    {
+      baseImage: "node:24-bookworm-slim",
+      env: {},
+      install: [
+        "apt-get update",
+        "apt-get install -y ca-certificates git",
+      ],
+      kind: "rush",
+      name: "workflow",
+      version: TOOLCHAIN_IMAGE_SPEC_VERSION,
+    },
+  );
 });
 
 test("normalizes toolchain specs for stable hashing", () => {
@@ -134,6 +155,14 @@ test("builds a default GitHub Container Registry toolchain image reference", () 
     repository: "beltorg/beltapp",
     tag: toolchainImageTag(spec),
   });
+});
+
+test("names Rush workflow toolchain images separately from deploy executors", () => {
+  const spec = rushToolchainImageSpec("node:24-bookworm-slim", [
+    "apt-get update",
+  ]);
+
+  assert.equal(toolchainImageName(spec), "rush-workflow");
 });
 
 test("fails when GitHub toolchain image repository is not owner/repo", () => {

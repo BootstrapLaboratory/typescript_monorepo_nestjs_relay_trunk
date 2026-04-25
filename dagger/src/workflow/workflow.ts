@@ -4,6 +4,13 @@ import { deployRelease } from "../stages/deploy/deploy-release.ts";
 import { logSection } from "../logging/sections.ts";
 import { validateMetadataContract } from "../metadata/dagger-metadata-contract.ts";
 import { formatMetadataContractValidationResult } from "../metadata/metadata-contract.ts";
+import {
+  parseToolchainImagePolicy,
+  parseToolchainImageProvider,
+} from "../toolchain-images/options.ts";
+import { parseToolchainImageProviders } from "../toolchain-images/parse-providers.ts";
+import { toolchainImageProvidersPath } from "../toolchain-images/metadata-paths.ts";
+import { parseDeployEnvFile } from "../stages/deploy/runtime-env.ts";
 import { runBuildPackageWorkflow } from "./build-package-runner.ts";
 
 const PACKAGE_MANIFEST_PATH = ".dagger/runtime/package-manifest.json";
@@ -33,6 +40,19 @@ export async function workflow(
     ),
   );
 
+  const hostEnv = deployEnvFile
+    ? parseDeployEnvFile(await deployEnvFile.contents())
+    : {};
+  const parsedToolchainImageProvider =
+    parseToolchainImageProvider(toolchainImageProvider);
+  parseToolchainImagePolicy(toolchainImagePolicy);
+  const toolchainImageProviders =
+    parsedToolchainImageProvider === "off"
+      ? undefined
+      : parseToolchainImageProviders(
+          await repo.file(toolchainImageProvidersPath).contents(),
+        );
+
   const { ciPlan, repo: packagedRepo } = await runBuildPackageWorkflow(
     repo,
     eventName,
@@ -40,6 +60,11 @@ export async function workflow(
     prBaseSha,
     deployTagPrefix,
     artifactPrefix,
+    {
+      hostEnv,
+      toolchainImageProvider: parsedToolchainImageProvider,
+      toolchainImageProviders,
+    },
   );
 
   console.log(

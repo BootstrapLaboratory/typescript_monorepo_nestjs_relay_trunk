@@ -1,7 +1,8 @@
-import { dag, Directory, File } from "@dagger.io/dagger";
+import { Directory, File } from "@dagger.io/dagger";
 
 import { parseCiPlan } from "../../ci-plan/parse-ci-plan.ts";
 import { logSection, logSubsection } from "../../logging/sections.ts";
+import { installRush, prepareRushContainer } from "../../rush/container.ts";
 import { loadPackageTargetDefinition } from "./load-package-metadata.ts";
 import { buildPackageActionPlan } from "./package-action-plan.ts";
 import {
@@ -10,9 +11,6 @@ import {
 } from "./package-manifest.ts";
 
 const WORKDIR = "/workspace";
-const PACKAGE_IMAGE = "node:24-bookworm-slim";
-const PACKAGE_INSTALL_COMMAND =
-  "apt-get update && apt-get install -y ca-certificates git";
 const PACKAGE_MANIFEST_PATH = ".dagger/runtime/package-manifest.json";
 
 export async function packageDeployTargets(
@@ -45,19 +43,7 @@ export async function packageDeployTargets(
   const artifacts = Object.fromEntries(
     packagePlans.map(({ plan, target }) => [target, plan.artifact]),
   );
-  let container = dag
-    .container()
-    .from(PACKAGE_IMAGE)
-    .withDirectory(WORKDIR, repo)
-    .withWorkdir(WORKDIR)
-    .withExec(["bash", "-lc", PACKAGE_INSTALL_COMMAND])
-    .withExec([
-      "node",
-      "common/scripts/install-run-rush.js",
-      "install",
-      "--max-install-attempts",
-      "1",
-    ]);
+  let container = installRush(await prepareRushContainer(repo));
 
   for (const { plan, target } of packagePlans) {
     logSubsection(`Package target: ${target}`);

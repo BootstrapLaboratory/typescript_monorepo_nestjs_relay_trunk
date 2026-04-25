@@ -90,7 +90,7 @@ async function resolveValidationContext(
     };
   }
 
-  const baseContainer = prepareRushContainer(repo);
+  const baseContainer = await prepareRushContainer(repo);
 
   return {
     baseContainer,
@@ -122,7 +122,7 @@ export async function validate(
     return formatValidationSummary(createValidationSummary(ciPlan));
   }
 
-  const validationContainer = baseContainer ?? prepareRushContainer(repo);
+  const validationContainer = baseContainer ?? (await prepareRushContainer(repo));
   const detectedContainer = validationContainer
     .withExec(["mkdir", "-p", `${RUSH_WORKDIR}/.dagger/runtime`], {
       expand: false,

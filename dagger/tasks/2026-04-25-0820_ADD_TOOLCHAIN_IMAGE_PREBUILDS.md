@@ -67,8 +67,8 @@ Policy should be separate from provider:
   normalized base image, install commands, and framework/schema version.
 - Make image names configurable by provider metadata, with a default shape like
   `ghcr.io/<owner>/<repo>/rush-delivery-toolchains/<stage-or-target>:<hash>`.
-- Optimize deploy executor toolchains first. Build/package toolchains can be
-  added later after the deploy path proves the model.
+- Optimize deploy executor toolchains first, then extend the same mechanism to
+  the shared Rush workflow toolchain after the deploy path proves the model.
 - Require explicit opt-in for GHCR. No workflow should publish images unless it
   selects the GitHub provider.
 - In `github` lazy mode, pull first. If the image is missing, build and push it
@@ -108,14 +108,17 @@ Provider metadata location: `.dagger/toolchain-images/providers.yaml`.
 - `stages/deploy/execute-target.ts`: deploy executor runtime from target
   metadata. First optimization candidate because it repeats target-specific
   toolchain installation.
-- `stages/build-stage/build-deploy-targets.ts`: shared Rush build runtime.
-  Defer until deploy executor toolchains prove the model.
-- `stages/package-stage/package-deploy-targets.ts`: shared Rush package
-  runtime. Defer until deploy executor toolchains prove the model.
+- `rush/container.ts`: shared Rush helper runtime used by detect, build,
+  package, and validation flows. Second optimization candidate after deploy
+  executor toolchains prove the model.
+- `stages/build-stage/build-deploy-targets.ts`: standalone Rush build runtime.
+  Should reuse `rush/container.ts` so it gets the same toolchain behavior.
+- `stages/package-stage/package-deploy-targets.ts`: standalone Rush package
+  runtime. Should reuse `rush/container.ts` so it gets the same toolchain
+  behavior.
 - `stages/detect/detect.ts`: lightweight detect runtime. Not a first-slice
-  candidate.
-- `rush/container.ts`: shared Rush helper runtime. Not a first-slice candidate
-  while workflow keeps build/package in one prepared container.
+  candidate, but can reuse the shared Rush helper once that helper is
+  toolchain-aware.
 - `stages/validate/validation-runner.ts`: validation service containers are
   workload dependencies, not reusable framework toolchains.
 - `self-check/self-check.ts`: framework health-check runtime. Not part of the
@@ -139,6 +142,13 @@ Provider metadata location: `.dagger/toolchain-images/providers.yaml`.
 
 ### Phase 2: Follow-Up Toolchain Image Operations
 
+- [x] Extend toolchain image specs beyond deploy executors with a generic Rush
+      workflow toolchain kind.
+- [x] Wire `rush/container.ts` through the same provider/policy resolution path.
+- [x] Reuse the Rush helper from standalone detect/build/package/validate stage
+      entrypoints instead of keeping separate image/install definitions.
+- [ ] Confirm GitHub CI can build and push the Rush workflow toolchain image.
+- [ ] Confirm re-running GitHub CI reuses the Rush workflow toolchain image.
 - [ ] Add an optional `prewarm-images` Dagger entrypoint.
 - [ ] Add docs for local usage, GitHub Actions usage, required permissions, and
       future cron prewarm usage.
@@ -156,6 +166,6 @@ Provider metadata location: `.dagger/toolchain-images/providers.yaml`.
 - [ ] Local workflow still works with image provider disabled.
 - [ ] GitHub CI can pull an existing GHCR toolchain image.
 - [x] GitHub CI can build and push a missing GHCR toolchain image.
-- [ ] Re-running CI after publish reuses the prebuilt image.
+- [x] Re-running CI after publish reuses deploy executor prebuilt images.
 - [ ] Stage behavior and outputs are unchanged compared with the current
       container construction path.

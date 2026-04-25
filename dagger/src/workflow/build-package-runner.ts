@@ -2,6 +2,10 @@ import { Container, Directory } from "@dagger.io/dagger";
 
 import type { CiPlan } from "../model/ci-plan.ts";
 import type { PackageManifestArtifact } from "../model/package-manifest.ts";
+import type {
+  ToolchainImageProvider,
+  ToolchainImageProvidersDefinition,
+} from "../model/toolchain-image.ts";
 import { buildRushBuildSteps } from "../stages/build-stage/rush-build-plan.ts";
 import { formatCiPlan } from "../ci-plan/parse-ci-plan.ts";
 import { computeCiPlan } from "../stages/detect/compute-ci-plan.ts";
@@ -115,6 +119,12 @@ export type BuildPackageWorkflowResult = {
   repo: Directory;
 };
 
+export type BuildPackageWorkflowOptions = {
+  hostEnv?: Record<string, string>;
+  toolchainImageProvider?: ToolchainImageProvider;
+  toolchainImageProviders?: ToolchainImageProvidersDefinition;
+};
+
 export async function runBuildPackageWorkflow(
   repo: Directory,
   eventName: string,
@@ -122,10 +132,15 @@ export async function runBuildPackageWorkflow(
   prBaseSha: string,
   deployTagPrefix: string,
   artifactPrefix: string,
+  options: BuildPackageWorkflowOptions = {},
 ): Promise<BuildPackageWorkflowResult> {
   logSection("Detect release targets");
 
-  const baseContainer = prepareRushContainer(repo);
+  const baseContainer = await prepareRushContainer(repo, {
+    hostEnv: options.hostEnv,
+    provider: options.toolchainImageProvider,
+    providers: options.toolchainImageProviders,
+  });
   const ciPlan = await computeCiPlan(
     repo,
     baseContainer,
