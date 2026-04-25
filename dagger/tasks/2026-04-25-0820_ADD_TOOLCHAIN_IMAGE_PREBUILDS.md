@@ -147,8 +147,8 @@ Provider metadata location: `.dagger/toolchain-images/providers.yaml`.
 - [x] Wire `rush/container.ts` through the same provider/policy resolution path.
 - [x] Reuse the Rush helper from standalone detect/build/package/validate stage
       entrypoints instead of keeping separate image/install definitions.
-- [ ] Confirm GitHub CI can build and push the Rush workflow toolchain image.
-- [ ] Confirm re-running GitHub CI reuses the Rush workflow toolchain image.
+- [x] Confirm GitHub CI can build and push the Rush workflow toolchain image.
+- [x] Confirm re-running GitHub CI reuses the Rush workflow toolchain image.
 - [ ] Add an optional `prewarm-images` Dagger entrypoint.
 - [ ] Add docs for local usage, GitHub Actions usage, required permissions, and
       future cron prewarm usage.
@@ -164,8 +164,8 @@ Provider metadata location: `.dagger/toolchain-images/providers.yaml`.
 ## Validation
 
 - [ ] Local workflow still works with image provider disabled.
-- [ ] GitHub CI can pull an existing GHCR toolchain image.
+- [x] GitHub CI can pull an existing GHCR toolchain image.
 - [x] GitHub CI can build and push a missing GHCR toolchain image.
 - [x] Re-running CI after publish reuses deploy executor prebuilt images.
-- [ ] Stage behavior and outputs are unchanged compared with the current
+- [x] Stage behavior and outputs are unchanged compared with the current
       container construction path.
