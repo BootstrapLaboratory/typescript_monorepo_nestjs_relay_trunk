@@ -101,7 +101,23 @@ providers: {}
   );
 });
 
-test("fails when Rush cache paths are inside the workspace", () => {
+test("allows Rush cache paths under Dagger runtime workspace", () => {
+  const providers = parseRushCacheProviders(`
+cache:
+  version: v1
+  key_files:
+    - rush.json
+  paths:
+    - /workspace/.dagger/runtime/rush-cache/temp
+providers: {}
+`);
+
+  assert.deepStrictEqual(providers.cache.paths, [
+    "/workspace/.dagger/runtime/rush-cache/temp",
+  ]);
+});
+
+test("fails when Rush cache paths are inside non-runtime workspace paths", () => {
   assert.throws(
     () =>
       parseRushCacheProviders(`
@@ -113,7 +129,7 @@ cache:
     - /workspace/common/temp
 providers: {}
 `),
-    /paths\[0\] must stay outside \/workspace/,
+    /paths\[0\] must stay outside \/workspace unless it is under \/workspace\/\.dagger\/runtime/,
   );
 });
 

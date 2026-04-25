@@ -21,11 +21,12 @@ The first CI provider is GitHub Container Registry. Dagger will publish and pull
 Rush install cache images from GHCR. Local/default behavior stays provider-off
 and uses Dagger cache volumes only within the current Dagger engine.
 
-The cache must not restore host files into `/workspace/common/temp`. Instead,
-Dagger should run Rush with `RUSH_TEMP_FOLDER` pointed at a Dagger-owned cache
-path outside the mounted source tree, for example `/rush-cache/temp`. This keeps
-the source workspace clean and avoids cross-device rename problems around
-`common/temp/install-run`.
+The cache must not restore host files into `/workspace/common/temp`. Dagger
+should run Rush with `RUSH_TEMP_FOLDER` pointed at a Dagger-owned cache path
+under the gitignored runtime area, for example
+`/workspace/.dagger/runtime/rush-cache/temp`. This keeps Rush dependency
+symlink targets under `/workspace` for `rush deploy`, while still avoiding the
+old host-restored `common/temp/install-run` path.
 
 ## Proposed Metadata
 
@@ -46,7 +47,7 @@ cache:
     - common/config/rush/pnpm-config.json
     - common/config/rush/version-policies.json
   paths:
-    - /rush-cache/temp
+    - /workspace/.dagger/runtime/rush-cache/temp
 providers:
   github:
     kind: github_container_registry
@@ -145,7 +146,8 @@ ghcr.io/<owner>/<repo>/rush-delivery-caches/rush-install:<hash>
 - [x] Implement provider `github` using GHCR pull/build/publish.
 - [x] Reuse the existing GitHub registry-auth pattern from toolchain images
   where possible.
-- [x] Use `RUSH_TEMP_FOLDER=/rush-cache/temp` for Rush commands.
+- [x] Use a Dagger-owned `RUSH_TEMP_FOLDER` under
+  `/workspace/.dagger/runtime/rush-cache/temp` for Rush commands.
 - [x] Ensure no host-restored `common/temp` paths are required by Dagger.
 
 ### Phase 4: Workflow Integration
@@ -161,9 +163,9 @@ ghcr.io/<owner>/<repo>/rush-delivery-caches/rush-install:<hash>
 
 ### Phase 5: Validation
 
-- [ ] Run Dagger unit tests.
-- [ ] Run Dagger typecheck.
-- [ ] Run `dagger call self-check --repo=..`.
+- [x] Run Dagger unit tests.
+- [x] Run Dagger typecheck.
+- [x] Run `dagger call self-check --repo=..`.
 - [ ] Run local provider-off workflow dry-run.
 - [ ] Run GitHub CI once and confirm the cache image is published on miss.
 - [ ] Run GitHub CI again and confirm the cache image is reused on hit.

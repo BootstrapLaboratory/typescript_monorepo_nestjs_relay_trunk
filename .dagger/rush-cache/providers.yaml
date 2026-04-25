@@ -6,7 +6,7 @@ cache:
     - common/config/rush/pnpm-config.json
     - common/config/rush/version-policies.json
   paths:
-    - /rush-cache/temp
+    - /workspace/.dagger/runtime/rush-cache/temp
 providers:
   github:
     kind: github_container_registry

@@ -11,6 +11,7 @@ const ENV_NAME_PATTERN = /^[A-Z][A-Z0-9_]*$/;
 const DEFAULT_GITHUB_REGISTRY = "ghcr.io";
 const DEFAULT_RUSH_CACHE_IMAGE_NAMESPACE = "rush-delivery-caches";
 const WORKSPACE_PATH = "/workspace";
+const WORKSPACE_RUNTIME_CACHE_PATH = `${WORKSPACE_PATH}/.dagger/runtime`;
 
 function parseRequiredString(rawValue: unknown, name: string): string {
   if (typeof rawValue !== "string" || rawValue.length === 0) {
@@ -81,8 +82,13 @@ function parseCachePath(rawValue: unknown, name: string): string {
     throw new Error(`${name} must be a specific absolute container path.`);
   }
 
-  if (value === WORKSPACE_PATH || value.startsWith(`${WORKSPACE_PATH}/`)) {
-    throw new Error(`${name} must stay outside ${WORKSPACE_PATH}.`);
+  if (
+    (value === WORKSPACE_PATH || value.startsWith(`${WORKSPACE_PATH}/`)) &&
+    !value.startsWith(`${WORKSPACE_RUNTIME_CACHE_PATH}/`)
+  ) {
+    throw new Error(
+      `${name} must stay outside ${WORKSPACE_PATH} unless it is under ${WORKSPACE_RUNTIME_CACHE_PATH}.`,
+    );
   }
 
   return value;
