@@ -33,7 +33,7 @@ type GraphqlWsExtra = {
 };
 
 function getGraphqlWsExtra(extra: unknown): GraphqlWsExtra {
-  return (extra ?? {}) as GraphqlWsExtra;
+  return extra ?? {};
 }
 
 function getClientIp(request: IncomingMessage | undefined): string | null {

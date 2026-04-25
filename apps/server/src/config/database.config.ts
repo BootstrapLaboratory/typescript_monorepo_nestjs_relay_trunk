@@ -141,7 +141,7 @@ export function getDatabaseConfig(): TypeOrmModuleOptions {
       process.env.DATABASE_SYNCHRONIZE,
       process.env.NODE_ENV !== 'production',
     ),
-  }) as TypeOrmModuleOptions;
+  });
 }
 
 export function getMigrationDataSourceOptions(): DataSourceOptions {
