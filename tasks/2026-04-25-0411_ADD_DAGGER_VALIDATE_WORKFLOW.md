@@ -44,8 +44,34 @@ Dagger should own portable validation behavior:
 - computing the CI plan
 - reading `validate_targets`
 - running Rush `verify`, `lint`, `test`, and `build`
-- running server integration validation when `server` is in `validate_targets`
+- loading repository-owned validation metadata from `.dagger/validate`
+- running target validation scenarios declared by metadata
 - reporting a clear no-op when no validation targets are selected
+
+## Framework Contract
+
+The reusable Dagger project may assume the repository is a Rush monorepo. It
+should not assume this repository's package names, service names, providers,
+databases, queues, GraphQL shape, or runtime topology.
+
+Framework-owned behavior:
+
+- compute affected Rush projects
+- run standard Rush commands for selected projects
+- load metadata from well-known `.dagger/*` directories
+- execute generic metadata shapes
+- provide shared container/cache helpers
+
+Repository-owned behavior:
+
+- package scripts such as `verify`, `lint`, `test`, and `build`
+- validation scenario metadata under `.dagger/validate`
+- provider-specific deployment metadata under `.dagger/deploy`
+- target-specific commands, environment variables, services, and smoke checks
+
+This keeps Dagger usable as a framework: adding a project or service should
+primarily mean adding Rush/package metadata and optional `.dagger/*` metadata,
+not editing Dagger TypeScript branches for that project.
 
 ## Proposed Dagger API
 
@@ -60,10 +86,14 @@ Suggested arguments:
 - `repo: Directory`
 - `eventName: string = "pull_request"`
 - `prBaseSha: string = ""`
-- `forceTargetsJson: string = "[]"`
-- `deployTagPrefix: string = "deploy/prod"`
+- `validateTargetsJson: string = "[]"`
 
 The return value can be a JSON summary, similar to the release path results.
+
+`validateTargetsJson` is an explicit manual/debug override. It contains Rush
+project names, not deploy target names. The GitHub pull-request workflow should
+not pass it; normal PR validation should compute `validate_targets` from Rush
+and `prBaseSha`.
 
 ## Rush Validation Plan
 
@@ -79,56 +109,129 @@ Validation should use `ciPlan.validate_targets`.
 
 Release build/package should continue using `ciPlan.deploy_targets`.
 
-## Server Integration Validation
+## Validation Target Metadata
 
-When `server` is in `validate_targets`, Dagger should run the server's
-production-like validation using Dagger services instead of GitHub services.
+Project-specific validation must be metadata-driven. Dagger should not hardcode
+`server`, PostgreSQL, Redis, GraphQL, or any project-specific scripts.
 
-Target behavior to preserve:
+Proposed metadata location:
 
-- PostgreSQL service
-- Redis service
-- production-like migrations through `npm --prefix apps/server run
-  ci:migration:run`
-- production-like server startup through `npm --prefix apps/server run
-  ci:start:prod-smoke`
-- backend smoke check against the local server using
-  [../deploy/cloudrun/tests/validate-post-deploy-smoke.sh](../deploy/cloudrun/tests/validate-post-deploy-smoke.sh)
+```text
+.dagger/validate/targets/<rush-project-name>.yaml
+```
 
-Preferred implementation direction:
+Example shape for the current server package:
 
-- use Dagger service containers for Postgres and Redis
-- bind those services into the validation container
-- reuse the same Rush dependency caches used by the composed workflow
-- keep server-specific commands in `apps/server/package.json`
+```yaml
+name: server
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_DB: chatdb
+      POSTGRES_USER: chatuser
+      POSTGRES_PASSWORD: chatpass
+    ports:
+      - 5432
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6379
+
+steps:
+  - name: migrations
+    command: npm
+    args: ["--prefix", "apps/server", "run", "ci:migration:run"]
+    env:
+      DATABASE_HOST: postgres
+      DATABASE_PORT: "5432"
+      DATABASE_NAME: chatdb
+      DATABASE_USER: chatuser
+      DATABASE_PASSWORD: chatpass
+
+  - name: server
+    service:
+      command: node
+      args: ["apps/server/dist/main.js"]
+      env:
+        NODE_ENV: production
+        HOST: 0.0.0.0
+        PORT: "3100"
+        GRAPHQL_PATH: /graphql
+        DATABASE_HOST: postgres
+        DATABASE_PORT: "5432"
+        DATABASE_NAME: chatdb
+        DATABASE_USER: chatuser
+        DATABASE_PASSWORD: chatpass
+        PUBSUB_DRIVER: redis
+        REDIS_URL: redis://redis:6379
+
+  - name: smoke
+    command: bash
+    args: ["deploy/cloudrun/tests/validate-post-deploy-smoke.sh"]
+    env:
+      SERVICE_URL: http://server:3100
+```
+
+Dagger's job is to parse this generic shape and execute:
+
+- named service containers
+- command steps
+- foreground service steps that later command steps can consume
+- per-step env
+- service bindings by metadata name
+
+If a Rush project has no `.dagger/validate/targets/<name>.yaml`, Rush
+`verify/lint/test/build` is still sufficient for that project.
 
 ## GitHub Wiring
 
 Update GitHub Actions so pull requests call Dagger validation.
 
-Preferred shape:
+Decision:
 
-- keep release execution on `push` and `workflow_call`
-- add pull-request execution that calls `dagger call validate`
-- avoid deploy credentials and Docker socket setup for PR validation unless the
-  validation implementation explicitly needs them
+- add a separate `.github/workflows/ci-validate.yaml`
+- trigger it on `pull_request`
+- call `dagger call validate`
+- use `pull_request`, not `pull_request_target`
+- use minimal permissions, starting with `contents: read`
+- avoid deploy credentials, deploy env files, Google auth, Cloudflare secrets,
+  and Docker socket setup
 
-This can be either:
+The separate workflow keeps release and validation credential boundaries clear.
+`ci-release.yaml` remains focused on push/manual release execution.
 
-- a separate `.github/workflows/ci-validate.yaml`
-- or a pull-request branch inside `.github/workflows/ci-release.yaml`
+## Resolved Decisions
 
-The separate workflow is probably clearer if release and validation continue to
-have different credential needs.
+- PR validation lives in `.github/workflows/ci-validate.yaml`, not inside
+  `.github/workflows/ci-release.yaml`.
+- PR validation uses `pull_request`, not `pull_request_target`, to avoid
+  exposing privileged release credentials to untrusted pull-request code.
+- Validation does not use deploy credentials or provider secrets.
+- Validation uses `validate_targets`, not `deploy_targets`.
+- `validateTargetsJson` is supported only as a manual/debug override and should
+  be documented as Rush project names.
+- Project-specific validation scenarios live under `.dagger/validate`, not in
+  Dagger TypeScript.
+- Project-specific validation behavior should be expressed through package
+  scripts and metadata, not hardcoded Dagger branches.
+- Dagger executes validation metadata generically. It does not know about
+  `server`, PostgreSQL, Redis, or GraphQL.
+- A target validation scenario runs when its Rush project name is present in
+  `validate_targets`.
+- Do not add a second runtime-only heuristic yet; Rush owns affected-scope
+  selection.
 
 ## Phase 1: Planning And Rush Scope
 
-- [ ] Add focused tests for building Rush validation steps from
+- [x] Add focused tests for building Rush validation steps from
       `validate_targets`.
-- [ ] Refactor Rush step planning so deploy build and PR validation can share
+- [x] Refactor Rush step planning so deploy build and PR validation can share
       command construction without mixing scopes.
-- [ ] Ensure empty `validate_targets` returns a no-op validation result.
-- [ ] Keep deploy build/package behavior unchanged for `deploy_targets`.
+- [x] Ensure empty `validate_targets` returns a no-op validation result.
+- [x] Keep deploy build/package behavior unchanged for `deploy_targets`.
 
 ## Phase 2: Dagger Validate Entrypoint
 
@@ -141,28 +244,39 @@ have different credential needs.
 - [ ] Add Dagger unit tests for selected targets, no-op behavior, and malformed
       inputs.
 
-## Phase 3: Server Integration Validation
+## Phase 3: Validation Metadata
 
-- [ ] Create a Dagger validation runner for server integration checks.
-- [ ] Add Postgres service container.
-- [ ] Add Redis service container.
-- [ ] Wire server env variables for production-like local validation.
-- [ ] Run `npm --prefix apps/server run ci:migration:run`.
-- [ ] Run `npm --prefix apps/server run ci:start:prod-smoke`.
-- [ ] Run the backend smoke test against the Dagger-hosted server endpoint.
-- [ ] Ensure logs are visible when server validation fails.
+- [ ] Add `.dagger/validate/targets` metadata directory.
+- [ ] Define validation target YAML schema.
+- [ ] Add parser and validation tests for services, command steps, service
+      steps, env, args, and ports.
+- [ ] Add repository metadata tests for every committed validation target.
+- [ ] Add server validation metadata as the first real target.
+- [ ] Keep server-specific commands and behavior in package/provider scripts or
+      metadata, not in Dagger TypeScript.
 
-## Phase 4: GitHub PR Workflow
+## Phase 4: Generic Validation Runner
 
-- [ ] Decide whether validation lives in a separate workflow or inside
+- [ ] Create a Dagger validation runner that executes validation target
+      metadata generically.
+- [ ] Support service containers declared by metadata.
+- [ ] Support command steps declared by metadata.
+- [ ] Support foreground service steps declared by metadata.
+- [ ] Bind metadata services into later steps by service name.
+- [ ] Ensure logs are visible when a metadata-driven validation step fails.
+- [ ] Skip metadata validation for projects without matching metadata files.
+
+## Phase 5: GitHub PR Workflow
+
+- [x] Decide whether validation lives in a separate workflow or inside
       `ci-release.yaml`.
-- [ ] Add the GitHub pull-request workflow path.
+- [ ] Add `.github/workflows/ci-validate.yaml`.
 - [ ] Keep provider deploy credentials out of PR validation.
 - [ ] Keep workflow permissions minimal.
 - [ ] Document the PR validation entrypoint in
       [../docs/notes/ReleaseFlow.md](../docs/notes/ReleaseFlow.md).
 
-## Phase 5: Validation
+## Phase 6: Validation
 
 - [ ] Run Dagger unit tests.
 - [ ] Run Dagger TypeScript typecheck.
@@ -172,12 +286,15 @@ have different credential needs.
 - [ ] Run a real GitHub pull-request validation.
 - [ ] Confirm release workflows still stay green after validation wiring.
 
-## Open Decisions
+## Remaining Open Questions
 
-- Whether to expose `validateTargetsJson` directly for manual debugging, or
-  only support validation through `eventName`, `prBaseSha`, and
-  `forceTargetsJson`.
-- Whether PR validation should live in `.github/workflows/ci-release.yaml` or
-  a separate `.github/workflows/ci-validate.yaml`.
-- Whether server integration validation should be required for every PR that
-  affects `server`, or only for changes that affect runtime/server packages.
+- What exact JSON result schema should `validate` return?
+- Should `ci-validate.yaml` also support `workflow_dispatch` for manual
+  validation with `validateTargetsJson`, or should manual debugging stay a
+  local Dagger-only path for now?
+- Where should shared build/validation container helpers live so release and
+  validation reuse Rush cache setup without coupling unrelated stages?
+- What is the minimal generic validation metadata schema that covers the
+  current server scenario without overfitting future targets?
+- How should logs from metadata-declared services be surfaced on validation
+  failure?

@@ -1,28 +1,30 @@
 import type { CiPlan } from "../model/ci-plan.ts";
+import {
+  buildRushLifecycleSteps,
+  buildRushProjectArgs,
+  type RushCommandStep,
+  type RushLifecycleCommand,
+} from "../rush/rush-command-plan.ts";
 
-const RUSH_SCRIPT = "common/scripts/install-run-rush.js";
-const RUSH_BUILD_COMMANDS = ["verify", "lint", "test", "build"] as const;
+const NO_DEPLOY_TARGETS_MESSAGE = "No Rush deploy targets were selected.";
 
-export type RushBuildCommand = (typeof RUSH_BUILD_COMMANDS)[number];
-
-export type RushBuildStep = {
-  args: string[];
-  command: "node";
-};
+export type RushBuildCommand = RushLifecycleCommand;
+export type RushBuildStep = RushCommandStep;
 
 export function buildRushTargetArgs(ciPlan: CiPlan): string[] {
-  if (ciPlan.deploy_targets.length === 0) {
-    throw new Error("No Rush deploy targets were selected.");
-  }
-
-  return ciPlan.deploy_targets.flatMap((target) => ["--to", target]);
+  return buildRushProjectArgs(ciPlan.deploy_targets, {
+    emptySelectionMessage: NO_DEPLOY_TARGETS_MESSAGE,
+  });
 }
 
 export function buildRushBuildSteps(ciPlan: CiPlan): RushBuildStep[] {
-  const targetArgs = buildRushTargetArgs(ciPlan);
+  return buildRushLifecycleSteps(ciPlan.deploy_targets, {
+    emptySelectionMessage: NO_DEPLOY_TARGETS_MESSAGE,
+  });
+}
 
-  return RUSH_BUILD_COMMANDS.map((rushCommand) => ({
-    args: [RUSH_SCRIPT, rushCommand, ...targetArgs],
-    command: "node",
-  }));
+export function buildRushValidationSteps(ciPlan: CiPlan): RushBuildStep[] {
+  return buildRushLifecycleSteps(ciPlan.validate_targets, {
+    allowEmpty: true,
+  });
 }
