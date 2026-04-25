@@ -1,4 +1,4 @@
-import { dag, Directory, Socket } from "@dagger.io/dagger";
+import { Directory, Socket } from "@dagger.io/dagger";
 
 import type { DeployTargetDefinition } from "../../model/deploy-target.ts";
 import type { DeployTargetResult } from "../../model/deploy-result.ts";
@@ -7,8 +7,7 @@ import type { ToolchainImageProvidersDefinition } from "../../model/toolchain-im
 import { logSubsection } from "../../logging/sections.ts";
 import { deployTargetToolchainImageSpec } from "../../toolchain-images/spec.ts";
 import {
-  applyToolchainImageRegistryAuth,
-  applyToolchainImageResolution,
+  buildResolvedToolchainContainer,
   resolveToolchainImage,
 } from "../../toolchain-images/resolve.ts";
 import { loadDeployTargetDefinition } from "./load-deploy-metadata.ts";
@@ -139,15 +138,9 @@ export async function executeTarget(
       providers: toolchainImageProviders,
     },
   );
-  let container = applyToolchainImageRegistryAuth(
-    dag.container(),
-    toolchainImage,
-  )
-    .from(toolchainImage.image)
+  let container = buildResolvedToolchainContainer(toolchainImage)
     .withDirectory("/workspace", repo)
     .withWorkdir("/workspace");
-
-  container = applyToolchainImageResolution(container, toolchainImage);
 
   for (const fileMount of definition.runtime.file_mounts) {
     const sourcePath = getRequiredRepoRelativeHostPathSource(

@@ -26,6 +26,7 @@ type RegistryAuth = {
 };
 
 export type ResolvedToolchainImage = ToolchainImageResolution & {
+  container?: Container;
   registryAuth?: RegistryAuth;
 };
 
@@ -125,15 +126,25 @@ async function resolveGithubToolchainImage(
 
     console.log(`[toolchain-images] building ${reference.reference}`);
 
-    const publishedReference = await buildToolchainContainer(spec)
+    const builtContainer = buildToolchainContainer(spec)
       .withLabel(
         "org.opencontainers.image.source",
         `https://github.com/${repository}`,
       )
-      .withRegistryAuth(registryAuth.address, username, secret)
-      .publish(reference.reference);
+      .withRegistryAuth(registryAuth.address, username, secret);
+    const publishedReference = await builtContainer.publish(reference.reference);
 
     console.log(`[toolchain-images] published ${publishedReference}`);
+
+    return {
+      container: builtContainer,
+      image: reference.reference,
+      install: [],
+      prebuilt: true,
+      provider: "github",
+      reference,
+      registryAuth,
+    };
   }
 
   return {
@@ -146,7 +157,7 @@ async function resolveGithubToolchainImage(
   };
 }
 
-export function applyToolchainImageRegistryAuth(
+function applyToolchainImageRegistryAuth(
   container: Container,
   resolution: ResolvedToolchainImage,
 ): Container {
@@ -161,7 +172,7 @@ export function applyToolchainImageRegistryAuth(
   );
 }
 
-export function applyToolchainImageResolution(
+function applyToolchainImageResolution(
   container: Container,
   resolution: ResolvedToolchainImage,
 ): Container {
@@ -174,4 +185,19 @@ export function applyToolchainImageResolution(
     "-lc",
     resolution.install.join(" && "),
   ]);
+}
+
+export function buildResolvedToolchainContainer(
+  resolution: ResolvedToolchainImage,
+): Container {
+  if (resolution.container !== undefined) {
+    return resolution.container;
+  }
+
+  const container = applyToolchainImageRegistryAuth(
+    dag.container(),
+    resolution,
+  ).from(resolution.image);
+
+  return applyToolchainImageResolution(container, resolution);
 }

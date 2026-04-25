@@ -155,7 +155,7 @@ Provider metadata location: `.dagger/toolchain-images/providers.yaml`.
 
 - [ ] Local workflow still works with image provider disabled.
 - [ ] GitHub CI can pull an existing GHCR toolchain image.
-- [ ] GitHub CI can build and push a missing GHCR toolchain image.
+- [x] GitHub CI can build and push a missing GHCR toolchain image.
 - [ ] Re-running CI after publish reuses the prebuilt image.
 - [ ] Stage behavior and outputs are unchanged compared with the current
       container construction path.
