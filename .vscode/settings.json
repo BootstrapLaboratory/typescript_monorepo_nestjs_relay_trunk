@@ -1,15 +1,23 @@
 {
-    "cSpell.words": [
-        "automapper",
-        "chatdb",
-        "chatpass",
-        "chatuser",
-        "github",
-        "gitlab",
-        "nestjs",
-        "njsproj",
-        "ntvs",
-        "postgres",
-        "rushstack"
-    ]
+  "cSpell.words": [
+    "automapper",
+    "chatdb",
+    "chatpass",
+    "chatuser",
+    "github",
+    "gitlab",
+    "nestjs",
+    "njsproj",
+    "ntvs",
+    "postgres",
+    "redhat",
+    "rushstack",
+    "yaml"
+  ],
+  "yaml.schemas": {
+    ".dagger/schemas/deploy-services-mesh.schema.json": ".dagger/deploy/services-mesh.yaml",
+    ".dagger/schemas/deploy-target.schema.json": ".dagger/deploy/targets/*.yaml",
+    ".dagger/schemas/package-target.schema.json": ".dagger/package/targets/*.yaml",
+    ".dagger/schemas/validation-target.schema.json": ".dagger/validate/targets/*.yaml"
+  }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "release-orchestrator",
+  "name": "rush-delivery",
   "engineVersion": "v0.20.6",
   "sdk": {
     "source": "typescript"

@@ -1,8 +1,9 @@
 # Dagger Framework Contract
 
-This repository uses Dagger as a reusable Rush-based CI framework. The project
-specifics live in Rush projects, package scripts, provider scripts, and
-`.dagger` metadata. Dagger TypeScript owns the shared orchestration mechanics.
+This repository uses the `rush-delivery` Dagger module as a reusable Rush-based
+CI framework. The project specifics live in Rush projects, package scripts,
+provider scripts, and `.dagger` metadata. Dagger TypeScript owns the shared
+orchestration mechanics.
 
 Run the contract validator before changing target metadata:
 
@@ -46,6 +47,19 @@ Validation target metadata:
 
 Runtime handoff files are generated under `.dagger/runtime` during Dagger runs.
 They are not source metadata.
+
+## Editor Schemas
+
+JSON Schemas for metadata files live under
+[.dagger/schemas](../../.dagger/schemas). VS Code maps those schemas through
+[.vscode/settings.json](../../.vscode/settings.json), with
+`redhat.vscode-yaml` recommended in
+[.vscode/extensions.json](../../.vscode/extensions.json).
+
+Schemas validate each file's shape and catch typo-level mistakes while editing.
+The Dagger metadata contract validator remains the source of truth for
+cross-file checks such as Rush project membership, deploy graph dependencies,
+script existence, and package/deploy target pairing.
 
 ## Deploy Graph
 

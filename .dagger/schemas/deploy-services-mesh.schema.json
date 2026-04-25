@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:rush-delivery:schema:dagger:deploy-services-mesh",
+  "title": "Dagger Deploy Services Mesh",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["services"],
+  "properties": {
+    "services": {
+      "type": "object",
+      "description": "Deploy targets and their deployment-order dependencies.",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "deploy_after": {
+            "type": "array",
+            "description": "Deploy targets that must finish before this target starts.",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    }
+  }
+}

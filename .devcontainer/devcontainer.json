@@ -25,7 +25,8 @@
         "openai.chatgpt",
         "trunk.io",
         "meta.relay",
-        "dbaeumer.vscode-eslint"
+        "dbaeumer.vscode-eslint",
+        "redhat.vscode-yaml"
       ]
     }
   },

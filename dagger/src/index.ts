@@ -22,13 +22,13 @@ import {
 import { formatMetadataContractValidationResult } from "./metadata/metadata-contract.ts";
 
 @object()
-export class ReleaseOrchestrator {
+export class RushDelivery {
   /**
    * Returns a simple marker proving the Dagger module is callable.
    */
   @func()
   ping(): string {
-    return "release-orchestrator ready";
+    return "rush-delivery ready";
   }
 
   /**
