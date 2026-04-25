@@ -18,20 +18,20 @@ const WORKFLOW_INSTALL_COMMAND =
 const CI_PLAN_PATH = ".dagger/runtime/ci-plan.json";
 const CI_PLAN_CONTAINER_PATH = `${WORKDIR}/${CI_PLAN_PATH}`;
 const PACKAGE_MANIFEST_PATH = ".dagger/runtime/package-manifest.json";
+const RUSH_HOME_CACHE_PATH = "/root/.rush";
 const RUSH_INSTALL_RUN_CACHE_PATH = `${WORKDIR}/common/temp/install-run`;
-const RUSH_NODE_MODULES_CACHE_PATH = `${WORKDIR}/common/temp/node_modules`;
 const RUSH_PNPM_STORE_CACHE_PATH = `${WORKDIR}/common/temp/pnpm-store`;
 
 function withRushCaches(container: Container): Container {
   return container
     .withMountedCache(
-      RUSH_INSTALL_RUN_CACHE_PATH,
-      dag.cacheVolume("cache-rush-install-run"),
+      RUSH_HOME_CACHE_PATH,
+      dag.cacheVolume("cache-rush-home"),
       { sharing: CacheSharingMode.Locked },
     )
     .withMountedCache(
-      RUSH_NODE_MODULES_CACHE_PATH,
-      dag.cacheVolume("cache-rush-node-modules"),
+      RUSH_INSTALL_RUN_CACHE_PATH,
+      dag.cacheVolume("cache-rush-install-run"),
       { sharing: CacheSharingMode.Locked },
     )
     .withMountedCache(
