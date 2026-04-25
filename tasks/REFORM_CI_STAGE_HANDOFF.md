@@ -141,7 +141,8 @@ JSON file.
 - [x] Add a thin writer owned by the Dagger-oriented workflow layer that
       serializes the existing planning result to
       [../.dagger/runtime/ci-plan.json](../.dagger/runtime/ci-plan.json).
-- [x] Keep `compute-rush-plan.mjs` able to write GitHub outputs for now.
+- [x] Keep the initial planner able to write GitHub outputs during the
+      split-job migration.
 - [x] Add a finalize step that reads `ci-plan.json` and emits the minimal
       GitHub outputs derived from it.
 - [x] If needed, emit optional convenience outputs from the same finalize step

@@ -105,12 +105,8 @@ release flow after the composed Dagger `workflow` cutover.
 
 | Script | Phase | Current callers | Recommended owner |
 | --- | --- | --- | --- |
-| [../scripts/ci/ci-plan.mjs](../scripts/ci/ci-plan.mjs) | detect | detect helpers and legacy finalizer | Move schema/output logic into `dagger/src/model` and `dagger/src/detect`; delete script copy after tests move. |
-| [../scripts/ci/compute-ci-plan.mjs](../scripts/ci/compute-ci-plan.mjs) | detect | Dagger `detect` and composed `workflow` | Move to Dagger TypeScript so Dagger no longer shells out to repo CI scripts. |
-| [../scripts/ci/compute-rush-plan-core.mjs](../scripts/ci/compute-rush-plan-core.mjs) | detect | `compute-ci-plan.mjs`, legacy `compute-rush-plan.mjs` | Port pure planner into `dagger/src/detect`; keep focused Dagger tests. |
-| [../scripts/ci/deploy-target-metadata.mjs](../scripts/ci/deploy-target-metadata.mjs) | detect | detect scripts | Remove after detect uses the existing Dagger deploy metadata loaders. |
-| [../scripts/ci/compute-rush-plan.mjs](../scripts/ci/compute-rush-plan.mjs) | legacy detect adapter | script tests and old task docs | Delete or move under an example-only location after current Dagger detect no longer needs script helpers. |
-| [../scripts/ci/finalize-ci-plan.mjs](../scripts/ci/finalize-ci-plan.mjs) | legacy GitHub adapter | [../examples/github/ci-release.split-jobs.yaml](../examples/github/ci-release.split-jobs.yaml) | Move to the split-job example or delete when that example is refreshed to the new workflow model. |
+| Deleted root detect script layer | detect | formerly Dagger detect and legacy split-job adapters | Dagger TypeScript now owns CI plan schema, Rush planning, and target metadata loading. |
+| Split-job CI plan output extraction | legacy GitHub adapter | [../examples/github/ci-release.split-jobs.yaml](../examples/github/ci-release.split-jobs.yaml) | The example derives outputs directly from `ci-plan.json`; no root helper script remains. |
 | [../scripts/ci/check-graphql-drift.sh](../scripts/ci/check-graphql-drift.sh) | build verify | `apps/server` Rush `verify` script | Move under `apps/server/scripts` or replace with a server-owned Node script. |
 | [../scripts/ci/run-server-migrations.sh](../scripts/ci/run-server-migrations.sh) | validate | legacy Makefile split-job path | Move under `apps/server/scripts` if PR validation keeps this local migration check. |
 | [../scripts/ci/start-local-server.sh](../scripts/ci/start-local-server.sh) | validate | legacy Makefile split-job path | Move under `apps/server/scripts` if local server smoke validation stays. |
@@ -136,17 +132,17 @@ should not keep production tests in the root CI script folder.
 
 ## Phase 1: Move Detect Planning Into Dagger
 
-- [x] Port CI plan schema helpers from `ci-plan.mjs` into Dagger TypeScript.
-- [x] Port `compute-rush-plan-core.mjs` into Dagger TypeScript.
+- [x] Port CI plan schema helpers into Dagger TypeScript.
+- [x] Port Rush planning core into Dagger TypeScript.
 - [x] Reuse Dagger deploy metadata loaders instead of
-      `deploy-target-metadata.mjs`.
+      the old root metadata helper.
 - [x] Replace `dagger/src/detect/detect.ts` shell-out to
-      `scripts/ci/compute-ci-plan.mjs` with direct TypeScript planning.
+      root CI scripts with direct TypeScript planning.
 - [x] Replace `dagger/src/workflow/build-package-runner.ts` shell-out to
-      `scripts/ci/compute-ci-plan.mjs` with direct TypeScript planning.
+      root CI scripts with direct TypeScript planning.
 - [x] Migrate detect planner tests from `scripts/ci/*.test.mjs` to
       `dagger/test`.
-- [ ] Delete obsolete detect scripts after Dagger tests cover the same cases.
+- [x] Delete obsolete detect scripts after Dagger tests cover the same cases.
 
 ## Phase 2: Move Project-Specific Build Validation
 

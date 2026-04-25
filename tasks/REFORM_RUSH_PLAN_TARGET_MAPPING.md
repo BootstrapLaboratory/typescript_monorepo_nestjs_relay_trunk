@@ -2,13 +2,13 @@
 
 ## Goal
 
-Make [../scripts/ci/compute-rush-plan.mjs](../scripts/ci/compute-rush-plan.mjs)
-generic enough to serve as a framework building block, instead of hardcoding
-`server` and `webapp` as the only supported deploy targets.
+Make the Rush deploy-target planning logic generic enough to serve as a
+framework building block, instead of hardcoding `server` and `webapp` as the
+only supported deploy targets.
 
 The important direction in this plan is:
 
-- stop hardcoding deploy target names in the Rush planning script
+- stop hardcoding deploy target names in the Rush planning module
 - keep deploy target graph and deploy runtime metadata under
   [../.dagger/deploy](../.dagger/deploy)
 - treat target YAML `name` as the canonical deploy target id
@@ -37,8 +37,7 @@ framework base.
 
 ## Current Hardcoded Coupling
 
-Current hardcoded assumptions in
-[../scripts/ci/compute-rush-plan.mjs](../scripts/ci/compute-rush-plan.mjs):
+Original hardcoded assumptions in the Rush planning logic:
 
 - supported deploy targets come from a constant list
 - PR affected-project checks explicitly look for `server` and `webapp`
@@ -64,7 +63,7 @@ This keeps the model explicit:
 - service mesh owns target graph and ordering
 - target YAML `name` owns canonical deploy target identity
 - target YAML `name` also maps to the Rush project name by convention
-- the Rush planning script only interprets repository metadata plus that
+- the Rush planning module only interprets repository metadata plus that
   naming convention
 
 ## Design Principles
@@ -119,7 +118,7 @@ Deploy tag naming can still stay centralized as `DEPLOY_TAG_PREFIX/<target>`.
 
 ## Phase 2: Load Targets Dynamically
 
-- [x] Refactor `compute-rush-plan.mjs` to load target names from
+- [x] Refactor Rush planning to load target names from
       [../.dagger/deploy/services-mesh.yaml](../.dagger/deploy/services-mesh.yaml).
 - [x] Refactor target loading so deploy target identity comes from target YAML
       `name`, not just filenames.
@@ -174,7 +173,7 @@ Deploy tag naming can still stay centralized as `DEPLOY_TAG_PREFIX/<target>`.
 
 ## Stop Point
 
-- `compute-rush-plan.mjs` no longer hardcodes `server` and `webapp` as the
+- Rush planning no longer hardcodes `server` and `webapp` as the
   only supported deploy targets.
 - target support comes from
   [../.dagger/deploy/services-mesh.yaml](../.dagger/deploy/services-mesh.yaml)

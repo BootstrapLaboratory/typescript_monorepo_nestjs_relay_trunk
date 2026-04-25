@@ -78,7 +78,21 @@ jobs:
 
       - id: finalize
         name: Finalize deploy plan outputs
-        run: node scripts/ci/finalize-ci-plan.mjs
+        run: |
+          plan=".dagger/runtime/ci-plan.json"
+          validate_targets_json="$(jq -c '.validate_targets' "${plan}")"
+          deploy_targets_json="$(jq -c '.deploy_targets' "${plan}")"
+          validate_count="$(jq '.validate_targets | length' "${plan}")"
+          deploy_count="$(jq '.deploy_targets | length' "${plan}")"
+
+          {
+            printf 'mode=%s\n' "$(jq -r '.mode' "${plan}")"
+            printf 'pr_base_sha=%s\n' "$(jq -r '.pr_base_sha' "${plan}")"
+            printf 'validate_targets_json=%s\n' "${validate_targets_json}"
+            printf 'deploy_targets_json=%s\n' "${deploy_targets_json}"
+            printf 'has_validate_scope=%s\n' "$([[ "${validate_count}" -gt 0 ]] && echo true || echo false)"
+            printf 'has_deploy_scope=%s\n' "$([[ "${deploy_count}" -gt 0 ]] && echo true || echo false)"
+          } >> "${GITHUB_OUTPUT}"
 
       - name: Stage CI plan artifact
         run: cp .dagger/runtime/ci-plan.json "${RUNNER_TEMP}/ci-plan.json"
@@ -137,7 +151,21 @@ jobs:
 
       - id: ci_plan
         name: Load CI plan
-        run: node scripts/ci/finalize-ci-plan.mjs
+        run: |
+          plan=".dagger/runtime/ci-plan.json"
+          validate_targets_json="$(jq -c '.validate_targets' "${plan}")"
+          deploy_targets_json="$(jq -c '.deploy_targets' "${plan}")"
+          validate_count="$(jq '.validate_targets | length' "${plan}")"
+          deploy_count="$(jq '.deploy_targets | length' "${plan}")"
+
+          {
+            printf 'mode=%s\n' "$(jq -r '.mode' "${plan}")"
+            printf 'pr_base_sha=%s\n' "$(jq -r '.pr_base_sha' "${plan}")"
+            printf 'validate_targets_json=%s\n' "${validate_targets_json}"
+            printf 'deploy_targets_json=%s\n' "${deploy_targets_json}"
+            printf 'has_validate_scope=%s\n' "$([[ "${validate_count}" -gt 0 ]] && echo true || echo false)"
+            printf 'has_deploy_scope=%s\n' "$([[ "${deploy_count}" -gt 0 ]] && echo true || echo false)"
+          } >> "${GITHUB_OUTPUT}"
 
       - name: Install dependencies with caching
         uses: ./.github/actions/cached-install
@@ -234,7 +262,21 @@ jobs:
 
       - id: ci_plan
         name: Load CI plan
-        run: node scripts/ci/finalize-ci-plan.mjs
+        run: |
+          plan=".dagger/runtime/ci-plan.json"
+          validate_targets_json="$(jq -c '.validate_targets' "${plan}")"
+          deploy_targets_json="$(jq -c '.deploy_targets' "${plan}")"
+          validate_count="$(jq '.validate_targets | length' "${plan}")"
+          deploy_count="$(jq '.deploy_targets | length' "${plan}")"
+
+          {
+            printf 'mode=%s\n' "$(jq -r '.mode' "${plan}")"
+            printf 'pr_base_sha=%s\n' "$(jq -r '.pr_base_sha' "${plan}")"
+            printf 'validate_targets_json=%s\n' "${validate_targets_json}"
+            printf 'deploy_targets_json=%s\n' "${deploy_targets_json}"
+            printf 'has_validate_scope=%s\n' "$([[ "${validate_count}" -gt 0 ]] && echo true || echo false)"
+            printf 'has_deploy_scope=%s\n' "$([[ "${deploy_count}" -gt 0 ]] && echo true || echo false)"
+          } >> "${GITHUB_OUTPUT}"
 
       - name: Install Dagger CLI
         run: |
@@ -308,7 +350,21 @@ jobs:
 
       - id: ci_plan
         name: Load CI plan
-        run: node scripts/ci/finalize-ci-plan.mjs
+        run: |
+          plan=".dagger/runtime/ci-plan.json"
+          validate_targets_json="$(jq -c '.validate_targets' "${plan}")"
+          deploy_targets_json="$(jq -c '.deploy_targets' "${plan}")"
+          validate_count="$(jq '.validate_targets | length' "${plan}")"
+          deploy_count="$(jq '.deploy_targets | length' "${plan}")"
+
+          {
+            printf 'mode=%s\n' "$(jq -r '.mode' "${plan}")"
+            printf 'pr_base_sha=%s\n' "$(jq -r '.pr_base_sha' "${plan}")"
+            printf 'validate_targets_json=%s\n' "${validate_targets_json}"
+            printf 'deploy_targets_json=%s\n' "${deploy_targets_json}"
+            printf 'has_validate_scope=%s\n' "$([[ "${validate_count}" -gt 0 ]] && echo true || echo false)"
+            printf 'has_deploy_scope=%s\n' "$([[ "${deploy_count}" -gt 0 ]] && echo true || echo false)"
+          } >> "${GITHUB_OUTPUT}"
 
       - name: Download package manifest artifact
         uses: actions/download-artifact@v5
