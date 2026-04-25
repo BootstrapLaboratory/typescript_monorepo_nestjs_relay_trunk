@@ -149,6 +149,8 @@ Provider metadata location: `.dagger/toolchain-images/providers.yaml`.
       entrypoints instead of keeping separate image/install definitions.
 - [x] Confirm GitHub CI can build and push the Rush workflow toolchain image.
 - [x] Confirm re-running GitHub CI reuses the Rush workflow toolchain image.
+- [x] Shrink the deploy-server toolchain by replacing `docker.io` with the
+      Docker CLI-only package.
 - [ ] Add an optional `prewarm-images` Dagger entrypoint.
 - [ ] Add docs for local usage, GitHub Actions usage, required permissions, and
       future cron prewarm usage.
@@ -167,5 +169,7 @@ Provider metadata location: `.dagger/toolchain-images/providers.yaml`.
 - [x] GitHub CI can pull an existing GHCR toolchain image.
 - [x] GitHub CI can build and push a missing GHCR toolchain image.
 - [x] Re-running CI after publish reuses deploy executor prebuilt images.
+- [x] The deploy-server Docker CLI-only install path provides both `docker` and
+      `gcloud`.
 - [x] Stage behavior and outputs are unchanged compared with the current
       container construction path.
