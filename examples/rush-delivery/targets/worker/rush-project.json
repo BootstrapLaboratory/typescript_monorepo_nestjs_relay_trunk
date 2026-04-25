@@ -1,0 +1,6 @@
+{
+  "packageName": "worker",
+  "projectFolder": "apps/worker",
+  "reviewCategory": "applications",
+  "versionPolicyName": "apps"
+}

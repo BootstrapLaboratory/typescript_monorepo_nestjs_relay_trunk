@@ -1,0 +1,6 @@
+name: worker
+
+steps:
+  - name: smoke
+    command: npm
+    args: [--prefix, apps/worker, run, ci:smoke]

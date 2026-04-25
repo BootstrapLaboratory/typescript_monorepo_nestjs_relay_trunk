@@ -1,0 +1,5 @@
+name: worker
+
+artifact:
+  kind: directory
+  path: apps/worker/dist

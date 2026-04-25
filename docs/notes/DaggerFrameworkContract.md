@@ -194,6 +194,9 @@ Rules:
 If validation passes, Dagger should be able to detect, build, package, and
 deploy the new target without adding target-specific TypeScript.
 
+A copyable example target pack is available under
+[examples/rush-delivery/targets/worker](../../examples/rush-delivery/targets/worker).
+
 ## Validator Guarantees
 
 The metadata validator checks:

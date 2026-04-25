@@ -1,0 +1,19 @@
+name: worker
+deploy_script: deploy/example-cloud/scripts/deploy-worker.sh
+
+runtime:
+  image: node:24-bookworm-slim
+  install:
+    - apt-get update
+    - apt-get install -y ca-certificates curl git
+
+  pass_env:
+    - WORKER_REGION
+    - WORKER_SERVICE_NAME
+
+  dry_run_defaults:
+    WORKER_REGION: local
+    WORKER_SERVICE_NAME: worker
+
+  required_host_env: []
+  file_mounts: []
