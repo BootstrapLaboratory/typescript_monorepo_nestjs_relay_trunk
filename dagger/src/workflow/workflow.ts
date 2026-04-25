@@ -63,13 +63,24 @@ export async function workflow(
     repositoryUrl:
       sourceRepositoryUrl.length === 0 ? undefined : sourceRepositoryUrl,
   });
+  const parsedToolchainImageProvider =
+    parseToolchainImageProvider(toolchainImageProvider);
+  parseToolchainImagePolicy(toolchainImagePolicy);
+  const sourceToolchainImageProviders =
+    parsedToolchainImageProvider === "off"
+      ? undefined
+      : parseToolchainImageProviders(
+          await repo.file(toolchainImageProvidersPath).contents(),
+        );
 
   logSection("Source acquisition");
   console.log(`[source] mode=${sourcePlan.mode}`);
 
-  const sourceRepo = resolveSource(sourcePlan, {
+  const sourceRepo = await resolveSource(sourcePlan, {
     hostEnv,
     repo,
+    toolchainImageProvider: parsedToolchainImageProvider,
+    toolchainImageProviders: sourceToolchainImageProviders,
   });
 
   logSection("Metadata contract");
@@ -80,9 +91,6 @@ export async function workflow(
     ),
   );
 
-  const parsedToolchainImageProvider =
-    parseToolchainImageProvider(toolchainImageProvider);
-  parseToolchainImagePolicy(toolchainImagePolicy);
   const parsedRushCacheProvider = parseRushCacheProvider(rushCacheProvider);
   parseRushCachePolicy(rushCachePolicy);
   const toolchainImageProviders =

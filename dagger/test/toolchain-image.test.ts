@@ -17,6 +17,7 @@ import {
   hashToolchainImageSpec,
   normalizeToolchainImageSpec,
   rushToolchainImageSpec,
+  sourceToolchainImageSpec,
   toolchainImageName,
   toolchainImageTag,
   TOOLCHAIN_IMAGE_HASH_LENGTH,
@@ -69,6 +70,24 @@ test("builds the generic Rush workflow toolchain spec", () => {
       ],
       kind: "rush",
       name: "workflow",
+      version: TOOLCHAIN_IMAGE_SPEC_VERSION,
+    },
+  );
+});
+
+test("builds the source acquisition toolchain spec", () => {
+  assert.deepStrictEqual(
+    sourceToolchainImageSpec("node:24-bookworm-slim", [
+      "apt-get update && apt-get install -y ca-certificates git",
+    ]),
+    {
+      baseImage: "node:24-bookworm-slim",
+      env: {},
+      install: [
+        "apt-get update && apt-get install -y ca-certificates git",
+      ],
+      kind: "source",
+      name: "acquisition",
       version: TOOLCHAIN_IMAGE_SPEC_VERSION,
     },
   );
@@ -163,6 +182,14 @@ test("names Rush workflow toolchain images separately from deploy executors", ()
   ]);
 
   assert.equal(toolchainImageName(spec), "rush-workflow");
+});
+
+test("names source acquisition toolchain images separately", () => {
+  const spec = sourceToolchainImageSpec("node:24-bookworm-slim", [
+    "apt-get update && apt-get install -y ca-certificates git",
+  ]);
+
+  assert.equal(toolchainImageName(spec), "source-acquisition");
 });
 
 test("fails when GitHub toolchain image repository is not owner/repo", () => {

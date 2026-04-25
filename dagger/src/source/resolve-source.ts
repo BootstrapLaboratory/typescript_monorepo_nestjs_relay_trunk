@@ -6,6 +6,15 @@ import type {
   LocalCopySourcePlan,
   SourcePlan,
 } from "../model/source.ts";
+import type {
+  ToolchainImageProvider,
+  ToolchainImageProvidersDefinition,
+} from "../model/toolchain-image.ts";
+import {
+  buildResolvedToolchainContainer,
+  resolveToolchainImage,
+} from "../toolchain-images/resolve.ts";
+import { sourceToolchainImageSpec } from "../toolchain-images/spec.ts";
 import {
   buildGitAskPassScript,
   buildLocalCopySourceCommand,
@@ -20,6 +29,8 @@ const SOURCE_INSTALL_COMMAND = "apt-get update && apt-get install -y ca-certific
 export type ResolveSourceOptions = {
   hostEnv?: Record<string, string>;
   repo?: Directory;
+  toolchainImageProvider?: ToolchainImageProvider;
+  toolchainImageProviders?: ToolchainImageProvidersDefinition;
 };
 
 function dirname(path: string): string {
@@ -46,12 +57,19 @@ function requireHostEnv(
   return value;
 }
 
-function sourceBaseContainer(): Container {
-  return dag.container().from(SOURCE_IMAGE).withExec([
-    "bash",
-    "-lc",
-    SOURCE_INSTALL_COMMAND,
-  ]);
+async function sourceBaseContainer(
+  options: ResolveSourceOptions,
+): Promise<Container> {
+  return buildResolvedToolchainContainer(
+    await resolveToolchainImage(
+      sourceToolchainImageSpec(SOURCE_IMAGE, [SOURCE_INSTALL_COMMAND]),
+      {
+        hostEnv: options.hostEnv,
+        provider: options.toolchainImageProvider,
+        providers: options.toolchainImageProviders,
+      },
+    ),
+  );
 }
 
 function withGitAuth(
@@ -91,15 +109,15 @@ function withGitCommandPlan(
   });
 }
 
-function resolveLocalCopySource(
+async function resolveLocalCopySource(
   plan: LocalCopySourcePlan,
   options: ResolveSourceOptions,
-): Directory {
+): Promise<Directory> {
   if (options.repo === undefined) {
     throw new Error("Local copy source mode requires a repo directory.");
   }
 
-  return sourceBaseContainer()
+  return (await sourceBaseContainer(options))
     .withDirectory(plan.sourcePath, options.repo)
     .withExec(["bash", "-lc", buildLocalCopySourceCommand(plan)], {
       expand: false,
@@ -107,12 +125,12 @@ function resolveLocalCopySource(
     .directory(plan.workdir);
 }
 
-function resolveGitSource(
+async function resolveGitSource(
   plan: GitSourcePlan,
   options: ResolveSourceOptions,
-): Directory {
+): Promise<Directory> {
   let container = withGitAuth(
-    sourceBaseContainer().withExec([
+    (await sourceBaseContainer(options)).withExec([
       "bash",
       "-lc",
       `rm -rf ${shellQuote(plan.workdir)} && mkdir -p ${shellQuote(dirname(plan.workdir))}`,
@@ -128,10 +146,10 @@ function resolveGitSource(
   return container.directory(plan.workdir);
 }
 
-export function resolveSource(
+export async function resolveSource(
   plan: SourcePlan,
   options: ResolveSourceOptions = {},
-): Directory {
+): Promise<Directory> {
   switch (plan.mode) {
     case "local_copy":
       return resolveLocalCopySource(plan, options);

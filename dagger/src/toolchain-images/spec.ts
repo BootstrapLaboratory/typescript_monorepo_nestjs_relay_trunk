@@ -36,6 +36,20 @@ export function rushToolchainImageSpec(
   };
 }
 
+export function sourceToolchainImageSpec(
+  baseImage: string,
+  install: string[],
+): ToolchainImageSpec {
+  return {
+    baseImage,
+    env: {},
+    install: [...install],
+    kind: "source",
+    name: "acquisition",
+    version: TOOLCHAIN_IMAGE_SPEC_VERSION,
+  };
+}
+
 export function normalizeToolchainImageSpec(
   spec: ToolchainImageSpec,
 ): NormalizedToolchainImageSpec {
@@ -70,5 +84,7 @@ export function toolchainImageName(spec: ToolchainImageSpec): string {
       return `deploy-${spec.name}`;
     case "rush":
       return `rush-${spec.name}`;
+    case "source":
+      return `source-${spec.name}`;
   }
 }
