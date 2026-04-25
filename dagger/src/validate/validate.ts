@@ -17,6 +17,7 @@ import {
   shouldUseManualValidationTargets,
 } from "./validation-result.ts";
 import { runValidationMetadataStage } from "./validation-runner.ts";
+import { logValidationSection } from "./validation-log.ts";
 
 const CI_PLAN_PATH = ".dagger/runtime/ci-plan.json";
 
@@ -31,12 +32,18 @@ function runValidationStage(container: Container, ciPlan: CiPlan): Container {
     return container;
   }
 
+  logValidationSection("Rush validation");
+  console.log(
+    `[validate] Rush targets: ${ciPlan.validate_targets.join(", ")}`,
+  );
+
   let nextContainer = installRush(container).withEnvVariable(
     "FAILURE_MODE",
     "validate",
   );
 
   for (const { command, args } of buildRushValidationSteps(ciPlan)) {
+    console.log(`[validate] Rush command: ${args[1]}`);
     nextContainer = nextContainer.withExec([command, ...args], {
       expand: false,
     });
@@ -55,6 +62,8 @@ async function runValidationStages(
   if (ciPlan.validate_targets.length === 0) {
     return rushValidatedContainer;
   }
+
+  logValidationSection("Metadata validation");
 
   return (
     await runValidationMetadataStage(

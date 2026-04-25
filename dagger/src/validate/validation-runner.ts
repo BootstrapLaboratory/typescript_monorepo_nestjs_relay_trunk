@@ -9,6 +9,7 @@ import type {
 } from "../model/validation-target.ts";
 import { validationTargetDefinitionPath } from "./metadata-paths.ts";
 import { loadValidationTargetDefinition } from "./load-validation-metadata.ts";
+import { logValidationTargetHeader } from "./validation-log.ts";
 
 export type ValidationMetadataRunResult = {
   container: Container;
@@ -32,6 +33,10 @@ function shellQuote(value: string): string {
 
 function shellCommand(command: string, args: string[]): string {
   return commandArgs(command, args).map(shellQuote).join(" ");
+}
+
+function shellLog(message: string): string {
+  return `printf '%s\\n' ${shellQuote(message)}`;
 }
 
 function envExportLines(env: Record<string, string>): string[] {
@@ -99,6 +104,7 @@ function createBackingServices(
 
 function foregroundServiceLines(service: ForegroundService): string[] {
   return [
+    shellLog(`[validate] Starting foreground service: ${service.name}`),
     "(",
     ...envExportLines(service.spec.env).map((line) => `  ${line}`),
     `  exec ${shellCommand(service.spec.command, service.spec.args)}`,
@@ -124,6 +130,7 @@ function commandStepScript(
     "}",
     "trap cleanup EXIT",
     ...foregroundServices.flatMap(foregroundServiceLines),
+    shellLog(`[validate] Running command step: ${step.name}`),
     ...envExportLines(step.env),
     shellCommand(step.command, step.args),
   ].join("\n");
@@ -142,8 +149,8 @@ function runCommandStep(
     );
   }
 
-  return withEnv(withServiceBindings(container, services), step.env).withExec(
-    commandArgs(step.command, step.args),
+  return withServiceBindings(container, services).withExec(
+    ["bash", "-lc", commandStepScript(step, foregroundServices)],
     { expand: false },
   );
 }
@@ -179,14 +186,14 @@ async function runValidationTarget(
   container: Container,
   target: ValidationTargetDefinition,
 ): Promise<Container> {
-  console.log(`[validate] ${target.name}: metadata steps`);
+  logValidationTargetHeader(target.name);
 
   let services = createBackingServices(target);
   let foregroundServices: ForegroundService[] = [];
   let nextContainer = container;
 
   for (const step of target.steps) {
-    console.log(`[validate] ${target.name}: ${step.name}`);
+    console.log(`[validate] ${target.name}: ${step.kind} step: ${step.name}`);
 
     if (step.kind === "command") {
       nextContainer = runCommandStep(
