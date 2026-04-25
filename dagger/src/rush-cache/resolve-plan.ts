@@ -108,12 +108,14 @@ export function buildRushCacheArchiveCommand(paths: string[]): string {
       ">",
       shellQuote(RUSH_CACHE_ARCHIVE_WORK_PATH),
     ].join(" "),
+    `printf '[rush-cache] created archive size: %s bytes\\n' "$(stat -c %s ${shellQuote(RUSH_CACHE_ARCHIVE_WORK_PATH)})"`,
   ].join(" && ");
 }
 
 export function buildRushCacheRestoreCommand(): string {
   return [
     "set -euo pipefail",
+    `printf '[rush-cache] restore archive size: %s bytes\\n' "$(stat -c %s ${shellQuote(RUSH_CACHE_ARCHIVE_WORK_PATH)})"`,
     [
       "tar",
       "-xzf",

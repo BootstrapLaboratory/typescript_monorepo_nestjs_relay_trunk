@@ -323,11 +323,11 @@ test("builds Rush cache archive and restore commands", () => {
       "common/temp/node_modules",
       "common/temp/pnpm-store",
     ]),
-    "set -euo pipefail && tar -C '/workspace' -cf - 'common/temp/node_modules' 'common/temp/pnpm-store' | gzip -9 > '/tmp/rush-cache.tar.gz'",
+    "set -euo pipefail && tar -C '/workspace' -cf - 'common/temp/node_modules' 'common/temp/pnpm-store' | gzip -9 > '/tmp/rush-cache.tar.gz' && printf '[rush-cache] created archive size: %s bytes\\n' \"$(stat -c %s '/tmp/rush-cache.tar.gz')\"",
   );
   assert.equal(
     buildRushCacheRestoreCommand(),
-    "set -euo pipefail && tar -xzf '/tmp/rush-cache.tar.gz' -C '/workspace'",
+    "set -euo pipefail && printf '[rush-cache] restore archive size: %s bytes\\n' \"$(stat -c %s '/tmp/rush-cache.tar.gz')\" && tar -xzf '/tmp/rush-cache.tar.gz' -C '/workspace'",
   );
 });
 
