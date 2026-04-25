@@ -107,7 +107,7 @@ release flow after the composed Dagger `workflow` cutover.
 | --- | --- | --- | --- |
 | Deleted root detect script layer | detect | formerly Dagger detect and legacy split-job adapters | Dagger TypeScript now owns CI plan schema, Rush planning, and target metadata loading. |
 | Split-job CI plan output extraction | legacy GitHub adapter | [../examples/github/ci-release.split-jobs.yaml](../examples/github/ci-release.split-jobs.yaml) | The example derives outputs directly from `ci-plan.json`; no root helper script remains. |
-| [../scripts/ci/check-graphql-drift.sh](../scripts/ci/check-graphql-drift.sh) | build verify | `apps/server` Rush `verify` script | Move under `apps/server/scripts` or replace with a server-owned Node script. |
+| Deleted root GraphQL drift helper | build verify | formerly `apps/server` Rush `verify` script | Replaced by server-owned package scripts in [../apps/server/package.json](../apps/server/package.json). |
 | [../scripts/ci/run-server-migrations.sh](../scripts/ci/run-server-migrations.sh) | validate | legacy Makefile split-job path | Move under `apps/server/scripts` if PR validation keeps this local migration check. |
 | [../scripts/ci/start-local-server.sh](../scripts/ci/start-local-server.sh) | validate | legacy Makefile split-job path | Move under `apps/server/scripts` if local server smoke validation stays. |
 | [../scripts/ci/deploy-server.sh](../scripts/ci/deploy-server.sh) | deploy | `.dagger/deploy/targets/server.yaml` | Move out of root CI scripts, preferably to `deploy/cloudrun/scripts/deploy-server.sh` or a server-owned deploy module. |
@@ -146,8 +146,8 @@ should not keep production tests in the root CI script folder.
 
 ## Phase 2: Move Project-Specific Build Validation
 
-- [ ] Move GraphQL contract drift checking out of root `scripts/ci`.
-- [ ] Update [../apps/server/package.json](../apps/server/package.json) so
+- [x] Move GraphQL contract drift checking out of root `scripts/ci`.
+- [x] Update [../apps/server/package.json](../apps/server/package.json) so
       `verify` calls the server-owned script.
 - [ ] Convert project-owned shell helpers into `package.json` scripts whenever
       that makes the command simpler and keeps behavior inside the owning Rush
