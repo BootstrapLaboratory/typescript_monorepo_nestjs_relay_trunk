@@ -1,5 +1,6 @@
 export const servicesMeshPath = ".dagger/deploy/services-mesh.yaml";
+export const deployTargetsDirectory = ".dagger/deploy/targets";
 
 export function targetDefinitionPath(target: string): string {
-  return `.dagger/deploy/targets/${target}.yaml`;
+  return `${deployTargetsDirectory}/${target}.yaml`;
 }

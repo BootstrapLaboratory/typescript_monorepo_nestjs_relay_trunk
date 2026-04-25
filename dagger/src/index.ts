@@ -15,6 +15,11 @@ import { packageDeployTargets } from "./stages/package-stage/package-deploy-targ
 import { parseReleaseTargets } from "./planning/parse-release-targets.ts";
 import { validate as validateRelease } from "./stages/validate/validate.ts";
 import { workflow as runWorkflow } from "./workflow/workflow.ts";
+import {
+  assertMetadataContract,
+  validateMetadataContract as validateMetadataContractForRepo,
+} from "./metadata/dagger-metadata-contract.ts";
+import { formatMetadataContractValidationResult } from "./metadata/metadata-contract.ts";
 
 @object()
 export class ReleaseOrchestrator {
@@ -37,6 +42,8 @@ export class ReleaseOrchestrator {
     prBaseSha: string = "",
     deployTagPrefix: string = "deploy/prod",
   ): Promise<string> {
+    await assertMetadataContract(repo);
+
     return detectCiPlan(
       repo,
       eventName,
@@ -68,6 +75,8 @@ export class ReleaseOrchestrator {
     @argument({ defaultPath: ".." }) repo: Directory,
     ciPlanFile: File,
   ): Promise<Directory> {
+    await assertMetadataContract(repo);
+
     return buildDeployTargets(repo, ciPlanFile);
   }
 
@@ -80,6 +89,8 @@ export class ReleaseOrchestrator {
     ciPlanFile: File,
     artifactPrefix: string = "deploy-target",
   ): Promise<Directory> {
+    await assertMetadataContract(repo);
+
     return packageDeployTargets(repo, ciPlanFile, artifactPrefix);
   }
 
@@ -92,6 +103,8 @@ export class ReleaseOrchestrator {
     ciPlanFile: File,
     artifactPrefix: string = "deploy-target",
   ): Promise<Directory> {
+    await assertMetadataContract(repo);
+
     return buildAndPackageDeployTargets(repo, ciPlanFile, artifactPrefix);
   }
 
@@ -110,6 +123,8 @@ export class ReleaseOrchestrator {
     hostWorkspaceDir: string = "",
     dockerSocket?: Socket,
   ): Promise<string> {
+    await assertMetadataContract(repo);
+
     return deployRelease(
       repo,
       gitSha,
@@ -120,6 +135,18 @@ export class ReleaseOrchestrator {
       packageManifestFile,
       hostWorkspaceDir,
       dockerSocket,
+    );
+  }
+
+  /**
+   * Validates cross-file Dagger metadata contracts before running release stages.
+   */
+  @func()
+  async validateMetadataContract(
+    @argument({ defaultPath: ".." }) repo: Directory,
+  ): Promise<string> {
+    return formatMetadataContractValidationResult(
+      await validateMetadataContractForRepo(repo),
     );
   }
 
@@ -167,6 +194,8 @@ export class ReleaseOrchestrator {
     prBaseSha: string = "",
     validateTargetsJson: string = "[]",
   ): Promise<string> {
+    await assertMetadataContract(repo);
+
     return validateRelease(repo, eventName, prBaseSha, validateTargetsJson);
   }
 }

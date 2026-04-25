@@ -1,5 +1,6 @@
 import { parse as parseYaml } from "yaml";
 
+import { assertKnownKeys } from "../../metadata/parse-utils.ts";
 import type {
   ValidationCommandStepDefinition,
   ValidationServiceDefinition,
@@ -125,6 +126,12 @@ function parseValidationServices(
       `Validation target service "${serviceName}"`,
     );
 
+    assertKnownKeys(
+      service,
+      ["env", "image", "ports"],
+      `Validation target service "${serviceName}"`,
+    );
+
     services[serviceName] = {
       env: parseStringRecord(
         "env" in service ? service.env : undefined,
@@ -153,6 +160,12 @@ function parseServiceStepSpec(
     `Validation target step "${stepName}" service`,
   );
 
+  assertKnownKeys(
+    service,
+    ["args", "command", "env", "ports"],
+    `Validation target step "${stepName}" service`,
+  );
+
   return {
     args: parseStringArray(
       "args" in service ? service.args : undefined,
@@ -177,6 +190,12 @@ function parseValidationCommandStep(
   rawStep: Record<string, unknown>,
   stepName: string,
 ): ValidationCommandStepDefinition {
+  assertKnownKeys(
+    rawStep,
+    ["args", "command", "env", "name"],
+    `Validation target step "${stepName}"`,
+  );
+
   return {
     args: parseStringArray(
       "args" in rawStep ? rawStep.args : undefined,
@@ -211,6 +230,12 @@ function parseValidationStep(rawValue: unknown): ValidationStepDefinition {
   }
 
   if (hasService) {
+    assertKnownKeys(
+      rawStep,
+      ["name", "service"],
+      `Validation target step "${stepName}"`,
+    );
+
     return {
       kind: "service",
       name: stepName,
@@ -262,6 +287,12 @@ export function parseValidationTarget(
   ) {
     throw new Error("Validation target file must define a top-level mapping.");
   }
+
+  assertKnownKeys(
+    parsedValue as Record<string, unknown>,
+    ["name", "services", "steps"],
+    "Validation target file",
+  );
 
   return {
     name: parseIdentifier(

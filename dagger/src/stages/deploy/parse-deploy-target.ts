@@ -1,5 +1,6 @@
 import { parse as parseYaml } from "yaml";
 
+import { assertKnownKeys } from "../../metadata/parse-utils.ts";
 import type {
   DeployRuntimeSpec,
   DeployTargetDefinition,
@@ -113,6 +114,12 @@ function parseFileMountSpecs(rawValue: unknown, name: string): FileMountSpec[] {
       throw new Error(`${name} entries must be mappings.`);
     }
 
+    assertKnownKeys(
+      rawEntry as Record<string, unknown>,
+      ["source_var", "target"],
+      "Deploy target runtime file_mounts entry",
+    );
+
     const sourceVar = parseRequiredString(
       "source_var" in rawEntry ? rawEntry.source_var : undefined,
       "file mount source_var",
@@ -145,6 +152,20 @@ function parseRuntime(rawValue: unknown): DeployRuntimeSpec {
   ) {
     throw new Error("Deploy target runtime must be a mapping.");
   }
+
+  assertKnownKeys(
+    rawValue as Record<string, unknown>,
+    [
+      "dry_run_defaults",
+      "env",
+      "file_mounts",
+      "image",
+      "install",
+      "pass_env",
+      "required_host_env",
+    ],
+    "Deploy target runtime",
+  );
 
   return {
     dry_run_defaults: parseStringRecord(
@@ -195,6 +216,12 @@ export function parseDeployTarget(
   ) {
     throw new Error("Deploy target file must define a top-level mapping.");
   }
+
+  assertKnownKeys(
+    parsedValue as Record<string, unknown>,
+    ["deploy_script", "name", "runtime"],
+    "Deploy target file",
+  );
 
   return {
     deploy_script: parseRequiredString(

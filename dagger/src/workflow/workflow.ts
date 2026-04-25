@@ -2,6 +2,8 @@ import { Directory, File, Socket } from "@dagger.io/dagger";
 
 import { deployRelease } from "../stages/deploy/deploy-release.ts";
 import { logSection } from "../logging/sections.ts";
+import { validateMetadataContract } from "../metadata/dagger-metadata-contract.ts";
+import { formatMetadataContractValidationResult } from "../metadata/metadata-contract.ts";
 import { runBuildPackageWorkflow } from "./build-package-runner.ts";
 
 const PACKAGE_MANIFEST_PATH = ".dagger/runtime/package-manifest.json";
@@ -21,6 +23,13 @@ export async function workflow(
   dockerSocket?: Socket,
 ): Promise<string> {
   logSection("Release workflow");
+  logSection("Metadata contract");
+
+  console.log(
+    formatMetadataContractValidationResult(
+      await validateMetadataContract(repo),
+    ),
+  );
 
   const { ciPlan, repo: packagedRepo } = await runBuildPackageWorkflow(
     repo,

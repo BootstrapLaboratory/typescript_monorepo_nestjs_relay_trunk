@@ -1,5 +1,6 @@
 import { parse as parseYaml } from "yaml";
 
+import { assertKnownKeys } from "../metadata/parse-utils.ts";
 import type { ServiceDefinition, ServiceMesh } from "../model/service-mesh.ts";
 
 export function parseServicesMesh(servicesMeshYaml: string): ServiceMesh {
@@ -18,6 +19,12 @@ export function parseServicesMesh(servicesMeshYaml: string): ServiceMesh {
     );
   }
 
+  assertKnownKeys(
+    parsedValue as Record<string, unknown>,
+    ["services"],
+    "services-mesh.yaml",
+  );
+
   const normalizedServices: Record<string, ServiceDefinition> = {};
 
   for (const [target, rawService] of Object.entries(parsedValue.services)) {
@@ -32,6 +39,12 @@ export function parseServicesMesh(servicesMeshYaml: string): ServiceMesh {
     ) {
       throw new Error(`Service mesh entry for "${target}" must be a mapping.`);
     }
+
+    assertKnownKeys(
+      rawService as Record<string, unknown>,
+      ["deploy_after"],
+      `Service mesh entry for "${target}"`,
+    );
 
     const rawDeployAfter =
       "deploy_after" in rawService ? rawService.deploy_after : [];

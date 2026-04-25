@@ -1,5 +1,6 @@
 import { parse as parseYaml } from "yaml";
 
+import { assertKnownKeys } from "../../metadata/parse-utils.ts";
 import type {
   PackageArtifactDefinition,
   PackageTargetDefinition,
@@ -29,6 +30,11 @@ function parsePackageArtifact(rawValue: unknown): PackageArtifactDefinition {
 
   switch (kind) {
     case "directory":
+      assertKnownKeys(
+        rawValue as Record<string, unknown>,
+        ["kind", "path"],
+        "Package target artifact",
+      );
       return {
         kind,
         path: parseRequiredString(
@@ -38,6 +44,11 @@ function parsePackageArtifact(rawValue: unknown): PackageArtifactDefinition {
       };
 
     case "rush_deploy_archive":
+      assertKnownKeys(
+        rawValue as Record<string, unknown>,
+        ["kind", "output", "project", "scenario"],
+        "Package target artifact",
+      );
       return {
         kind,
         output: parseRequiredString(
@@ -71,6 +82,12 @@ export function parsePackageTarget(
   ) {
     throw new Error("Package target file must define a top-level mapping.");
   }
+
+  assertKnownKeys(
+    parsedValue as Record<string, unknown>,
+    ["artifact", "name"],
+    "Package target file",
+  );
 
   return {
     artifact: parsePackageArtifact(
