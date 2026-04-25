@@ -58,7 +58,7 @@ jobs:
           DAGGER_NO_NAG: "1"
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
-          FORCE_TARGETS_JSON: ${{ github.event_name == 'workflow_call' && inputs.force_targets_json || '[]' }}
+          FORCE_TARGETS_JSON: ${{ inputs.force_targets_json || '[]' }}
           DEPLOY_TAG_PREFIX: ${{ env.DEPLOY_TAG_PREFIX }}
         working-directory: dagger
         run: |

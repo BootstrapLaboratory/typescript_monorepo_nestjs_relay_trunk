@@ -342,6 +342,40 @@ test("workflow_call forced target selection keeps current single-target deploy b
   });
 });
 
+test("manual wrapper forced target selection deploys the requested target", () => {
+  const result = runComputeRushPlan(
+    {
+      DEPLOY_TAG_PREFIX: "deploy/prod",
+      FORCE_TARGETS_JSON: JSON.stringify(["server"]),
+      GITHUB_EVENT_NAME: "workflow_dispatch",
+    },
+    {
+      gitRefs: {
+        HEAD: "head-sha",
+        "deploy/prod/server": "server-base-sha",
+        "deploy/prod/webapp": "webapp-base-sha",
+      },
+      rushAffectedProjectsBySha: {
+        "server-base-sha": [],
+        "webapp-base-sha": [],
+      },
+    },
+  );
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(result.outputs, {
+    affected_projects_by_deploy_target_json: JSON.stringify({
+      server: [],
+      webapp: [],
+    }),
+    any_scope: "true",
+    deploy_targets_json: JSON.stringify(["server"]),
+    mode: "release",
+    pr_base_sha: "",
+    validate_targets_json: "[]",
+  });
+});
+
 test("forced target validation rejects unsupported target names", () => {
   const result = runComputeRushPlan({
     DEPLOY_TAG_PREFIX: "deploy/prod",
