@@ -8,7 +8,7 @@ import {
   parseDeployEnvFile,
   resolveSpecEnvironment,
   validateRequiredHostEnv,
-} from "../src/deploy/runtime-env.ts";
+} from "../src/stages/deploy/runtime-env.ts";
 
 const webappLikeSpec: DeployRuntimeSpec = {
   dry_run_defaults: {

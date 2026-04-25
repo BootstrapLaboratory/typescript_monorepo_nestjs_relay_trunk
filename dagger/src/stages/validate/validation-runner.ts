@@ -6,10 +6,10 @@ import type {
   ValidationServiceStepDefinition,
   ValidationServiceStepSpec,
   ValidationTargetDefinition,
-} from "../model/validation-target.ts";
+} from "../../model/validation-target.ts";
 import { validationTargetDefinitionPath } from "./metadata-paths.ts";
 import { loadValidationTargetDefinition } from "./load-validation-metadata.ts";
-import { logSubsection } from "../logging/sections.ts";
+import { logSubsection } from "../../logging/sections.ts";
 
 export type ValidationMetadataRunResult = {
   container: Container;

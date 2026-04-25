@@ -1,7 +1,7 @@
 import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { parsePackageTarget } from "../src/package-stage/parse-package-target.ts";
+import { parsePackageTarget } from "../src/stages/package-stage/parse-package-target.ts";
 
 test("parses directory package artifact metadata", () => {
   const definition = parsePackageTarget(`

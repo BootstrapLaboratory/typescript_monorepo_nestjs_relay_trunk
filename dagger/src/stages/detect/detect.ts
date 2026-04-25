@@ -1,6 +1,6 @@
 import { dag, Directory } from "@dagger.io/dagger";
 
-import { formatCiPlan } from "../ci-plan/parse-ci-plan.ts";
+import { formatCiPlan } from "../../ci-plan/parse-ci-plan.ts";
 import { computeCiPlan } from "./compute-ci-plan.ts";
 
 const DETECT_WORKDIR = "/workspace";

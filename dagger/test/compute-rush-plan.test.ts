@@ -1,8 +1,8 @@
 import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { computeRushPlan } from "../src/detect/rush-plan.ts";
-import type { RushPlanResolver } from "../src/detect/rush-plan.ts";
+import { computeRushPlan } from "../src/stages/detect/rush-plan.ts";
+import type { RushPlanResolver } from "../src/stages/detect/rush-plan.ts";
 
 function createResolver({
   commits = {},

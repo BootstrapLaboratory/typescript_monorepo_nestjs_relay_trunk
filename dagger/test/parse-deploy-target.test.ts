@@ -1,7 +1,7 @@
 import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { parseDeployTarget } from "../src/deploy/parse-deploy-target.ts";
+import { parseDeployTarget } from "../src/stages/deploy/parse-deploy-target.ts";
 
 test("parses deploy target runtime metadata", () => {
   const definition = parseDeployTarget(`

@@ -1,4 +1,4 @@
-import type { CiPlan } from "../model/ci-plan.ts";
+import type { CiPlan } from "../../model/ci-plan.ts";
 import { buildRushValidationSteps } from "../build-stage/rush-build-plan.ts";
 
 export type ValidationSummary = {

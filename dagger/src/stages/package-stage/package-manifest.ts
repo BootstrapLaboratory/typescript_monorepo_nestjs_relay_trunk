@@ -1,7 +1,7 @@
 import type {
   PackageManifest,
   PackageManifestArtifact,
-} from "../model/package-manifest.ts";
+} from "../../model/package-manifest.ts";
 
 function parseRequiredString(rawValue: unknown, name: string): string {
   if (typeof rawValue !== "string" || rawValue.length === 0) {

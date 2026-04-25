@@ -3,7 +3,7 @@ import { parse as parseYaml } from "yaml";
 import type {
   PackageArtifactDefinition,
   PackageTargetDefinition,
-} from "../model/package-target.ts";
+} from "../../model/package-target.ts";
 
 function parseRequiredString(rawValue: unknown, name: string): string {
   if (typeof rawValue !== "string" || rawValue.length === 0) {

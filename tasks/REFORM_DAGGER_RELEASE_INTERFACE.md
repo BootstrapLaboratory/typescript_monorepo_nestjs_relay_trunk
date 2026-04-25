@@ -380,8 +380,8 @@ interpretation from repository metadata and the flat env bridge.
 - [x] Update the GitLab example to follow the same interface and repository
       metadata layout.
 - [x] Remove stale references to `deploy/services-mesh.yaml`,
-      `dagger/src/deploy/executor-specs/*.ts`, and target-specific TypeScript
-      executors from repository docs once the refactor is complete.
+      `dagger/src/stages/deploy/executor-specs/*.ts`, and target-specific
+      TypeScript executors from repository docs once the refactor is complete.
 
 ## Stop Point
 

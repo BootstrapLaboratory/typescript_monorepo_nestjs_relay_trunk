@@ -1,7 +1,7 @@
 import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { parseValidationTarget } from "../src/validate/parse-validation-target.ts";
+import { parseValidationTarget } from "../src/stages/validate/parse-validation-target.ts";
 
 test("parses validation target metadata", () => {
   const definition = parseValidationTarget(`

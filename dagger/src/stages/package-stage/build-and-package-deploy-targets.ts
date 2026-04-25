@@ -1,7 +1,7 @@
 import { Directory, File } from "@dagger.io/dagger";
 
 import { buildDeployTargets } from "../build-stage/build-deploy-targets.ts";
-import { logSection } from "../logging/sections.ts";
+import { logSection } from "../../logging/sections.ts";
 import { packageDeployTargets } from "./package-deploy-targets.ts";
 
 export async function buildAndPackageDeployTargets(

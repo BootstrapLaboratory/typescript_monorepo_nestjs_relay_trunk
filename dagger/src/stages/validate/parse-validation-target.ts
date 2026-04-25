@@ -6,7 +6,7 @@ import type {
   ValidationServiceStepSpec,
   ValidationStepDefinition,
   ValidationTargetDefinition,
-} from "../model/validation-target.ts";
+} from "../../model/validation-target.ts";
 
 const IDENTIFIER_PATTERN = /^[a-z][a-z0-9_-]*$/;
 

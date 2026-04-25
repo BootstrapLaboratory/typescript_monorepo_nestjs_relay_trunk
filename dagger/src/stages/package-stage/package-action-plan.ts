@@ -1,7 +1,7 @@
 import path from "node:path";
 
-import type { PackageManifestArtifact } from "../model/package-manifest.ts";
-import type { PackageTargetDefinition } from "../model/package-target.ts";
+import type { PackageManifestArtifact } from "../../model/package-manifest.ts";
+import type { PackageTargetDefinition } from "../../model/package-target.ts";
 
 export type PackageCommand = {
   args: string[];

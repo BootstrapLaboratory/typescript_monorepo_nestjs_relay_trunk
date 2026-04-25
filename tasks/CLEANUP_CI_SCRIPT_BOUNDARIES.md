@@ -137,7 +137,7 @@ folder.
 - [x] Port Rush planning core into Dagger TypeScript.
 - [x] Reuse Dagger deploy metadata loaders instead of
       the old root metadata helper.
-- [x] Replace `dagger/src/detect/detect.ts` shell-out to
+- [x] Replace `dagger/src/stages/detect/detect.ts` shell-out to
       root CI scripts with direct TypeScript planning.
 - [x] Replace `dagger/src/workflow/build-package-runner.ts` shell-out to
       root CI scripts with direct TypeScript planning.

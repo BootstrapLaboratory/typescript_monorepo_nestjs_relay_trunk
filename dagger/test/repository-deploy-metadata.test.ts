@@ -4,11 +4,11 @@ import * as path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { parseDeployTarget } from "../src/deploy/parse-deploy-target.ts";
+import { parseDeployTarget } from "../src/stages/deploy/parse-deploy-target.ts";
 import {
   servicesMeshPath,
   targetDefinitionPath,
-} from "../src/deploy/metadata-paths.ts";
+} from "../src/stages/deploy/metadata-paths.ts";
 import { parseServicesMesh } from "../src/planning/parse-services-mesh.ts";
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));

@@ -1,8 +1,8 @@
 import { Directory, File, Socket } from "@dagger.io/dagger";
-import type { DeployReleaseResult } from "../model/deploy-result.ts";
-import { buildDeploymentPlan } from "../planning/build-deployment-plan.ts";
-import { logSection } from "../logging/sections.ts";
-import { parseReleaseTargets } from "../planning/parse-release-targets.ts";
+import type { DeployReleaseResult } from "../../model/deploy-result.ts";
+import { buildDeploymentPlan } from "../../planning/build-deployment-plan.ts";
+import { logSection } from "../../logging/sections.ts";
+import { parseReleaseTargets } from "../../planning/parse-release-targets.ts";
 import { executeDeploymentPlan } from "./execute-deployment-plan.ts";
 import { loadServicesMesh } from "./load-deploy-metadata.ts";
 import { parsePackageManifest } from "../package-stage/package-manifest.ts";

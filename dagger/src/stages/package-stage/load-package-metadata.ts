@@ -1,6 +1,6 @@
 import { Directory } from "@dagger.io/dagger";
 
-import type { PackageTargetDefinition } from "../model/package-target.ts";
+import type { PackageTargetDefinition } from "../../model/package-target.ts";
 import { packageTargetDefinitionPath } from "./metadata-paths.ts";
 import { parsePackageTarget } from "./parse-package-target.ts";
 

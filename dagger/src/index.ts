@@ -7,13 +7,13 @@ import {
   Socket,
 } from "@dagger.io/dagger";
 
-import { detect as detectCiPlan } from "./detect/detect.ts";
-import { deployRelease } from "./deploy/deploy-release.ts";
-import { buildAndPackageDeployTargets } from "./package-stage/build-and-package-deploy-targets.ts";
-import { buildDeployTargets } from "./build-stage/build-deploy-targets.ts";
-import { packageDeployTargets } from "./package-stage/package-deploy-targets.ts";
+import { detect as detectCiPlan } from "./stages/detect/detect.ts";
+import { deployRelease } from "./stages/deploy/deploy-release.ts";
+import { buildAndPackageDeployTargets } from "./stages/package-stage/build-and-package-deploy-targets.ts";
+import { buildDeployTargets } from "./stages/build-stage/build-deploy-targets.ts";
+import { packageDeployTargets } from "./stages/package-stage/package-deploy-targets.ts";
 import { parseReleaseTargets } from "./planning/parse-release-targets.ts";
-import { validate as validateRelease } from "./validate/validate.ts";
+import { validate as validateRelease } from "./stages/validate/validate.ts";
 import { workflow as runWorkflow } from "./workflow/workflow.ts";
 
 @object()

@@ -6,7 +6,7 @@ import {
   buildUpdateDeployTagCommand,
   deployTagName,
   shellQuote,
-} from "../src/deploy/deploy-tag.ts";
+} from "../src/stages/deploy/deploy-tag.ts";
 
 test("builds deploy tag names from environment and target", () => {
   assert.equal(deployTagName("prod", "server"), "deploy/prod/server");

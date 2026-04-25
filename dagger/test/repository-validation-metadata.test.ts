@@ -4,8 +4,8 @@ import * as path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { validationTargetsDirectory } from "../src/validate/metadata-paths.ts";
-import { parseValidationTarget } from "../src/validate/parse-validation-target.ts";
+import { validationTargetsDirectory } from "../src/stages/validate/metadata-paths.ts";
+import { parseValidationTarget } from "../src/stages/validate/parse-validation-target.ts";
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(testDirectory, "../..");

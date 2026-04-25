@@ -5,7 +5,7 @@ import {
   formatPackageManifest,
   parsePackageManifest,
   validatePackageManifest,
-} from "../src/package-stage/package-manifest.ts";
+} from "../src/stages/package-stage/package-manifest.ts";
 
 test("parses package manifest artifacts", () => {
   assert.deepStrictEqual(

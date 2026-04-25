@@ -5,7 +5,7 @@ import {
   buildRushBuildSteps,
   buildRushTargetArgs,
   buildRushValidationSteps,
-} from "../src/build-stage/rush-build-plan.ts";
+} from "../src/stages/build-stage/rush-build-plan.ts";
 import type { CiPlan } from "../src/model/ci-plan.ts";
 
 const ciPlan = {

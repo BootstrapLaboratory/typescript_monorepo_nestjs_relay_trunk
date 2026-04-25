@@ -1,7 +1,7 @@
 import { dag, Directory, File } from "@dagger.io/dagger";
 
-import { parseCiPlan } from "../ci-plan/parse-ci-plan.ts";
-import { logSection } from "../logging/sections.ts";
+import { parseCiPlan } from "../../ci-plan/parse-ci-plan.ts";
+import { logSection } from "../../logging/sections.ts";
 import { buildRushBuildSteps } from "./rush-build-plan.ts";
 
 const WORKDIR = "/workspace";

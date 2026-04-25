@@ -1,7 +1,7 @@
 import { dag, Directory, File } from "@dagger.io/dagger";
 
-import { parseCiPlan } from "../ci-plan/parse-ci-plan.ts";
-import { logSection, logSubsection } from "../logging/sections.ts";
+import { parseCiPlan } from "../../ci-plan/parse-ci-plan.ts";
+import { logSection, logSubsection } from "../../logging/sections.ts";
 import { loadPackageTargetDefinition } from "./load-package-metadata.ts";
 import { buildPackageActionPlan } from "./package-action-plan.ts";
 import {

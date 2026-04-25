@@ -1,7 +1,7 @@
 import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { buildPackageActionPlan } from "../src/package-stage/package-action-plan.ts";
+import { buildPackageActionPlan } from "../src/stages/package-stage/package-action-plan.ts";
 
 test("builds package plan for a directory artifact", () => {
   assert.deepStrictEqual(

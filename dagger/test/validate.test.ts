@@ -7,7 +7,7 @@ import {
   formatValidationSummary,
   parseValidateTargetsJson,
   shouldUseManualValidationTargets,
-} from "../src/validate/validation-result.ts";
+} from "../src/stages/validate/validation-result.ts";
 import type { CiPlan } from "../src/model/ci-plan.ts";
 
 const ciPlan = {

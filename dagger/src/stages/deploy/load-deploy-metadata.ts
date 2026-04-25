@@ -1,8 +1,8 @@
 import { Directory } from "@dagger.io/dagger";
 
-import type { DeployTargetDefinition } from "../model/deploy-target.ts";
-import type { ServiceMesh } from "../model/service-mesh.ts";
-import { parseServicesMesh } from "../planning/parse-services-mesh.ts";
+import type { DeployTargetDefinition } from "../../model/deploy-target.ts";
+import type { ServiceMesh } from "../../model/service-mesh.ts";
+import { parseServicesMesh } from "../../planning/parse-services-mesh.ts";
 import { servicesMeshPath, targetDefinitionPath } from "./metadata-paths.ts";
 import { parseDeployTarget } from "./parse-deploy-target.ts";
 

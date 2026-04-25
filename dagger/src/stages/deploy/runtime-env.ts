@@ -1,4 +1,4 @@
-import type { DeployRuntimeSpec } from "../model/deploy-target.ts";
+import type { DeployRuntimeSpec } from "../../model/deploy-target.ts";
 
 type HostEnv = Record<string, string | undefined>;
 

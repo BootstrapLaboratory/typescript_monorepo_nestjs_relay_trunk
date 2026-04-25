@@ -1,11 +1,11 @@
 import type { Container, Directory } from "@dagger.io/dagger";
 
-import { createCiPlan } from "../ci-plan/parse-ci-plan.ts";
+import { createCiPlan } from "../../ci-plan/parse-ci-plan.ts";
 import {
   loadDeployTargetDefinition,
   loadServicesMesh,
 } from "../deploy/load-deploy-metadata.ts";
-import type { CiPlan } from "../model/ci-plan.ts";
+import type { CiPlan } from "../../model/ci-plan.ts";
 import { computeRushPlan, type RushPlanResolver } from "./rush-plan.ts";
 
 async function loadDeployTargets(repo: Directory): Promise<{ name: string }[]> {

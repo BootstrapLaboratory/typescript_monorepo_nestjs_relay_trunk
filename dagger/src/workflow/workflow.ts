@@ -1,6 +1,6 @@
 import { Directory, File, Socket } from "@dagger.io/dagger";
 
-import { deployRelease } from "../deploy/deploy-release.ts";
+import { deployRelease } from "../stages/deploy/deploy-release.ts";
 import { logSection } from "../logging/sections.ts";
 import { runBuildPackageWorkflow } from "./build-package-runner.ts";
 

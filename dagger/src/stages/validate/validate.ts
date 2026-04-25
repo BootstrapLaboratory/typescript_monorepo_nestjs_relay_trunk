@@ -1,14 +1,14 @@
 import { Container, Directory } from "@dagger.io/dagger";
 
-import { formatCiPlan } from "../ci-plan/parse-ci-plan.ts";
+import { formatCiPlan } from "../../ci-plan/parse-ci-plan.ts";
 import { computeCiPlan } from "../detect/compute-ci-plan.ts";
-import type { CiPlan } from "../model/ci-plan.ts";
+import type { CiPlan } from "../../model/ci-plan.ts";
 import { buildRushValidationSteps } from "../build-stage/rush-build-plan.ts";
 import {
   installRush,
   prepareRushContainer,
   RUSH_WORKDIR,
-} from "../rush/container.ts";
+} from "../../rush/container.ts";
 import {
   createManualValidationCiPlan,
   createValidationSummary,
@@ -17,7 +17,7 @@ import {
   shouldUseManualValidationTargets,
 } from "./validation-result.ts";
 import { runValidationMetadataStage } from "./validation-runner.ts";
-import { logSection } from "../logging/sections.ts";
+import { logSection } from "../../logging/sections.ts";
 
 const CI_PLAN_PATH = ".dagger/runtime/ci-plan.json";
 

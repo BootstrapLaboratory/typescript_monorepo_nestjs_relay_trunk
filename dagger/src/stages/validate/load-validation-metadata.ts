@@ -1,6 +1,6 @@
 import { Directory } from "@dagger.io/dagger";
 
-import type { ValidationTargetDefinition } from "../model/validation-target.ts";
+import type { ValidationTargetDefinition } from "../../model/validation-target.ts";
 import { validationTargetDefinitionPath } from "./metadata-paths.ts";
 import { parseValidationTarget } from "./parse-validation-target.ts";
 

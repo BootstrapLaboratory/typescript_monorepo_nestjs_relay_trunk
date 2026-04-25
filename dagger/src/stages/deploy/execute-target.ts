@@ -1,9 +1,9 @@
 import { dag, Directory, Socket } from "@dagger.io/dagger";
 
-import type { DeployTargetDefinition } from "../model/deploy-target.ts";
-import type { DeployTargetResult } from "../model/deploy-result.ts";
-import type { PackageManifestArtifact } from "../model/package-manifest.ts";
-import { logSubsection } from "../logging/sections.ts";
+import type { DeployTargetDefinition } from "../../model/deploy-target.ts";
+import type { DeployTargetResult } from "../../model/deploy-result.ts";
+import type { PackageManifestArtifact } from "../../model/package-manifest.ts";
+import { logSubsection } from "../../logging/sections.ts";
 import { loadDeployTargetDefinition } from "./load-deploy-metadata.ts";
 import {
   getRequiredRepoRelativeHostPathSource,

@@ -4,7 +4,7 @@ import type {
   DeployRuntimeSpec,
   DeployTargetDefinition,
   FileMountSpec,
-} from "../model/deploy-target.ts";
+} from "../../model/deploy-target.ts";
 
 const ENV_NAME_PATTERN = /^[A-Z][A-Z0-9_]*$/;
 

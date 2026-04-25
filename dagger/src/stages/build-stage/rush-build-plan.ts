@@ -1,10 +1,10 @@
-import type { CiPlan } from "../model/ci-plan.ts";
+import type { CiPlan } from "../../model/ci-plan.ts";
 import {
   buildRushLifecycleSteps,
   buildRushProjectArgs,
   type RushCommandStep,
   type RushLifecycleCommand,
-} from "../rush/rush-command-plan.ts";
+} from "../../rush/rush-command-plan.ts";
 
 const NO_DEPLOY_TARGETS_MESSAGE = "No Rush deploy targets were selected.";
 

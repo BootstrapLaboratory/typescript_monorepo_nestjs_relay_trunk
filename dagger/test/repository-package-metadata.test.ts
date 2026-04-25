@@ -4,9 +4,9 @@ import * as path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { servicesMeshPath } from "../src/deploy/metadata-paths.ts";
-import { packageTargetDefinitionPath } from "../src/package-stage/metadata-paths.ts";
-import { parsePackageTarget } from "../src/package-stage/parse-package-target.ts";
+import { servicesMeshPath } from "../src/stages/deploy/metadata-paths.ts";
+import { packageTargetDefinitionPath } from "../src/stages/package-stage/metadata-paths.ts";
+import { parsePackageTarget } from "../src/stages/package-stage/parse-package-target.ts";
 import { parseServicesMesh } from "../src/planning/parse-services-mesh.ts";
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));

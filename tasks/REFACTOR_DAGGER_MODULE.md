@@ -9,7 +9,7 @@ The Dagger module is now split into focused areas under
 - [../dagger/src/model](../dagger/src/model) for shared types
 - [../dagger/src/planning](../dagger/src/planning) for release-target parsing,
   service-mesh parsing, and wave construction
-- [../dagger/src/deploy](../dagger/src/deploy) for deploy orchestration and
+- [../dagger/src/stages/deploy](../dagger/src/stages/deploy) for deploy orchestration and
   runtime helpers
 
 The final design no longer uses the intermediate target-specific TypeScript

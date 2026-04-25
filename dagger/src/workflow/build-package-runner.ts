@@ -2,15 +2,15 @@ import { Container, Directory } from "@dagger.io/dagger";
 
 import type { CiPlan } from "../model/ci-plan.ts";
 import type { PackageManifestArtifact } from "../model/package-manifest.ts";
-import { buildRushBuildSteps } from "../build-stage/rush-build-plan.ts";
+import { buildRushBuildSteps } from "../stages/build-stage/rush-build-plan.ts";
 import { formatCiPlan } from "../ci-plan/parse-ci-plan.ts";
-import { computeCiPlan } from "../detect/compute-ci-plan.ts";
-import { loadPackageTargetDefinition } from "../package-stage/load-package-metadata.ts";
-import { buildPackageActionPlan } from "../package-stage/package-action-plan.ts";
+import { computeCiPlan } from "../stages/detect/compute-ci-plan.ts";
+import { loadPackageTargetDefinition } from "../stages/package-stage/load-package-metadata.ts";
+import { buildPackageActionPlan } from "../stages/package-stage/package-action-plan.ts";
 import {
   createEmptyPackageManifest,
   formatPackageManifest,
-} from "../package-stage/package-manifest.ts";
+} from "../stages/package-stage/package-manifest.ts";
 import {
   installRush,
   prepareRushContainer,
