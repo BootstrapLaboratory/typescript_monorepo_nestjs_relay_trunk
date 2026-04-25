@@ -21,12 +21,16 @@ The first CI provider is GitHub Container Registry. Dagger will publish and pull
 Rush install cache images from GHCR. Local/default behavior stays provider-off
 and uses Dagger cache volumes only within the current Dagger engine.
 
-The cache must not restore host files into `/workspace/common/temp`. Dagger
-should run Rush with `RUSH_TEMP_FOLDER` pointed at a Dagger-owned cache path
-under the gitignored runtime area, for example
-`/workspace/.dagger/runtime/rush-cache/temp`. This keeps Rush dependency
-symlink targets under `/workspace` for `rush deploy`, while still avoiding the
-old host-restored `common/temp/install-run` path.
+The cache must not restore host files into the workflow source. Now that source
+acquisition is Dagger-owned, the workflow source is already copied or cloned
+inside a container filesystem. That means Rush can use its normal
+`common/temp` layout again without crossing host mount boundaries.
+
+GHCR cache images should store only the configured Rush cache paths as a single
+compressed archive. On a cache hit, Dagger restores that archive into the
+workflow source before running `rush install`. On a cache miss, Dagger runs
+`rush install` normally and then publishes an archive containing only the
+configured paths.
 
 ## Proposed Metadata
 
@@ -47,7 +51,8 @@ cache:
     - common/config/rush/pnpm-config.json
     - common/config/rush/version-policies.json
   paths:
-    - /workspace/.dagger/runtime/rush-cache/temp
+    - common/temp/node_modules
+    - common/temp/pnpm-store
 providers:
   github:
     kind: github_container_registry
@@ -79,10 +84,11 @@ not need registry credentials.
 Initial policy should be `lazy`:
 
 - Try to pull an existing cache image.
-- If the cache image exists, use it as the Rush install cache source.
-- If the cache image is missing, run Rush install from a clean cache path.
+- If the cache image exists, extract its compressed cache archive into the
+  workflow source, then run Rush install normally.
+- If the cache image is missing, run Rush install normally.
 - If provider is `github` and the cache image is missing, publish the resulting
-  cache image after successful Rush install.
+  cache archive image after successful Rush install.
 - If publish fails for provider `github`, fail the workflow so permission
   problems are visible.
 
@@ -93,7 +99,7 @@ The Rush install cache key should be content-addressed from normalized inputs:
 - Rush cache schema version.
 - Rush workflow toolchain image identity/hash.
 - Configured `cache.key_files` contents.
-- Configured `cache.paths`.
+- Configured repo-relative `cache.paths`.
 
 The cache inputs should be configurable, but the cache algorithm should remain
 framework-owned:
@@ -101,7 +107,8 @@ framework-owned:
 - Repositories may adjust `cache.key_files` when their Rush install behavior is
   affected by additional files.
 - Repositories may adjust `cache.paths` when Rush or package-manager cache
-  paths change.
+  paths change. Paths are repository-relative and are restored under the
+  workflow source directory.
 - Dagger always normalizes metadata, file contents, paths, and toolchain
   identity into a deterministic hash.
 - Dagger owns restore, install, and publish behavior. Do not expose custom key
@@ -146,9 +153,22 @@ ghcr.io/<owner>/<repo>/rush-delivery-caches/rush-install:<hash>
 - [x] Implement provider `github` using GHCR pull/build/publish.
 - [x] Reuse the existing GitHub registry-auth pattern from toolchain images
   where possible.
-- [x] Use a Dagger-owned `RUSH_TEMP_FOLDER` under
-  `/workspace/.dagger/runtime/rush-cache/temp` for Rush commands.
-- [x] Ensure no host-restored `common/temp` paths are required by Dagger.
+- [x] Keep Rush install/cache restore inside Dagger instead of restoring
+  host-side cache paths from GitHub Actions.
+
+### Phase 6: Archive Payload Refactor
+
+- [x] Remove `RUSH_TEMP_FOLDER` from Rush cache restore/install flow.
+- [x] Change cache paths to repository-relative Rush default paths:
+  `common/temp/node_modules` and `common/temp/pnpm-store`.
+- [x] Publish GHCR Rush cache images containing only a compressed archive of
+  configured cache paths.
+- [x] Restore cache hits by extracting the archive into the Dagger-owned source
+  before running `rush install`.
+- [x] Keep provider `off` provider-independent and free of host-side cache
+  assumptions.
+- [x] Update parser/schema/tests for repo-relative cache paths.
+- [ ] Prove cache miss and cache hit in real CI after the archive refactor.
 
 ### Phase 4: Workflow Integration
 

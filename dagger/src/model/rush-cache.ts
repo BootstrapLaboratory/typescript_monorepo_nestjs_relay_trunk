@@ -41,7 +41,6 @@ export type RushCacheResolution = {
   provider: RushCacheProvider;
   reference?: RushCacheReference;
   spec: RushCacheSpec;
-  tempFolder: string;
 };
 
 export type GithubRushCacheProviderDefinition = {

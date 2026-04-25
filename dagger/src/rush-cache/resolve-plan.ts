@@ -1,7 +1,4 @@
-import { createHash } from "node:crypto";
-
 import type {
-  RushCacheConfig,
   RushCacheProvidersDefinition,
   RushCacheReference,
   RushCacheSpec,
@@ -9,9 +6,10 @@ import type {
 import { buildGithubRushCacheReference } from "./github-reference.ts";
 import { hashRushCacheSpec, rushCacheTag } from "./spec.ts";
 
+export const RUSH_CACHE_ARCHIVE_IMAGE_PATH = "/rush-cache/cache.tar.gz";
+export const RUSH_CACHE_ARCHIVE_WORK_PATH = "/tmp/rush-cache.tar.gz";
 export const RUSH_CACHE_IMAGE_NAME = "rush-install";
-export const RUSH_CACHE_TEMP_FOLDER_ENV = "RUSH_TEMP_FOLDER";
-export const RUSH_CACHE_VOLUME_PREFIX = "rush-delivery-rush-cache";
+export const RUSH_CACHE_WORKDIR = "/workspace";
 
 export type GithubRushCacheRegistryAuthPlan = {
   address: string;
@@ -37,27 +35,6 @@ function requireHostEnv(
   }
 
   return value;
-}
-
-function hashCachePath(path: string): string {
-  return createHash("sha256").update(path).digest("hex").slice(0, 8);
-}
-
-export function rushCacheTempFolder(config: RushCacheConfig): string {
-  const tempFolder = config.paths[0];
-
-  if (tempFolder === undefined) {
-    throw new Error("Rush cache config must define at least one cache path.");
-  }
-
-  return tempFolder;
-}
-
-export function rushCacheVolumeName(
-  spec: RushCacheSpec,
-  path: string,
-): string {
-  return `${RUSH_CACHE_VOLUME_PREFIX}-${hashRushCacheSpec(spec)}-${hashCachePath(path)}`;
 }
 
 export function buildGithubRushCacheResolvePlan(
@@ -105,6 +82,46 @@ export function buildGithubRushCacheResolvePlan(
       username,
     },
   };
+}
+
+function shellQuote(value: string): string {
+  return `'${value.replace(/'/g, `'\\''`)}'`;
+}
+
+export function buildRushCacheArchiveCommand(paths: string[]): string {
+  if (paths.length === 0) {
+    throw new Error("Rush cache archive requires at least one path.");
+  }
+
+  return [
+    "set -euo pipefail",
+    [
+      "tar",
+      "-C",
+      shellQuote(RUSH_CACHE_WORKDIR),
+      "-cf",
+      "-",
+      ...paths.map(shellQuote),
+      "|",
+      "gzip",
+      "-9",
+      ">",
+      shellQuote(RUSH_CACHE_ARCHIVE_WORK_PATH),
+    ].join(" "),
+  ].join(" && ");
+}
+
+export function buildRushCacheRestoreCommand(): string {
+  return [
+    "set -euo pipefail",
+    [
+      "tar",
+      "-xzf",
+      shellQuote(RUSH_CACHE_ARCHIVE_WORK_PATH),
+      "-C",
+      shellQuote(RUSH_CACHE_WORKDIR),
+    ].join(" "),
+  ].join(" && ");
 }
 
 export function isMissingRushCacheImageError(error: unknown): boolean {

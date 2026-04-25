@@ -29,10 +29,6 @@ import {
   publishResolvedRushInstallCache,
   resolveRushInstallCache,
 } from "../rush-cache/resolve.ts";
-import {
-  RUSH_CACHE_TEMP_FOLDER_ENV,
-  rushCacheTempFolder,
-} from "../rush-cache/resolve-plan.ts";
 import { buildRushCacheSpec } from "../rush-cache/spec.ts";
 import { logSection, logSubsection } from "../logging/sections.ts";
 
@@ -175,22 +171,15 @@ export async function runBuildPackageWorkflow(
     provider: options.toolchainImageProvider,
     providers: options.toolchainImageProviders,
   });
-  const detectContainer =
-    options.rushCacheProviders === undefined
-      ? baseContainer
-      : baseContainer.withEnvVariable(
-          RUSH_CACHE_TEMP_FOLDER_ENV,
-          rushCacheTempFolder(options.rushCacheProviders.cache),
-        );
   const ciPlan = await computeCiPlan(
     repo,
-    detectContainer,
+    baseContainer,
     eventName,
     forceTargetsJson,
     prBaseSha,
     deployTagPrefix,
   );
-  const detectedContainer = buildDetectedContainer(detectContainer, ciPlan);
+  const detectedContainer = buildDetectedContainer(baseContainer, ciPlan);
 
   console.log(
     `[detect] mode=${ciPlan.mode} deploy_targets=${JSON.stringify(ciPlan.deploy_targets)} validate_targets=${JSON.stringify(ciPlan.validate_targets)}`,

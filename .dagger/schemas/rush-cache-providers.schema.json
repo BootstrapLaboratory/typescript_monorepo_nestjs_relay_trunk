@@ -27,9 +27,9 @@
         },
         "paths": {
           "type": "array",
-          "description": "Absolute container cache paths owned by Dagger. Paths may be outside the mounted source workspace, or under /workspace/.dagger/runtime so Rush deploy can follow dependency symlinks within the workspace.",
+          "description": "Repository-relative Rush cache paths restored under the Dagger-owned workflow source.",
           "items": {
-            "$ref": "#/$defs/cachePath"
+            "$ref": "#/$defs/repoRelativePath"
           },
           "minItems": 1,
           "uniqueItems": true
@@ -78,17 +78,6 @@
     }
   },
   "$defs": {
-    "cachePath": {
-      "type": "string",
-      "anyOf": [
-        {
-          "pattern": "^/(?!workspace(?:/|$))(?!.*(?:^|/)\\.\\.(?:/|$)).+"
-        },
-        {
-          "pattern": "^/workspace/\\.dagger/runtime/(?!.*(?:^|/)\\.\\.(?:/|$)).+"
-        }
-      ]
-    },
     "envName": {
       "type": "string",
       "pattern": "^[A-Z][A-Z0-9_]*$"

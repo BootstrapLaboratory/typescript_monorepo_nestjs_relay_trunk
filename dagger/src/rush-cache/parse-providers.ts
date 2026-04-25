@@ -10,8 +10,6 @@ import type {
 const ENV_NAME_PATTERN = /^[A-Z][A-Z0-9_]*$/;
 const DEFAULT_GITHUB_REGISTRY = "ghcr.io";
 const DEFAULT_RUSH_CACHE_IMAGE_NAMESPACE = "rush-delivery-caches";
-const WORKSPACE_PATH = "/workspace";
-const WORKSPACE_RUNTIME_CACHE_PATH = `${WORKSPACE_PATH}/.dagger/runtime`;
 
 function parseRequiredString(rawValue: unknown, name: string): string {
   if (typeof rawValue !== "string" || rawValue.length === 0) {
@@ -71,29 +69,6 @@ function parseRepoRelativePath(rawValue: unknown, name: string): string {
   return value;
 }
 
-function parseCachePath(rawValue: unknown, name: string): string {
-  const value = parseRequiredString(rawValue, name).replace(/\\/g, "/");
-
-  if (!value.startsWith("/")) {
-    throw new Error(`${name} must be an absolute container path.`);
-  }
-
-  if (value === "/" || hasParentSegment(value)) {
-    throw new Error(`${name} must be a specific absolute container path.`);
-  }
-
-  if (
-    (value === WORKSPACE_PATH || value.startsWith(`${WORKSPACE_PATH}/`)) &&
-    !value.startsWith(`${WORKSPACE_RUNTIME_CACHE_PATH}/`)
-  ) {
-    throw new Error(
-      `${name} must stay outside ${WORKSPACE_PATH} unless it is under ${WORKSPACE_RUNTIME_CACHE_PATH}.`,
-    );
-  }
-
-  return value;
-}
-
 function uniqueValues(values: string[]): string[] {
   return [...new Set(values)];
 }
@@ -127,7 +102,7 @@ function parseRushCacheConfig(rawValue: unknown): RushCacheConfig {
         "paths" in rawValue ? rawValue.paths : undefined,
         "Rush cache paths",
       ).map((path, index) =>
-        parseCachePath(path, `Rush cache paths[${index}]`),
+        parseRepoRelativePath(path, `Rush cache paths[${index}]`),
       ),
     ),
     version: parseRequiredString(

@@ -1,5 +1,4 @@
 import {
-  CacheSharingMode,
   dag,
   type Container,
   type Secret,
@@ -12,11 +11,12 @@ import type {
   RushCacheSpec,
 } from "../model/rush-cache.ts";
 import {
+  buildRushCacheArchiveCommand,
+  buildRushCacheRestoreCommand,
   buildGithubRushCacheResolvePlan,
   isMissingRushCacheImageError,
-  RUSH_CACHE_TEMP_FOLDER_ENV,
-  rushCacheTempFolder,
-  rushCacheVolumeName,
+  RUSH_CACHE_ARCHIVE_IMAGE_PATH,
+  RUSH_CACHE_ARCHIVE_WORK_PATH,
 } from "./resolve-plan.ts";
 
 export type ResolveRushInstallCacheOptions = {
@@ -36,66 +36,18 @@ export type ResolvedRushInstallCache = RushCacheResolution & {
   registryAuth?: RegistryAuth;
 };
 
-function withRushCacheEnvironment(
-  container: Container,
-  tempFolder: string,
-): Container {
-  return container.withEnvVariable(RUSH_CACHE_TEMP_FOLDER_ENV, tempFolder);
-}
-
-function withRushCacheVolumes(
-  container: Container,
-  spec: RushCacheSpec,
-  providers: RushCacheProvidersDefinition,
-): Container {
-  let nextContainer = withRushCacheEnvironment(
-    container,
-    rushCacheTempFolder(providers.cache),
-  );
-
-  for (const path of providers.cache.paths) {
-    nextContainer = nextContainer.withMountedCache(
-      path,
-      dag.cacheVolume(rushCacheVolumeName(spec, path)),
-      {
-        sharing: CacheSharingMode.Locked,
-      },
-    );
-  }
-
-  return nextContainer;
-}
-
-function withRushCacheDirectories(
+function withRushCacheArchive(
   container: Container,
   cacheContainer: Container,
-  providers: RushCacheProvidersDefinition,
 ): Container {
-  let nextContainer = withRushCacheEnvironment(
-    container,
-    rushCacheTempFolder(providers.cache),
-  );
-
-  for (const path of providers.cache.paths) {
-    nextContainer = nextContainer.withDirectory(
-      path,
-      cacheContainer.directory(path),
-    );
-  }
-
-  return nextContainer;
-}
-
-function withEmptyRushCacheDirectories(
-  container: Container,
-  providers: RushCacheProvidersDefinition,
-): Container {
-  return withRushCacheEnvironment(
-    container,
-    rushCacheTempFolder(providers.cache),
-  ).withExec(["mkdir", "-p", ...providers.cache.paths], {
-    expand: false,
-  });
+  return container
+    .withFile(
+      RUSH_CACHE_ARCHIVE_WORK_PATH,
+      cacheContainer.file(RUSH_CACHE_ARCHIVE_IMAGE_PATH),
+    )
+    .withExec(["bash", "-lc", buildRushCacheRestoreCommand()], {
+      expand: false,
+    });
 }
 
 export async function resolveRushInstallCache(
@@ -109,11 +61,10 @@ export async function resolveRushInstallCache(
     case "off":
       return {
         cacheHit: false,
-        container: withRushCacheVolumes(container, spec, options.providers),
+        container,
         paths: [...options.providers.cache.paths],
         provider,
         spec,
-        tempFolder: rushCacheTempFolder(options.providers.cache),
       };
     case "github":
       return resolveGithubRushInstallCache(container, spec, options);
@@ -151,17 +102,15 @@ async function resolveGithubRushInstallCache(
 
     return {
       cacheHit: true,
-      container: withRushCacheDirectories(
+      container: withRushCacheArchive(
         container,
         cacheContainer,
-        options.providers,
       ),
       paths: [...options.providers.cache.paths],
       provider: "github",
       reference: plan.reference,
       registryAuth,
       spec,
-      tempFolder: rushCacheTempFolder(options.providers.cache),
     };
   } catch (error) {
     if (!isMissingRushCacheImageError(error)) {
@@ -172,13 +121,12 @@ async function resolveGithubRushInstallCache(
 
     return {
       cacheHit: false,
-      container: withEmptyRushCacheDirectories(container, options.providers),
+      container,
       paths: [...options.providers.cache.paths],
       provider: "github",
       reference: plan.reference,
       registryAuth,
       spec,
-      tempFolder: rushCacheTempFolder(options.providers.cache),
     };
   }
 }
@@ -196,7 +144,12 @@ export async function publishResolvedRushInstallCache(
     return undefined;
   }
 
-  let cacheImage = dag
+  const archiveFile = installedContainer
+    .withExec(["bash", "-lc", buildRushCacheArchiveCommand(resolution.paths)], {
+      expand: false,
+    })
+    .file(RUSH_CACHE_ARCHIVE_WORK_PATH);
+  const cacheImage = dag
     .container()
     .withRegistryAuth(
       resolution.registryAuth.address,
@@ -206,14 +159,8 @@ export async function publishResolvedRushInstallCache(
     .withLabel(
       "org.opencontainers.image.source",
       `https://github.com/${resolution.reference.repository}`,
-    );
-
-  for (const path of resolution.paths) {
-    cacheImage = cacheImage.withDirectory(
-      path,
-      installedContainer.directory(path),
-    );
-  }
+    )
+    .withFile(RUSH_CACHE_ARCHIVE_IMAGE_PATH, archiveFile);
 
   const publishedReference = await cacheImage.publish(
     resolution.reference.reference,

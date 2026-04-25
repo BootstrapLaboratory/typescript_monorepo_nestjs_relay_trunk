@@ -9,9 +9,9 @@ import {
 import { parseRushCacheProviders } from "../src/rush-cache/parse-providers.ts";
 import {
   buildGithubRushCacheResolvePlan,
+  buildRushCacheArchiveCommand,
+  buildRushCacheRestoreCommand,
   isMissingRushCacheImageError,
-  rushCacheTempFolder,
-  rushCacheVolumeName,
 } from "../src/rush-cache/resolve-plan.ts";
 import {
   buildRushCacheSpec,
@@ -29,7 +29,7 @@ cache:
     - rush.json
     - common/config/rush/pnpm-lock.yaml
   paths:
-    - /rush-cache/temp
+    - common/temp/node_modules
 providers:
   github:
     kind: github_container_registry
@@ -43,7 +43,7 @@ providers:
   assert.deepStrictEqual(providers, {
     cache: {
       key_files: ["rush.json", "common/config/rush/pnpm-lock.yaml"],
-      paths: ["/rush-cache/temp"],
+      paths: ["common/temp/node_modules"],
       version: "v1",
     },
     providers: {
@@ -66,7 +66,7 @@ cache:
   key_files:
     - rush.json
   paths:
-    - /rush-cache/temp
+    - common/temp/node_modules
 providers:
   github:
     kind: github_container_registry
@@ -94,30 +94,28 @@ cache:
   key_files:
     - /rush.json
   paths:
-    - /rush-cache/temp
+    - common/temp/node_modules
 providers: {}
 `),
     /key_files\[0\] must be a repository-relative path/,
   );
 });
 
-test("allows Rush cache paths under Dagger runtime workspace", () => {
+test("allows repository-relative Rush cache paths", () => {
   const providers = parseRushCacheProviders(`
 cache:
   version: v1
   key_files:
     - rush.json
   paths:
-    - /workspace/.dagger/runtime/rush-cache/temp
+    - common/temp/node_modules
 providers: {}
 `);
 
-  assert.deepStrictEqual(providers.cache.paths, [
-    "/workspace/.dagger/runtime/rush-cache/temp",
-  ]);
+  assert.deepStrictEqual(providers.cache.paths, ["common/temp/node_modules"]);
 });
 
-test("fails when Rush cache paths are inside non-runtime workspace paths", () => {
+test("fails when Rush cache paths are absolute", () => {
   assert.throws(
     () =>
       parseRushCacheProviders(`
@@ -129,7 +127,7 @@ cache:
     - /workspace/common/temp
 providers: {}
 `),
-    /paths\[0\] must stay outside \/workspace unless it is under \/workspace\/\.dagger\/runtime/,
+    /paths\[0\] must be a repository-relative path/,
   );
 });
 
@@ -142,7 +140,7 @@ cache:
   key_files:
     - rush.json
   paths:
-    - /rush-cache/temp
+    - common/temp/node_modules
 providers:
   gitlab:
     kind: gitlab_container_registry
@@ -160,7 +158,7 @@ cache:
   key_files:
     - rush.json
   paths:
-    - /rush-cache/temp
+    - common/temp/node_modules
 providers:
   github:
     kind: github_container_registry
@@ -175,7 +173,7 @@ providers:
 test("normalizes Rush cache specs for stable hashing", () => {
   const config = {
     key_files: ["common/config/rush/pnpm-lock.yaml", "rush.json"],
-    paths: ["/rush-cache/temp", "/root/.rush"],
+    paths: ["common/temp/node_modules", "common/temp/pnpm-store"],
     version: "v1",
   };
   const left = buildRushCacheSpec({
@@ -189,7 +187,7 @@ test("normalizes Rush cache specs for stable hashing", () => {
   const right = buildRushCacheSpec({
     config: {
       ...config,
-      paths: ["/root/.rush", "/rush-cache/temp"],
+      paths: ["common/temp/pnpm-store", "common/temp/node_modules"],
     },
     keyFiles: [
       { contents: "rush", path: "rush.json" },
@@ -203,7 +201,7 @@ test("normalizes Rush cache specs for stable hashing", () => {
       { contents: "lock", path: "common/config/rush/pnpm-lock.yaml" },
       { contents: "rush", path: "rush.json" },
     ],
-    paths: ["/root/.rush", "/rush-cache/temp"],
+    paths: ["common/temp/node_modules", "common/temp/pnpm-store"],
     toolchain_identity: "rush-workflow:sha256-abc123",
     version: "rush-delivery-rush-cache/v1:v1",
   });
@@ -219,7 +217,7 @@ test("changes the Rush cache hash when key file contents change", () => {
   const baseSpec = buildRushCacheSpec({
     config: {
       key_files: ["rush.json"],
-      paths: ["/rush-cache/temp"],
+      paths: ["common/temp/node_modules"],
       version: "v1",
     },
     keyFiles: [{ contents: "rush", path: "rush.json" }],
@@ -228,7 +226,7 @@ test("changes the Rush cache hash when key file contents change", () => {
   const changedSpec = buildRushCacheSpec({
     config: {
       key_files: ["rush.json"],
-      paths: ["/rush-cache/temp"],
+      paths: ["common/temp/node_modules"],
       version: "v1",
     },
     keyFiles: [{ contents: "changed", path: "rush.json" }],
@@ -242,7 +240,7 @@ test("changes the Rush cache hash when cache paths change", () => {
   const baseSpec = buildRushCacheSpec({
     config: {
       key_files: ["rush.json"],
-      paths: ["/rush-cache/temp"],
+      paths: ["common/temp/node_modules"],
       version: "v1",
     },
     keyFiles: [{ contents: "rush", path: "rush.json" }],
@@ -251,7 +249,7 @@ test("changes the Rush cache hash when cache paths change", () => {
   const changedSpec = buildRushCacheSpec({
     config: {
       key_files: ["rush.json"],
-      paths: ["/rush-cache/temp", "/root/.rush"],
+      paths: ["common/temp/node_modules", "common/temp/pnpm-store"],
       version: "v1",
     },
     keyFiles: [{ contents: "rush", path: "rush.json" }],
@@ -265,7 +263,7 @@ test("changes the Rush cache hash when toolchain identity changes", () => {
   const baseSpec = buildRushCacheSpec({
     config: {
       key_files: ["rush.json"],
-      paths: ["/rush-cache/temp"],
+      paths: ["common/temp/node_modules"],
       version: "v1",
     },
     keyFiles: [{ contents: "rush", path: "rush.json" }],
@@ -274,7 +272,7 @@ test("changes the Rush cache hash when toolchain identity changes", () => {
   const changedSpec = buildRushCacheSpec({
     config: {
       key_files: ["rush.json"],
-      paths: ["/rush-cache/temp"],
+      paths: ["common/temp/node_modules"],
       version: "v1",
     },
     keyFiles: [{ contents: "rush", path: "rush.json" }],
@@ -288,7 +286,7 @@ test("builds a default GitHub Container Registry Rush cache reference", () => {
   const spec = buildRushCacheSpec({
     config: {
       key_files: ["rush.json"],
-      paths: ["/rush-cache/temp"],
+      paths: ["common/temp/node_modules"],
       version: "v1",
     },
     keyFiles: [{ contents: "rush", path: "rush.json" }],
@@ -319,51 +317,24 @@ test("fails when GitHub Rush cache repository is not owner/repo", () => {
   );
 });
 
-test("uses the first configured Rush cache path as RUSH_TEMP_FOLDER", () => {
+test("builds Rush cache archive and restore commands", () => {
   assert.equal(
-    rushCacheTempFolder({
-      key_files: ["rush.json"],
-      paths: ["/rush-cache/temp", "/rush-cache/pnpm-store"],
-      version: "v1",
-    }),
-    "/rush-cache/temp",
+    buildRushCacheArchiveCommand([
+      "common/temp/node_modules",
+      "common/temp/pnpm-store",
+    ]),
+    "set -euo pipefail && tar -C '/workspace' -cf - 'common/temp/node_modules' 'common/temp/pnpm-store' | gzip -9 > '/tmp/rush-cache.tar.gz'",
+  );
+  assert.equal(
+    buildRushCacheRestoreCommand(),
+    "set -euo pipefail && tar -xzf '/tmp/rush-cache.tar.gz' -C '/workspace'",
   );
 });
 
-test("fails when resolving a Rush cache temp folder without paths", () => {
+test("fails when building a Rush cache archive command without paths", () => {
   assert.throws(
-    () =>
-      rushCacheTempFolder({
-        key_files: ["rush.json"],
-        paths: [],
-        version: "v1",
-      }),
-    /must define at least one cache path/,
-  );
-});
-
-test("builds stable Dagger cache volume names from Rush cache spec and path", () => {
-  const spec = buildRushCacheSpec({
-    config: {
-      key_files: ["rush.json"],
-      paths: ["/rush-cache/temp"],
-      version: "v1",
-    },
-    keyFiles: [{ contents: "rush", path: "rush.json" }],
-    toolchainIdentity: "rush-workflow:sha256-abc123",
-  });
-
-  assert.equal(
-    rushCacheVolumeName(spec, "/rush-cache/temp"),
-    rushCacheVolumeName(spec, "/rush-cache/temp"),
-  );
-  assert.notEqual(
-    rushCacheVolumeName(spec, "/rush-cache/temp"),
-    rushCacheVolumeName(spec, "/rush-cache/pnpm-store"),
-  );
-  assert.match(
-    rushCacheVolumeName(spec, "/rush-cache/temp"),
-    /^rush-delivery-rush-cache-[a-f0-9]+-[a-f0-9]+$/,
+    () => buildRushCacheArchiveCommand([]),
+    /requires at least one path/,
   );
 });
 
@@ -374,7 +345,7 @@ cache:
   key_files:
     - rush.json
   paths:
-    - /rush-cache/temp
+    - common/temp/node_modules
 providers:
   github:
     kind: github_container_registry
@@ -417,7 +388,7 @@ cache:
   key_files:
     - rush.json
   paths:
-    - /rush-cache/temp
+    - common/temp/node_modules
 providers:
   github:
     kind: github_container_registry
