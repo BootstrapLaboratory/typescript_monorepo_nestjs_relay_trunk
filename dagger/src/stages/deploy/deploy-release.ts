@@ -39,6 +39,8 @@ export async function deployRelease(
   toolchainImagePolicy: string = "lazy",
   dockerSocket?: Socket,
   runtimeMountRepo?: Directory,
+  gitAuthTokenEnv: string = "",
+  gitAuthUsername: string = "x-access-token",
 ): Promise<string> {
   logSection("Deploy release");
 
@@ -97,6 +99,8 @@ export async function deployRelease(
     parsedToolchainImageProvider,
     toolchainImageProviders,
     dockerSocket,
+    gitAuthTokenEnv,
+    gitAuthUsername,
   );
   const deployResult: DeployReleaseResult = {
     dryRun,

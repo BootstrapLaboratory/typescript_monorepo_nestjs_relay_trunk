@@ -9,13 +9,13 @@ import type {
 import {
   buildGitAskPassScript,
   buildLocalCopySourceCommand,
+  GIT_ASKPASS_PATH,
+  GIT_TOKEN_ENV,
   shellQuote,
 } from "./source-commands.ts";
 
 const SOURCE_IMAGE = "node:24-bookworm-slim";
 const SOURCE_INSTALL_COMMAND = "apt-get update && apt-get install -y ca-certificates git";
-const GIT_TOKEN_ENV = "RUSH_DELIVERY_GIT_TOKEN";
-const GIT_ASKPASS_PATH = "/tmp/rush-delivery-git-askpass.sh";
 
 export type ResolveSourceOptions = {
   hostEnv?: Record<string, string>;

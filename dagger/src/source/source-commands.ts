@@ -1,6 +1,7 @@
 import type { LocalCopySourcePlan } from "../model/source.ts";
 
-const GIT_TOKEN_ENV = "RUSH_DELIVERY_GIT_TOKEN";
+export const GIT_TOKEN_ENV = "RUSH_DELIVERY_GIT_TOKEN";
+export const GIT_ASKPASS_PATH = "/tmp/rush-delivery-git-askpass.sh";
 
 export function shellQuote(value: string): string {
   return `'${value.replace(/'/gu, "'\\''")}'`;

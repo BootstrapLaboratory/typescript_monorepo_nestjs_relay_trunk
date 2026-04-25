@@ -22,6 +22,8 @@ export async function executeDeploymentPlan(
   toolchainImageProvider: ToolchainImageProvider = "off",
   toolchainImageProviders?: ToolchainImageProvidersDefinition,
   dockerSocket?: Socket,
+  gitAuthTokenEnv: string = "",
+  gitAuthUsername: string = "x-access-token",
 ): Promise<DeployTargetResult[]> {
   const results: DeployTargetResult[] = [];
 
@@ -59,6 +61,8 @@ export async function executeDeploymentPlan(
             toolchainImageProvider,
             toolchainImageProviders,
             dockerSocket,
+            gitAuthTokenEnv,
+            gitAuthUsername,
           );
         } catch (error) {
           const message =

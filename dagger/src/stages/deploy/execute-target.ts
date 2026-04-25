@@ -1,4 +1,4 @@
-import { Directory, Socket } from "@dagger.io/dagger";
+import { dag, type Container, Directory, Socket } from "@dagger.io/dagger";
 
 import type { DeployTargetDefinition } from "../../model/deploy-target.ts";
 import type { DeployTargetResult } from "../../model/deploy-result.ts";
@@ -10,6 +10,11 @@ import {
   buildResolvedToolchainContainer,
   resolveToolchainImage,
 } from "../../toolchain-images/resolve.ts";
+import {
+  buildGitAskPassScript,
+  GIT_ASKPASS_PATH,
+  GIT_TOKEN_ENV,
+} from "../../source/source-commands.ts";
 import { loadDeployTargetDefinition } from "./load-deploy-metadata.ts";
 import {
   getRequiredRepoRelativeHostPathSource,
@@ -73,6 +78,35 @@ function formatDryRunSummary(
   return `${lines.join("\n")}\n`;
 }
 
+function withGitPushAuth(
+  container: Container,
+  hostEnv: Record<string, string>,
+  tokenEnv: string,
+  username: string,
+): Container {
+  let nextContainer = container.withEnvVariable("GIT_TERMINAL_PROMPT", "0");
+
+  if (tokenEnv.length === 0) {
+    return nextContainer;
+  }
+
+  const token = hostEnv[tokenEnv];
+  if (token === undefined || token.length === 0) {
+    throw new Error(
+      `Git deploy tag update authentication requires host env ${tokenEnv}.`,
+    );
+  }
+
+  const secret = dag.setSecret("rush-delivery-git-push-token", token);
+
+  return nextContainer
+    .withSecretVariable(GIT_TOKEN_ENV, secret)
+    .withNewFile(GIT_ASKPASS_PATH, buildGitAskPassScript(username), {
+      permissions: 0o700,
+    })
+    .withEnvVariable("GIT_ASKPASS", GIT_ASKPASS_PATH);
+}
+
 export async function executeTarget(
   repo: Directory,
   runtimeMountRepo: Directory,
@@ -87,6 +121,8 @@ export async function executeTarget(
   toolchainImageProvider: "off" | "github" = "off",
   toolchainImageProviders?: ToolchainImageProvidersDefinition,
   dockerSocket?: Socket,
+  gitAuthTokenEnv: string = "",
+  gitAuthUsername: string = "x-access-token",
 ): Promise<DeployTargetResult> {
   const definition = await loadDeployTargetDefinition(repo, target);
   validateRequiredHostEnv(definition.runtime, hostEnv, dryRun, target);
@@ -142,6 +178,13 @@ export async function executeTarget(
   let container = buildResolvedToolchainContainer(toolchainImage)
     .withDirectory("/workspace", repo)
     .withWorkdir("/workspace");
+
+  container = withGitPushAuth(
+    container,
+    hostEnv,
+    gitAuthTokenEnv,
+    gitAuthUsername,
+  );
 
   for (const fileMount of definition.runtime.file_mounts) {
     const sourcePath = getRequiredRepoRelativeHostPathSource(
