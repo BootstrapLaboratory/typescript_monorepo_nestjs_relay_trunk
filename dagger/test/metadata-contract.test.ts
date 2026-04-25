@@ -8,6 +8,10 @@ import {
   type MetadataContractRepository,
   validateMetadataContractRepository,
 } from "../src/metadata/metadata-contract.ts";
+import { buildDeploymentPlan } from "../src/planning/build-deployment-plan.ts";
+import { parseServicesMesh } from "../src/planning/parse-services-mesh.ts";
+import { buildPackageActionPlan } from "../src/stages/package-stage/package-action-plan.ts";
+import { parsePackageTarget } from "../src/stages/package-stage/parse-package-target.ts";
 
 class LocalMetadataRepository implements MetadataContractRepository {
   private readonly root: string;
@@ -181,6 +185,96 @@ test("accepts a complete framework metadata contract", async () => {
   assert.deepEqual(result.deploy_targets, ["server", "webapp"]);
   assert.deepEqual(result.package_targets, ["server", "webapp"]);
   assert.deepEqual(result.validation_targets, ["server"]);
+});
+
+test("accepts adding a deploy target through metadata only", async () => {
+  const files = validMetadataFiles();
+
+  files["rush.json"] = JSON.stringify({
+    projects: [
+      { packageName: "server", projectFolder: "apps/server" },
+      { packageName: "webapp", projectFolder: "apps/webapp" },
+      { packageName: "worker", projectFolder: "apps/worker" },
+    ],
+  });
+  files[".dagger/deploy/services-mesh.yaml"] = [
+    "services:",
+    "  server:",
+    "    deploy_after: []",
+    "  webapp:",
+    "    deploy_after:",
+    "      - server",
+    "  worker:",
+    "    deploy_after:",
+    "      - server",
+    "",
+  ].join("\n");
+  files[".dagger/deploy/targets/worker.yaml"] = [
+    "name: worker",
+    "deploy_script: deploy/worker.sh",
+    "runtime:",
+    "  image: node:24-bookworm-slim",
+    "  pass_env:",
+    "    - WORKER_REGION",
+    "  dry_run_defaults:",
+    "    WORKER_REGION: local",
+    "",
+  ].join("\n");
+  files[".dagger/package/targets/worker.yaml"] = [
+    "name: worker",
+    "artifact:",
+    "  kind: directory",
+    "  path: apps/worker/dist",
+    "",
+  ].join("\n");
+  files[".dagger/validate/targets/worker.yaml"] = [
+    "name: worker",
+    "steps:",
+    "  - name: smoke",
+    "    command: npm",
+    "    args: [--prefix, apps/worker, run, ci:smoke]",
+    "",
+  ].join("\n");
+  files["apps/worker/package.json"] = "{}";
+  files["deploy/worker.sh"] = "#!/usr/bin/env bash\n";
+
+  const result = await validateMetadataContractRepository(
+    new MemoryMetadataRepository(files),
+  );
+  assert.deepEqual(result.deploy_targets, ["server", "webapp", "worker"]);
+  assert.deepEqual(result.package_targets, ["server", "webapp", "worker"]);
+  assert.deepEqual(result.validation_targets, ["server", "worker"]);
+  assert.deepEqual(result.rush_projects, ["server", "webapp", "worker"]);
+
+  assert.deepEqual(
+    buildDeploymentPlan(
+      parseServicesMesh(files[".dagger/deploy/services-mesh.yaml"]),
+      result.deploy_targets,
+    ),
+    {
+      selectedTargets: ["server", "webapp", "worker"],
+      waves: [
+        [{ target: "server" }],
+        [{ target: "webapp" }, { target: "worker" }],
+      ],
+    },
+  );
+  assert.deepEqual(
+    buildPackageActionPlan(
+      "worker",
+      parsePackageTarget(files[".dagger/package/targets/worker.yaml"]),
+      "deploy-target",
+    ),
+    {
+      artifact: {
+        deploy_path: "apps/worker/dist",
+        kind: "directory",
+        path: "apps/worker/dist",
+      },
+      commands: [],
+      validations: [{ kind: "directory", path: "apps/worker/dist" }],
+    },
+  );
 });
 
 test("reports cross-file metadata contract issues together", async () => {
