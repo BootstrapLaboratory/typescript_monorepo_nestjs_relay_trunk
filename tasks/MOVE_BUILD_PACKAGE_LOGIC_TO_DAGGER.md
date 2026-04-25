@@ -85,9 +85,9 @@ TypeScript, where parsing and planning are covered by the Dagger test suite.
 
 ## Phase 5: Real CI Validation
 
-- [ ] Run forced `webapp` release.
-- [ ] Run forced `server` release.
-- [ ] Run a normal `main` release path when both deploy targets are selected.
+- [x] Run forced `webapp` release.
+- [x] Run forced `server` release.
+- [x] Run a normal `main` release path when both deploy targets are selected.
 
 ## Stop Point
 
