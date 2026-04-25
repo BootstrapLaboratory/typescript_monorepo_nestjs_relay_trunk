@@ -151,21 +151,20 @@ Provider metadata location: `.dagger/toolchain-images/providers.yaml`.
 - [x] Confirm re-running GitHub CI reuses the Rush workflow toolchain image.
 - [x] Shrink the deploy-server toolchain by replacing `docker.io` with the
       Docker CLI-only package.
-- [ ] Add an optional `prewarm-images` Dagger entrypoint.
-- [ ] Add docs for local usage, GitHub Actions usage, required permissions, and
-      future cron prewarm usage.
+- [x] Move optional prewarm, scheduled workflow, documentation, and retention
+      follow-ups into a dedicated future task.
 
 ## GitHub Actions Follow-Up
 
 - [x] Add `packages: write` only to workflows that publish prebuilt images.
 - [x] Pass `GITHUB_TOKEN`, `GITHUB_REPOSITORY`, and `GITHUB_ACTOR` only when
       the GitHub provider is selected.
-- [ ] Add a scheduled prewarm workflow after lazy usage is proven stable.
-- [ ] Confirm image cleanup/retention strategy for old hash-tagged images.
+- [x] Defer scheduled prewarm workflow and hash-tag retention guidance to the
+      future prewarm task.
 
 ## Validation
 
-- [ ] Local workflow still works with image provider disabled.
+- [x] Local workflow still works with image provider disabled.
 - [x] GitHub CI can pull an existing GHCR toolchain image.
 - [x] GitHub CI can build and push a missing GHCR toolchain image.
 - [x] Re-running CI after publish reuses deploy executor prebuilt images.
