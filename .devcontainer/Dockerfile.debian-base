@@ -6,6 +6,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD bash -lc 'true'
 
 ARG WATCHMAN_VERSION=2026.03.30.00
+ARG DAGGER_VERSION=0.20.6
 
 # Установить необходимые пакеты
 
@@ -44,6 +45,17 @@ RUN apt-get update \
       docker-compose-plugin \
       gh \
       google-cloud-cli \
+ && DPKG_ARCH="$(dpkg --print-architecture)" \
+ && case "${DPKG_ARCH}" in \
+      amd64) DAGGER_ARCH="amd64" ;; \
+      arm64) DAGGER_ARCH="arm64" ;; \
+      *) echo "Unsupported Dagger architecture: ${DPKG_ARCH}" >&2; exit 1 ;; \
+    esac \
+ && DAGGER_ARCHIVE="dagger_v${DAGGER_VERSION}_linux_${DAGGER_ARCH}.tar.gz" \
+ && DAGGER_URL="https://dl.dagger.io/dagger/releases/${DAGGER_VERSION}/${DAGGER_ARCHIVE}" \
+ && curl -fsSL "${DAGGER_URL}" -o "/tmp/${DAGGER_ARCHIVE}" \
+ && tar -xzf "/tmp/${DAGGER_ARCHIVE}" -C /usr/local/bin dagger \
+ && chmod 0755 /usr/local/bin/dagger \
  && WATCHMAN_ARCHIVE="watchman-v${WATCHMAN_VERSION}-linux.zip" \
  && WATCHMAN_URL="https://github.com/facebook/watchman/releases/download/v${WATCHMAN_VERSION}/${WATCHMAN_ARCHIVE}" \
  && curl -fsSL "${WATCHMAN_URL}" -o "/tmp/${WATCHMAN_ARCHIVE}" \
@@ -55,7 +67,7 @@ RUN apt-get update \
  && chmod 755 /usr/local/bin/watchman \
  && chmod 2777 /usr/local/var/run/watchman \
  && ldconfig \
- && rm -rf "/tmp/${WATCHMAN_ARCHIVE}" /tmp/watchman-install \
+ && rm -rf "/tmp/${DAGGER_ARCHIVE}" "/tmp/${WATCHMAN_ARCHIVE}" /tmp/watchman-install \
  && rm -rf /var/lib/apt/lists/*
 
 # HOME's .bashrc
