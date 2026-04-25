@@ -63,6 +63,11 @@ to run the workflow.
   local/dev input for `local_copy`. Add Git source inputs later when the runner
   is ready, instead of mixing unproven source parameters into the public workflow
   entrypoint first.
+- Phase 4 GitHub decision: keep `actions/checkout` only while the Dagger module
+  lives in this repository. The workflow source itself is fetched inside Dagger
+  with Git source mode. When the framework moves to a dedicated repository, CI
+  can call the module from there and stop checking out the application source
+  before `dagger call workflow`.
 
 ## Implementation Checklist
 
@@ -97,13 +102,13 @@ to run the workflow.
 
 ### Phase 4: GitHub CI Adapter
 
-- [ ] Update `.github/workflows/ci-release.yaml` to pass source coordinates into
+- [x] Update `.github/workflows/ci-release.yaml` to pass source coordinates into
   Dagger.
-- [ ] Remove host-side `git fetch --force --tags origin` after Dagger fetches
+- [x] Remove host-side `git fetch --force --tags origin` after Dagger fetches
   deploy tags itself.
-- [ ] Decide whether GitHub still needs a minimal checkout while the Dagger
+- [x] Decide whether GitHub still needs a minimal checkout while the Dagger
   module lives inside this repository.
-- [ ] Document the future dedicated-framework-repository path where even the
+- [x] Document the future dedicated-framework-repository path where even the
   module checkout can disappear.
 
 ### Phase 5: Cache Follow-Up

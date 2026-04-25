@@ -40,9 +40,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fetch remote tags
-        run: git fetch --force --tags origin
-
       - name: Install Dagger CLI
         run: |
           mkdir -p "${RUNNER_TEMP}/bin"
@@ -85,6 +82,8 @@ jobs:
           FORCE_TARGETS_JSON: ${{ inputs.force_targets_json || '[]' }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           PR_BASE_SHA: ""
+          SOURCE_REF: ${{ github.ref }}
+          SOURCE_REPOSITORY_URL: ${{ github.server_url }}/${{ github.repository }}.git
         run: |
           dagger call workflow \
             --repo=.. \
@@ -102,4 +101,8 @@ jobs:
             --toolchain-image-policy="${TOOLCHAIN_IMAGE_POLICY}" \
             --rush-cache-provider="${RUSH_CACHE_PROVIDER}" \
             --rush-cache-policy="${RUSH_CACHE_POLICY}" \
+            --source-mode=git \
+            --source-repository-url="${SOURCE_REPOSITORY_URL}" \
+            --source-ref="${SOURCE_REF}" \
+            --source-auth-token-env=GITHUB_TOKEN \
             --docker-socket=/var/run/docker.sock
