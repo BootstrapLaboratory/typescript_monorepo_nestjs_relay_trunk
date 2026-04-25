@@ -1,11 +1,8 @@
 import { Directory, File, Socket } from "@dagger.io/dagger";
 
-import { parseCiPlan } from "../ci-plan/parse-ci-plan.ts";
 import { deployRelease } from "../deploy/deploy-release.ts";
-import { detect } from "../detect/detect.ts";
-import { buildAndPackageDeployTargets } from "../package-stage/build-and-package-deploy-targets.ts";
+import { runBuildPackageWorkflow } from "./build-package-runner.ts";
 
-const CI_PLAN_PATH = ".dagger/runtime/ci-plan.json";
 const PACKAGE_MANIFEST_PATH = ".dagger/runtime/package-manifest.json";
 
 export async function workflow(
@@ -22,24 +19,17 @@ export async function workflow(
   hostWorkspaceDir: string = "",
   dockerSocket?: Socket,
 ): Promise<string> {
-  const ciPlanJson = await detect(
+  const { ciPlan, repo: packagedRepo } = await runBuildPackageWorkflow(
     repo,
     eventName,
     forceTargetsJson,
     prBaseSha,
     deployTagPrefix,
+    artifactPrefix,
   );
-  const ciPlan = parseCiPlan(ciPlanJson);
-  const repoWithCiPlan = repo.withNewFile(CI_PLAN_PATH, ciPlanJson);
 
   console.log(
     `[workflow] mode=${ciPlan.mode} deploy_targets=${JSON.stringify(ciPlan.deploy_targets)} validate_targets=${JSON.stringify(ciPlan.validate_targets)}`,
-  );
-
-  const packagedRepo = await buildAndPackageDeployTargets(
-    repoWithCiPlan,
-    repoWithCiPlan.file(CI_PLAN_PATH),
-    artifactPrefix,
   );
 
   return deployRelease(
