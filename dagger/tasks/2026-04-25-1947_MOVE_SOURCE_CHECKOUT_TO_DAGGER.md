@@ -97,7 +97,7 @@ to run the workflow.
   local development and incremental rollout.
 - [x] Update build/package/deploy code to consume the resolved source directory
   rather than assuming the caller-provided directory is the workflow source.
-- [ ] Confirm deploy file mounts and credentials still work when source is
+- [x] Confirm deploy file mounts and credentials still work when source is
   internally cloned.
 
 ### Phase 4: GitHub CI Adapter
@@ -128,7 +128,8 @@ to run the workflow.
 - [x] Run local workflow dry-run with local-copy source mode.
 - [x] Run local workflow dry-run with Git source mode.
 - [ ] Run real GitHub CI for a PR validation path.
-- [ ] Run real GitHub CI for a release/deploy path.
+- [x] Run real GitHub CI for a release/deploy path with Git source acquisition
+  and source-acquisition toolchain image optimization.
 
 ## Non-Goals
 
