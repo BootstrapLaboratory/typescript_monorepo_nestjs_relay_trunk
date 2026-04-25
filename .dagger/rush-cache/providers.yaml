@@ -6,6 +6,7 @@ cache:
     - common/config/rush/pnpm-config.json
     - common/config/rush/version-policies.json
   paths:
+    - common/temp/install-run
     - common/temp/node_modules
     - common/temp/pnpm-store
 providers:
