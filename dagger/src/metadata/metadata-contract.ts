@@ -24,6 +24,8 @@ import {
   parseRushProjects,
   type RushProjectDefinition,
 } from "./rush-projects.ts";
+import { parseRushCacheProviders } from "../rush-cache/parse-providers.ts";
+import { rushCacheProvidersPath } from "../rush-cache/metadata-paths.ts";
 
 type RepositoryPathType = "directory" | "file";
 
@@ -173,6 +175,40 @@ async function loadRushProjects(
   }
 
   return projectsByName;
+}
+
+async function validateRushCacheMetadata(
+  repository: MetadataContractRepository,
+  issues: string[],
+): Promise<void> {
+  if (
+    !(await fileExists(
+      repository,
+      rushCacheProvidersPath,
+      "Rush cache provider metadata file",
+      issues,
+    ))
+  ) {
+    return;
+  }
+
+  const definition = await readParsed(
+    repository,
+    rushCacheProvidersPath,
+    "Rush cache provider metadata file",
+    parseRushCacheProviders,
+    issues,
+  );
+
+  if (!definition) {
+    return;
+  }
+
+  await Promise.all(
+    definition.cache.key_files.map((filePath) =>
+      fileExists(repository, filePath, `Rush cache key file`, issues),
+    ),
+  );
 }
 
 function validatePackageArtifact(
@@ -384,6 +420,7 @@ export async function validateMetadataContractRepository(
 ): Promise<MetadataContractValidationResult> {
   const issues: string[] = [];
   const rushProjects = await loadRushProjects(repository, issues);
+  await validateRushCacheMetadata(repository, issues);
   const servicesMesh = await readParsed(
     repository,
     servicesMeshPath,

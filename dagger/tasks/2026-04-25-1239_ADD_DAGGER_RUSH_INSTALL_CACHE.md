@@ -43,8 +43,8 @@ cache:
   key_files:
     - rush.json
     - common/config/rush/pnpm-lock.yaml
-    - common/config/rush/common-versions.json
     - common/config/rush/pnpm-config.json
+    - common/config/rush/version-policies.json
   paths:
     - /rush-cache/temp
 providers:
@@ -122,12 +122,12 @@ ghcr.io/<owner>/<repo>/rush-delivery-caches/rush-install:<hash>
 
 ### Phase 1: Metadata And Model
 
-- [ ] Add `.dagger/rush-cache/providers.yaml`.
-- [ ] Add `.dagger/schemas/rush-cache-providers.schema.json`.
-- [ ] Add TypeScript model types for Rush cache provider metadata.
-- [ ] Add parser tests for provider metadata.
-- [ ] Validate configurable `cache.key_files` and `cache.paths`.
-- [ ] Include Rush cache provider metadata in self-check/schema validation.
+- [x] Add `.dagger/rush-cache/providers.yaml`.
+- [x] Add `.dagger/schemas/rush-cache-providers.schema.json`.
+- [x] Add TypeScript model types for Rush cache provider metadata.
+- [x] Add parser tests for provider metadata.
+- [x] Validate configurable `cache.key_files` and `cache.paths`.
+- [x] Include Rush cache provider metadata in self-check/schema validation.
 
 ### Phase 2: Cache Spec And Keying
 

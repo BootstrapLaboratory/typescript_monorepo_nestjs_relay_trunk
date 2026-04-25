@@ -152,6 +152,23 @@ function validMetadataFiles(): Record<string, string> {
       "    args: [--version]",
       "",
     ].join("\n"),
+    ".dagger/rush-cache/providers.yaml": [
+      "cache:",
+      "  version: v1",
+      "  key_files:",
+      "    - rush.json",
+      "    - common/config/rush/pnpm-lock.yaml",
+      "  paths:",
+      "    - /rush-cache/temp",
+      "providers:",
+      "  github:",
+      "    kind: github_container_registry",
+      "    repository_env: GITHUB_REPOSITORY",
+      "    token_env: GITHUB_TOKEN",
+      "    username_env: GITHUB_ACTOR",
+      "",
+    ].join("\n"),
+    "common/config/rush/pnpm-lock.yaml": "lockfileVersion: '9.0'\n",
     "apps/server/package.json": "{}",
     "apps/webapp/package.json": "{}",
     "deploy/server.sh": "#!/usr/bin/env bash\n",
@@ -285,6 +302,7 @@ test("reports cross-file metadata contract issues together", async () => {
     files[".dagger/deploy/targets/webapp.yaml"];
   files[".dagger/validate/targets/ghost.yaml"] = "name: ghost\nsteps: []\n";
   files[".dagger/deploy/targets/server.yaml"] += "unexpected: true\n";
+  files[".dagger/rush-cache/providers.yaml"] += "unexpected: true\n";
 
   await assert.rejects(
     () =>
@@ -306,6 +324,10 @@ test("reports cross-file metadata contract issues together", async () => {
       assert.match(
         error.message,
         /Validation target "ghost" must match a Rush project packageName\./,
+      );
+      assert.match(
+        error.message,
+        /Rush cache provider metadata file ".+providers\.yaml" is invalid: Rush cache providers file has unsupported field: unexpected\./,
       );
       return true;
     },

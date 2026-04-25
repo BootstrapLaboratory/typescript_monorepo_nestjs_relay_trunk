@@ -1,0 +1,17 @@
+cache:
+  version: v1
+  key_files:
+    - rush.json
+    - common/config/rush/pnpm-lock.yaml
+    - common/config/rush/pnpm-config.json
+    - common/config/rush/version-policies.json
+  paths:
+    - /rush-cache/temp
+providers:
+  github:
+    kind: github_container_registry
+    registry: ghcr.io
+    image_namespace: rush-delivery-caches
+    repository_env: GITHUB_REPOSITORY
+    token_env: GITHUB_TOKEN
+    username_env: GITHUB_ACTOR
