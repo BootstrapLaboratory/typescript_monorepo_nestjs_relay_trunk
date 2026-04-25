@@ -305,10 +305,9 @@ The separate workflow keeps release and validation credential boundaries clear.
 - [x] Run the Dagger validation entrypoint locally in a no-op case.
 - [x] Run the Dagger validation entrypoint locally for a forced server target,
       if feasible.
-- [ ] Run a real GitHub pull-request validation.
-- [ ] Confirm release workflows still stay green after validation wiring.
+- [x] Run a real GitHub pull-request validation.
+- [x] Confirm release workflows still stay green after validation wiring.
 
 ## Remaining Open Questions
 
-- None for the local implementation. The remaining checks require real GitHub
-  workflow runs.
+- None.
