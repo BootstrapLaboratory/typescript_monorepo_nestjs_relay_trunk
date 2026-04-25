@@ -121,14 +121,17 @@ the Dagger `workflow` entrypoint, which forwards it to deploy execution.
 Current target behavior:
 
 - `server` runs dist migrations, builds and pushes the backend image, deploys
-  Cloud Run, runs post-deploy smoke tests, and updates the deploy tag.
+  Cloud Run, and runs post-deploy smoke tests.
 - `webapp` publishes the prebuilt frontend with Wrangler, validates the
-  deployed routes, and updates the deploy tag.
+  deployed routes.
+- Dagger updates `deploy/<environment>/<target>` after the corresponding target
+  script succeeds.
 
 Dry-run is generic for every target. Instead of target-specific dry-run code,
 the Dagger runtime prints a summary of:
 
 - target name
+- deploy tag
 - deploy script path
 - artifact path
 - runtime image

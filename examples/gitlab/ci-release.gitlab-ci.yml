@@ -4,7 +4,6 @@ stages:
 
 variables:
   DEPLOY_ARTIFACT_PREFIX: deploy-target
-  DEPLOY_TAG_PREFIX: deploy/prod
   CLOUD_RUN_REGION: europe-west4
   DAGGER_NO_NAG: "1"
   GIT_DEPTH: "0"

@@ -6,7 +6,6 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/lib/paths.sh"
 
 ARTIFACT_PATH="${ARTIFACT_PATH:-${REPO_ROOT}/common/deploy/server}"
-DEPLOY_TAG_PREFIX="${DEPLOY_TAG_PREFIX:-deploy/prod}"
 IMAGE_NAME="${IMAGE_NAME:-}"
 DRY_RUN="${DRY_RUN:-0}"
 
@@ -54,7 +53,6 @@ if [[ "${DRY_RUN}" == "1" ]]; then
   printf 'DRY_RUN: docker push %s\n' "${IMAGE_NAME}"
   printf 'DRY_RUN: gcloud run deploy %s --region %s --project %s --image %s ...\n' "${CLOUD_RUN_SERVICE}" "${CLOUD_RUN_REGION}" "${GCP_PROJECT_ID}" "${IMAGE_NAME}"
   printf 'DRY_RUN: run smoke tests against deployed service URL\n'
-  printf 'DRY_RUN: update deploy tag %s/server -> %s\n' "${DEPLOY_TAG_PREFIX}" "${GIT_SHA}"
   service_url="https://dry-run.invalid/${CLOUD_RUN_SERVICE}"
 else
   for secret_name in DATABASE_URL DATABASE_URL_DIRECT REDIS_URL; do
@@ -108,11 +106,6 @@ else
   )"
 
   SERVICE_URL="${service_url}" bash "${REPO_ROOT}/deploy/cloudrun/tests/validate-post-deploy-smoke.sh"
-
-  TARGET=server \
-  DEPLOY_TAG_PREFIX="${DEPLOY_TAG_PREFIX}" \
-  GIT_SHA="${GIT_SHA}" \
-    bash "${REPO_ROOT}/scripts/ci/update-deploy-tag.sh"
 fi
 
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then

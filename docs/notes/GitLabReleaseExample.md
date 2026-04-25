@@ -32,7 +32,6 @@ Common variables:
 
 - `DEPLOY_TARGETS_JSON`
 - `DEPLOY_ARTIFACT_PREFIX`
-- `DEPLOY_TAG_PREFIX`
 - `CLOUD_RUN_REGION`
 
 Server variables when `server` is selected:
@@ -83,7 +82,7 @@ another name, update the `needs` entries in the example file.
 - Dagger runtime behavior now comes from repo metadata under
   [.dagger/deploy](../../.dagger/deploy), not from target-specific TypeScript
   executor modules.
-- The current deploy-tag helper still writes the git identity as
+- The generic Dagger deploy-tag update currently writes the git identity as
   `github-actions[bot]`. That does not block GitLab execution, but if you want
   provider-specific tag attribution, that is a follow-up hardening task rather
   than part of this example.

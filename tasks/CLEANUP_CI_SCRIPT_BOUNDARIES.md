@@ -113,7 +113,7 @@ release flow after the composed Dagger `workflow` cutover.
 | [../deploy/cloudrun/scripts/deploy-server.sh](../deploy/cloudrun/scripts/deploy-server.sh)                                   | deploy                | `.dagger/deploy/targets/server.yaml`                                                           | Provider-owned Cloud Run deploy adapter.                                                                |
 | [../deploy/cloudflare-pages/scripts/deploy-webapp.sh](../deploy/cloudflare-pages/scripts/deploy-webapp.sh)                   | deploy                | `.dagger/deploy/targets/webapp.yaml`                                                           | Provider-owned Cloudflare Pages deploy adapter.                                                         |
 | [../deploy/cloudflare-pages/scripts/validate-webapp-routes.sh](../deploy/cloudflare-pages/scripts/validate-webapp-routes.sh) | deploy smoke          | `deploy-webapp.sh`                                                                             | Cloudflare Pages route validation colocated with the webapp deploy adapter.                             |
-| [../scripts/ci/update-deploy-tag.sh](../scripts/ci/update-deploy-tag.sh)                                                     | deploy state          | target deploy scripts                                                                          | Move into Dagger deploy orchestration as a generic post-target success step.                            |
+| Deleted root deploy tag helper                                                                                               | deploy state          | formerly target deploy scripts                                                                 | Replaced by Dagger deploy orchestration as a generic post-target success step.                          |
 | [../scripts/ci/require-envs.sh](../scripts/ci/require-envs.sh)                                                               | shell helper          | legacy Makefile checks                                                                         | Delete after the legacy Makefile checks are retired or moved.                                           |
 
 Tests under [../scripts/ci](../scripts/ci) should move with their production
@@ -172,13 +172,13 @@ should not keep production tests in the root CI script folder.
 
 ## Phase 4: Move Generic Deploy State Into Dagger
 
-- [ ] Move deploy tag update behavior from `update-deploy-tag.sh` into Dagger
+- [x] Move deploy tag update behavior from `update-deploy-tag.sh` into Dagger
       deploy TypeScript.
-- [ ] Update tags only after the corresponding target succeeds.
-- [ ] Preserve `deploy/<environment>/<target>` naming.
-- [ ] Keep tag pushing generic and independent of Cloud Run or Cloudflare.
-- [ ] Remove target script responsibility for updating deploy tags.
-- [ ] Add focused tests for deploy tag command planning or execution wrapper
+- [x] Update tags only after the corresponding target succeeds.
+- [x] Preserve `deploy/<environment>/<target>` naming.
+- [x] Keep tag pushing generic and independent of Cloud Run or Cloudflare.
+- [x] Remove target script responsibility for updating deploy tags.
+- [x] Add focused tests for deploy tag command planning or execution wrapper
       behavior.
 
 ## Phase 5: Remove Root CI Helper Layer
@@ -200,7 +200,7 @@ should not keep production tests in the root CI script folder.
 - [x] Update target YAML examples in task docs.
 - [ ] Refresh [../examples/github/ci-release.split-jobs.yaml](../examples/github/ci-release.split-jobs.yaml)
       or mark it as legacy with self-contained assumptions.
-- [ ] Update GitLab example references if they still call removed Makefile
+- [x] Update GitLab example references if they still call removed Makefile
       targets.
 - [ ] Document the rule for adding a new deploy target:
       add Rush project, add package metadata, add deploy metadata, and provide
@@ -216,7 +216,7 @@ should not keep production tests in the root CI script folder.
 - [ ] Run forced `deploy-server`.
 - [ ] Run forced `deploy-webapp`.
 - [x] Confirm no Dagger source file invokes `scripts/ci`.
-- [ ] Confirm root `scripts/ci` no longer contains project-specific or
+- [x] Confirm root `scripts/ci` no longer contains project-specific or
       framework-owned release logic.
 
 ## Stop Point

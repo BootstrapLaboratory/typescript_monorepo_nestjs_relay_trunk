@@ -336,7 +336,8 @@ interpretation from repository metadata and the flat env bridge.
 - [x] Preserve ordered duplicate `runtime.install` entries when loading target
       YAML so repeated setup commands such as `apt-get update` remain intact.
 - [x] Ensure each target runtime toolchain includes utilities required by
-      shared deploy helpers, such as `git` for deploy tag updates.
+      generic Dagger post-target behavior, such as `git` for deploy tag
+      updates.
 - [x] Add tests that load every target YAML referenced by the real service
       mesh.
 

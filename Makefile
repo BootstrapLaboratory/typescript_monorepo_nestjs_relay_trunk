@@ -5,7 +5,6 @@ SERVER_SMOKE_LOG ?= /tmp/server-smoke.log
 SERVER_PID_FILE ?= /tmp/server-smoke.pid
 GRAPHQL_SCHEMA ?= libs/api/schema.gql
 DEPLOY_ARTIFACT_PREFIX ?= deploy-target
-DEPLOY_TAG_PREFIX ?= deploy/prod
 TARGET ?=
 DEPLOY_ARTIFACT_NAME ?= $(DEPLOY_ARTIFACT_PREFIX)-$(TARGET)
 DEPLOY_ARTIFACT_ARCHIVE ?= $(DEPLOY_ARTIFACT_NAME).tgz

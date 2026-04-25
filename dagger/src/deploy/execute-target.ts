@@ -9,10 +9,7 @@ import {
   resolveSpecEnvironment,
   validateRequiredHostEnv,
 } from "./runtime-env.ts";
-
-function deployTagPrefixForEnvironment(environment: string): string {
-  return `deploy/${environment}`;
-}
+import { buildDeployTargetCommand, deployTagName } from "./deploy-tag.ts";
 
 function formatDryRunSummary(
   definition: DeployTargetDefinition,
@@ -21,6 +18,7 @@ function formatDryRunSummary(
   envVars: Record<string, string>,
   environment: string,
   gitSha: string,
+  deployTag: string,
   dockerSocketEnabled: boolean,
   wave: number,
 ): string {
@@ -28,6 +26,7 @@ function formatDryRunSummary(
     `[deploy-release] dry-run target=${definition.name} wave=${wave}`,
     `environment=${environment}`,
     `gitSha=${gitSha}`,
+    `deploy_tag=${deployTag}`,
     `deploy_script=${definition.deploy_script}`,
     `package_artifact_kind=${artifact.kind}`,
     `package_artifact_path=${artifact.path}`,
@@ -82,14 +81,19 @@ export async function executeTarget(
   const definition = await loadDeployTargetDefinition(repo, target);
   validateRequiredHostEnv(definition.runtime, hostEnv, dryRun, target);
   const artifactPath = `/workspace/${artifact.deploy_path}`;
+  const deployTag = deployTagName(environment, target);
   const envVars = {
     ARTIFACT_PATH: artifactPath,
-    DEPLOY_TAG_PREFIX: deployTagPrefixForEnvironment(environment),
     DRY_RUN: dryRun ? "1" : "0",
     GIT_SHA: gitSha,
     ...resolveSpecEnvironment(definition.runtime, hostEnv, dryRun, target),
   };
-  const commandParts = [`bash ${definition.deploy_script}`];
+  const command = buildDeployTargetCommand(
+    definition.deploy_script,
+    environment,
+    target,
+    gitSha,
+  );
 
   console.log(`[deploy-release] wave ${wave}: starting ${target}`);
 
@@ -101,6 +105,7 @@ export async function executeTarget(
       envVars,
       environment,
       gitSha,
+      deployTag,
       dockerSocket !== undefined,
       wave,
     );
@@ -151,7 +156,7 @@ export async function executeTarget(
   }
 
   const output = await container
-    .withExec(["bash", "-lc", commandParts.join(" && ")])
+    .withExec(["bash", "-lc", command])
     .stdout();
 
   console.log(`[deploy-release] wave ${wave}: finished ${target}`);
