@@ -10,7 +10,7 @@ ENV HOST=0.0.0.0
 ENV PORT=3000
 WORKDIR /app
 
-COPY common/deploy/server/ /app/
+COPY . /app/
 
 WORKDIR /app/apps/server
 EXPOSE 3000

@@ -4,6 +4,7 @@
 .nx
 .trunk
 .vscode
+.dagger/runtime
 .env
 .env.*
 gha-creds-*.json

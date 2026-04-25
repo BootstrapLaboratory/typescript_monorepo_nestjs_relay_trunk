@@ -13,14 +13,14 @@ Equivalent direct command:
 ```bash
 node common/scripts/install-run-rush.js build --to server
 node common/scripts/install-run-rush.js deploy -p server -s server -t common/deploy/server --overwrite
-docker buildx build --pull --load -f apps/server/Dockerfile -t local/server-cloudrun:dev .
+docker buildx build --pull --load -f apps/server/Dockerfile -t local/server-cloudrun:dev common/deploy/server
 ```
 
 `--load` is intentional. In local environments that expose Podman through the
 Docker CLI, a plain `docker build` may complete successfully but leave the
 result only in the Buildx cache instead of loading a runnable local image tag.
-The CI workflows still use the simpler standard-Docker build path because
-GitHub Actions runs against a regular Docker daemon.
+CI uses the same pruned deploy artifact as the Docker build context, with
+BuildKit enabled for the standard Docker CLI.
 
 ## Cloud provisioning
 

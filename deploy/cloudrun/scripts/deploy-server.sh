@@ -49,7 +49,7 @@ if [[ "${DRY_RUN}" == "1" ]]; then
 
   printf 'DRY_RUN: run migrations from %s/apps/server\n' "${ARTIFACT_PATH}"
   printf 'DRY_RUN: gcloud auth configure-docker %s-docker.pkg.dev --quiet\n' "${CLOUD_RUN_REGION}"
-  printf 'DRY_RUN: docker build --pull -f apps/server/Dockerfile -t %s .\n' "${IMAGE_NAME}"
+  printf 'DRY_RUN: DOCKER_BUILDKIT=1 docker build --pull -f apps/server/Dockerfile -t %s %s\n' "${IMAGE_NAME}" "${ARTIFACT_PATH}"
   printf 'DRY_RUN: docker push %s\n' "${IMAGE_NAME}"
   printf 'DRY_RUN: gcloud run deploy %s --region %s --project %s --image %s ...\n' "${CLOUD_RUN_SERVICE}" "${CLOUD_RUN_REGION}" "${GCP_PROJECT_ID}" "${IMAGE_NAME}"
   printf 'DRY_RUN: run smoke tests against deployed service URL\n'
@@ -81,7 +81,7 @@ else
 
   gcloud auth configure-docker "${CLOUD_RUN_REGION}-docker.pkg.dev" --quiet
 
-  docker build --pull -f apps/server/Dockerfile -t "${IMAGE_NAME}" .
+  DOCKER_BUILDKIT=1 docker build --pull -f apps/server/Dockerfile -t "${IMAGE_NAME}" "${ARTIFACT_PATH}"
   docker push "${IMAGE_NAME}"
 
   gcloud run deploy "${CLOUD_RUN_SERVICE}" \
