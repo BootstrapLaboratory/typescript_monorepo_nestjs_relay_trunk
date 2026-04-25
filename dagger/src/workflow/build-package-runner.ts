@@ -16,6 +16,7 @@ import {
   prepareRushContainer,
   RUSH_WORKDIR,
 } from "../rush/container.ts";
+import { logSection, logSubsection } from "../logging/sections.ts";
 
 const CI_PLAN_PATH = ".dagger/runtime/ci-plan.json";
 const CI_PLAN_CONTAINER_PATH = `${RUSH_WORKDIR}/${CI_PLAN_PATH}`;
@@ -29,14 +30,19 @@ function buildDetectedContainer(
 }
 
 function runBuildStage(container: Container, ciPlan: CiPlan): Container {
+  logSection("Rush build");
+
   if (ciPlan.deploy_targets.length === 0) {
     console.log("[build] no deploy targets selected");
     return container;
   }
 
+  console.log(`[build] Rush targets: ${ciPlan.deploy_targets.join(", ")}`);
+
   let nextContainer = container.withEnvVariable("FAILURE_MODE", "deploy");
 
   for (const { command, args } of buildRushBuildSteps(ciPlan)) {
+    console.log(`[build] Rush command: ${args[1]}`);
     nextContainer = nextContainer.withExec([command, ...args], {
       expand: false,
     });
@@ -51,6 +57,8 @@ async function runPackageStage(
   ciPlan: CiPlan,
   artifactPrefix: string,
 ): Promise<Container> {
+  logSection("Package deploy artifacts");
+
   if (ciPlan.deploy_targets.length === 0) {
     console.log("[package] no deploy targets selected");
     return container.withNewFile(
@@ -75,6 +83,7 @@ async function runPackageStage(
   let nextContainer = container;
 
   for (const { plan, target } of packagePlans) {
+    logSubsection(`Package target: ${target}`);
     console.log(`[package] ${target}: ${plan.artifact.kind}`);
 
     for (const validation of plan.validations) {
@@ -114,6 +123,8 @@ export async function runBuildPackageWorkflow(
   deployTagPrefix: string,
   artifactPrefix: string,
 ): Promise<BuildPackageWorkflowResult> {
+  logSection("Detect release targets");
+
   const baseContainer = prepareRushContainer(repo);
   const ciPlan = await computeCiPlan(
     repo,
@@ -124,6 +135,10 @@ export async function runBuildPackageWorkflow(
     deployTagPrefix,
   );
   const detectedContainer = buildDetectedContainer(baseContainer, ciPlan);
+
+  console.log(
+    `[detect] mode=${ciPlan.mode} deploy_targets=${JSON.stringify(ciPlan.deploy_targets)} validate_targets=${JSON.stringify(ciPlan.validate_targets)}`,
+  );
 
   if (ciPlan.deploy_targets.length === 0) {
     return {

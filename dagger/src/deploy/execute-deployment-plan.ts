@@ -2,6 +2,7 @@ import { Directory, Socket } from "@dagger.io/dagger";
 import type { DeploymentPlan } from "../model/deployment-plan.ts";
 import type { DeployTargetResult } from "../model/deploy-result.ts";
 import type { PackageManifest } from "../model/package-manifest.ts";
+import { logSubsection } from "../logging/sections.ts";
 import { executeTarget } from "./execute-target.ts";
 
 export async function executeDeploymentPlan(
@@ -21,6 +22,7 @@ export async function executeDeploymentPlan(
     const waveNumber = index + 1;
     const waveTargets = wave.map((entry) => entry.target).join(", ");
 
+    logSubsection(`Deploy wave ${waveNumber}: ${waveTargets || "(empty)"}`);
     console.log(
       `[deploy-release] wave ${waveNumber}: ${waveTargets || "(empty)"}`,
     );

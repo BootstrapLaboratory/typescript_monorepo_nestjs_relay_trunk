@@ -17,7 +17,7 @@ import {
   shouldUseManualValidationTargets,
 } from "./validation-result.ts";
 import { runValidationMetadataStage } from "./validation-runner.ts";
-import { logValidationSection } from "./validation-log.ts";
+import { logSection } from "../logging/sections.ts";
 
 const CI_PLAN_PATH = ".dagger/runtime/ci-plan.json";
 
@@ -32,7 +32,7 @@ function runValidationStage(container: Container, ciPlan: CiPlan): Container {
     return container;
   }
 
-  logValidationSection("Rush validation");
+  logSection("Rush validation");
   console.log(
     `[validate] Rush targets: ${ciPlan.validate_targets.join(", ")}`,
   );
@@ -63,7 +63,7 @@ async function runValidationStages(
     return rushValidatedContainer;
   }
 
-  logValidationSection("Metadata validation");
+  logSection("Metadata validation");
 
   return (
     await runValidationMetadataStage(

@@ -1,6 +1,7 @@
 import { Directory, File, Socket } from "@dagger.io/dagger";
 import type { DeployReleaseResult } from "../model/deploy-result.ts";
 import { buildDeploymentPlan } from "../planning/build-deployment-plan.ts";
+import { logSection } from "../logging/sections.ts";
 import { parseReleaseTargets } from "../planning/parse-release-targets.ts";
 import { executeDeploymentPlan } from "./execute-deployment-plan.ts";
 import { loadServicesMesh } from "./load-deploy-metadata.ts";
@@ -29,6 +30,8 @@ export async function deployRelease(
   hostWorkspaceDir: string = "",
   dockerSocket?: Socket,
 ): Promise<string> {
+  logSection("Deploy release");
+
   const hostEnv = deployEnvFile
     ? parseDeployEnvFile(await deployEnvFile.contents())
     : {};

@@ -2,13 +2,13 @@ import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
 import {
-  formatValidationSection,
-  formatValidationTargetHeader,
-} from "../src/validate/validation-log.ts";
+  formatLogSection,
+  formatLogSubsection,
+} from "../src/logging/sections.ts";
 
-test("formats validation section headers", () => {
+test("formats stage section headers", () => {
   assert.equal(
-    formatValidationSection("Rush validation"),
+    formatLogSection("Rush validation"),
     [
       "========================================================================",
       "= Rush validation",
@@ -17,9 +17,9 @@ test("formats validation section headers", () => {
   );
 });
 
-test("formats validation target headers", () => {
+test("formats nested stage subsection headers", () => {
   assert.equal(
-    formatValidationTargetHeader("server"),
+    formatLogSubsection("Validation target: server"),
     [
       "------------------------------------------------------------------------",
       "- Validation target: server",

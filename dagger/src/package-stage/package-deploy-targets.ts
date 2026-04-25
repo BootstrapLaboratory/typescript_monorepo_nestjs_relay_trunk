@@ -1,6 +1,7 @@
 import { dag, Directory, File } from "@dagger.io/dagger";
 
 import { parseCiPlan } from "../ci-plan/parse-ci-plan.ts";
+import { logSection, logSubsection } from "../logging/sections.ts";
 import { loadPackageTargetDefinition } from "./load-package-metadata.ts";
 import { buildPackageActionPlan } from "./package-action-plan.ts";
 import {
@@ -20,6 +21,8 @@ export async function packageDeployTargets(
   artifactPrefix: string = "deploy-target",
 ): Promise<Directory> {
   const ciPlan = parseCiPlan(await ciPlanFile.contents());
+
+  logSection("Package deploy artifacts");
 
   if (ciPlan.deploy_targets.length === 0) {
     console.log("[package] no deploy targets selected");
@@ -54,9 +57,10 @@ export async function packageDeployTargets(
       "install",
       "--max-install-attempts",
       "1",
-    ]);
+  ]);
 
   for (const { plan, target } of packagePlans) {
+    logSubsection(`Package target: ${target}`);
     console.log(`[package] ${target}: ${plan.artifact.kind}`);
 
     for (const validation of plan.validations) {

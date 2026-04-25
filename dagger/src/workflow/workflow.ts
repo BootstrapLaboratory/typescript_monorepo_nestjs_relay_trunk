@@ -1,6 +1,7 @@
 import { Directory, File, Socket } from "@dagger.io/dagger";
 
 import { deployRelease } from "../deploy/deploy-release.ts";
+import { logSection } from "../logging/sections.ts";
 import { runBuildPackageWorkflow } from "./build-package-runner.ts";
 
 const PACKAGE_MANIFEST_PATH = ".dagger/runtime/package-manifest.json";
@@ -19,6 +20,8 @@ export async function workflow(
   hostWorkspaceDir: string = "",
   dockerSocket?: Socket,
 ): Promise<string> {
+  logSection("Release workflow");
+
   const { ciPlan, repo: packagedRepo } = await runBuildPackageWorkflow(
     repo,
     eventName,

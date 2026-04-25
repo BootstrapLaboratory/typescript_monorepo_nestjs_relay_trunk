@@ -9,7 +9,7 @@ import type {
 } from "../model/validation-target.ts";
 import { validationTargetDefinitionPath } from "./metadata-paths.ts";
 import { loadValidationTargetDefinition } from "./load-validation-metadata.ts";
-import { logValidationTargetHeader } from "./validation-log.ts";
+import { logSubsection } from "../logging/sections.ts";
 
 export type ValidationMetadataRunResult = {
   container: Container;
@@ -186,7 +186,7 @@ async function runValidationTarget(
   container: Container,
   target: ValidationTargetDefinition,
 ): Promise<Container> {
-  logValidationTargetHeader(target.name);
+  logSubsection(`Validation target: ${target.name}`);
 
   let services = createBackingServices(target);
   let foregroundServices: ForegroundService[] = [];

@@ -1,6 +1,7 @@
 import { dag, Directory, File } from "@dagger.io/dagger";
 
 import { parseCiPlan } from "../ci-plan/parse-ci-plan.ts";
+import { logSection } from "../logging/sections.ts";
 import { buildRushBuildSteps } from "./rush-build-plan.ts";
 
 const WORKDIR = "/workspace";
@@ -14,10 +15,14 @@ export async function buildDeployTargets(
 ): Promise<Directory> {
   const ciPlan = parseCiPlan(await ciPlanFile.contents());
 
+  logSection("Rush build");
+
   if (ciPlan.deploy_targets.length === 0) {
     console.log("[build] no deploy targets selected");
     return repo;
   }
+
+  console.log(`[build] Rush targets: ${ciPlan.deploy_targets.join(", ")}`);
 
   let container = dag
     .container()
@@ -35,6 +40,7 @@ export async function buildDeployTargets(
     .withEnvVariable("FAILURE_MODE", "deploy");
 
   for (const { command, args } of buildRushBuildSteps(ciPlan)) {
+    console.log(`[build] Rush command: ${args[1]}`);
     container = container.withExec([command, ...args], {
       expand: false,
     });
