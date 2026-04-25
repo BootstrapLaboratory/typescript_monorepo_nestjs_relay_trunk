@@ -14,7 +14,6 @@ type Mutation {
 }
 
 input NewMessageInput {
-  EMAIL: String
   author: String
   body: String!
 }
