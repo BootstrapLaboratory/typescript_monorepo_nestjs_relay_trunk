@@ -1,4 +1,4 @@
-import { CacheSharingMode, dag, Container, Directory } from "@dagger.io/dagger";
+import { Container, Directory } from "@dagger.io/dagger";
 
 import type { CiPlan } from "../model/ci-plan.ts";
 import type { PackageManifestArtifact } from "../model/package-manifest.ts";
@@ -11,55 +11,15 @@ import {
   createEmptyPackageManifest,
   formatPackageManifest,
 } from "../package-stage/package-manifest.ts";
+import {
+  installRush,
+  prepareRushContainer,
+  RUSH_WORKDIR,
+} from "../rush/container.ts";
 
-const WORKDIR = "/workspace";
-const WORKFLOW_IMAGE = "node:24-bookworm-slim";
-const WORKFLOW_INSTALL_COMMAND =
-  "apt-get update && apt-get install -y ca-certificates git";
 const CI_PLAN_PATH = ".dagger/runtime/ci-plan.json";
-const CI_PLAN_CONTAINER_PATH = `${WORKDIR}/${CI_PLAN_PATH}`;
+const CI_PLAN_CONTAINER_PATH = `${RUSH_WORKDIR}/${CI_PLAN_PATH}`;
 const PACKAGE_MANIFEST_PATH = ".dagger/runtime/package-manifest.json";
-const RUSH_HOME_CACHE_PATH = "/root/.rush";
-const RUSH_INSTALL_RUN_CACHE_PATH = `${WORKDIR}/common/temp/install-run`;
-const RUSH_PNPM_STORE_CACHE_PATH = `${WORKDIR}/common/temp/pnpm-store`;
-
-function withRushCaches(container: Container): Container {
-  return container
-    .withMountedCache(
-      RUSH_HOME_CACHE_PATH,
-      dag.cacheVolume("cache-rush-home"),
-      { sharing: CacheSharingMode.Locked },
-    )
-    .withMountedCache(
-      RUSH_INSTALL_RUN_CACHE_PATH,
-      dag.cacheVolume("cache-rush-install-run"),
-      { sharing: CacheSharingMode.Locked },
-    )
-    .withMountedCache(
-      RUSH_PNPM_STORE_CACHE_PATH,
-      dag.cacheVolume("cache-rush-pnpm-store"),
-      { sharing: CacheSharingMode.Locked },
-    );
-}
-
-function prepareContainer(repo: Directory): Container {
-  return dag
-    .container()
-    .from(WORKFLOW_IMAGE)
-    .withDirectory(WORKDIR, repo)
-    .withWorkdir(WORKDIR)
-    .withExec(["bash", "-lc", WORKFLOW_INSTALL_COMMAND]);
-}
-
-function installRush(container: Container): Container {
-  return withRushCaches(container).withExec([
-    "node",
-    "common/scripts/install-run-rush.js",
-    "install",
-    "--max-install-attempts",
-    "1",
-  ]);
-}
 
 function buildDetectedContainer(
   container: Container,
@@ -94,7 +54,7 @@ async function runPackageStage(
   if (ciPlan.deploy_targets.length === 0) {
     console.log("[package] no deploy targets selected");
     return container.withNewFile(
-      `${WORKDIR}/${PACKAGE_MANIFEST_PATH}`,
+      `${RUSH_WORKDIR}/${PACKAGE_MANIFEST_PATH}`,
       formatPackageManifest(createEmptyPackageManifest()),
     );
   }
@@ -136,7 +96,7 @@ async function runPackageStage(
   }
 
   return nextContainer.withNewFile(
-    `${WORKDIR}/${PACKAGE_MANIFEST_PATH}`,
+    `${RUSH_WORKDIR}/${PACKAGE_MANIFEST_PATH}`,
     formatPackageManifest({ artifacts }),
   );
 }
@@ -154,7 +114,7 @@ export async function runBuildPackageWorkflow(
   deployTagPrefix: string,
   artifactPrefix: string,
 ): Promise<BuildPackageWorkflowResult> {
-  const baseContainer = prepareContainer(repo);
+  const baseContainer = prepareRushContainer(repo);
   const ciPlan = await computeCiPlan(
     repo,
     baseContainer,
@@ -170,7 +130,7 @@ export async function runBuildPackageWorkflow(
       ciPlan,
       repo: (
         await runPackageStage(repo, detectedContainer, ciPlan, artifactPrefix)
-      ).directory(WORKDIR),
+      ).directory(RUSH_WORKDIR),
     };
   }
 
@@ -185,6 +145,6 @@ export async function runBuildPackageWorkflow(
 
   return {
     ciPlan,
-    repo: packagedContainer.directory(WORKDIR),
+    repo: packagedContainer.directory(RUSH_WORKDIR),
   };
 }

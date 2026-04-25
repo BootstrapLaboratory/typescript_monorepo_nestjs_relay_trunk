@@ -217,6 +217,9 @@ The separate workflow keeps release and validation credential boundaries clear.
   Dagger TypeScript.
 - Project-specific validation behavior should be expressed through package
   scripts and metadata, not hardcoded Dagger branches.
+- The `validate` entrypoint returns a concise JSON summary with `status`,
+  `mode`, `pr_base_sha`, `validate_targets`, and `rush_commands`.
+- Shared Rush container/cache helpers live under `dagger/src/rush`.
 - Dagger executes validation metadata generically. It does not know about
   `server`, PostgreSQL, Redis, or GraphQL.
 - A target validation scenario runs when its Rush project name is present in
@@ -235,13 +238,13 @@ The separate workflow keeps release and validation credential boundaries clear.
 
 ## Phase 2: Dagger Validate Entrypoint
 
-- [ ] Add `validate` to [../dagger/src/index.ts](../dagger/src/index.ts).
-- [ ] Reuse existing CI plan detection instead of recomputing target logic in a
+- [x] Add `validate` to [../dagger/src/index.ts](../dagger/src/index.ts).
+- [x] Reuse existing CI plan detection instead of recomputing target logic in a
       new path.
-- [ ] Run Rush `verify`, `lint`, `test`, and `build` for
+- [x] Run Rush `verify`, `lint`, `test`, and `build` for
       `validate_targets`.
-- [ ] Return a concise JSON validation summary.
-- [ ] Add Dagger unit tests for selected targets, no-op behavior, and malformed
+- [x] Return a concise JSON validation summary.
+- [x] Add Dagger unit tests for selected targets, no-op behavior, and malformed
       inputs.
 
 ## Phase 3: Validation Metadata
@@ -288,12 +291,9 @@ The separate workflow keeps release and validation credential boundaries clear.
 
 ## Remaining Open Questions
 
-- What exact JSON result schema should `validate` return?
 - Should `ci-validate.yaml` also support `workflow_dispatch` for manual
   validation with `validateTargetsJson`, or should manual debugging stay a
   local Dagger-only path for now?
-- Where should shared build/validation container helpers live so release and
-  validation reuse Rush cache setup without coupling unrelated stages?
 - What is the minimal generic validation metadata schema that covers the
   current server scenario without overfitting future targets?
 - How should logs from metadata-declared services be surfaced on validation

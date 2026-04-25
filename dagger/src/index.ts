@@ -13,6 +13,7 @@ import { buildAndPackageDeployTargets } from "./package-stage/build-and-package-
 import { buildDeployTargets } from "./build-stage/build-deploy-targets.ts";
 import { packageDeployTargets } from "./package-stage/package-deploy-targets.ts";
 import { parseReleaseTargets } from "./planning/parse-release-targets.ts";
+import { validate as validateRelease } from "./validate/validate.ts";
 import { workflow as runWorkflow } from "./workflow/workflow.ts";
 
 @object()
@@ -154,5 +155,18 @@ export class ReleaseOrchestrator {
       hostWorkspaceDir,
       dockerSocket,
     );
+  }
+
+  /**
+   * Runs Dagger-owned pull-request validation for affected Rush projects.
+   */
+  @func()
+  async validate(
+    @argument({ defaultPath: ".." }) repo: Directory,
+    eventName: string = "pull_request",
+    prBaseSha: string = "",
+    validateTargetsJson: string = "[]",
+  ): Promise<string> {
+    return validateRelease(repo, eventName, prBaseSha, validateTargetsJson);
   }
 }
