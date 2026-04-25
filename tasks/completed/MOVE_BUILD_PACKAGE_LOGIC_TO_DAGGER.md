@@ -4,7 +4,7 @@
 
 Move the remaining deploy-target build/package implementation out of
 shell/Node CI helper scripts and into testable TypeScript under
-[../dagger/src](../dagger/src).
+[../../dagger/src](../../dagger/src).
 
 The CI shell should stay thin:
 
@@ -29,7 +29,7 @@ TypeScript, where parsing and planning are covered by the Dagger test suite.
 - Keep `build` and `package` as separate Dagger stages.
 - Prefer TypeScript helpers with focused tests over shell glue.
 - Keep target-specific package behavior in repository metadata under
-  [../.dagger/package/targets](../.dagger/package/targets).
+  [../../.dagger/package/targets](../../.dagger/package/targets).
 - Keep GitHub artifact upload in GitHub Actions for now.
 - Do not move deploy runtime scripts in this task; deploy scripts are still the
   portable target runtime contract.
@@ -39,7 +39,7 @@ TypeScript, where parsing and planning are covered by the Dagger test suite.
 - [x] Port deploy target JSON parsing from the former build shell wrapper into
       Dagger TypeScript.
 - [x] Generate Rush `--to <target>` arguments from `ci-plan.json` inside
-      [../dagger/src/stages/build-stage](../dagger/src/stages/build-stage).
+      [../../dagger/src/stages/build-stage](../../dagger/src/stages/build-stage).
 - [x] Run Rush `verify`, `lint`, `test`, and `build` directly from Dagger
       TypeScript.
 - [x] Delete the obsolete build shell wrapper.
@@ -52,7 +52,7 @@ TypeScript, where parsing and planning are covered by the Dagger test suite.
 - [x] Move package target action planning from the former package helper into
       Dagger TypeScript.
 - [x] Reuse existing Dagger package target YAML parser from
-      [../dagger/src/stages/package-stage](../dagger/src/stages/package-stage).
+      [../../dagger/src/stages/package-stage](../../dagger/src/stages/package-stage).
 - [x] Generate package commands for `rush_deploy_archive` artifacts in Dagger
       TypeScript.
 - [x] Validate `directory` artifacts in Dagger TypeScript.
@@ -95,6 +95,6 @@ TypeScript, where parsing and planning are covered by the Dagger test suite.
 - Dagger TypeScript owns deploy-target build and package materialization logic.
 - Package artifact upload remains a CI-provider adapter.
 - The only remaining portable runtime scripts are deploy target scripts such as
-  [../deploy/cloudrun/scripts/deploy-server.sh](../deploy/cloudrun/scripts/deploy-server.sh)
+  [../../deploy/cloudrun/scripts/deploy-server.sh](../../deploy/cloudrun/scripts/deploy-server.sh)
   and
-  [../deploy/cloudflare-pages/scripts/deploy-webapp.sh](../deploy/cloudflare-pages/scripts/deploy-webapp.sh).
+  [../../deploy/cloudflare-pages/scripts/deploy-webapp.sh](../../deploy/cloudflare-pages/scripts/deploy-webapp.sh).

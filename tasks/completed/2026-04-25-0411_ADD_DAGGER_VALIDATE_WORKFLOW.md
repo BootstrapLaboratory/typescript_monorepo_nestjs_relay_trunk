@@ -28,7 +28,7 @@ detect -> build -> package -> deploy
 - Rush build planning currently targets deploy targets, so validation needs a
   reusable Rush command planner that can run against `validate_targets`.
 - Server-specific validation scripts now live as package scripts in
-  [../apps/server/package.json](../apps/server/package.json).
+  [../../apps/server/package.json](../../apps/server/package.json).
 
 ## Boundary
 
@@ -255,7 +255,7 @@ The separate workflow keeps release and validation credential boundaries clear.
 
 ## Phase 2: Dagger Validate Entrypoint
 
-- [x] Add `validate` to [../dagger/src/index.ts](../dagger/src/index.ts).
+- [x] Add `validate` to [../../dagger/src/index.ts](../../dagger/src/index.ts).
 - [x] Reuse existing CI plan detection instead of recomputing target logic in a
       new path.
 - [x] Run Rush `verify`, `lint`, `test`, and `build` for
@@ -296,7 +296,7 @@ The separate workflow keeps release and validation credential boundaries clear.
 - [x] Keep provider deploy credentials out of PR validation.
 - [x] Keep workflow permissions minimal.
 - [x] Document the PR validation entrypoint in
-      [../docs/notes/ReleaseFlow.md](../docs/notes/ReleaseFlow.md).
+      [../../docs/notes/ReleaseFlow.md](../../docs/notes/ReleaseFlow.md).
 
 ## Phase 6: Validation
 

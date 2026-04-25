@@ -119,7 +119,7 @@ Repository-owned deploy metadata should live under:
       webapp.yaml
 ```
 
-This keeps Dagger module source under [../dagger](../dagger) while keeping
+This keeps Dagger module source under [../../dagger](../../dagger) while keeping
 repository deploy metadata in a Dagger/CI-owned configuration area.
 
 ### Service Mesh
@@ -312,11 +312,11 @@ interpretation from repository metadata and the flat env bridge.
 ## Phase 3: Move Repository Deploy Metadata To `.dagger/deploy/`
 
 - [x] Move the canonical services mesh to
-      [../.dagger/deploy/services-mesh.yaml](../.dagger/deploy/services-mesh.yaml).
+      [../../.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml).
 - [x] Keep `.dagger/deploy/services-mesh.yaml` focused on target graph and
       ordering only.
 - [x] Add
-      [../.dagger/deploy/targets](../.dagger/deploy/targets)
+      [../../.dagger/deploy/targets](../../.dagger/deploy/targets)
       as the canonical location for per-target deploy metadata.
 - [x] Update Dagger runtime loading code to read repository deploy metadata from
       `.dagger/deploy/`.
@@ -325,9 +325,9 @@ interpretation from repository metadata and the flat env bridge.
 ## Phase 4: Move Target Specs From TypeScript To YAML
 
 - [x] Move the former TypeScript target specs into
-      [../.dagger/deploy/targets/server.yaml](../.dagger/deploy/targets/server.yaml)
+      [../../.dagger/deploy/targets/server.yaml](../../.dagger/deploy/targets/server.yaml)
       and
-      [../.dagger/deploy/targets/webapp.yaml](../.dagger/deploy/targets/webapp.yaml).
+      [../../.dagger/deploy/targets/webapp.yaml](../../.dagger/deploy/targets/webapp.yaml).
 - [x] Add YAML parsing and validation for target runtime metadata.
 - [x] Keep the target YAML model equivalent to the current spec model:
       `deploy_script`, `runtime.image`, `runtime.install`,

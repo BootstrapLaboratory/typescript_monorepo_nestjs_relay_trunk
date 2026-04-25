@@ -48,7 +48,7 @@ The better shape is to make package output a handoff contract from `package` to
 
 `detect` owns scope selection.
 
-It writes [../.dagger/runtime/ci-plan.json](../.dagger/runtime/ci-plan.json),
+It writes [../../.dagger/runtime/ci-plan.json](../../.dagger/runtime/ci-plan.json),
 including:
 
 - `mode`
@@ -80,12 +80,12 @@ release scope.
 
 It should read:
 
-- [../.dagger/runtime/ci-plan.json](../.dagger/runtime/ci-plan.json)
+- [../../.dagger/runtime/ci-plan.json](../../.dagger/runtime/ci-plan.json)
 - `.dagger/package/targets/<target>.yaml`
 
 It should write:
 
-- [../.dagger/runtime/package-manifest.json](../.dagger/runtime/package-manifest.json)
+- [../../.dagger/runtime/package-manifest.json](../../.dagger/runtime/package-manifest.json)
 
 Package examples:
 
@@ -98,8 +98,8 @@ Package examples:
 
 It should read:
 
-- [../.dagger/runtime/ci-plan.json](../.dagger/runtime/ci-plan.json)
-- [../.dagger/runtime/package-manifest.json](../.dagger/runtime/package-manifest.json)
+- [../../.dagger/runtime/ci-plan.json](../../.dagger/runtime/ci-plan.json)
+- [../../.dagger/runtime/package-manifest.json](../../.dagger/runtime/package-manifest.json)
 - `.dagger/deploy/targets/<target>.yaml`
 
 It should not need to know how package artifacts were produced.

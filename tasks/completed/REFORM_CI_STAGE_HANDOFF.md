@@ -15,7 +15,7 @@ Introduce provider-neutral handoff artifacts between `detect`, `build`,
 The central idea is:
 
 - use gitignored files under
-  [../.dagger/runtime](../.dagger/runtime) as the canonical cross-stage
+  [../../.dagger/runtime](../../.dagger/runtime) as the canonical cross-stage
   contract
 - use CI job outputs only as a very thin provider-specific adapter derived from
   those files
@@ -42,7 +42,7 @@ That works in GitHub Actions, but it is not the cleanest framework shape:
 The target shape should be:
 
 1. `detect` produces one canonical plan file:
-   [../.dagger/runtime/ci-plan.json](../.dagger/runtime/ci-plan.json)
+   [../../.dagger/runtime/ci-plan.json](../../.dagger/runtime/ci-plan.json)
 2. `detect` runs one small finalize step that reads `ci-plan.json` and emits
    CI-provider outputs as derived projections of that file
 3. `validate`, `build`, `package`, and `deploy` consume `ci-plan.json`
@@ -78,7 +78,7 @@ still owned artifact transfer and the current artifact naming convention was
 stable enough for `server` and `webapp`.
 
 The next package-stage reform should introduce
-[../.dagger/runtime/package-manifest.json](../.dagger/runtime/package-manifest.json)
+[../../.dagger/runtime/package-manifest.json](../../.dagger/runtime/package-manifest.json)
 as the canonical handoff from `package` to `deploy`. That follow-up is tracked
 in [REFORM_DAGGER_BUILD_PACKAGE_STAGES.md](./REFORM_DAGGER_BUILD_PACKAGE_STAGES.md).
 
@@ -86,7 +86,7 @@ in [REFORM_DAGGER_BUILD_PACKAGE_STAGES.md](./REFORM_DAGGER_BUILD_PACKAGE_STAGES.
 
 - Treat JSON handoff files as the real stage contract.
 - Keep CI outputs minimal and derived from canonical JSON files.
-- Keep file paths stable under [../.dagger/runtime](../.dagger/runtime).
+- Keep file paths stable under [../../.dagger/runtime](../../.dagger/runtime).
 - Make downstream stages read structured JSON instead of scattered job outputs.
 - Keep the stage contracts reusable from both CI and Dagger.
 - Introduce additional runtime manifests only at stage boundaries where they
@@ -140,7 +140,7 @@ JSON file.
 
 - [x] Add a thin writer owned by the Dagger-oriented workflow layer that
       serializes the existing planning result to
-      [../.dagger/runtime/ci-plan.json](../.dagger/runtime/ci-plan.json).
+      [../../.dagger/runtime/ci-plan.json](../../.dagger/runtime/ci-plan.json).
 - [x] Keep the initial planner able to write GitHub outputs during the
       split-job migration.
 - [x] Add a finalize step that reads `ci-plan.json` and emits the minimal
@@ -155,7 +155,7 @@ JSON file.
 - [x] Upload `ci-plan.json` from `detect` as a GitHub artifact.
 - [x] Download `ci-plan.json` in `validate`, `package`, and `deploy`.
 - [x] Standardize the restored file path back to
-      [../.dagger/runtime/ci-plan.json](../.dagger/runtime/ci-plan.json)
+      [../../.dagger/runtime/ci-plan.json](../../.dagger/runtime/ci-plan.json)
       after checkout.
 - [x] Keep only the derived scheduling outputs in GitHub job outputs.
 - [x] Treat any optional convenience outputs as secondary projections, not the
@@ -193,16 +193,16 @@ JSON file.
       canonical plan producer.
 - [x] Define future Dagger `build(...)` input in terms of `ci-plan.json`.
 - [x] Define future Dagger `package(...)` input in terms of `ci-plan.json`.
-- [ ] Define future Dagger `deploy(...)` input in terms of `ci-plan.json`,
+- [x] Define future Dagger `deploy(...)` input in terms of `ci-plan.json`,
       `package-manifest.json`, and deploy target metadata.
-- [ ] Define a future `workflow(...)` function that can call the same stages
+- [x] Define a future `workflow(...)` function that can call the same stages
       internally without changing their contracts.
 
 ## Stop Point
 
 - `detect`, `validate`, `build`, `package`, and `deploy` exchange one
   canonical plan file under
-  [../.dagger/runtime](../.dagger/runtime).
+  [../../.dagger/runtime](../../.dagger/runtime).
 - GitHub outputs are reduced to a very thin scheduling adapter derived from
   that plan file.
 - any optional convenience outputs are still only projections of that plan

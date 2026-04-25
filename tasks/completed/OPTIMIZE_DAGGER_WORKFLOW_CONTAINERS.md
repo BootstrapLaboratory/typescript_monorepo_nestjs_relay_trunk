@@ -57,4 +57,4 @@ Deploy stays isolated:
 - [x] Run Dagger unit tests.
 - [x] Run TypeScript typecheck.
 - [x] Run script-side CI planning tests.
-- [ ] Validate in real GitHub CI and compare runtime.
+- [x] Validate in real GitHub CI and compare runtime.

@@ -53,9 +53,9 @@ repo-specific script paths.
 
 Repository-owned metadata stays under `.dagger`:
 
-- [../.dagger/deploy/services-mesh.yaml](../.dagger/deploy/services-mesh.yaml)
-- [../.dagger/deploy/targets](../.dagger/deploy/targets)
-- [../.dagger/package/targets](../.dagger/package/targets)
+- [../../.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml)
+- [../../.dagger/deploy/targets](../../.dagger/deploy/targets)
+- [../../.dagger/package/targets](../../.dagger/package/targets)
 
 Adding a deployable Rush project should mostly mean adding target metadata, not
 editing Dagger TypeScript.
@@ -108,12 +108,12 @@ release flow after the composed Dagger `workflow` cutover.
 | ---------------------------------------------------------------------------------------------------------------------------- | --------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
 | Deleted root detect script layer                                                                                             | detect                | formerly Dagger detect and legacy split-job adapters   | Dagger TypeScript now owns CI plan schema, Rush planning, and target metadata loading.                  |
 | Deleted split-job GitHub example                                                                                             | legacy GitHub adapter | formerly a preserved GitHub split-job workflow example | Removed after the composed Dagger workflow was validated in real CI.                                    |
-| Deleted root GraphQL drift helper                                                                                            | build verify          | formerly `apps/server` Rush `verify` script            | Replaced by server-owned package scripts in [../apps/server/package.json](../apps/server/package.json). |
+| Deleted root GraphQL drift helper                                                                                            | build verify          | formerly `apps/server` Rush `verify` script            | Replaced by server-owned package scripts in [../../apps/server/package.json](../../apps/server/package.json). |
 | Deleted root server migration helper                                                                                         | validate              | legacy split-job example                               | Replaced by `apps/server` package script `ci:migration:run`.                                            |
 | Deleted root server start helper                                                                                             | validate              | legacy split-job example                               | Replaced by `apps/server` package script `ci:start:prod-smoke`.                                         |
-| [../deploy/cloudrun/scripts/deploy-server.sh](../deploy/cloudrun/scripts/deploy-server.sh)                                   | deploy                | `.dagger/deploy/targets/server.yaml`                   | Provider-owned Cloud Run deploy adapter.                                                                |
-| [../deploy/cloudflare-pages/scripts/deploy-webapp.sh](../deploy/cloudflare-pages/scripts/deploy-webapp.sh)                   | deploy                | `.dagger/deploy/targets/webapp.yaml`                   | Provider-owned Cloudflare Pages deploy adapter.                                                         |
-| [../deploy/cloudflare-pages/scripts/validate-webapp-routes.sh](../deploy/cloudflare-pages/scripts/validate-webapp-routes.sh) | deploy smoke          | `deploy-webapp.sh`                                     | Cloudflare Pages route validation colocated with the webapp deploy adapter.                             |
+| [../../deploy/cloudrun/scripts/deploy-server.sh](../../deploy/cloudrun/scripts/deploy-server.sh)                                   | deploy                | `.dagger/deploy/targets/server.yaml`                   | Provider-owned Cloud Run deploy adapter.                                                                |
+| [../../deploy/cloudflare-pages/scripts/deploy-webapp.sh](../../deploy/cloudflare-pages/scripts/deploy-webapp.sh)                   | deploy                | `.dagger/deploy/targets/webapp.yaml`                   | Provider-owned Cloudflare Pages deploy adapter.                                                         |
+| [../../deploy/cloudflare-pages/scripts/validate-webapp-routes.sh](../../deploy/cloudflare-pages/scripts/validate-webapp-routes.sh) | deploy smoke          | `deploy-webapp.sh`                                     | Cloudflare Pages route validation colocated with the webapp deploy adapter.                             |
 | Deleted root deploy tag helper                                                                                               | deploy state          | formerly target deploy scripts                         | Replaced by Dagger deploy orchestration as a generic post-target success step.                          |
 | Deleted root env helper                                                                                                      | shell helper          | formerly legacy Makefile checks                        | Replaced by self-contained example checks; root Makefile removed.                                       |
 
@@ -148,7 +148,7 @@ folder.
 ## Phase 2: Move Project-Specific Build Validation
 
 - [x] Move GraphQL contract drift checking out of root `scripts/ci`.
-- [x] Update [../apps/server/package.json](../apps/server/package.json) so
+- [x] Update [../../apps/server/package.json](../../apps/server/package.json) so
       `verify` calls the server-owned script.
 - [x] Convert project-owned shell helpers into `package.json` scripts whenever
       that makes the command simpler and keeps behavior inside the owning Rush
@@ -189,14 +189,14 @@ folder.
 - [x] Remove obsolete Makefile CI targets that only exist for the old
       split-job workflow.
 - [x] Move any retained example-only helper scripts under `examples`.
-- [x] Keep [../scripts](../scripts) for real repository utilities, not release
+- [x] Keep [../../scripts](../../scripts) for real repository utilities, not release
       framework internals.
 - [x] Delete or archive `scripts/ci` if no production scripts
       remain.
 
 ## Phase 6: Documentation And Examples
 
-- [x] Update [../docs/notes/ReleaseFlow.md](../docs/notes/ReleaseFlow.md) with
+- [x] Update [../../docs/notes/ReleaseFlow.md](../../docs/notes/ReleaseFlow.md) with
       the new script ownership boundaries.
 - [x] Update target YAML examples in task docs.
 - [x] Remove the legacy GitHub split-job example to keep the supported release
@@ -212,7 +212,7 @@ folder.
 - [x] Run Dagger unit tests.
 - [x] Run Dagger TypeScript typecheck.
 - [x] Run shell syntax checks for moved deploy scripts.
-- [ ] Run remaining script tests, if any scripts remain.
+- [x] Run remaining script tests, if any scripts remain.
 - [x] Run the composed GitHub `ci-release` workflow.
 - [x] Run forced `deploy-server`.
 - [x] Run forced `deploy-webapp`.

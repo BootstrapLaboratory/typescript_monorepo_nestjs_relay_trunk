@@ -9,13 +9,13 @@ Current GitHub Actions release graph:
 Current source of truth:
 
 - release graph and target ordering:
-  [../.dagger/deploy/services-mesh.yaml](../.dagger/deploy/services-mesh.yaml)
+  [../../.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml)
 - per-target deploy metadata and runtime rules:
-  [../.dagger/deploy/targets](../.dagger/deploy/targets)
+  [../../.dagger/deploy/targets](../../.dagger/deploy/targets)
 - release workflow entrypoint:
-  [../.github/workflows/ci-release.yaml](../.github/workflows/ci-release.yaml)
+  [../../.github/workflows/ci-release.yaml](../../.github/workflows/ci-release.yaml)
 - Dagger API surface:
-  [../dagger/src/index.ts](../dagger/src/index.ts)
+  [../../dagger/src/index.ts](../../dagger/src/index.ts)
 
 Current runtime model:
 
@@ -25,17 +25,17 @@ Current runtime model:
   invocation
 - `deploy-release` remains available as the lower-level deployment executor
 - portable target scripts live with provider modules such as
-  [../deploy/cloudrun/scripts](../deploy/cloudrun/scripts) and
-  [../deploy/cloudflare-pages/scripts](../deploy/cloudflare-pages/scripts)
+  [../../deploy/cloudrun/scripts](../../deploy/cloudrun/scripts) and
+  [../../deploy/cloudflare-pages/scripts](../../deploy/cloudflare-pages/scripts)
 
 Current documentation:
 
 - release flow notes:
-  [../docs/notes/ReleaseFlow.md](../docs/notes/ReleaseFlow.md)
+  [../../docs/notes/ReleaseFlow.md](../../docs/notes/ReleaseFlow.md)
 - GitLab wrapper example:
-  [../docs/notes/GitLabReleaseExample.md](../docs/notes/GitLabReleaseExample.md)
+  [../../docs/notes/GitLabReleaseExample.md](../../docs/notes/GitLabReleaseExample.md)
   and
-  [../examples/gitlab/ci-release.gitlab-ci.yml](../examples/gitlab/ci-release.gitlab-ci.yml)
+  [../../examples/gitlab/ci-release.gitlab-ci.yml](../../examples/gitlab/ci-release.gitlab-ci.yml)
 
 The current interface and remaining hardening work are tracked in
 [REFORM_DAGGER_RELEASE_INTERFACE.md](./REFORM_DAGGER_RELEASE_INTERFACE.md) and

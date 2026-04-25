@@ -10,7 +10,7 @@ The important direction in this plan is:
 
 - stop hardcoding deploy target names in the Rush planning module
 - keep deploy target graph and deploy runtime metadata under
-  [../.dagger/deploy](../.dagger/deploy)
+  [../../.dagger/deploy](../../.dagger/deploy)
 - treat target YAML `name` as the canonical deploy target id
 - use the naming convention that deploy target `name` equals the Rush project
   name for this phase
@@ -50,8 +50,8 @@ Original hardcoded assumptions in the Rush planning logic:
 The target shape should be:
 
 1. load deploy target names dynamically from
-   [../.dagger/deploy/services-mesh.yaml](../.dagger/deploy/services-mesh.yaml)
-2. load target identities from [../.dagger/deploy/targets](../.dagger/deploy/targets)
+   [../../.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml)
+2. load target identities from [../../.dagger/deploy/targets](../../.dagger/deploy/targets)
 3. treat target YAML `name` as the canonical deploy target id
 4. use the convention that target YAML `name` also equals the Rush project
    name for this phase
@@ -75,7 +75,7 @@ This keeps the model explicit:
 - Rename current planning outputs so they describe deploy targets, not release
   targets.
 - Avoid deriving deploy targets directly from
-  [../rush.json](../rush.json) alone, because not every Rush project should
+  [../../rush.json](../../rush.json) alone, because not every Rush project should
   automatically become a deploy target.
 - Keep deploy tag naming configurable through metadata or one centralized rule,
   not scattered target-specific conditionals.
@@ -119,7 +119,7 @@ Deploy tag naming can still stay centralized as `DEPLOY_TAG_PREFIX/<target>`.
 ## Phase 2: Load Targets Dynamically
 
 - [x] Refactor Rush planning to load target names from
-      [../.dagger/deploy/services-mesh.yaml](../.dagger/deploy/services-mesh.yaml).
+      [../../.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml).
 - [x] Refactor target loading so deploy target identity comes from target YAML
       `name`, not just filenames.
 - [x] Remove the hardcoded supported target list.
@@ -176,7 +176,7 @@ Deploy tag naming can still stay centralized as `DEPLOY_TAG_PREFIX/<target>`.
 - Rush planning no longer hardcodes `server` and `webapp` as the
   only supported deploy targets.
 - target support comes from
-  [../.dagger/deploy/services-mesh.yaml](../.dagger/deploy/services-mesh.yaml)
+  [../../.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml)
   plus per-target YAML metadata.
 - target YAML `name` is the canonical deploy target id.
 - Rush project impact is mapped to deploy targets through the naming convention
