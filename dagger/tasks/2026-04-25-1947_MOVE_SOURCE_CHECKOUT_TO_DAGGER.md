@@ -44,6 +44,8 @@ to run the workflow.
 - Keep `repo: Directory` only as the local/dev input to `local_copy` mode. Do not
   keep a direct mounted-workspace execution mode.
 - Use `local_copy` for local/dev workflows that should not need Git credentials.
+  The copied source should remove transient Rush/Dagger state and `node_modules`
+  so later stages run from a clean Dagger-owned filesystem.
 - Use `git` for CI workflows.
 - Treat source acquisition as a provider-independent framework concern.
 - GitHub should provide source coordinates through environment variables or
@@ -74,13 +76,13 @@ to run the workflow.
 
 ### Phase 2: Git Checkout Runner
 
-- [ ] Implement a Dagger Git checkout container that clones or fetches the
+- [x] Implement a Dagger Git checkout container that clones or fetches the
   configured repository.
-- [ ] Checkout the exact requested commit SHA before running detect/build/package.
-- [ ] Fetch deploy tags, or at minimum tags matching `DEPLOY_TAG_PREFIX`.
-- [ ] Fetch PR base SHA/ref when validation requires `rush list --from`.
-- [ ] Keep token handling secret-safe and avoid printing credentials in logs.
-- [ ] Add tests for generated Git command plans.
+- [x] Checkout the exact requested commit SHA before running detect/build/package.
+- [x] Fetch deploy tags, or at minimum tags matching `DEPLOY_TAG_PREFIX`.
+- [x] Fetch PR base SHA/ref when validation requires `rush list --from`.
+- [x] Keep token handling secret-safe and avoid printing credentials in logs.
+- [x] Add tests for generated Git command plans.
 
 ### Phase 3: Workflow Integration
 

@@ -13,12 +13,14 @@ export const DEFAULT_LOCAL_COPY_CLEANUP_PATHS = [
   "common/temp",
   ".dagger/runtime",
 ];
+export const DEFAULT_GIT_AUTH_USERNAME = "x-access-token";
 
 const ENV_NAME_PATTERN = /^[A-Z][A-Z0-9_]*$/;
 const FULL_GIT_SHA_PATTERN = /^[0-9a-f]{40}$/i;
 
 export type BuildSourcePlanInput = {
   authTokenEnv?: string;
+  authUsername?: string;
   cleanupPaths?: string[];
   commitSha?: string;
   deployTagPrefix?: string;
@@ -27,6 +29,7 @@ export type BuildSourcePlanInput = {
   prBaseSha?: string;
   ref?: string;
   repositoryUrl?: string;
+  removeNodeModules?: boolean;
   workdir?: string;
 };
 
@@ -180,6 +183,29 @@ function parseAuthTokenEnv(value: string | undefined): string | undefined {
   return tokenEnv;
 }
 
+function parseAuthUsername(
+  tokenEnv: string | undefined,
+  username: string | undefined,
+): string | undefined {
+  if (tokenEnv === undefined) {
+    if (username !== undefined && username.length > 0) {
+      throw new Error(
+        "Git source auth username requires Git source auth token env.",
+      );
+    }
+
+    return undefined;
+  }
+
+  return rejectShellUnsafe(
+    requireNonEmpty(
+      username ?? DEFAULT_GIT_AUTH_USERNAME,
+      "Git source auth username",
+    ),
+    "Git source auth username",
+  );
+}
+
 export function parseSourceMode(value: string = "local_copy"): SourceMode {
   switch (value) {
     case "local_copy":
@@ -273,6 +299,7 @@ export function buildSourcePlan(input: BuildSourcePlanInput = {}): SourcePlan {
         "Local copy cleanup paths",
       ),
       mode,
+      removeNodeModules: input.removeNodeModules ?? true,
       sourcePath: parseAbsolutePath(
         input.localSourcePath ?? DEFAULT_MOUNTED_SOURCE_PATH,
         "Local copy source path",
@@ -297,6 +324,7 @@ export function buildSourcePlan(input: BuildSourcePlanInput = {}): SourcePlan {
     "Git source workdir",
   );
   const authTokenEnv = parseAuthTokenEnv(input.authTokenEnv);
+  const authUsername = parseAuthUsername(authTokenEnv, input.authUsername);
   const plan: GitSourcePlan = {
     commands: buildGitCommandPlan({
       commitSha,
@@ -314,7 +342,7 @@ export function buildSourcePlan(input: BuildSourcePlanInput = {}): SourcePlan {
   };
 
   if (authTokenEnv !== undefined) {
-    plan.auth = { tokenEnv: authTokenEnv };
+    plan.auth = { tokenEnv: authTokenEnv, username: authUsername! };
   }
 
   if (ref !== undefined) {
