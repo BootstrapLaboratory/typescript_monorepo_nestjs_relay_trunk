@@ -220,6 +220,10 @@ The separate workflow keeps release and validation credential boundaries clear.
 - The `validate` entrypoint returns a concise JSON summary with `status`,
   `mode`, `pr_base_sha`, `validate_targets`, and `rush_commands`.
 - Shared Rush container/cache helpers live under `dagger/src/rush`.
+- Validation target metadata uses `.dagger/validate/targets/<rush-project-name>.yaml`
+  with backing `services` and ordered `steps`.
+- Validation steps currently support two generic kinds: command steps and
+  foreground service steps.
 - Dagger executes validation metadata generically. It does not know about
   `server`, PostgreSQL, Redis, or GraphQL.
 - A target validation scenario runs when its Rush project name is present in
@@ -249,13 +253,13 @@ The separate workflow keeps release and validation credential boundaries clear.
 
 ## Phase 3: Validation Metadata
 
-- [ ] Add `.dagger/validate/targets` metadata directory.
-- [ ] Define validation target YAML schema.
-- [ ] Add parser and validation tests for services, command steps, service
+- [x] Add `.dagger/validate/targets` metadata directory.
+- [x] Define validation target YAML schema.
+- [x] Add parser and validation tests for services, command steps, service
       steps, env, args, and ports.
-- [ ] Add repository metadata tests for every committed validation target.
-- [ ] Add server validation metadata as the first real target.
-- [ ] Keep server-specific commands and behavior in package/provider scripts or
+- [x] Add repository metadata tests for every committed validation target.
+- [x] Add server validation metadata as the first real target.
+- [x] Keep server-specific commands and behavior in package/provider scripts or
       metadata, not in Dagger TypeScript.
 
 ## Phase 4: Generic Validation Runner
@@ -294,7 +298,5 @@ The separate workflow keeps release and validation credential boundaries clear.
 - Should `ci-validate.yaml` also support `workflow_dispatch` for manual
   validation with `validateTargetsJson`, or should manual debugging stay a
   local Dagger-only path for now?
-- What is the minimal generic validation metadata schema that covers the
-  current server scenario without overfitting future targets?
 - How should logs from metadata-declared services be surfaced on validation
   failure?

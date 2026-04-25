@@ -1,0 +1,53 @@
+name: server
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_DB: chatdb
+      POSTGRES_USER: chatuser
+      POSTGRES_PASSWORD: chatpass
+    ports:
+      - 5432
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6379
+
+steps:
+  - name: migrations
+    command: npm
+    args: ["--prefix", "apps/server", "run", "ci:migration:run"]
+    env:
+      DATABASE_HOST: postgres
+      DATABASE_PORT: "5432"
+      DATABASE_NAME: chatdb
+      DATABASE_USER: chatuser
+      DATABASE_PASSWORD: chatpass
+
+  - name: server
+    service:
+      command: npm
+      args: ["--prefix", "apps/server", "run", "start:prod"]
+      ports:
+        - 3100
+      env:
+        NODE_ENV: production
+        HOST: 0.0.0.0
+        PORT: "3100"
+        GRAPHQL_PATH: /graphql
+        DATABASE_HOST: postgres
+        DATABASE_PORT: "5432"
+        DATABASE_NAME: chatdb
+        DATABASE_USER: chatuser
+        DATABASE_PASSWORD: chatpass
+        DATABASE_SYNCHRONIZE: "false"
+        PUBSUB_DRIVER: redis
+        REDIS_URL: redis://redis:6379
+
+  - name: smoke
+    command: bash
+    args: ["deploy/cloudrun/tests/validate-post-deploy-smoke.sh"]
+    env:
+      SERVICE_URL: http://server:3100
