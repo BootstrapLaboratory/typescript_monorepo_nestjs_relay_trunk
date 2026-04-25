@@ -33,12 +33,6 @@ behavior.
   path because the engine cache does not persist between workflow runs.
 - Mounting empty Dagger cache volumes over `common/temp` can hide the
   host-restored Rush cache and make the GitHub cache ineffective.
-- GitHub CI confirmed `common/temp` is visible to Dagger, but importing the
-  host-restored Rush bootstrap cache caused Rush to fail with an `EXDEV`
-  cross-device rename when cleaning `common/temp/install-run`.
-- Dagger should preserve host-restored dependency cache paths, but drop
-  `common/temp/install-run` and `common/temp/rush-recycler` from its workspace
-  so Rush can recreate bootstrap state inside the container layer.
 - Toolchain prebuilt images should not carry Rush install cache data. Toolchain
   images are for OS/runtime tools; Rush install caches are project lockfile
   state and should remain cache data.
@@ -84,9 +78,7 @@ GitHub cache APIs inside the Dagger framework.
 
 - [x] Remove Rush Dagger cache-volume mounts from `rush/container.ts`.
 - [x] Keep `installRush` as the single Dagger-side Rush install command.
-- [x] Confirm Dagger receives the host-warmed `common/temp` paths in GitHub CI.
-- [x] Strip host-restored Rush bootstrap/recycler state from Dagger Rush
-  containers.
+- [ ] Confirm Dagger receives the host-warmed `common/temp` paths in GitHub CI.
 
 ### Phase 3: Validation
 
@@ -94,6 +86,5 @@ GitHub cache APIs inside the Dagger framework.
 - [x] Run Dagger typecheck.
 - [x] Run `dagger call self-check --repo=..`.
 - [x] Run a local Dagger host-directory probe for `common/temp`.
-- [x] Run a local Dagger workflow dry-run with host `common/temp` present.
-- [ ] Run GitHub CI once and confirm cache restore/save works without `EXDEV`.
+- [ ] Run GitHub CI once and confirm cache restore/save works.
 - [ ] Run GitHub CI again and confirm Rush install cache hits reduce runtime.

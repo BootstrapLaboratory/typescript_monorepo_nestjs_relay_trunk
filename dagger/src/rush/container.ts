@@ -16,10 +16,6 @@ const RUSH_INSTALL_COMMANDS = [
   "apt-get update",
   "apt-get install -y ca-certificates git",
 ];
-const HOST_RUSH_BOOTSTRAP_PATHS = [
-  "common/temp/install-run",
-  "common/temp/rush-recycler",
-];
 
 export type RushToolchainImageOptions = {
   hostEnv?: Record<string, string>;
@@ -37,15 +33,8 @@ export async function prepareRushContainer(
   );
 
   return buildResolvedToolchainContainer(toolchainImage)
-    .withDirectory(RUSH_WORKDIR, withoutHostRushBootstrapState(repo))
+    .withDirectory(RUSH_WORKDIR, repo)
     .withWorkdir(RUSH_WORKDIR);
-}
-
-function withoutHostRushBootstrapState(repo: Directory): Directory {
-  return HOST_RUSH_BOOTSTRAP_PATHS.reduce(
-    (nextRepo, path) => nextRepo.withoutDirectory(path),
-    repo,
-  );
 }
 
 export function installRush(container: Container): Container {
