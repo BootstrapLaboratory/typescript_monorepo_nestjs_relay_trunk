@@ -51,51 +51,51 @@ dagger/
 
 ### Phase 1: Structure
 
-- [ ] Create `dagger/README.md` with a short overview and links into
+- [x] Create `dagger/README.md` with a short overview and links into
       `dagger/docs/`.
-- [ ] Create `dagger/docs/README.md` as the documentation index.
-- [ ] Create `dagger/docs/ai/` for AI-facing architecture notes.
+- [x] Create `dagger/docs/README.md` as the documentation index.
+- [x] Create `dagger/docs/ai/` for AI-facing architecture notes.
 
 ### Phase 2: API Documentation
 
-- [ ] Document public Dagger entrypoints and their intended use.
-- [ ] Document common local commands, including provider-off dry-runs and
+- [x] Document public Dagger entrypoints and their intended use.
+- [x] Document common local commands, including provider-off dry-runs and
       `self-check`.
-- [ ] Document workflow inputs at the contract level: source mode, deploy
+- [x] Document workflow inputs at the contract level: source mode, deploy
       environment file, toolchain image provider, Rush cache provider, dry-run,
       and Docker socket behavior.
-- [ ] Document expected CI-provider responsibilities at a high level: provide
+- [x] Document expected CI-provider responsibilities at a high level: provide
       source coordinates, credentials, deploy env file, and optional socket.
 
 ### Phase 3: Metadata Documentation
 
-- [ ] Document deploy target metadata under `.dagger/deploy/targets/`.
-- [ ] Document service mesh metadata under `.dagger/deploy/services-mesh.yaml`.
-- [ ] Document toolchain image provider metadata under
+- [x] Document deploy target metadata under `.dagger/deploy/targets/`.
+- [x] Document service mesh metadata under `.dagger/deploy/services-mesh.yaml`.
+- [x] Document toolchain image provider metadata under
       `.dagger/toolchain-images/providers.yaml`.
-- [ ] Document Rush cache provider metadata under
+- [x] Document Rush cache provider metadata under
       `.dagger/rush-cache/providers.yaml`.
-- [ ] Link schema files as the source of truth for exact field validation.
+- [x] Link schema files as the source of truth for exact field validation.
 
 ### Phase 4: AI Architecture Documentation
 
-- [ ] Document the high-level architecture in `dagger/docs/ai/architecture.md`.
-- [ ] Explain stage boundaries: source acquisition, detect, validate, build,
+- [x] Document the high-level architecture in `dagger/docs/ai/architecture.md`.
+- [x] Explain stage boundaries: source acquisition, detect, validate, build,
       package, deploy, and workflow orchestration.
-- [ ] Explain framework boundaries: Rush is the project model, metadata is the
+- [x] Explain framework boundaries: Rush is the project model, metadata is the
       extension point, provider adapters are optional.
-- [ ] Explain important invariants: provider-off works locally, GitHub is an
+- [x] Explain important invariants: provider-off works locally, GitHub is an
       adapter not a framework dependency, deploy targets are metadata-driven,
       and completed task files are archived.
-- [ ] Add AI conventions for future contributors in
+- [x] Add AI conventions for future contributors in
       `dagger/docs/ai/conventions.md`.
 
 ### Phase 5: Validation
 
-- [ ] Run documentation link/path sanity checks manually or with existing repo
+- [x] Run documentation link/path sanity checks manually or with existing repo
       tooling.
-- [ ] Run `dagger call self-check --repo=..`.
-- [ ] Confirm documentation does not duplicate implementation details that can
+- [x] Run `dagger call self-check --repo=..`.
+- [x] Confirm documentation does not duplicate implementation details that can
       drift from source.
 
 ## Non-Goals
