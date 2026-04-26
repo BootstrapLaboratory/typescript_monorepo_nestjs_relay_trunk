@@ -168,7 +168,9 @@ ghcr.io/<owner>/<repo>/rush-delivery-caches/rush-install:<hash>
 - [x] Keep provider `off` provider-independent and free of host-side cache
   assumptions.
 - [x] Update parser/schema/tests for repo-relative cache paths.
-- [ ] Prove cache miss and cache hit in real CI after the archive refactor.
+- [x] Prove cache miss and cache hit in real CI after the archive refactor.
+  Real GitHub CI proved both paths: a cache-miss run created the GHCR cache
+  image, and later cache-hit release runs restored the archive successfully.
 
 ### Phase 4: Workflow Integration
 
@@ -186,10 +188,13 @@ ghcr.io/<owner>/<repo>/rush-delivery-caches/rush-install:<hash>
 - [x] Run Dagger unit tests.
 - [x] Run Dagger typecheck.
 - [x] Run `dagger call self-check --repo=..`.
-- [ ] Run local provider-off workflow dry-run.
-- [ ] Run GitHub CI once and confirm the cache image is published on miss.
-- [ ] Run GitHub CI again and confirm the cache image is reused on hit.
-- [ ] Confirm `.github/actions/cached-install` is unused by release workflow.
+- [x] Run local provider-off workflow dry-run.
+  Validated locally from `dagger/` with `toolchainImageProvider=off`,
+  `rushCacheProvider=off`, `sourceMode=local_copy`, `dryRun=true`, and forced
+  `server`/`webapp` targets.
+- [x] Run GitHub CI once and confirm the cache image is published on miss.
+- [x] Run GitHub CI again and confirm the cache image is reused on hit.
+- [x] Confirm `.github/actions/cached-install` is unused by release workflow.
 
 ## Non-Goals
 

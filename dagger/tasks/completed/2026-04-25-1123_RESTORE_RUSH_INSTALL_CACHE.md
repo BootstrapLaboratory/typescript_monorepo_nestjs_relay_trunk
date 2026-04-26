@@ -43,6 +43,14 @@ Restore the old cross-run Rush install cache behavior by running the existing
 GitHub composite cache action before the Dagger workflow, while keeping Dagger's
 Rush install path free of non-persistent cache-volume mounts.
 
+## Superseded Outcome
+
+This task was superseded by
+[2026-04-25-1239_ADD_DAGGER_RUSH_INSTALL_CACHE.md](2026-04-25-1239_ADD_DAGGER_RUSH_INSTALL_CACHE.md).
+The project intentionally did not keep the host-side GitHub cache adapter
+because that split Rush install ownership between GitHub Actions and Dagger.
+The release workflow now uses the Dagger-owned Rush cache provider instead.
+
 ## Proposed Design
 
 Use the existing GitHub adapter shape:
@@ -78,7 +86,9 @@ GitHub cache APIs inside the Dagger framework.
 
 - [x] Remove Rush Dagger cache-volume mounts from `rush/container.ts`.
 - [x] Keep `installRush` as the single Dagger-side Rush install command.
-- [ ] Confirm Dagger receives the host-warmed `common/temp` paths in GitHub CI.
+- [x] Confirm Dagger receives the host-warmed `common/temp` paths in GitHub CI.
+  Superseded: host-warmed `common/temp` paths are no longer part of the release
+  workflow.
 
 ### Phase 3: Validation
 
@@ -86,5 +96,7 @@ GitHub cache APIs inside the Dagger framework.
 - [x] Run Dagger typecheck.
 - [x] Run `dagger call self-check --repo=..`.
 - [x] Run a local Dagger host-directory probe for `common/temp`.
-- [ ] Run GitHub CI once and confirm cache restore/save works.
-- [ ] Run GitHub CI again and confirm Rush install cache hits reduce runtime.
+- [x] Run GitHub CI once and confirm cache restore/save works.
+  Superseded by the Dagger-owned GHCR cache provider.
+- [x] Run GitHub CI again and confirm Rush install cache hits reduce runtime.
+  Superseded by the Dagger-owned GHCR cache provider.

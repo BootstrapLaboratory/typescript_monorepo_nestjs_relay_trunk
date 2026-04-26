@@ -113,13 +113,16 @@ to run the workflow.
 
 ### Phase 5: Cache Follow-Up
 
-- [ ] Re-test Rush install cache with Dagger-owned source checkout.
-- [ ] Decide whether `node_modules` can be safely cached inside the
+- [x] Re-test Rush install cache with Dagger-owned source checkout.
+- [x] Decide whether `node_modules` can be safely cached inside the
   Dagger-owned filesystem.
-- [ ] If `node_modules` is safe, add it back in a separate cache metadata
+- [x] If `node_modules` is safe, add it back in a separate cache metadata
   version and prove both cache miss and cache hit in real CI.
-- [ ] If `node_modules` is still unsafe, document that the stable cache payload
+- [x] If `node_modules` is still unsafe, document that the stable cache payload
   is `install-run` plus `pnpm-store`.
+  Not applicable after the Dagger-owned source checkout validation:
+  `node_modules` is safe in the current Dagger-owned source/cache flow, and the
+  cache payload is `common/temp/node_modules` plus `common/temp/pnpm-store`.
 
 ### Phase 6: Validation
 
@@ -127,7 +130,8 @@ to run the workflow.
 - [x] Run `dagger call self-check --repo=..`.
 - [x] Run local workflow dry-run with local-copy source mode.
 - [x] Run local workflow dry-run with Git source mode.
-- [ ] Run real GitHub CI for a PR validation path.
+- [x] Run real GitHub CI for a PR validation path.
+  User confirmed the real PR validation CI path is green.
 - [x] Run real GitHub CI for a release/deploy path with Git source acquisition
   and source-acquisition toolchain image optimization.
 
