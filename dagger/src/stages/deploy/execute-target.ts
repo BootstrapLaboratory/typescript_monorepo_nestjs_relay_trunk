@@ -1,4 +1,4 @@
-import { dag, type Container, Directory, Socket } from "@dagger.io/dagger";
+import { Directory, Socket } from "@dagger.io/dagger";
 
 import type { DeployTargetDefinition } from "../../model/deploy-target.ts";
 import type { DeployTargetResult } from "../../model/deploy-result.ts";
@@ -11,17 +11,20 @@ import {
   resolveToolchainImage,
 } from "../../toolchain-images/resolve.ts";
 import {
-  buildGitAskPassScript,
-  GIT_ASKPASS_PATH,
-  GIT_TOKEN_ENV,
-} from "../../source/source-commands.ts";
+  applyRuntimeWorkspace,
+  buildRuntimeWorkspacePlan,
+} from "./runtime-workspace.ts";
 import { loadDeployTargetDefinition } from "./load-deploy-metadata.ts";
 import {
   getRequiredRepoRelativeHostPathSource,
   resolveSpecEnvironment,
   validateRequiredHostEnv,
 } from "./runtime-env.ts";
-import { buildDeployTargetCommand, deployTagName } from "./deploy-tag.ts";
+import {
+  buildDeployTargetCommand,
+  deployTagName,
+  updateDeployTagWithGithubApi,
+} from "./deploy-tag.ts";
 
 function formatDryRunSummary(
   definition: DeployTargetDefinition,
@@ -75,36 +78,17 @@ function formatDryRunSummary(
     lines.push("  - /var/run/docker.sock");
   }
 
+  const workspacePlan = buildRuntimeWorkspacePlan(definition.runtime.workspace);
+  lines.push("workspace:");
+  if (workspacePlan.mode === "full") {
+    lines.push("  mode=full");
+  } else {
+    lines.push("  mode=partial");
+    lines.push(...workspacePlan.dirs.map((dir) => `  dir=${dir}`));
+    lines.push(...workspacePlan.files.map((file) => `  file=${file}`));
+  }
+
   return `${lines.join("\n")}\n`;
-}
-
-function withGitPushAuth(
-  container: Container,
-  hostEnv: Record<string, string>,
-  tokenEnv: string,
-  username: string,
-): Container {
-  let nextContainer = container.withEnvVariable("GIT_TERMINAL_PROMPT", "0");
-
-  if (tokenEnv.length === 0) {
-    return nextContainer;
-  }
-
-  const token = hostEnv[tokenEnv];
-  if (token === undefined || token.length === 0) {
-    throw new Error(
-      `Git deploy tag update authentication requires host env ${tokenEnv}.`,
-    );
-  }
-
-  const secret = dag.setSecret("rush-delivery-git-push-token", token);
-
-  return nextContainer
-    .withSecretVariable(GIT_TOKEN_ENV, secret)
-    .withNewFile(GIT_ASKPASS_PATH, buildGitAskPassScript(username), {
-      permissions: 0o700,
-    })
-    .withEnvVariable("GIT_ASKPASS", GIT_ASKPASS_PATH);
 }
 
 export async function executeTarget(
@@ -121,8 +105,7 @@ export async function executeTarget(
   toolchainImageProvider: "off" | "github" = "off",
   toolchainImageProviders?: ToolchainImageProvidersDefinition,
   dockerSocket?: Socket,
-  gitAuthTokenEnv: string = "",
-  gitAuthUsername: string = "x-access-token",
+  deployTagTokenEnv: string = "",
 ): Promise<DeployTargetResult> {
   const definition = await loadDeployTargetDefinition(repo, target);
   validateRequiredHostEnv(definition.runtime, hostEnv, dryRun, target);
@@ -134,12 +117,7 @@ export async function executeTarget(
     GIT_SHA: gitSha,
     ...resolveSpecEnvironment(definition.runtime, hostEnv, dryRun, target),
   };
-  const command = buildDeployTargetCommand(
-    definition.deploy_script,
-    environment,
-    target,
-    gitSha,
-  );
+  const command = buildDeployTargetCommand(definition.deploy_script);
 
   logSubsection(`Deploy target: ${target} (wave ${wave})`);
   console.log(`[deploy-release] wave ${wave}: starting ${target}`);
@@ -175,16 +153,11 @@ export async function executeTarget(
       providers: toolchainImageProviders,
     },
   );
-  let container = buildResolvedToolchainContainer(toolchainImage)
-    .withDirectory("/workspace", repo)
-    .withWorkdir("/workspace");
-
-  container = withGitPushAuth(
-    container,
-    hostEnv,
-    gitAuthTokenEnv,
-    gitAuthUsername,
-  );
+  let container = applyRuntimeWorkspace(
+    buildResolvedToolchainContainer(toolchainImage),
+    repo,
+    definition.runtime.workspace,
+  ).withWorkdir("/workspace");
 
   for (const fileMount of definition.runtime.file_mounts) {
     const sourcePath = getRequiredRepoRelativeHostPathSource(
@@ -207,7 +180,17 @@ export async function executeTarget(
     container = container.withEnvVariable(name, value);
   }
 
-  const output = await container.withExec(["bash", "-lc", command]).stdout();
+  const deployOutput = await container
+    .withExec(["bash", "-lc", command])
+    .stdout();
+  const tagOutput = await updateDeployTagWithGithubApi(
+    environment,
+    target,
+    gitSha,
+    hostEnv,
+    deployTagTokenEnv,
+  );
+  const output = `${deployOutput}${tagOutput}`;
 
   console.log(`[deploy-release] wave ${wave}: finished ${target}`);
 

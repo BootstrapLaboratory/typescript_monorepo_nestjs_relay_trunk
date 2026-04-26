@@ -16,6 +16,13 @@ runtime:
     - WEBAPP_VITE_GRAPHQL_HTTP
   env:
     STATIC_ENV: always
+  workspace:
+    dirs:
+      - apps/webapp/dist
+      - ./deploy/cloudflare-pages/scripts/
+      - apps/webapp/dist
+    files:
+      - apps/webapp/package.json
 `);
 
   assert.deepStrictEqual(definition, {
@@ -31,6 +38,10 @@ runtime:
       install: [],
       pass_env: ["WEBAPP_URL", "WEBAPP_VITE_GRAPHQL_HTTP"],
       required_host_env: [],
+      workspace: {
+        dirs: ["apps/webapp/dist", "deploy/cloudflare-pages/scripts"],
+        files: ["apps/webapp/package.json"],
+      },
     },
   });
 });
@@ -65,6 +76,57 @@ deploy_script: deploy/cloudflare-pages/scripts/deploy-webapp.sh
 runtime: {}
 `),
     /Deploy target runtime image must be a non-empty string\./,
+  );
+});
+
+test("parses full runtime workspace mode", () => {
+  const definition = parseDeployTarget(`
+name: server
+deploy_script: deploy/cloudrun/scripts/deploy-server.sh
+
+runtime:
+  image: node:24-bookworm-slim
+  workspace:
+    mode: full
+`);
+
+  assert.deepStrictEqual(definition.runtime.workspace, {
+    dirs: [],
+    files: [],
+    mode: "full",
+  });
+});
+
+test("fails when runtime workspace mode is unsupported", () => {
+  assert.throws(
+    () =>
+      parseDeployTarget(`
+name: server
+deploy_script: deploy/cloudrun/scripts/deploy-server.sh
+
+runtime:
+  image: node:24-bookworm-slim
+  workspace:
+    mode: minimal
+`),
+    /Deploy target runtime workspace mode must be "full"\./,
+  );
+});
+
+test("fails when runtime workspace path escapes the repository", () => {
+  assert.throws(
+    () =>
+      parseDeployTarget(`
+name: server
+deploy_script: deploy/cloudrun/scripts/deploy-server.sh
+
+runtime:
+  image: node:24-bookworm-slim
+  workspace:
+    dirs:
+      - ../server
+`),
+    /Deploy target runtime workspace dirs entry must stay inside the repository\./,
   );
 });
 

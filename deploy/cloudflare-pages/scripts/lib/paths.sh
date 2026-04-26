@@ -9,7 +9,7 @@ DOCS_DIR="${CLOUDFLARE_PAGES_DIR}/docs"
 TESTS_DIR="${CLOUDFLARE_PAGES_DIR}/tests"
 
 # Cloudflare Pages currently reuses the shared deploy config that still lives
-# under deploy/cloudrun/config. If that config moves higher in the repo later,
-# only this path helper should need to change.
-SHARED_DEPLOY_DIR="$(cd -- "${CLOUDFLARE_PAGES_DIR}/../cloudrun" && pwd)"
+# under deploy/cloudrun/config. Keep this path lazy so minimal deploy workspaces
+# do not need to mount the shared config unless a caller actually reads it.
+SHARED_DEPLOY_DIR="${CLOUDFLARE_PAGES_DIR}/../cloudrun"
 CONFIG_DIR="${SHARED_DEPLOY_DIR}/config"

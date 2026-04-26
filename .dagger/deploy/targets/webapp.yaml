@@ -3,6 +3,11 @@ deploy_script: deploy/cloudflare-pages/scripts/deploy-webapp.sh
 
 runtime:
   image: node:24-bookworm-slim
+  workspace:
+    dirs:
+      - apps/webapp/dist
+      - deploy/cloudflare-pages/scripts
+
   install:
     - apt-get update
     - apt-get install -y git

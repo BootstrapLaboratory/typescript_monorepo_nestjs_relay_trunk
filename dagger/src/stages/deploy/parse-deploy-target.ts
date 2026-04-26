@@ -4,6 +4,7 @@ import { assertKnownKeys } from "../../metadata/parse-utils.ts";
 import type {
   DeployRuntimeSpec,
   DeployTargetDefinition,
+  DeployWorkspaceSpec,
   FileMountSpec,
 } from "../../model/deploy-target.ts";
 
@@ -54,6 +55,44 @@ function parseEnvNameArray(
 
     if (!normalizedValues.includes(value)) {
       normalizedValues.push(value);
+    }
+  }
+
+  return normalizedValues;
+}
+
+function parseRepoRelativePath(rawValue: unknown, name: string): string {
+  const value = parseRequiredString(rawValue, name).replace(/\\/g, "/");
+  const normalizedValue = value.replace(/^\.\/+/, "").replace(/\/+$/, "");
+
+  if (normalizedValue.length === 0 || normalizedValue === ".") {
+    throw new Error(`${name} must be a repository-relative path.`);
+  }
+
+  if (normalizedValue.startsWith("/") || /^[A-Za-z]:\//.test(normalizedValue)) {
+    throw new Error(`${name} must be a repository-relative path.`);
+  }
+
+  if (normalizedValue.split("/").some((segment) => segment === "..")) {
+    throw new Error(`${name} must stay inside the repository.`);
+  }
+
+  return normalizedValue;
+}
+
+function parseRepoRelativePathArray(
+  rawValue: unknown,
+  name: string,
+  itemName: string,
+): string[] {
+  const values = parseStringArray(rawValue, name, itemName);
+  const normalizedValues: string[] = [];
+
+  for (const value of values) {
+    const normalizedValue = parseRepoRelativePath(value, itemName);
+
+    if (!normalizedValues.includes(normalizedValue)) {
+      normalizedValues.push(normalizedValue);
     }
   }
 
@@ -144,6 +183,48 @@ function parseFileMountSpecs(rawValue: unknown, name: string): FileMountSpec[] {
   return normalizedSpecs;
 }
 
+function parseWorkspace(rawValue: unknown): DeployWorkspaceSpec {
+  if (rawValue === undefined) {
+    return {
+      dirs: [],
+      files: [],
+    };
+  }
+
+  if (
+    typeof rawValue !== "object" ||
+    rawValue === null ||
+    Array.isArray(rawValue)
+  ) {
+    throw new Error("Deploy target runtime workspace must be a mapping.");
+  }
+
+  assertKnownKeys(
+    rawValue as Record<string, unknown>,
+    ["dirs", "files", "mode"],
+    "Deploy target runtime workspace",
+  );
+
+  const mode = "mode" in rawValue ? rawValue.mode : undefined;
+  if (mode !== undefined && mode !== "full") {
+    throw new Error('Deploy target runtime workspace mode must be "full".');
+  }
+
+  return {
+    dirs: parseRepoRelativePathArray(
+      "dirs" in rawValue ? rawValue.dirs : undefined,
+      "Deploy target runtime workspace dirs",
+      "Deploy target runtime workspace dirs entry",
+    ),
+    files: parseRepoRelativePathArray(
+      "files" in rawValue ? rawValue.files : undefined,
+      "Deploy target runtime workspace files",
+      "Deploy target runtime workspace files entry",
+    ),
+    ...(mode === "full" ? { mode } : {}),
+  };
+}
+
 function parseRuntime(rawValue: unknown): DeployRuntimeSpec {
   if (
     typeof rawValue !== "object" ||
@@ -163,6 +244,7 @@ function parseRuntime(rawValue: unknown): DeployRuntimeSpec {
       "install",
       "pass_env",
       "required_host_env",
+      "workspace",
     ],
     "Deploy target runtime",
   );
@@ -200,6 +282,9 @@ function parseRuntime(rawValue: unknown): DeployRuntimeSpec {
       "required_host_env" in rawValue ? rawValue.required_host_env : undefined,
       "Deploy target runtime required_host_env",
       "Deploy target runtime required_host_env entry",
+    ),
+    workspace: parseWorkspace(
+      "workspace" in rawValue ? rawValue.workspace : undefined,
     ),
   };
 }

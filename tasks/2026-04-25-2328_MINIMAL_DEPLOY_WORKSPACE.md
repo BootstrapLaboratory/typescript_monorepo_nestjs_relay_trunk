@@ -42,9 +42,10 @@ mounts with a minimal per-target deploy workspace.
 Prefer a generic metadata-driven runtime workspace plan:
 
 - Target metadata declares what files/directories are needed at runtime.
-- The package manifest supplies the selected artifact path.
-- The deploy executor receives only the artifact and declared runtime support files.
-- Deploy tag updates should be considered separately from target runtime execution, so deploy containers do not need a full Git checkout just to push tags.
+- Artifact paths are explicit runtime workspace directories for now.
+- The deploy executor receives only declared runtime files/directories instead of the whole repo.
+- Deploy tag updates run through a framework-owned GitHub ref update, not
+  through target runtime shell commands or `.git` workspace mounts.
 
 ## Selected Metadata Shape
 
@@ -92,10 +93,12 @@ Rules:
   behavior.
 - There is no `mode: minimal`; minimal behavior is the default shape when
   `mode` is omitted.
+- Metadata validation checks workspace paths for safe repository-relative
+  syntax, but does not require those paths to exist in a clean checkout because
+  some workspace dirs are generated package artifacts.
 
 ## Open Decisions
 
-- Decide whether deploy tag updates should move out of target executors into the deploy orchestrator/source container.
 - Decide whether deploy scripts should be made artifact-root friendly instead of repo-root friendly.
 - Decide how much of this belongs in generic Dagger framework metadata versus target-specific YAML.
 
@@ -104,13 +107,13 @@ Rules:
 - [x] Identify the likely Dagger-specific server deploy regression from CI logs.
 - [x] Confirm the current deploy executor mounts the full workspace.
 - [x] Inspect the server deploy script for workspace assumptions.
-- [ ] Audit `deploy-server.sh` dependencies and classify each as artifact, support file, credential, socket, or Git operation.
-- [ ] Audit `deploy-webapp.sh` dependencies for the same minimal-workspace model.
+- [x] Audit `deploy-server.sh` dependencies and classify each as artifact, support file, credential, socket, or Git operation.
+- [x] Audit `deploy-webapp.sh` dependencies for the same minimal-workspace model.
 - [x] Propose the target metadata shape for runtime workspace includes.
 - [x] Decide how the full-workspace fallback is represented.
-- [ ] Decide how deploy tag updates should run without requiring a full workspace in every target executor.
-- [ ] Decide whether server Docker build should use `-f "${ARTIFACT_PATH}/apps/server/Dockerfile"` or receive a separate Dockerfile mount.
-- [ ] Add tests for runtime workspace planning.
-- [ ] Implement minimal workspace construction for deploy executors.
-- [ ] Run Dagger unit/type tests.
+- [x] Decide how deploy tag updates should run without requiring a full workspace in every target executor.
+- [x] Decide whether server Docker build should use `-f "${ARTIFACT_PATH}/apps/server/Dockerfile"` or receive a separate Dockerfile mount.
+- [x] Add tests for runtime workspace planning.
+- [x] Implement minimal workspace construction for deploy executors.
+- [x] Run Dagger unit/type tests.
 - [ ] Validate in real GitHub CI and record before/after server deploy timings.

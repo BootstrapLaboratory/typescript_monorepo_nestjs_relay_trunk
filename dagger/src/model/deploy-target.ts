@@ -3,6 +3,12 @@ export type FileMountSpec = {
   target: string;
 };
 
+export type DeployWorkspaceSpec = {
+  dirs: string[];
+  files: string[];
+  mode?: "full";
+};
+
 export type DeployRuntimeSpec = {
   dry_run_defaults: Record<string, string>;
   env: Record<string, string>;
@@ -11,6 +17,7 @@ export type DeployRuntimeSpec = {
   install: string[];
   pass_env: string[];
   required_host_env: string[];
+  workspace: DeployWorkspaceSpec;
 };
 
 export type DeployTargetDefinition = {

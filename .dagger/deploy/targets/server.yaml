@@ -3,6 +3,14 @@ deploy_script: deploy/cloudrun/scripts/deploy-server.sh
 
 runtime:
   image: node:24-bookworm-slim
+  workspace:
+    dirs:
+      - common/deploy/server
+      - deploy/cloudrun/scripts
+      - deploy/cloudrun/tests
+    files:
+      - apps/server/Dockerfile
+
   install:
     - apt-get update
     - apt-get install -y --no-install-recommends ca-certificates curl gnupg git

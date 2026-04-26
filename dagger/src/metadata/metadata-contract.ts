@@ -259,6 +259,26 @@ function validateDeployRuntime(
       );
     }
   }
+
+  if (runtime.workspace.mode === "full") {
+    return;
+  }
+
+  for (const directoryPath of runtime.workspace.dirs) {
+    validateRepoRelativePath(
+      directoryPath,
+      `Deploy target "${target}" runtime workspace dir`,
+      issues,
+    );
+  }
+
+  for (const filePath of runtime.workspace.files) {
+    validateRepoRelativePath(
+      filePath,
+      `Deploy target "${target}" runtime workspace file`,
+      issues,
+    );
+  }
 }
 
 function validateTargetIsRushProject(

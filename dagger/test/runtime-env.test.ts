@@ -23,6 +23,10 @@ const webappLikeSpec: DeployRuntimeSpec = {
   install: [],
   pass_env: ["CLOUDFLARE_PAGES_PROJECT_NAME", "WEBAPP_URL"],
   required_host_env: ["REQUIRED_ONLY_IN_LIVE_RUN"],
+  workspace: {
+    dirs: [],
+    files: [],
+  },
 };
 
 test("parses a flat deploy env file into a host env map", () => {

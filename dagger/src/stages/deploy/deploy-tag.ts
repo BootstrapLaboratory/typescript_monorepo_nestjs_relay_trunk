@@ -1,7 +1,3 @@
-const GIT_AUTHOR_NAME = "github-actions[bot]";
-const GIT_AUTHOR_EMAIL =
-  "41898282+github-actions[bot]@users.noreply.github.com";
-
 export function deployTagPrefixForEnvironment(environment: string): string {
   return `deploy/${environment}`;
 }
@@ -10,35 +6,161 @@ export function deployTagName(environment: string, target: string): string {
   return `${deployTagPrefixForEnvironment(environment)}/${target}`;
 }
 
-export function shellQuote(value: string): string {
-  return `'${value.replaceAll("'", "'\"'\"'")}'`;
+type GithubRefUpdateInput = {
+  apiUrl?: string;
+  gitSha: string;
+  repository: string;
+  tagName: string;
+};
+
+type GithubRefRequest = {
+  body: string;
+  method: "PATCH" | "POST";
+  url: string;
+};
+
+const FULL_GIT_SHA_PATTERN = /^[0-9a-f]{40}$/i;
+
+function requireNonEmpty(value: string | undefined, name: string): string {
+  if (value === undefined || value.length === 0) {
+    throw new Error(`${name} must be a non-empty string.`);
+  }
+
+  return value;
 }
 
-export function buildUpdateDeployTagCommand(
-  environment: string,
-  target: string,
-  gitSha: string,
-): string {
-  const tagName = deployTagName(environment, target);
-  const tagRef = `refs/tags/${tagName}`;
+function parseGithubRepository(value: string): string {
+  const repository = requireNonEmpty(value, "GitHub repository");
 
-  return [
-    `printf '[deploy-release] update deploy tag %s -> %s\\n' ${shellQuote(tagName)} ${shellQuote(gitSha)}`,
-    `git config user.name ${shellQuote(GIT_AUTHOR_NAME)}`,
-    `git config user.email ${shellQuote(GIT_AUTHOR_EMAIL)}`,
-    `git tag -f ${shellQuote(tagName)} ${shellQuote(gitSha)}`,
-    `git push origin ${shellQuote(tagRef)} --force`,
-  ].join(" && ");
+  if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u.test(repository)) {
+    throw new Error(
+      `GitHub repository must use owner/repo form, got "${repository}".`,
+    );
+  }
+
+  return repository;
+}
+
+function parseGithubApiUrl(value: string | undefined): string {
+  const apiUrl = value === undefined || value.length === 0
+    ? "https://api.github.com"
+    : value;
+
+  return apiUrl.replace(/\/+$/u, "");
+}
+
+function parseGitSha(value: string): string {
+  const gitSha = requireNonEmpty(value, "Git SHA");
+
+  if (!FULL_GIT_SHA_PATTERN.test(gitSha)) {
+    throw new Error("Git SHA must be a full 40-character SHA.");
+  }
+
+  return gitSha.toLowerCase();
+}
+
+function encodePath(value: string): string {
+  return value.split("/").map(encodeURIComponent).join("/");
+}
+
+export function buildGithubDeployTagUpdateRequests(
+  input: GithubRefUpdateInput,
+): {
+  create: GithubRefRequest;
+  update: GithubRefRequest;
+} {
+  const apiUrl = parseGithubApiUrl(input.apiUrl);
+  const repository = parseGithubRepository(input.repository);
+  const gitSha = parseGitSha(input.gitSha);
+  const tagName = requireNonEmpty(input.tagName, "Deploy tag name");
+  const ref = `refs/tags/${tagName}`;
+  const refPath = `tags/${tagName}`;
+
+  return {
+    create: {
+      body: JSON.stringify({
+        ref,
+        sha: gitSha,
+      }),
+      method: "POST",
+      url: `${apiUrl}/repos/${encodePath(repository)}/git/refs`,
+    },
+    update: {
+      body: JSON.stringify({
+        force: true,
+        sha: gitSha,
+      }),
+      method: "PATCH",
+      url: `${apiUrl}/repos/${encodePath(repository)}/git/refs/${encodePath(refPath)}`,
+    },
+  };
 }
 
 export function buildDeployTargetCommand(
   deployScript: string,
+): string {
+  return `bash ${deployScript}`;
+}
+
+async function assertGithubResponseOk(
+  response: Response,
+  action: string,
+): Promise<void> {
+  if (response.ok) {
+    return;
+  }
+
+  throw new Error(
+    `Failed to ${action}: GitHub API returned ${response.status} ${await response.text()}`,
+  );
+}
+
+export async function updateDeployTagWithGithubApi(
   environment: string,
   target: string,
   gitSha: string,
-): string {
-  return [
-    `bash ${deployScript}`,
-    buildUpdateDeployTagCommand(environment, target, gitSha),
-  ].join(" && ");
+  hostEnv: Record<string, string>,
+  tokenEnv: string,
+): Promise<string> {
+  const tagName = deployTagName(environment, target);
+
+  if (tokenEnv.length === 0) {
+    throw new Error("Deploy tag update requires a GitHub token env name.");
+  }
+
+  const token = requireNonEmpty(hostEnv[tokenEnv], `Host env ${tokenEnv}`);
+  const requests = buildGithubDeployTagUpdateRequests({
+    apiUrl: hostEnv.GITHUB_API_URL,
+    gitSha,
+    repository: hostEnv.GITHUB_REPOSITORY ?? "",
+    tagName,
+  });
+  const headers = {
+    Accept: "application/vnd.github+json",
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+    "X-GitHub-Api-Version": "2022-11-28",
+  };
+
+  console.log(`[deploy-release] update deploy tag ${tagName} -> ${gitSha}`);
+
+  const updateResponse = await fetch(requests.update.url, {
+    body: requests.update.body,
+    headers,
+    method: requests.update.method,
+  });
+
+  if (updateResponse.status !== 404) {
+    await assertGithubResponseOk(updateResponse, `update ${tagName}`);
+    return `[deploy-release] updated deploy tag ${tagName}\n`;
+  }
+
+  const createResponse = await fetch(requests.create.url, {
+    body: requests.create.body,
+    headers,
+    method: requests.create.method,
+  });
+  await assertGithubResponseOk(createResponse, `create ${tagName}`);
+
+  return `[deploy-release] created deploy tag ${tagName}\n`;
 }

@@ -334,3 +334,31 @@ test("reports cross-file metadata contract issues together", async () => {
     },
   );
 });
+
+test("reports unsafe deploy runtime workspace paths", async () => {
+  const files = validMetadataFiles();
+
+  files[".dagger/deploy/targets/server.yaml"] = [
+    "name: server",
+    "deploy_script: deploy/server.sh",
+    "runtime:",
+    "  image: node:24-bookworm-slim",
+    "  workspace:",
+    "    dirs:",
+    "      - ../server-artifact",
+    "",
+  ].join("\n");
+
+  await assert.rejects(
+    () =>
+      validateMetadataContractRepository(new MemoryMetadataRepository(files)),
+    (error) => {
+      assert.ok(error instanceof Error);
+      assert.match(
+        error.message,
+        /Deploy target "server" metadata file ".+server\.yaml" is invalid: Deploy target runtime workspace dirs entry must stay inside the repository\./,
+      );
+      return true;
+    },
+  );
+});

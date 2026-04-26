@@ -69,6 +69,26 @@
               }
             }
           }
+        },
+        "workspace": {
+          "type": "object",
+          "description": "Runtime workspace mounted into the deploy executor. Omit mode to mount only listed dirs/files; use mode=full for the whole repo.",
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "type": "string",
+              "const": "full",
+              "description": "Mount the full prepared repository at /workspace."
+            },
+            "dirs": {
+              "$ref": "#/$defs/repoRelativePathArray",
+              "description": "Repository-relative directories mounted under /workspace."
+            },
+            "files": {
+              "$ref": "#/$defs/repoRelativePathArray",
+              "description": "Repository-relative files mounted under /workspace."
+            }
+          }
         }
       }
     }
@@ -93,6 +113,30 @@
       "additionalProperties": {
         "type": "string"
       }
+    },
+    "repoRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "not": {
+        "anyOf": [
+          {
+            "pattern": "^/"
+          },
+          {
+            "pattern": "^[A-Za-z]:[\\\\/]"
+          },
+          {
+            "pattern": "(^|/)\\.\\.(/|$)"
+          }
+        ]
+      }
+    },
+    "repoRelativePathArray": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/repoRelativePath"
+      },
+      "uniqueItems": true
     }
   }
 }

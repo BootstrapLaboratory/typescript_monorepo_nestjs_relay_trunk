@@ -123,12 +123,8 @@ export async function workflow(
     `[workflow] mode=${ciPlan.mode} deploy_targets=${JSON.stringify(ciPlan.deploy_targets)} validate_targets=${JSON.stringify(ciPlan.validate_targets)}`,
   );
 
-  const gitAuthTokenEnv =
+  const deployTagTokenEnv =
     sourcePlan.mode === "git" ? (sourcePlan.auth?.tokenEnv ?? "") : "";
-  const gitAuthUsername =
-    sourcePlan.mode === "git"
-      ? (sourcePlan.auth?.username ?? "x-access-token")
-      : "x-access-token";
 
   return deployRelease(
     packagedRepo,
@@ -143,7 +139,6 @@ export async function workflow(
     toolchainImagePolicy,
     dockerSocket,
     repo,
-    gitAuthTokenEnv,
-    gitAuthUsername,
+    deployTagTokenEnv,
   );
 }
