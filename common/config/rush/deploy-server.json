@@ -42,7 +42,7 @@
    *
    * The default value is false.
    */
-  // "omitPnpmWorkaroundLinks": true,
+  "omitPnpmWorkaroundLinks": true,
 
   /**
    * Specify how links (symbolic links, hard links, and/or NTFS junctions) will be created in the deployed folder:
