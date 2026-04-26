@@ -18,7 +18,7 @@ env:
   DEPLOY_ARTIFACT_PREFIX: deploy-target
   DEPLOY_TAG_PREFIX: deploy/prod
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  RUSH_DELIVERY_MODULE: github.com/BootstrapLaboratory/rush-delivery@v0.2.2
+  RUSH_DELIVERY_MODULE: github.com/BootstrapLaboratory/rush-delivery@v0.2.3
   RUSH_CACHE_POLICY: lazy
   RUSH_CACHE_PROVIDER: github
   TOOLCHAIN_IMAGE_POLICY: lazy
