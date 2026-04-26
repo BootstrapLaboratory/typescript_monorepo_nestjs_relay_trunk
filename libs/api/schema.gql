@@ -16,6 +16,7 @@ type Mutation {
 input NewMessageInput {
   author: String
   body: String!
+  email: String
 }
 
 type Query {
