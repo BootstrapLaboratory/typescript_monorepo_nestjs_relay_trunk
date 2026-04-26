@@ -18,7 +18,6 @@ env:
   DEPLOY_ARTIFACT_PREFIX: deploy-target
   DEPLOY_TAG_PREFIX: deploy/prod
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  RUSH_DELIVERY_MODULE: github.com/BootstrapLaboratory/rush-delivery@v0.2.3
   RUSH_CACHE_POLICY: lazy
   RUSH_CACHE_PROVIDER: github
   TOOLCHAIN_IMAGE_POLICY: lazy
@@ -36,12 +35,6 @@ jobs:
       id-token: write
       packages: write
     steps:
-      - name: Install Dagger CLI
-        run: |
-          mkdir -p "${RUNNER_TEMP}/bin"
-          curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR="${RUNNER_TEMP}/bin" sh
-          echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
-
       - id: auth
         name: Authenticate to Google Cloud
         if: inputs.force_targets_json != '["webapp"]'
@@ -50,62 +43,30 @@ jobs:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
 
-      - name: Write Dagger deploy env file
-        run: |
-          cat > "${RUNNER_TEMP}/dagger-deploy.env" <<'EOF'
-          GCP_PROJECT_ID=${{ vars.GCP_PROJECT_ID }}
-          GCP_ARTIFACT_REGISTRY_REPOSITORY=${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}
-          CLOUD_RUN_SERVICE=${{ vars.CLOUD_RUN_SERVICE }}
-          CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT=${{ vars.CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT }}
-          CLOUD_RUN_CORS_ORIGIN=${{ vars.CLOUD_RUN_CORS_ORIGIN }}
-          CLOUD_RUN_REGION=${{ env.CLOUD_RUN_REGION }}
-          CLOUDFLARE_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID=${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CLOUDFLARE_PAGES_PROJECT_NAME=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
-          WEBAPP_VITE_GRAPHQL_HTTP=${{ vars.WEBAPP_VITE_GRAPHQL_HTTP }}
-          WEBAPP_VITE_GRAPHQL_WS=${{ vars.WEBAPP_VITE_GRAPHQL_WS }}
-          WEBAPP_URL=https://${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}.pages.dev
-          GITHUB_ACTOR=${{ github.actor }}
-          GITHUB_REPOSITORY=${{ github.repository }}
-          GITHUB_TOKEN=${{ github.token }}
-          EOF
-
-      - name: Prepare Dagger runtime files
-        run: |
-          mkdir -p "${RUNNER_TEMP}/rush-delivery-runtime-files"
-
-          credentials_file_path='${{ steps.auth.outputs.credentials_file_path }}'
-          if [[ -n "${credentials_file_path}" ]]; then
-            cp "${credentials_file_path}" \
-              "${RUNNER_TEMP}/rush-delivery-runtime-files/gcp-credentials.json"
-          fi
-
-      - name: Run Dagger workflow
-        env:
-          DAGGER_NO_NAG: "1"
-          FORCE_TARGETS_JSON: ${{ inputs.force_targets_json || '[]' }}
-          GITHUB_EVENT_NAME: ${{ github.event_name }}
-          PR_BASE_SHA: ""
-          SOURCE_REF: ${{ github.ref }}
-          SOURCE_REPOSITORY_URL: ${{ github.server_url }}/${{ github.repository }}.git
-        run: |
-          dagger -m "${RUSH_DELIVERY_MODULE}" call workflow \
-            --git-sha="${GITHUB_SHA}" \
-            --event-name="${GITHUB_EVENT_NAME}" \
-            --force-targets-json="${FORCE_TARGETS_JSON}" \
-            --pr-base-sha="${PR_BASE_SHA}" \
-            --deploy-tag-prefix="${DEPLOY_TAG_PREFIX}" \
-            --artifact-prefix="${DEPLOY_ARTIFACT_PREFIX}" \
-            --environment=prod \
-            --dry-run=false \
-            --deploy-env-file="${RUNNER_TEMP}/dagger-deploy.env" \
-            --toolchain-image-provider="${TOOLCHAIN_IMAGE_PROVIDER}" \
-            --toolchain-image-policy="${TOOLCHAIN_IMAGE_POLICY}" \
-            --rush-cache-provider="${RUSH_CACHE_PROVIDER}" \
-            --rush-cache-policy="${RUSH_CACHE_POLICY}" \
-            --source-mode=git \
-            --source-repository-url="${SOURCE_REPOSITORY_URL}" \
-            --source-ref="${SOURCE_REF}" \
-            --source-auth-token-env=GITHUB_TOKEN \
-            --runtime-files="${RUNNER_TEMP}/rush-delivery-runtime-files" \
-            --docker-socket=/var/run/docker.sock
+      - name: Run Rush Delivery
+        uses: BootstrapLaboratory/rush-delivery@v0.3.0
+        with:
+          force-targets-json: ${{ inputs.force_targets_json || '[]' }}
+          deploy-tag-prefix: ${{ env.DEPLOY_TAG_PREFIX }}
+          artifact-prefix: ${{ env.DEPLOY_ARTIFACT_PREFIX }}
+          environment: prod
+          dry-run: "false"
+          toolchain-image-provider: ${{ env.TOOLCHAIN_IMAGE_PROVIDER }}
+          toolchain-image-policy: ${{ env.TOOLCHAIN_IMAGE_POLICY }}
+          rush-cache-provider: ${{ env.RUSH_CACHE_PROVIDER }}
+          rush-cache-policy: ${{ env.RUSH_CACHE_POLICY }}
+          runtime-file-map: |
+            ${{ steps.auth.outputs.credentials_file_path }}=>gcp-credentials.json
+          deploy-env: |
+            GCP_PROJECT_ID=${{ vars.GCP_PROJECT_ID }}
+            GCP_ARTIFACT_REGISTRY_REPOSITORY=${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}
+            CLOUD_RUN_SERVICE=${{ vars.CLOUD_RUN_SERVICE }}
+            CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT=${{ vars.CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT }}
+            CLOUD_RUN_CORS_ORIGIN=${{ vars.CLOUD_RUN_CORS_ORIGIN }}
+            CLOUD_RUN_REGION=${{ env.CLOUD_RUN_REGION }}
+            CLOUDFLARE_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }}
+            CLOUDFLARE_ACCOUNT_ID=${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+            CLOUDFLARE_PAGES_PROJECT_NAME=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+            WEBAPP_VITE_GRAPHQL_HTTP=${{ vars.WEBAPP_VITE_GRAPHQL_HTTP }}
+            WEBAPP_VITE_GRAPHQL_WS=${{ vars.WEBAPP_VITE_GRAPHQL_WS }}
+            WEBAPP_URL=https://${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}.pages.dev
