@@ -33,10 +33,10 @@ runtime:
     - GCP_PROJECT_ID
 
   env:
-    CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: /tmp/gcp-credentials.json
+    CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: /runtime-files/gcp-credentials.json
     DOCKER_HOST: unix:///var/run/docker.sock
-    GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp-credentials.json
-    GOOGLE_GHA_CREDS_PATH: /tmp/gcp-credentials.json
+    GOOGLE_APPLICATION_CREDENTIALS: /runtime-files/gcp-credentials.json
+    GOOGLE_GHA_CREDS_PATH: /runtime-files/gcp-credentials.json
 
   dry_run_defaults:
     CLOUD_RUN_CORS_ORIGIN: https://example.invalid
@@ -46,9 +46,5 @@ runtime:
     GCP_ARTIFACT_REGISTRY_REPOSITORY: dry-run-repository
     GCP_PROJECT_ID: dry-run-project
 
-  required_host_env:
-    - GOOGLE_GHA_CREDS_PATH
-
   file_mounts:
-    - source_var: GOOGLE_GHA_CREDS_PATH
-      target: /tmp/gcp-credentials.json
+    - source: gcp-credentials.json

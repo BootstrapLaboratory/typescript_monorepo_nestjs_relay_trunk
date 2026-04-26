@@ -8,24 +8,17 @@ permissions:
 
 env:
   DAGGER_NO_NAG: "1"
+  RUSH_DELIVERY_MODULE: github.com/BootstrapLaboratory/rush-delivery@v0.2.0
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v5
-
       - name: Install Dagger CLI
         run: |
           mkdir -p "${RUNNER_TEMP}/bin"
           curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR="${RUNNER_TEMP}/bin" sh
           echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
 
-      - name: Prepare Dagger module
-        working-directory: dagger
-        run: dagger develop
-
       - name: Call Dagger bootstrap function
-        working-directory: dagger
-        run: dagger call ping
+        run: dagger -m "${RUSH_DELIVERY_MODULE}" call ping

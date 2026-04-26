@@ -18,6 +18,7 @@ env:
   DEPLOY_ARTIFACT_PREFIX: deploy-target
   DEPLOY_TAG_PREFIX: deploy/prod
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  RUSH_DELIVERY_MODULE: github.com/BootstrapLaboratory/rush-delivery@v0.2.0
   RUSH_CACHE_POLICY: lazy
   RUSH_CACHE_PROVIDER: github
   TOOLCHAIN_IMAGE_POLICY: lazy
@@ -35,11 +36,6 @@ jobs:
       id-token: write
       packages: write
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-
       - name: Install Dagger CLI
         run: |
           mkdir -p "${RUNNER_TEMP}/bin"
@@ -69,14 +65,22 @@ jobs:
           WEBAPP_VITE_GRAPHQL_HTTP=${{ vars.WEBAPP_VITE_GRAPHQL_HTTP }}
           WEBAPP_VITE_GRAPHQL_WS=${{ vars.WEBAPP_VITE_GRAPHQL_WS }}
           WEBAPP_URL=https://${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}.pages.dev
-          GOOGLE_GHA_CREDS_PATH=${{ steps.auth.outputs.credentials_file_path }}
           GITHUB_ACTOR=${{ github.actor }}
           GITHUB_REPOSITORY=${{ github.repository }}
           GITHUB_TOKEN=${{ github.token }}
           EOF
 
+      - name: Prepare Dagger runtime files
+        run: |
+          mkdir -p "${RUNNER_TEMP}/rush-delivery-runtime-files"
+
+          credentials_file_path='${{ steps.auth.outputs.credentials_file_path }}'
+          if [[ -n "${credentials_file_path}" ]]; then
+            cp "${credentials_file_path}" \
+              "${RUNNER_TEMP}/rush-delivery-runtime-files/gcp-credentials.json"
+          fi
+
       - name: Run Dagger workflow
-        working-directory: dagger
         env:
           DAGGER_NO_NAG: "1"
           FORCE_TARGETS_JSON: ${{ inputs.force_targets_json || '[]' }}
@@ -85,8 +89,7 @@ jobs:
           SOURCE_REF: ${{ github.ref }}
           SOURCE_REPOSITORY_URL: ${{ github.server_url }}/${{ github.repository }}.git
         run: |
-          dagger call workflow \
-            --repo=.. \
+          dagger -m "${RUSH_DELIVERY_MODULE}" call workflow \
             --git-sha="${GITHUB_SHA}" \
             --event-name="${GITHUB_EVENT_NAME}" \
             --force-targets-json="${FORCE_TARGETS_JSON}" \
@@ -96,7 +99,6 @@ jobs:
             --environment=prod \
             --dry-run=false \
             --deploy-env-file="${RUNNER_TEMP}/dagger-deploy.env" \
-            --host-workspace-dir="${GITHUB_WORKSPACE}" \
             --toolchain-image-provider="${TOOLCHAIN_IMAGE_PROVIDER}" \
             --toolchain-image-policy="${TOOLCHAIN_IMAGE_POLICY}" \
             --rush-cache-provider="${RUSH_CACHE_PROVIDER}" \
@@ -105,4 +107,5 @@ jobs:
             --source-repository-url="${SOURCE_REPOSITORY_URL}" \
             --source-ref="${SOURCE_REF}" \
             --source-auth-token-env=GITHUB_TOKEN \
+            --runtime-files="${RUNNER_TEMP}/rush-delivery-runtime-files" \
             --docker-socket=/var/run/docker.sock

@@ -52,22 +52,42 @@
         },
         "file_mounts": {
           "type": "array",
-          "description": "Host-file mounts sourced from required host env paths.",
+          "description": "Files mounted into the runtime container from the runtime files bundle or, for compatibility, host-file paths sourced from required host env paths.",
           "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["source_var", "target"],
-            "properties": {
-              "source_var": {
-                "$ref": "#/$defs/envName",
-                "description": "Host env key containing the source file path."
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["source"],
+                "properties": {
+                  "source": {
+                    "$ref": "#/$defs/repoRelativePath",
+                    "description": "Path inside the runtime files bundle. Defaults to the same path under /runtime-files."
+                  },
+                  "target": {
+                    "type": "string",
+                    "description": "Container path where the file is mounted.",
+                    "minLength": 1
+                  }
+                }
               },
-              "target": {
-                "type": "string",
-                "description": "Container path where the file is mounted.",
-                "minLength": 1
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["source_var", "target"],
+                "properties": {
+                  "source_var": {
+                    "$ref": "#/$defs/envName",
+                    "description": "Host env key containing the source file path."
+                  },
+                  "target": {
+                    "type": "string",
+                    "description": "Container path where the file is mounted.",
+                    "minLength": 1
+                  }
+                }
               }
-            }
+            ]
           }
         },
         "workspace": {

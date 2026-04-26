@@ -8,6 +8,7 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  RUSH_DELIVERY_MODULE: github.com/BootstrapLaboratory/rush-delivery@v0.2.0
 
 concurrency:
   group: ci-validate-${{ github.event.pull_request.number || github.ref }}
@@ -29,13 +30,12 @@ jobs:
           echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
 
       - name: Run Dagger validation
-        working-directory: dagger
         env:
           DAGGER_NO_NAG: "1"
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
         run: |
-          dagger call validate \
-            --repo=.. \
+          dagger -m "${RUSH_DELIVERY_MODULE}" call validate \
+            --repo=. \
             --event-name="${GITHUB_EVENT_NAME}" \
             --pr-base-sha="${PR_BASE_SHA}"
