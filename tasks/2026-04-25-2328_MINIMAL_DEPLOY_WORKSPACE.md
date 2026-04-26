@@ -46,12 +46,57 @@ Prefer a generic metadata-driven runtime workspace plan:
 - The deploy executor receives only the artifact and declared runtime support files.
 - Deploy tag updates should be considered separately from target runtime execution, so deploy containers do not need a full Git checkout just to push tags.
 
+## Selected Metadata Shape
+
+Use `runtime.workspace.mode: full` only when a target explicitly needs the whole
+workspace. If `mode` is omitted, the executor builds a small synthetic
+`/workspace` from optional `dirs` and `files`.
+
+Server target:
+
+```yaml
+runtime:
+  workspace:
+    dirs:
+      - common/deploy/server
+      - deploy/cloudrun/scripts
+      - deploy/cloudrun/tests
+    files:
+      - apps/server/Dockerfile
+```
+
+Webapp target:
+
+```yaml
+runtime:
+  workspace:
+    dirs:
+      - apps/webapp/dist
+      - deploy/cloudflare-pages/scripts
+```
+
+Full-workspace fallback:
+
+```yaml
+runtime:
+  workspace:
+    mode: full
+```
+
+Rules:
+
+- Omitted `runtime.workspace` means an empty synthetic workspace unless the
+  target metadata declares `dirs` or `files`.
+- Omitted `runtime.workspace.mode` means use `dirs` and `files`.
+- `mode: full` ignores `dirs` and `files` and preserves the current whole-repo
+  behavior.
+- There is no `mode: minimal`; minimal behavior is the default shape when
+  `mode` is omitted.
+
 ## Open Decisions
 
 - Decide whether deploy tag updates should move out of target executors into the deploy orchestrator/source container.
-- Decide the metadata shape for runtime workspace includes, for example `runtime.workspace.include`.
 - Decide whether deploy scripts should be made artifact-root friendly instead of repo-root friendly.
-- Decide whether to keep a full-workspace fallback for local/debug usage or remove it immediately.
 - Decide how much of this belongs in generic Dagger framework metadata versus target-specific YAML.
 
 ## Checklist
@@ -61,7 +106,8 @@ Prefer a generic metadata-driven runtime workspace plan:
 - [x] Inspect the server deploy script for workspace assumptions.
 - [ ] Audit `deploy-server.sh` dependencies and classify each as artifact, support file, credential, socket, or Git operation.
 - [ ] Audit `deploy-webapp.sh` dependencies for the same minimal-workspace model.
-- [ ] Propose the target metadata shape for runtime workspace includes.
+- [x] Propose the target metadata shape for runtime workspace includes.
+- [x] Decide how the full-workspace fallback is represented.
 - [ ] Decide how deploy tag updates should run without requiring a full workspace in every target executor.
 - [ ] Decide whether server Docker build should use `-f "${ARTIFACT_PATH}/apps/server/Dockerfile"` or receive a separate Dockerfile mount.
 - [ ] Add tests for runtime workspace planning.
