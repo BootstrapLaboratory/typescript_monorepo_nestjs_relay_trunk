@@ -1,23 +1,22 @@
-# Dagger Framework Contract
+# Rush Delivery Metadata Contract
 
-This repository uses the `rush-delivery` Dagger module as a reusable Rush-based
-CI framework. The project specifics live in Rush projects, package scripts,
-provider scripts, and `.dagger` metadata. Dagger TypeScript owns the shared
-orchestration mechanics.
+This repository consumes the external Rush Delivery framework from
+`BootstrapLaboratory/rush-delivery`. The shared Dagger module lives upstream;
+this app repo owns only project-specific metadata, provider scripts, and
+workflow wiring.
 
-Run the contract validator before changing target metadata:
+Run the metadata contract validator before changing target metadata:
 
 ```bash
-cd dagger
-dagger call validate-metadata-contract --repo=..
+dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.2 call validate-metadata-contract --repo=.
 ```
 
-The same validation also runs before the public Dagger release and validation
-entrypoints do expensive work.
+The same validation runs before the release and validation workflows do
+expensive work.
 
 ## Core Assumption
 
-Every Dagger target name should match a Rush `packageName` in
+Every Rush Delivery target name should match a Rush `packageName` in
 [rush.json](../../rush.json).
 
 That naming convention keeps the framework generic:
@@ -25,41 +24,44 @@ That naming convention keeps the framework generic:
 - Rush owns dependency-aware project selection and build ordering.
 - `.dagger` metadata describes how a Rush project participates in package,
   deploy, or validation stages.
-- Dagger does not need service-specific TypeScript when a new target is added.
+- Adding a target should mean adding metadata and provider/project scripts,
+  not editing framework TypeScript.
 
 ## Metadata Roots
 
-Deploy graph metadata:
+- Deploy graph metadata:
+  [.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml)
+- Deploy target metadata:
+  [.dagger/deploy/targets](../../.dagger/deploy/targets)
+- Package target metadata:
+  [.dagger/package/targets](../../.dagger/package/targets)
+- Validation target metadata:
+  [.dagger/validate/targets](../../.dagger/validate/targets)
+- Rush install cache provider metadata:
+  [.dagger/rush-cache/providers.yaml](../../.dagger/rush-cache/providers.yaml)
+- Toolchain image provider metadata:
+  [.dagger/toolchain-images/providers.yaml](../../.dagger/toolchain-images/providers.yaml)
 
-- [.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml)
-
-Deploy target metadata:
-
-- [.dagger/deploy/targets](../../.dagger/deploy/targets)
-
-Package target metadata:
-
-- [.dagger/package/targets](../../.dagger/package/targets)
-
-Validation target metadata:
-
-- [.dagger/validate/targets](../../.dagger/validate/targets)
-
-Runtime handoff files are generated under `.dagger/runtime` during Dagger runs.
-They are not source metadata.
+Runtime handoff files are generated under `.dagger/runtime` during Rush
+Delivery runs. They are not source metadata.
 
 ## Editor Schemas
 
-JSON Schemas for metadata files live under
-[.dagger/schemas](../../.dagger/schemas). VS Code maps those schemas through
-[.vscode/settings.json](../../.vscode/settings.json), with
+Rush Delivery publishes metadata schemas at:
+
+```text
+https://bootstraplaboratory.github.io/rush-delivery/schemas/*
+```
+
+VS Code maps this repository's `.dagger/**/*.yaml` files to those hosted
+schemas through [.vscode/settings.json](../../.vscode/settings.json), with
 `redhat.vscode-yaml` recommended in
 [.vscode/extensions.json](../../.vscode/extensions.json).
 
-Schemas validate each file's shape and catch typo-level mistakes while editing.
-The Dagger metadata contract validator remains the source of truth for
-cross-file checks such as Rush project membership, deploy graph dependencies,
-script existence, and package/deploy target pairing.
+Schemas catch file-shape mistakes while editing. The Rush Delivery metadata
+contract validator remains the source of truth for cross-file checks such as
+Rush project membership, deploy graph dependencies, script existence, and
+package/deploy target pairing.
 
 ## Deploy Graph
 
@@ -99,10 +101,10 @@ artifact:
 
 Supported artifact kinds:
 
-- `directory`: Dagger expects an already-built directory and exposes it in the
-  package manifest.
-- `rush_deploy_archive`: Dagger runs `rush deploy`, archives the output, and
-  exposes the archive in the package manifest.
+- `directory`: Rush Delivery expects an already-built directory and exposes it
+  in the package manifest.
+- `rush_deploy_archive`: Rush Delivery runs `rush deploy`, archives the output,
+  and exposes the archive in the package manifest.
 
 Rules:
 
@@ -121,9 +123,16 @@ deploy_script: deploy/cloudrun/scripts/deploy-server.sh
 
 runtime:
   image: node:24-bookworm-slim
+  workspace:
+    dirs:
+      - common/deploy/server
+      - deploy/cloudrun/scripts
+    files:
+      - apps/server/Dockerfile
+
   install:
     - apt-get update
-    - apt-get install -y ca-certificates curl git
+    - apt-get install -y --no-install-recommends ca-certificates curl git
 
   pass_env:
     - CLOUD_RUN_REGION
@@ -137,15 +146,16 @@ Rules:
 - `name` must match the metadata filename and Rush project name
 - `deploy_script` must be repository-relative and must exist
 - `runtime.image` defines the target executor container image
+- `runtime.workspace` limits which repo paths are mounted into the executor
 - `runtime.install` prepares target-specific tooling
 - `runtime.pass_env` is a 1:1 host env to executor env allowlist
 - every `pass_env` key must have a `dry_run_defaults` value
 - `runtime.env` defines static executor env literals
 - `runtime.required_host_env` validates host env needed for live runs
-- every file mount `source_var` must be listed in `required_host_env`
+- runtime file mounts reference files prepared by the CI adapter or local caller
 
 Docker socket access is intentionally not target metadata. It is a shared
-Dagger entrypoint argument because the Docker socket is a host capability, not a
+entrypoint argument because the Docker socket is a host capability, not a
 service property.
 
 ## Validation Metadata
@@ -154,7 +164,7 @@ Validation metadata is optional for Rush projects. If a project has no
 validation metadata, Rush `verify`, `lint`, `test`, and `build` are the full
 validation path for that project.
 
-When metadata exists, Dagger runs it generically:
+When metadata exists, Rush Delivery runs it generically:
 
 ```yaml
 name: server
@@ -189,10 +199,11 @@ Rules:
 5. Put project-specific behavior in the owning project, usually package scripts
    under `apps/<project>`.
 6. Put provider-specific deploy behavior under `deploy/<provider>/scripts`.
-7. Run `dagger call validate-metadata-contract --repo=..`.
+7. Run the metadata contract validator from the repository root.
 
-If validation passes, Dagger should be able to detect, build, package, and
-deploy the new target without adding target-specific TypeScript.
+If validation passes, Rush Delivery should be able to detect, build, package,
+deploy, and optionally validate the new target without target-specific
+framework changes.
 
 A copyable example target pack is available under
 [examples/rush-delivery/targets/worker](../../examples/rush-delivery/targets/worker).
@@ -225,5 +236,5 @@ The validator does not prove that:
 - external services such as Cloud Run, Cloudflare, npm, or container registries
   are reachable
 
-Those checks belong to the actual Dagger workflow, provider scripts, and live
-CI runs.
+Those checks belong to the actual Rush Delivery workflow, provider scripts, and
+live CI runs.

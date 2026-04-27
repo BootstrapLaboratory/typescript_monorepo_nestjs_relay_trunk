@@ -44,7 +44,7 @@ jobs:
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
 
       - name: Run Rush Delivery
-        uses: BootstrapLaboratory/rush-delivery@v0.3.0
+        uses: BootstrapLaboratory/rush-delivery@v0.3.2
         with:
           force-targets-json: ${{ inputs.force_targets_json || '[]' }}
           deploy-tag-prefix: ${{ env.DEPLOY_TAG_PREFIX }}

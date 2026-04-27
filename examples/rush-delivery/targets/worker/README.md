@@ -1,7 +1,7 @@
 # Rush Delivery Worker Target Example
 
 This directory is a copyable example for adding a new deployable Rush project
-to the `rush-delivery` Dagger framework.
+to a repository that consumes the external Rush Delivery framework.
 
 The example target is named `worker`. In a real project, replace `worker` with
 the Rush `packageName` of the project you are adding.
@@ -35,13 +35,12 @@ the Rush `packageName` of the project you are adding.
 5. Add the deploy script referenced by `deploy_script`.
 6. Optionally copy [validation-target.yaml](./validation-target.yaml) to
    `.dagger/validate/targets/worker.yaml`.
-7. Run the metadata validator:
+7. Run the metadata validator from the repository root:
 
 ```bash
-cd dagger
-dagger call validate-metadata-contract --repo=..
+dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.2 call validate-metadata-contract --repo=.
 ```
 
-If validation passes, the new target should participate in Dagger detect,
-build, package, deploy, and optional validation without target-specific Dagger
-TypeScript changes.
+If validation passes, the new target should participate in Rush Delivery
+detect, build, package, deploy, and optional validation without target-specific
+framework changes.

@@ -37,6 +37,9 @@ Deployment is orchestrated by one GitHub Actions workflow and then fanned out
 to the two runtime hosts:
 
 - GitHub Actions runs the unified [ci-release workflow](.github/workflows/ci-release.yaml).
+- The workflow uses the external
+  [Rush Delivery](https://github.com/BootstrapLaboratory/rush-delivery)
+  GitHub Action and the app-owned metadata under [.dagger](.dagger).
 - The backend is built from this monorepo and deployed to Google Cloud Run.
 - PostgreSQL is hosted on Neon.
 - Redis pub/sub is hosted on Upstash.

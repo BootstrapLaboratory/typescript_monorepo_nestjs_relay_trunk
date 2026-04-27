@@ -1,36 +1,30 @@
 stages:
-  - package
-  - deploy
+  - release
 
 variables:
-  DEPLOY_ARTIFACT_PREFIX: deploy-target
   CLOUD_RUN_REGION: europe-west4
   DAGGER_NO_NAG: "1"
-  GIT_DEPTH: "0"
+  DEPLOY_ARTIFACT_PREFIX: deploy-target
+  RUSH_DELIVERY_MODULE: github.com/BootstrapLaboratory/rush-delivery@v0.3.2
 
 .with_dagger:
   before_script:
     - mkdir -p "${CI_PROJECT_DIR}/.bin"
     - curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR="${CI_PROJECT_DIR}/.bin" sh
     - export PATH="${CI_PROJECT_DIR}/.bin:${PATH}"
-    - git fetch --force --tags origin
 
-deploy_release:
-  stage: deploy
+release:
+  stage: release
   extends: .with_dagger
-  needs:
-    - job: package_release
-      artifacts: true
   script:
+    - mkdir -p "${CI_PROJECT_DIR}/.dagger/runtime-files"
     - |
-      if [[ "${DEPLOY_TARGETS_JSON}" == *'"server"'* ]]; then
-        mkdir -p common/deploy
-        tar -xzf "${DEPLOY_ARTIFACT_PREFIX}-server.tgz" -C common/deploy
+      if [[ -n "${GCP_CREDENTIALS_FILE:-}" ]]; then
+        cp "${GCP_CREDENTIALS_FILE}" "${CI_PROJECT_DIR}/.dagger/runtime-files/gcp-credentials.json"
       fi
-    - cd dagger
-    - dagger develop
     - |
-      cat > "${CI_PROJECT_DIR}/dagger-deploy.env" <<EOF
+      cat > "${CI_PROJECT_DIR}/.dagger/deploy.env" <<EOF
+      SOURCE_AUTH_TOKEN=${SOURCE_AUTH_TOKEN}
       GCP_PROJECT_ID=${GCP_PROJECT_ID}
       GCP_ARTIFACT_REGISTRY_REPOSITORY=${GCP_ARTIFACT_REGISTRY_REPOSITORY}
       CLOUD_RUN_SERVICE=${CLOUD_RUN_SERVICE}
@@ -43,15 +37,26 @@ deploy_release:
       WEBAPP_VITE_GRAPHQL_HTTP=${WEBAPP_VITE_GRAPHQL_HTTP}
       WEBAPP_VITE_GRAPHQL_WS=${WEBAPP_VITE_GRAPHQL_WS}
       WEBAPP_URL=${WEBAPP_URL}
-      GOOGLE_GHA_CREDS_PATH=${GCP_CREDENTIALS_FILE}
+      GITHUB_ACTOR=gitlab-ci
+      GITHUB_REPOSITORY=${CI_PROJECT_PATH}
+      GITHUB_TOKEN=${SOURCE_AUTH_TOKEN}
       EOF
     - |
-      dagger call deploy-release \
+      dagger -m "${RUSH_DELIVERY_MODULE}" call workflow \
         --git-sha="${CI_COMMIT_SHA}" \
-        --release-targets-json="${DEPLOY_TARGETS_JSON}" \
+        --event-name="${CI_PIPELINE_SOURCE}" \
+        --force-targets-json="${FORCE_TARGETS_JSON:-[]}" \
+        --deploy-tag-prefix=deploy/prod \
+        --artifact-prefix="${DEPLOY_ARTIFACT_PREFIX}" \
         --environment=prod \
         --dry-run=false \
-        --deploy-env-file="${CI_PROJECT_DIR}/dagger-deploy.env" \
-        --package-manifest-file="${CI_PROJECT_DIR}/.dagger/runtime/package-manifest.json" \
-        --host-workspace-dir="${CI_PROJECT_DIR}" \
+        --deploy-env-file="${CI_PROJECT_DIR}/.dagger/deploy.env" \
+        --toolchain-image-provider=off \
+        --rush-cache-provider=off \
+        --source-mode=git \
+        --source-repository-url="${SOURCE_REPOSITORY_URL}" \
+        --source-ref="${CI_COMMIT_REF_NAME}" \
+        --source-auth-token-env=SOURCE_AUTH_TOKEN \
+        --source-auth-username=gitlab-ci-token \
+        --runtime-files="${CI_PROJECT_DIR}/.dagger/runtime-files" \
         --docker-socket=/var/run/docker.sock

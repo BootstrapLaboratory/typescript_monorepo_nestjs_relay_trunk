@@ -1,41 +1,36 @@
 # GitLab Release Example
 
-This note shows one way to invoke the lower-level Dagger deploy entrypoint from
-GitLab CI after your packaging stage has produced deploy artifacts.
+This note shows one way to invoke the external Rush Delivery Dagger module from
+GitLab CI. GitHub Actions is the supported production path for this repository,
+but the metadata contract is CI-provider neutral.
 
-The goal is not to create a second release architecture. The GitLab example
-reuses the same Dagger interface:
-
-- `dagger call deploy-release`
-
-It also uses the same repository metadata:
+The GitLab example uses the same repository metadata:
 
 - [.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml)
 - [.dagger/deploy/targets](../../.dagger/deploy/targets)
+- [.dagger/package/targets](../../.dagger/package/targets)
+- [.dagger/validate/targets](../../.dagger/validate/targets)
 
 ## Assumptions
 
 This example assumes:
 
-- a GitLab shell runner with `bash`, `curl`, `git`, `tar`, Docker, and
-  Node 24 already available
-- `/var/run/docker.sock` is available to the job when `server` is in
-  `DEPLOY_TARGETS_JSON`
-- an earlier package stage has already produced:
-  - `.dagger/runtime/package-manifest.json`
-  - `deploy-target-server.tgz` when `server` is selected
-  - `apps/webapp/dist/` when `webapp` is selected
-- the checked-out repository remote can push deploy tags back to `origin`
+- a GitLab runner with `bash`, `curl`, Docker, and `/var/run/docker.sock`
+  available
+- a token that can read the repository and tags
+- provider variables are available as GitLab CI variables
+- `GCP_CREDENTIALS_FILE` is a GitLab file variable when `server` can deploy
 
 ## Required Variables
 
 Common variables:
 
-- `DEPLOY_TARGETS_JSON`
+- `SOURCE_REPOSITORY_URL`
+- `SOURCE_AUTH_TOKEN`
 - `DEPLOY_ARTIFACT_PREFIX`
 - `CLOUD_RUN_REGION`
 
-Server variables when `server` is selected:
+Server variables:
 
 - `GCP_PROJECT_ID`
 - `GCP_ARTIFACT_REGISTRY_REPOSITORY`
@@ -44,15 +39,7 @@ Server variables when `server` is selected:
 - `CLOUD_RUN_CORS_ORIGIN`
 - `GCP_CREDENTIALS_FILE`
 
-`GCP_CREDENTIALS_FILE` should be a GitLab **file** variable so the environment
-variable contains the temporary file path to the JSON credentials. The GitLab
-wrapper writes that path into `GOOGLE_GHA_CREDS_PATH` inside the flat deploy env
-file that Dagger consumes. The wrapper also passes `--host-workspace-dir` so
-Dagger can convert absolute workspace-local file mount paths into repo-relative
-mounts. The wrapper passes
-`--docker-socket=/var/run/docker.sock` directly to `deploy-release`.
-
-Webapp variables when `webapp` is selected:
+Webapp variables:
 
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
@@ -66,24 +53,22 @@ Webapp variables when `webapp` is selected:
 The ready-to-adapt wrapper example lives at
 [../../examples/gitlab/ci-release.gitlab-ci.yml](../../examples/gitlab/ci-release.gitlab-ci.yml).
 
-It assumes your packaging job is named `package_release`; if your pipeline uses
-another name, update the `needs` entries in the example file.
+The example calls:
+
+```bash
+dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.2 call workflow
+```
+
+and passes `source-mode=git`, so Rush Delivery owns source acquisition the same
+way it does in GitHub Actions.
 
 ## Notes
 
-- This example intentionally keeps packaging outside Dagger. The current GitHub
-  release flow uses the higher-level Dagger `workflow` entrypoint documented in
-  [ReleaseFlow.md](./ReleaseFlow.md).
-- `deploy-release` computes and logs the deployment plan internally before
-  executing it, so GitLab does not need a separate planning stage.
-- `deploy-release` calls provider-owned target scripts from
-  [.dagger/deploy/targets](../../.dagger/deploy/targets), so deploy semantics
-  stay aligned across CI providers without keeping deploy adapters in a root CI
-  helper folder.
-- Dagger runtime behavior now comes from repo metadata under
-  [.dagger/deploy](../../.dagger/deploy), not from target-specific TypeScript
-  executor modules.
-- The generic Dagger deploy-tag update currently writes the git identity as
-  `github-actions[bot]`. That does not block GitLab execution, but if you want
-  provider-specific tag attribution, that is a follow-up hardening task rather
-  than part of this example.
+- The GitLab example is intentionally small and adapter-shaped. It prepares
+  runtime files and deploy env, then delegates detect, build, package, deploy,
+  and tag updates to Rush Delivery.
+- Deploy semantics stay aligned with GitHub Actions because both providers use
+  the same `.dagger` metadata and provider scripts.
+- If this repository starts using GitLab in production, prefer moving any
+  GitLab-specific hardening into the example wrapper rather than adding
+  provider-specific behavior to app metadata.

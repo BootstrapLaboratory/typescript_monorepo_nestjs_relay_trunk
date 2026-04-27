@@ -1,7 +1,7 @@
 # Release Flow Notes
 
-This repository uses GitHub Actions as the outer CI shell and Dagger as the
-release orchestrator.
+This repository uses GitHub Actions as the outer CI shell and the external Rush
+Delivery Dagger module as the release and validation orchestrator.
 
 ## Entry Points
 
@@ -17,22 +17,21 @@ release orchestrator.
 Both wrapper workflows call the same reusable release workflow with different
 `force_targets_json` inputs.
 
-The supported release path is the single-job Dagger workflow:
+The GitHub release workflow uses:
 
-```bash
-dagger call workflow
+```yaml
+uses: BootstrapLaboratory/rush-delivery@v0.3.2
 ```
 
-The supported pull-request validation path is:
+The pull-request validation workflow calls the same released module directly:
 
 ```bash
-dagger call validate
+dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.2 call validate
 ```
 
-Example invocation from another CI provider:
-
-- [GitLabReleaseExample.md](./GitLabReleaseExample.md)
-- [../../examples/gitlab/ci-release.gitlab-ci.yml](../../examples/gitlab/ci-release.gitlab-ci.yml)
+Framework implementation details live upstream in
+`BootstrapLaboratory/rush-delivery`. This repository owns the `.dagger`
+metadata and provider scripts that describe this app.
 
 ## Job Graph
 
@@ -42,12 +41,12 @@ The current GitHub Actions release graph is:
 
 Responsibilities:
 
-- GitHub checks out the repository, fetches deploy tags, installs the Dagger
-  CLI, prepares provider credentials, writes one flat deploy env file, and
-  calls Dagger `workflow`.
-- Dagger `workflow` computes the CI plan, builds selected deploy targets,
-  materializes deploy artifacts, writes the package manifest, computes the
-  deployment plan, and executes it.
+- GitHub authenticates to Google Cloud when server deployment may be needed.
+- The Rush Delivery action prepares runtime files, writes the deploy env file,
+  installs the Dagger CLI, and invokes the external module.
+- Rush Delivery acquires the source, validates metadata, computes the CI plan,
+  builds selected deploy targets, materializes deploy artifacts, writes the
+  package manifest, computes the deployment plan, and executes it.
 
 The current GitHub Actions validation graph is:
 
@@ -55,10 +54,10 @@ The current GitHub Actions validation graph is:
 
 Responsibilities:
 
-- GitHub checks out the repository, installs the Dagger CLI, and calls Dagger
-  `validate`.
-- Dagger `validate` computes affected Rush projects for pull requests, runs
-  Rush `verify`, `lint`, `test`, and `build` for those projects, and executes
+- GitHub checks out the repository so the validation command can pass `--repo=.`
+  to the external module.
+- Rush Delivery computes affected Rush projects for pull requests, runs Rush
+  `verify`, `lint`, `test`, and `build` for those projects, and executes
   optional validation metadata under `.dagger/validate`.
 - The validation workflow intentionally avoids deploy credentials, provider
   secrets, deploy env files, and Docker socket setup.
@@ -72,39 +71,28 @@ Responsibilities:
   [apps/webapp/dist](../../apps/webapp/dist) directory and exposed through the
   same package manifest.
 
-Dagger owns build and package materialization. GitHub Actions remains the
-provider-specific bootstrap and credentials adapter.
+Rush Delivery owns build and package materialization. GitHub Actions remains
+the provider-specific bootstrap and credentials adapter.
 
-## Dagger Responsibilities
+## Rush Delivery Responsibilities
 
-[dagger/src/index.ts](../../dagger/src/index.ts) exposes the deploy-flow
-entrypoints:
+Rush Delivery exposes reusable Dagger entrypoints upstream:
 
 - `workflow` composes detect, build, package, and deploy in one Dagger
   invocation.
-- `build-deploy-targets` reads `ci-plan.json` and runs the generic Rush
-  verify/lint/test/build stage for selected deploy targets.
-- `package-deploy-targets` reads `ci-plan.json`, materializes deploy artifacts
-  from `.dagger/package` metadata, and writes `package-manifest.json`.
-- `build-and-package-deploy-targets` composes those two stages for CI so the
-  packaged workspace can be exported once.
-- `deploy-release` executes the release through one generic target runtime
-  path. Planning stays internal to `deploy-release`, which computes and logs
-  deployment waves before executing them.
+- `build-deploy-targets`, `package-deploy-targets`, and
+  `build-and-package-deploy-targets` remain available for focused debugging.
+- `deploy-release` executes a release through generic target runtime metadata.
 - `validate` runs Dagger-owned pull-request validation for affected Rush
   projects and optional repository-owned validation scenarios.
 - `validate-metadata-contract` validates the cross-file Rush and `.dagger`
   metadata contract before expensive workflow stages run.
 
-The Dagger build and package entrypoints still exist for focused local or
-debugging calls. The operational GitHub release workflow now uses the composed
-`workflow` entrypoint.
-
 Deployment order comes from
 [.dagger/deploy/services-mesh.yaml](../../.dagger/deploy/services-mesh.yaml), so
 target ordering stays in one canonical place.
 
-The framework metadata contract is documented in
+The local metadata contract is documented in
 [DaggerFrameworkContract.md](./DaggerFrameworkContract.md). Use it when adding
 or changing deploy, package, or validation targets.
 
@@ -117,8 +105,9 @@ Those target YAML files define:
 
 - `deploy_script`
 - runtime image/toolchain preparation
+- workspace files mounted into the runtime
 - env pass-through and static env
-- file mounts
+- runtime file mounts
 - dry-run defaults and host-env requirements
 
 Deploy artifact locations come from the package-stage handoff file
@@ -127,41 +116,34 @@ and sets `ARTIFACT_PATH` from each artifact's `deploy_path`.
 
 ## Runtime Contract
 
-`deploy-release` still calls the portable target scripts directly:
+`deploy-release` calls the portable target scripts directly:
 
 - [deploy/cloudrun/scripts/deploy-server.sh](../../deploy/cloudrun/scripts/deploy-server.sh)
 - [deploy/cloudflare-pages/scripts/deploy-webapp.sh](../../deploy/cloudflare-pages/scripts/deploy-webapp.sh)
 
-GitHub passes release runtime values through one flat `KEY=VALUE` file:
+GitHub passes release runtime values through the Rush Delivery action's
+`deploy-env` input. The action turns that multiline `KEY=VALUE` block into the
+flat env file consumed by the module.
 
-- `dagger-deploy.env`
-
-That file carries:
-
-- 1:1 runtime env values such as `CLOUD_RUN_REGION`
-- host-side mount sources such as `GOOGLE_GHA_CREDS_PATH`
-
-For file-backed mounts, the workflow also passes `--host-workspace-dir` to
-the Dagger `workflow` entrypoint. That lets Dagger strip the checked-out
-workspace prefix from absolute host file paths and mount them from the
-repository context with `repo.file(...)` instead of requiring CI-side path
-rewriting.
+Credential files are passed through `runtime-file-map`. In this app the Google
+credentials file is copied to `gcp-credentials.json`, and server deploy
+metadata mounts that runtime file into the server executor.
 
 Docker socket handling is a shared special case instead of target YAML
-metadata. The wrapper passes `--docker-socket=/var/run/docker.sock` directly to
-the Dagger `workflow` entrypoint, which forwards it to deploy execution.
+metadata. The action passes `/var/run/docker.sock` to the workflow by default,
+and Rush Delivery forwards it to deploy execution when needed.
 
 Current target behavior:
 
 - `server` runs dist migrations, builds and pushes the backend image, deploys
   Cloud Run, and runs post-deploy smoke tests.
-- `webapp` publishes the prebuilt frontend with Wrangler, validates the
+- `webapp` publishes the prebuilt frontend with Wrangler and validates the
   deployed routes.
-- Dagger updates `deploy/<environment>/<target>` after the corresponding target
-  script succeeds.
+- Rush Delivery updates `deploy/<environment>/<target>` after the corresponding
+  target script succeeds.
 
 Dry-run is generic for every target. Instead of target-specific dry-run code,
-the Dagger runtime prints a summary of:
+the runtime prints a summary of:
 
 - target name
 - deploy tag
@@ -170,7 +152,7 @@ the Dagger runtime prints a summary of:
 - runtime image
 - install commands
 - env keys being exposed
-- file mounts being attached
+- runtime file mounts being attached
 - whether the shared Docker socket is attached
 
 ## Pull-Request Validation
@@ -179,10 +161,10 @@ Pull-request validation is intentionally separate from release execution:
 
 - [ci-validate.yaml](../../.github/workflows/ci-validate.yaml) runs on
   `pull_request` with `contents: read`.
-- It passes `github.event.pull_request.base.sha` to Dagger so the Rush affected
-  project list is computed inside the reusable Dagger code.
-- It does not pass deploy credentials, Cloud provider secrets, deploy env
-  files, or Docker socket access.
+- It passes `github.event.pull_request.base.sha` to Rush Delivery so the Rush
+  affected project list is computed inside the reusable module.
+- It does not pass deploy credentials, cloud provider secrets, deploy env files,
+  or Docker socket access.
 
 Validation target metadata lives under:
 
@@ -190,33 +172,32 @@ Validation target metadata lives under:
 
 If a Rush project has no validation metadata, Rush `verify`, `lint`, `test`,
 and `build` are the full validation for that project. When metadata exists,
-Dagger runs it generically: backing services, ordered command steps,
+Rush Delivery runs it generically: backing services, ordered command steps,
 foreground service steps, per-step environment, and service bindings are all
-declared by YAML instead of hardcoded in Dagger TypeScript.
+declared by YAML instead of hardcoded in this repository.
 
 ## Adding A Deploy Target
 
-To add a deployable Rush project, keep the framework generic and add metadata
-instead of editing Dagger internals. The full checklist is in
+To add a deployable Rush project, keep the framework generic and add metadata.
+The full checklist is in
 [DaggerFrameworkContract.md](./DaggerFrameworkContract.md).
 
-After editing metadata, run:
+After editing metadata, run from the repository root:
 
 ```bash
-cd dagger
-dagger call validate-metadata-contract --repo=..
+dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.2 call validate-metadata-contract --repo=.
 ```
 
 ## Operational Notes
 
-- The committed GraphQL contract is enforced during the Dagger build stage by
-  the server project's Rush `verify` script.
+- The committed GraphQL contract is enforced during the Rush Delivery build
+  stage by the server project's Rush `verify` script.
 - The reusable
   [ci-release.yaml](../../.github/workflows/ci-release.yaml) workflow is the
   operational source of truth for GitHub releases.
-- GitHub Actions remains the trigger, checkout, credentials, and host-runtime
-  boundary. Dagger owns deploy-target detection, build/package materialization,
-  deployment ordering, and release execution.
+- GitHub Actions remains the trigger, cloud credentials, and host-runtime
+  boundary. Rush Delivery owns source acquisition, deploy-target detection,
+  build/package materialization, deployment ordering, and release execution.
 - Pull-request validation is Dagger-owned through
   [ci-validate.yaml](../../.github/workflows/ci-validate.yaml) instead of a
   split-job GitHub artifact handoff.

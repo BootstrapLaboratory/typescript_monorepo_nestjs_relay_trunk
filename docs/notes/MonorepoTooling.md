@@ -5,7 +5,8 @@ This repository intentionally uses Rush and Nx for different jobs.
 ## Current Split
 
 - Rush is the source of truth for dependency installation, lockfile updates, CI builds, Docker builds, and deploy packaging.
-- Dagger owns release planning and deploy execution after packaged artifacts exist.
+- Rush Delivery owns release planning, deploy-target builds, package
+  materialization, and deploy execution.
 - Nx is used only for the local `npm run dev` experience.
 
 That split is deliberate.
@@ -47,8 +48,10 @@ purpose:
 This keeps the convenience of Nx in development without making Nx a required
 part of the install or deployment architecture.
 
-Dagger consumes those packaged outputs for release orchestration instead of
-replacing Rush's build and packaging responsibilities.
+Rush Delivery uses Rush for dependency-aware project selection, build ordering,
+and deploy packaging. The app repository supplies metadata and provider scripts;
+the reusable Dagger framework code lives upstream in
+`BootstrapLaboratory/rush-delivery`.
 
 ## Nx Caching Policy
 
