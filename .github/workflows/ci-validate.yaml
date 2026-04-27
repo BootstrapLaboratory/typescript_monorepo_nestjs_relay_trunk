@@ -6,10 +6,6 @@ on:
 permissions:
   contents: read
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  RUSH_DELIVERY_MODULE: github.com/BootstrapLaboratory/rush-delivery@v0.3.2
-
 concurrency:
   group: ci-validate-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -18,24 +14,7 @@ jobs:
   dagger-validate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v5
+      - name: Run Rush Delivery validation
+        uses: BootstrapLaboratory/rush-delivery@v0.3.3
         with:
-          fetch-depth: 0
-
-      - name: Install Dagger CLI
-        run: |
-          mkdir -p "${RUNNER_TEMP}/bin"
-          curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR="${RUNNER_TEMP}/bin" sh
-          echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
-
-      - name: Run Dagger validation
-        env:
-          DAGGER_NO_NAG: "1"
-          GITHUB_EVENT_NAME: ${{ github.event_name }}
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
-        run: |
-          dagger -m "${RUSH_DELIVERY_MODULE}" call validate \
-            --repo=. \
-            --event-name="${GITHUB_EVENT_NAME}" \
-            --pr-base-sha="${PR_BASE_SHA}"
+          entrypoint: validate
