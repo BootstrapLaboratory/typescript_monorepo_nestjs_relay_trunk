@@ -117,8 +117,8 @@ Rules:
 - [x] Implement minimal workspace construction for deploy executors.
 - [x] Run Dagger unit/type tests.
 - [x] Validate in real GitHub CI and record before/after server deploy timings.
-  Real production deploy validation completed on 2026-04-26. The workflow is
-  green, the application is running correctly on production, and the full
-  deploy job is about 4 minutes. Server Docker context transfer dropped from
-  about 172 MB to about 141 MB after enabling Rush deploy's
-  `omitPnpmWorkaroundLinks` option.
+
+Real production deploy validation completed on 2026-04-26. The workflow is
+green, the application is running correctly on production, and the full deploy
+job is about 4 minutes. Server Docker context transfer dropped from about 172 MB
+to about 141 MB after enabling Rush deploy's `omitPnpmWorkaroundLinks` option.
