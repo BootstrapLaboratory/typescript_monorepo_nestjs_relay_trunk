@@ -1,4 +1,4 @@
-name: deploy-server
+name: force-deploy-webapp
 
 on:
   workflow_dispatch:
@@ -6,12 +6,12 @@ on:
 permissions: {}
 
 jobs:
-  release:
+  force-webapp-deploy:
     permissions:
       contents: write
       id-token: write
       packages: write
     uses: ./.github/workflows/ci-release.yaml
     with:
-      force_targets_json: '["server"]'
+      force_targets_json: '["webapp"]'
     secrets: inherit

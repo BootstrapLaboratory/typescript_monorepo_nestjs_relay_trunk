@@ -130,8 +130,8 @@ framework tests, and framework docs now live in
 - [x] Run `trunk check -a`.
 - [ ] Run real `ci-validate.yaml` on a pull request.
 - [ ] Run real `ci-release.yaml` on `main` or via forced target workflow.
-- [ ] Confirm deploy-server and deploy-webapp wrapper workflows still force the
-      intended targets.
+- [ ] Confirm force-deploy-server and force-deploy-webapp wrapper workflows
+      still force the intended targets.
 
 ## Completion Criteria
 

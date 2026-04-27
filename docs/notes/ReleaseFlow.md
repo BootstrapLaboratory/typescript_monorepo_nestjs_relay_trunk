@@ -10,11 +10,11 @@ Delivery Dagger module as the release and validation orchestrator.
   `main`.
 - Pull-request validation runs through
   [ci-validate.yaml](../../.github/workflows/ci-validate.yaml).
-- Manual target-scoped releases use the wrapper workflows:
-  - [deploy-server.yaml](../../.github/workflows/deploy-server.yaml)
-  - [deploy-webapp.yaml](../../.github/workflows/deploy-webapp.yaml)
+- Manual target-scoped releases use the force-deploy wrapper workflows:
+  - [force-deploy-server.yaml](../../.github/workflows/force-deploy-server.yaml)
+  - [force-deploy-webapp.yaml](../../.github/workflows/force-deploy-webapp.yaml)
 
-Both wrapper workflows call the same reusable release workflow with different
+Both force-deploy workflows call the same reusable release workflow with different
 `force_targets_json` inputs.
 
 The GitHub release workflow uses:
