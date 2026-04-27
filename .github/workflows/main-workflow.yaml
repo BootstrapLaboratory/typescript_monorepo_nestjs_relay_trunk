@@ -1,4 +1,4 @@
-name: ci-release
+name: main-workflow
 
 on:
   push:
@@ -24,11 +24,11 @@ env:
   TOOLCHAIN_IMAGE_PROVIDER: github
 
 concurrency:
-  group: ci-release-${{ github.ref }}
+  group: main-workflow-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  dagger-workflow:
+  workflow:
     runs-on: ubuntu-latest
     permissions:
       contents: write

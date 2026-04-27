@@ -79,7 +79,7 @@ That order is encoded in:
 
 - [apps/webapp/package.json](../../apps/webapp/package.json)
 
-For release CI, [ci-release.yaml](../../.github/workflows/ci-release.yaml)
+For release CI, [main-workflow.yaml](../../.github/workflows/main-workflow.yaml)
 calls Dagger `workflow`. The committed `libs/api/schema.gql` snapshot is
 verified during the Dagger build stage by the server project's Rush `verify`
 script whenever `server` is in scope.

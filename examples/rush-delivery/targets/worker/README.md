@@ -38,7 +38,7 @@ the Rush `packageName` of the project you are adding.
 7. Run the metadata validator from the repository root:
 
 ```bash
-dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.2 call validate-metadata-contract --repo=.
+dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.3 call validate-metadata-contract --repo=.
 ```
 
 If validation passes, the new target should participate in Rush Delivery

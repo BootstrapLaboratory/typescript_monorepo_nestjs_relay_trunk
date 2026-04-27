@@ -1,4 +1,4 @@
-name: ci-validate
+name: pr-validate
 
 on:
   pull_request:
@@ -7,11 +7,11 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-validate-${{ github.event.pull_request.number || github.ref }}
+  group: pr-validate-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  dagger-validate:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Run Rush Delivery validation

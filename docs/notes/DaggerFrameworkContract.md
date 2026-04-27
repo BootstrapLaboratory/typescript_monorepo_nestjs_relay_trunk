@@ -8,7 +8,7 @@ workflow wiring.
 Run the metadata contract validator before changing target metadata:
 
 ```bash
-dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.2 call validate-metadata-contract --repo=.
+dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.3 call validate-metadata-contract --repo=.
 ```
 
 The same validation runs before the release and validation workflows do

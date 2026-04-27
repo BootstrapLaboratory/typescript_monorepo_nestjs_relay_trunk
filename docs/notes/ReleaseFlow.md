@@ -6,10 +6,10 @@ Delivery Dagger module as the release and validation orchestrator.
 ## Entry Points
 
 - Automatic releases run through
-  [ci-release.yaml](../../.github/workflows/ci-release.yaml) on pushes to
+  [main-workflow.yaml](../../.github/workflows/main-workflow.yaml) on pushes to
   `main`.
 - Pull-request validation runs through
-  [ci-validate.yaml](../../.github/workflows/ci-validate.yaml).
+  [pr-validate.yaml](../../.github/workflows/pr-validate.yaml).
 - Manual target-scoped releases use the force-deploy wrapper workflows:
   - [force-deploy-server.yaml](../../.github/workflows/force-deploy-server.yaml)
   - [force-deploy-webapp.yaml](../../.github/workflows/force-deploy-webapp.yaml)
@@ -20,13 +20,16 @@ Both force-deploy workflows call the same reusable release workflow with differe
 The GitHub release workflow uses:
 
 ```yaml
-uses: BootstrapLaboratory/rush-delivery@v0.3.2
+uses: BootstrapLaboratory/rush-delivery@v0.3.3
 ```
 
-The pull-request validation workflow calls the same released module directly:
+The pull-request validation workflow uses the same released action with
+`entrypoint: validate`:
 
-```bash
-dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.2 call validate
+```yaml
+uses: BootstrapLaboratory/rush-delivery@v0.3.3
+with:
+  entrypoint: validate
 ```
 
 Framework implementation details live upstream in
@@ -37,7 +40,7 @@ metadata and provider scripts that describe this app.
 
 The current GitHub Actions release graph is:
 
-1. `dagger-workflow`
+1. `workflow`
 
 Responsibilities:
 
@@ -50,7 +53,7 @@ Responsibilities:
 
 The current GitHub Actions validation graph is:
 
-1. `dagger-validate`
+1. `validate`
 
 Responsibilities:
 
@@ -159,7 +162,7 @@ the runtime prints a summary of:
 
 Pull-request validation is intentionally separate from release execution:
 
-- [ci-validate.yaml](../../.github/workflows/ci-validate.yaml) runs on
+- [pr-validate.yaml](../../.github/workflows/pr-validate.yaml) runs on
   `pull_request` with `contents: read`.
 - It passes `github.event.pull_request.base.sha` to Rush Delivery so the Rush
   affected project list is computed inside the reusable module.
@@ -185,7 +188,7 @@ The full checklist is in
 After editing metadata, run from the repository root:
 
 ```bash
-dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.2 call validate-metadata-contract --repo=.
+dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.3 call validate-metadata-contract --repo=.
 ```
 
 ## Operational Notes
@@ -193,11 +196,11 @@ dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.2 call validate-meta
 - The committed GraphQL contract is enforced during the Rush Delivery build
   stage by the server project's Rush `verify` script.
 - The reusable
-  [ci-release.yaml](../../.github/workflows/ci-release.yaml) workflow is the
+  [main-workflow.yaml](../../.github/workflows/main-workflow.yaml) workflow is the
   operational source of truth for GitHub releases.
 - GitHub Actions remains the trigger, cloud credentials, and host-runtime
   boundary. Rush Delivery owns source acquisition, deploy-target detection,
   build/package materialization, deployment ordering, and release execution.
 - Pull-request validation is Dagger-owned through
-  [ci-validate.yaml](../../.github/workflows/ci-validate.yaml) instead of a
+  [pr-validate.yaml](../../.github/workflows/pr-validate.yaml) instead of a
   split-job GitHub artifact handoff.

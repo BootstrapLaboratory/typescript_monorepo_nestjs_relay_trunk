@@ -36,7 +36,7 @@ GraphQL codegen ownership and clean-checkout build flow:
 Deployment is orchestrated by one GitHub Actions workflow and then fanned out
 to the two runtime hosts:
 
-- GitHub Actions runs the unified [ci-release workflow](.github/workflows/ci-release.yaml).
+- GitHub Actions runs the unified [main workflow](.github/workflows/main-workflow.yaml).
 - The workflow uses the external
   [Rush Delivery](https://github.com/BootstrapLaboratory/rush-delivery)
   GitHub Action and the app-owned metadata under [.dagger](.dagger).

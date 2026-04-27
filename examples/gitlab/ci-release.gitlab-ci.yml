@@ -5,7 +5,7 @@ variables:
   CLOUD_RUN_REGION: europe-west4
   DAGGER_NO_NAG: "1"
   DEPLOY_ARTIFACT_PREFIX: deploy-target
-  RUSH_DELIVERY_MODULE: github.com/BootstrapLaboratory/rush-delivery@v0.3.2
+  RUSH_DELIVERY_MODULE: github.com/BootstrapLaboratory/rush-delivery@v0.3.3
 
 .with_dagger:
   before_script:
