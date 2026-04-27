@@ -28,4 +28,4 @@ gha-creds-*.json
 /common/deploy/
 
 # NX
-.nx/
+.nx
