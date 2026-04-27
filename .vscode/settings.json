@@ -13,13 +13,5 @@
     "redhat",
     "rushstack",
     "yaml"
-  ],
-  "yaml.schemas": {
-    "https://bootstraplaboratory.github.io/rush-delivery/schemas/deploy-services-mesh.schema.json": ".dagger/deploy/services-mesh.yaml",
-    "https://bootstraplaboratory.github.io/rush-delivery/schemas/deploy-target.schema.json": ".dagger/deploy/targets/*.yaml",
-    "https://bootstraplaboratory.github.io/rush-delivery/schemas/package-target.schema.json": ".dagger/package/targets/*.yaml",
-    "https://bootstraplaboratory.github.io/rush-delivery/schemas/rush-cache-providers.schema.json": ".dagger/rush-cache/providers.yaml",
-    "https://bootstraplaboratory.github.io/rush-delivery/schemas/toolchain-image-providers.schema.json": ".dagger/toolchain-images/providers.yaml",
-    "https://bootstraplaboratory.github.io/rush-delivery/schemas/validation-target.schema.json": ".dagger/validate/targets/*.yaml"
-  }
+  ]
 }
