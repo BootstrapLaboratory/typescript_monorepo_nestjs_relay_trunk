@@ -128,9 +128,9 @@ framework tests, and framework docs now live in
       CI.
 - [x] Run a local dry-run release workflow with `source-mode=local_copy`.
 - [x] Run `trunk check -a`.
-- [ ] Run real `ci-validate.yaml` on a pull request.
-- [ ] Run real `ci-release.yaml` on `main` or via forced target workflow.
-- [ ] Confirm force-deploy-server and force-deploy-webapp wrapper workflows
+- [x] Run real `ci-validate.yaml` on a pull request.
+- [x] Run real `ci-release.yaml` on `main` or via forced target workflow.
+- [x] Confirm force-deploy-server and force-deploy-webapp wrapper workflows
       still force the intended targets.
 
 ## Completion Criteria
@@ -142,4 +142,4 @@ framework tests, and framework docs now live in
 - [x] Metadata uses hosted Rush Delivery schemas.
 - [x] Project docs explain only this app's Rush Delivery usage and metadata.
 - [x] Framework API docs are delegated to `BootstrapLaboratory/rush-delivery`.
-- [ ] Real CI is green after the cleanup.
+- [x] Real CI is green after the cleanup.
