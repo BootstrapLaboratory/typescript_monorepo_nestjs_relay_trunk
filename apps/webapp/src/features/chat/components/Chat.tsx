@@ -5,7 +5,7 @@ import {
 } from "react-relay";
 import MessageItem from "./Message";
 import MessageAddForm from "./MessageAddForm";
-import { useMemo } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import type { ChatQuery } from "../relay/__generated__/ChatQuery.graphql";
 import type { ChatMessageAddedSubscription } from "../relay/__generated__/ChatMessageAddedSubscription.graphql";
 import type { GraphQLSubscriptionConfig } from "relay-runtime";
@@ -26,8 +26,10 @@ type ChatProps = {
 
 export default function Chat({ queryRef }: ChatProps) {
   const data = usePreloadedQuery<ChatQuery>(ChatPageQuery, queryRef);
+  const messagesRef = useRef<HTMLUListElement>(null);
 
   const messages = data.getMessages?.filter((m) => m != null) ?? [];
+  const lastMessageId = messages[messages.length - 1]?.id ?? null;
   const realtimeConnectionState = useRealtimeConnectionState();
   const realtimeConnectionMessage = getRealtimeConnectionMessage(
     realtimeConnectionState,
@@ -51,6 +53,15 @@ export default function Chat({ queryRef }: ChatProps) {
   );
 
   useSubscription<ChatMessageAddedSubscription>(subscriptionConfig);
+
+  useLayoutEffect(() => {
+    const messagesElement = messagesRef.current;
+    if (!messagesElement) {
+      return;
+    }
+
+    messagesElement.scrollTop = messagesElement.scrollHeight;
+  }, [messages.length, lastMessageId]);
 
   const statusClass =
     realtimeConnectionState.status === "retrying"
@@ -77,7 +88,7 @@ export default function Chat({ queryRef }: ChatProps) {
             {realtimeConnectionMessage}
           </p>
         ) : null}
-        <ul className={styles.messages}>
+        <ul className={styles.messages} ref={messagesRef}>
           {messages.map((msg) => (
             <MessageItem key={msg.id} message={msg} />
           ))}
