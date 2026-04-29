@@ -1,30 +1,33 @@
-import type { ChatQuery } from "./__generated__/ChatQuery.graphql";
-import { graphql, useLazyLoadQuery, useSubscription } from "react-relay";
+import {
+  usePreloadedQuery,
+  useSubscription,
+  type PreloadedQuery,
+} from "react-relay";
 import MessageItem from "./Message";
 import MessageAddForm from "./MessageAddForm";
 import { useMemo } from "react";
-import type { ChatMessageAddedSubscription } from "./__generated__/ChatMessageAddedSubscription.graphql";
+import type { ChatQuery } from "../relay/__generated__/ChatQuery.graphql";
+import type { ChatMessageAddedSubscription } from "../relay/__generated__/ChatMessageAddedSubscription.graphql";
 import type { GraphQLSubscriptionConfig } from "relay-runtime";
-import { appendRootFieldRecordIfMissing } from "./store";
+import { appendRootFieldRecordIfMissing } from "../../../shared/relay/store";
 import {
   getRealtimeConnectionMessage,
   useRealtimeConnectionState,
-} from "../../realtime-connection";
+} from "../../../shared/realtime/realtime-connection";
+import { Surface } from "../../../ui/Surface";
+import { cx } from "../../../ui/classNames";
+import * as styles from "./Chat.css";
+import { ChatPageQuery } from "../relay/Chat.query";
+import { ChatMessageAddedSubscriptionNode } from "../relay/ChatMessageAdded.subscription";
 
-export default function Chat() {
-  const data = useLazyLoadQuery<ChatQuery>(
-    graphql`
-      query ChatQuery {
-        getMessages {
-          id
-          ...Message_item
-        }
-      }
-    `,
-    {},
-  );
+type ChatProps = {
+  queryRef: PreloadedQuery<ChatQuery>;
+};
 
-  const messages = data?.getMessages?.filter((m) => m != null);
+export default function Chat({ queryRef }: ChatProps) {
+  const data = usePreloadedQuery<ChatQuery>(ChatPageQuery, queryRef);
+
+  const messages = data.getMessages?.filter((m) => m != null) ?? [];
   const realtimeConnectionState = useRealtimeConnectionState();
   const realtimeConnectionMessage = getRealtimeConnectionMessage(
     realtimeConnectionState,
@@ -38,14 +41,7 @@ export default function Chat() {
     GraphQLSubscriptionConfig<ChatMessageAddedSubscription>
   >(
     () => ({
-      subscription: graphql`
-        subscription ChatMessageAddedSubscription {
-          MessageAdded {
-            id
-            ...Message_item
-          }
-        }
-      `,
+      subscription: ChatMessageAddedSubscriptionNode,
       variables: {},
       updater: (store) => {
         appendRootFieldRecordIfMissing(store, "MessageAdded", "getMessages");
@@ -56,20 +52,27 @@ export default function Chat() {
 
   useSubscription<ChatMessageAddedSubscription>(subscriptionConfig);
 
+  const statusClass =
+    realtimeConnectionState.status === "retrying"
+      ? styles.chatStatusRetrying
+      : realtimeConnectionState.status === "disconnected"
+        ? styles.chatStatusDisconnected
+        : undefined;
+
   return (
-    <div className="card">
-      <div className="chat">
-        <h1>Anonymous Chat</h1>
+    <Surface tone="raised" className={styles.chatSurface}>
+      <div className={styles.chat}>
+        <h1 className={styles.title}>Anonymous Chat</h1>
         {realtimeConnectionMessage ? (
           <p
-            className={`chat-status chat-status--${realtimeConnectionState.status}`}
+            className={cx(styles.chatStatus, statusClass)}
             role="status"
             aria-live="polite"
           >
             {realtimeConnectionMessage}
           </p>
         ) : null}
-        <ul className="messages">
+        <ul className={styles.messages}>
           {messages.map((msg) => (
             <MessageItem key={msg.id} message={msg} />
           ))}
@@ -81,6 +84,6 @@ export default function Chat() {
           liveUpdatesUnavailableMessage={realtimeConnectionMessage}
         />
       </div>
-    </div>
+    </Surface>
   );
 }

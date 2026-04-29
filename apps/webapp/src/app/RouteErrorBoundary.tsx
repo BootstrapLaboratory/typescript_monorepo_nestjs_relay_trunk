@@ -1,4 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import { Button } from "../ui/Button";
+import { Surface } from "../ui/Surface";
+import * as statusStyles from "../ui/status.css";
 
 type RouteErrorBoundaryProps = {
   children: ReactNode;
@@ -37,18 +40,24 @@ export class RouteErrorBoundary extends Component<
     }
 
     return (
-      <section className="route-error" role="alert">
-        <p className="info-page__eyebrow">Route load failed</p>
-        <h1>Could not finish loading this page.</h1>
-        <p>
+      <Surface tone="muted" className={statusStyles.statusPanel} role="alert">
+        <div>
+          <p className={statusStyles.eyebrow}>Route load failed</p>
+          <h1 className={statusStyles.statusTitle}>
+            Could not finish loading this page.
+          </h1>
+        </div>
+        <p className={statusStyles.statusText}>
           The application could not load the assets for{" "}
           <code>{this.props.pathname}</code>. A fresh reload usually resolves
           this after a deployment.
         </p>
-        <button type="button" onClick={() => window.location.reload()}>
-          Reload page
-        </button>
-      </section>
+        <div>
+          <Button variant="secondary" onClick={() => window.location.reload()}>
+            Reload page
+          </Button>
+        </div>
+      </Surface>
     );
   }
 }

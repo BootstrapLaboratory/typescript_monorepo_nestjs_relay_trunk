@@ -6,8 +6,12 @@ Cloudflare Pages build output.
 ## Runtime Shape
 
 - Framework: React with Vite.
+- Routing: TanStack Router in code-based mode.
 - Data layer: Relay over GraphQL HTTP for queries/mutations.
 - Realtime: `graphql-ws` subscriptions wired into Relay.
+- Styling: vanilla-extract tokens and component-local style modules.
+- UI primitives: app-owned wrappers in `src/ui`, with Radix UI primitives used
+  behind those wrappers when accessible behavior is needed.
 - Contract source: `libs/api/schema.gql`.
 
 The build script intentionally runs Relay codegen before TypeScript and Vite:
@@ -21,17 +25,77 @@ hand-edit them.
 
 ## UI Shape
 
-The current app is intentionally small:
+- `src/main.tsx` only installs global browser recovery and mounts React.
+- `src/app/AppProviders.tsx` creates the Relay environment, creates the router,
+  and wires top-level providers.
+- `src/app/router.tsx` owns the TanStack Router tree and passes the Relay
+  environment to route loaders through router context.
+- `src/app/AppShell.tsx` owns the persistent navigation shell.
+- `src/routes` owns route adapters only. Route files may read route loader data,
+  params, or search state and pass them to feature pages. They should not own
+  visual page composition, static assets, or page styles.
+- `src/features/chat` owns chat queries, mutations, subscriptions, fragments,
+  page composition, static assets, and feature styles.
+- `src/features/project-info` owns the README-backed info page and markdown
+  rendering.
+- `src/features/navigation` owns navigation-adjacent pages such as not found.
+- Feature folders should use consistent internal folders when they grow:
+  `pages` for route-facing feature pages, `components` for feature-local
+  building blocks, `relay` for feature GraphQL documents, and `assets` for
+  feature-owned static files.
+- `src/shared/graphql` owns browser GraphQL endpoint resolution.
+- `src/shared/relay` owns Relay environment creation and reusable Relay store
+  helpers.
+- `src/shared/realtime` owns websocket retry, heartbeat, Cloud Run connection
+  termination recovery, and user-visible realtime connection state.
+- `src/shared/theme` owns persisted theme selection and applies the active
+  theme class to the document root.
+- `src/shared/vite` owns Vite preload recovery for stale deployment chunks.
+- `src/ui` owns design tokens, styling primitives, and small reusable UI
+  components. Feature components should depend on `src/ui` rather than directly
+  depending on a styling framework.
 
-- `components/App.tsx` owns the lightweight client-side route switch.
-- `components/chat` owns chat queries, mutations, subscriptions, and Relay store
-  updates.
-- `components/info` renders the README-backed info page.
-- `realtime-connection.ts` owns WebSocket retry, heartbeat, and user-visible
-  connection state.
+Keep top-level provider wiring in `src/app/AppProviders.tsx`. Keep transport
+details in `src/shared`. Keep route definitions and route data preloading in
+`src/app/router.tsx`. Keep component behavior inside feature folders.
 
-Keep transport and Relay environment wiring in `src/main.tsx`; keep component
-behavior inside feature folders.
+## Routing And Relay
+
+Routes that need Relay data should start the Relay request in the route loader
+with `loadQuery` and return the preloaded query reference without awaiting the
+network. The route component should render the page shell immediately and put
+the data-bound region behind Suspense with `usePreloadedQuery`. This keeps menu
+navigation and page switching responsive while data loading remains visible in
+the target page.
+
+Dispose preloaded query references from the loader's abort signal when the
+route match is no longer active. Routes holding Relay query references should
+avoid long-lived router data caches unless they also own the matching Relay
+retain/dispose lifecycle.
+
+GraphQL subscriptions must use Relay's subscription network from
+`src/shared/relay/environment.ts`. Feature code should call Relay subscription
+hooks and must not create its own websocket client. `src/shared/realtime`
+centralizes the websocket retry policy, heartbeat timeout, browser offline
+tracking, fatal close-code handling, and Cloud Run persistent-connection
+termination recovery so every subscription feature gets the same behavior.
+
+## Styling Boundary
+
+Use `src/ui/tokens.css.ts` for the vanilla-extract theme contract,
+`src/ui/themes.css.ts` for available theme implementations, `src/ui/theme.css.ts`
+for global document styles, and vanilla-extract `.css.ts` files for
+component-local styles. Reusable controls should be implemented in `src/ui`
+first and consumed by features as semantic components such as `Button`,
+`TextField`, `SelectField`, `Link`, and `Surface`. This keeps the app resilient
+if the styling implementation later moves to CSS Modules, Panda, Tailwind, or
+another system.
+
+Add selectable visual themes by extending `THEME_NAMES` and
+`themeClassByName` in `src/ui/themes.css.ts`. Every theme must satisfy the same
+token contract, so missing token implementations fail TypeScript/build.
+Components should consume semantic tokens from `vars` instead of branching on
+individual theme names.
 
 ## Deployment Boundary
 

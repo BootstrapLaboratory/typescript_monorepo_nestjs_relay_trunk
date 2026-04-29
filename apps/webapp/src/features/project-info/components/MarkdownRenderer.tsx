@@ -1,5 +1,6 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import * as styles from "./MarkdownRenderer.css";
 
 const PROJECT_REPOSITORY_URL =
   "https://github.com/BootstrapLaboratory/typescript_monorepo_nestjs_relay_trunk";
@@ -20,7 +21,7 @@ function normalizeLinkTarget(href: string): string {
 
 export function MarkdownRenderer({ markdown }: { markdown: string }) {
   return (
-    <div className="markdown-content">
+    <div className={styles.root}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
@@ -37,7 +38,7 @@ export function MarkdownRenderer({ markdown }: { markdown: string }) {
       >
         {markdown}
       </ReactMarkdown>
-      <p className="markdown-footer">
+      <p className={styles.footer}>
         Source document:{" "}
         <a
           href={`${PROJECT_REPOSITORY_BLOB_URL}/README.md`}

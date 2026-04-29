@@ -1,0 +1,53 @@
+import { createThemeContract } from "@vanilla-extract/css";
+
+export const vars = createThemeContract({
+  colorScheme: null,
+  color: {
+    canvas: null,
+    surface: null,
+    surfaceMuted: null,
+    surfaceRaised: null,
+    text: null,
+    textMuted: null,
+    border: null,
+    borderStrong: null,
+    accent: null,
+    accentHover: null,
+    accentSoft: null,
+    accentText: null,
+    link: null,
+    logoGlow: null,
+    warningText: null,
+    warningSurface: null,
+    dangerText: null,
+    dangerSurface: null,
+    codeSurface: null,
+    codeBlock: null,
+    codeBlockText: null,
+  },
+  font: {
+    body: null,
+    mono: null,
+  },
+  space: {
+    0: null,
+    1: null,
+    2: null,
+    3: null,
+    4: null,
+    5: null,
+    6: null,
+    8: null,
+    10: null,
+    12: null,
+  },
+  radius: {
+    sm: null,
+    md: null,
+    lg: null,
+  },
+  shadow: {
+    sm: null,
+    md: null,
+  },
+});
