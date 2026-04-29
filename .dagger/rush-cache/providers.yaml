@@ -1,12 +1,7 @@
-# yaml-language-server: $schema=https://bootstraplaboratory.github.io/rush-delivery/schemas/rush-cache-providers.schema.json
+# yaml-language-server: $schema=https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.4.1/rush-cache-providers.schema.json
 
 cache:
   version: v1
-  key_files:
-    - rush.json
-    - common/config/rush/pnpm-lock.yaml
-    - common/config/rush/pnpm-config.json
-    - common/config/rush/version-policies.json
   paths:
     - common/temp/install-run
     - common/temp/node_modules

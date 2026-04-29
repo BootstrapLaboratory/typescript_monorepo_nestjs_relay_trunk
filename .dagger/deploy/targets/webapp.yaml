@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://bootstraplaboratory.github.io/rush-delivery/schemas/deploy-target.schema.json
+# yaml-language-server: $schema=https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.4.1/deploy-target.schema.json
 
 name: webapp
 deploy_script: deploy/cloudflare-pages/scripts/deploy-webapp.sh

@@ -20,6 +20,4 @@ jobs:
         with:
           entrypoint: validate
           toolchain-image-provider: github
-          toolchain-image-policy: pull-or-build
           rush-cache-provider: github
-          rush-cache-policy: pull-or-build

@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://bootstraplaboratory.github.io/rush-delivery/schemas/deploy-services-mesh.schema.json
+# yaml-language-server: $schema=https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.4.1/deploy-services-mesh.schema.json
 
 services:
   server:

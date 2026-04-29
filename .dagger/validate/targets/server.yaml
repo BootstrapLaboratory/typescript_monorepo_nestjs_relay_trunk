@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://bootstraplaboratory.github.io/rush-delivery/schemas/validation-target.schema.json
+# yaml-language-server: $schema=https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.4.1/validation-target.schema.json
 
 name: server
 
