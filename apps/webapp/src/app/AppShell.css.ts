@@ -1,10 +1,12 @@
 import { style } from "@vanilla-extract/css";
+import { themeColorTransition } from "../ui/motion.css";
 import { vars } from "../ui/tokens.css";
 
 export const shell = style({
   minHeight: "100vh",
   background: vars.color.canvas,
   color: vars.color.text,
+  ...themeColorTransition,
 });
 
 export const shellInner = style({
@@ -26,6 +28,7 @@ export const nav = style({
   background: `color-mix(in oklab, ${vars.color.surface} 85%, transparent)`,
   backdropFilter: "blur(8px)",
   WebkitBackdropFilter: "blur(8px)",
+  ...themeColorTransition,
   "@media": {
     "screen and (max-width: 640px)": {
       alignItems: "flex-start",
@@ -68,8 +71,7 @@ export const navLink = style({
   color: vars.color.textMuted,
   fontSize: "0.875rem",
   fontWeight: 500,
-  transition:
-    "background-color 150ms ease, border-color 150ms ease, color 150ms ease",
+  ...themeColorTransition,
   selectors: {
     "&:hover": {
       borderColor: vars.color.borderStrong,

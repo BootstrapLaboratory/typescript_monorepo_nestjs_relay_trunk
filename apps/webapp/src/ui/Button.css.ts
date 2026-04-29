@@ -1,4 +1,5 @@
 import { recipe, type RecipeVariants } from "@vanilla-extract/recipes";
+import { themeColorTransition } from "./motion.css";
 import { vars } from "./tokens.css";
 
 export const button = recipe({
@@ -14,8 +15,7 @@ export const button = recipe({
     fontWeight: 500,
     lineHeight: 1,
     textDecoration: "none",
-    transition:
-      "background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease",
+    ...themeColorTransition,
     selectors: {
       "&:focus-visible": {
         outline: `2px solid ${vars.color.accent}`,

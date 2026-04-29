@@ -1,4 +1,5 @@
 import { recipe, type RecipeVariants } from "@vanilla-extract/recipes";
+import { themeColorTransition } from "./motion.css";
 import { vars } from "./tokens.css";
 
 export const link = recipe({
@@ -9,7 +10,7 @@ export const link = recipe({
     fontWeight: 500,
     textDecoration: "none",
     textUnderlineOffset: "4px",
-    transition: "color 150ms ease, border-color 150ms ease, background-color 150ms ease",
+    ...themeColorTransition,
     selectors: {
       "&:hover": {
         color: vars.color.accentHover,

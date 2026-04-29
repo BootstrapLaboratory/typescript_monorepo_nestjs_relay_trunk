@@ -1,10 +1,12 @@
 import { recipe, type RecipeVariants } from "@vanilla-extract/recipes";
+import { themeColorTransition } from "./motion.css";
 import { vars } from "./tokens.css";
 
 export const surface = recipe({
   base: {
     border: `1px solid ${vars.color.border}`,
     borderRadius: vars.radius.lg,
+    ...themeColorTransition,
   },
   variants: {
     tone: {

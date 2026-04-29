@@ -1,4 +1,8 @@
 import { style } from "@vanilla-extract/css";
+import {
+  themeColorTransition,
+  themeColorTransitionProperties,
+} from "./motion.css";
 import { vars } from "./tokens.css";
 
 export const textField = style({
@@ -11,7 +15,8 @@ export const textField = style({
   color: vars.color.text,
   fontSize: "0.875rem",
   outline: "none",
-  transition: "border-color 150ms ease, opacity 150ms ease",
+  ...themeColorTransition,
+  transitionProperty: `${themeColorTransitionProperties}, opacity`,
   selectors: {
     "&::placeholder": {
       color: vars.color.textMuted,

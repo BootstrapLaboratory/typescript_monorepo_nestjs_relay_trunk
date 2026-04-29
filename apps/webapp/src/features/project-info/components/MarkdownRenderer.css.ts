@@ -1,4 +1,5 @@
 import { globalStyle, style } from "@vanilla-extract/css";
+import { themeColorTransition } from "../../../ui/motion.css";
 import { vars } from "../../../ui/tokens.css";
 
 export const root = style({
@@ -12,6 +13,7 @@ globalStyle(`${root} h1, ${root} h2, ${root} h3, ${root} h4, ${root} h5, ${root}
   lineHeight: 1.2,
   color: vars.color.text,
   fontWeight: 600,
+  ...themeColorTransition,
 });
 
 globalStyle(`${root} h1`, {
@@ -31,6 +33,7 @@ globalStyle(`${root} h3`, {
 globalStyle(`${root} p, ${root} ul, ${root} ol, ${root} pre`, {
   margin: 0,
   color: vars.color.textMuted,
+  ...themeColorTransition,
 });
 
 globalStyle(`${root} ul, ${root} ol`, {
@@ -53,6 +56,7 @@ globalStyle(`${root} p code, ${root} li code`, {
   borderRadius: vars.radius.sm,
   background: vars.color.codeSurface,
   color: vars.color.text,
+  ...themeColorTransition,
 });
 
 globalStyle(`${root} pre`, {
@@ -63,6 +67,7 @@ globalStyle(`${root} pre`, {
   background: vars.color.codeBlock,
   color: vars.color.codeBlockText,
   border: `1px solid ${vars.color.border}`,
+  ...themeColorTransition,
 });
 
 export const footer = style({
@@ -71,4 +76,5 @@ export const footer = style({
   borderTop: `1px solid ${vars.color.border}`,
   color: vars.color.textMuted,
   fontSize: "0.875rem",
+  ...themeColorTransition,
 });

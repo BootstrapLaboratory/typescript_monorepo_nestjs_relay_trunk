@@ -1,4 +1,5 @@
 import { style } from "@vanilla-extract/css";
+import { themeColorTransition } from "./motion.css";
 import { vars } from "./tokens.css";
 
 export const statusPanel = style({
@@ -15,6 +16,7 @@ export const eyebrow = style({
   fontWeight: 600,
   letterSpacing: "0.025em",
   textTransform: "uppercase",
+  ...themeColorTransition,
 });
 
 export const statusTitle = style({
@@ -29,4 +31,5 @@ export const statusText = style({
   maxWidth: "42rem",
   color: vars.color.textMuted,
   fontSize: "0.875rem",
+  ...themeColorTransition,
 });

@@ -1,4 +1,5 @@
 import { style } from "@vanilla-extract/css";
+import { themeColorTransition } from "../../../ui/motion.css";
 import { vars } from "../../../ui/tokens.css";
 
 export const chatSurface = style({
@@ -35,6 +36,7 @@ export const subtitle = style({
   margin: 0,
   color: vars.color.textMuted,
   fontSize: "0.875rem",
+  ...themeColorTransition,
 });
 
 export const chatStatus = style({
@@ -45,6 +47,7 @@ export const chatStatus = style({
   background: vars.color.accentSoft,
   color: vars.color.text,
   fontSize: "0.875rem",
+  ...themeColorTransition,
 });
 
 export const chatStatusRetrying = style({
@@ -70,6 +73,7 @@ export const messages = style({
   border: `1px solid ${vars.color.border}`,
   borderRadius: vars.radius.md,
   background: vars.color.surfaceMuted,
+  ...themeColorTransition,
 });
 
 export const message = style({
@@ -80,12 +84,16 @@ export const message = style({
   border: `1px solid ${vars.color.border}`,
   borderRadius: vars.radius.md,
   background: vars.color.surface,
-  color: vars.color.textMuted,
   fontSize: "0.875rem",
+  ...themeColorTransition,
 });
 
 export const messageAuthor = style({
   display: "block",
-  color: vars.color.text,
   fontWeight: 600,
+});
+
+export const messageBody = style({
+  color: vars.color.textMuted,
+  ...themeColorTransition,
 });

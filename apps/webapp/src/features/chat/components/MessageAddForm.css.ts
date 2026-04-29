@@ -1,4 +1,5 @@
 import { style } from "@vanilla-extract/css";
+import { themeColorTransition } from "../../../ui/motion.css";
 import { vars } from "../../../ui/tokens.css";
 
 export const form = style({
@@ -18,6 +19,7 @@ export const note = style({
   margin: 0,
   color: vars.color.warningText,
   fontSize: "0.875rem",
+  ...themeColorTransition,
 });
 
 export const errorNote = style({

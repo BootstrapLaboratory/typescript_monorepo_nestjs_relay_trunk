@@ -15,8 +15,10 @@ export default function MessageItem(props: { message: Message_item$key }) {
 
   return (
     <li className={styles.message}>
-      <b className={styles.messageAuthor}>{message.author ?? "Anonymous"}</b>:{" "}
-      {message.body}
+      <span className={styles.messageAuthor}>
+        {message.author ?? "Anonymous"}
+      </span>
+      <span className={styles.messageBody}>{message.body}</span>
     </li>
   );
 }

@@ -1,4 +1,8 @@
 import { keyframes, style } from "@vanilla-extract/css";
+import {
+  themeColorTransition,
+  themeColorTransitionProperties,
+} from "../../../ui/motion.css";
 import { vars } from "../../../ui/tokens.css";
 
 const logoSpin = keyframes({
@@ -21,6 +25,7 @@ export const headerPanel = style({
   background: vars.color.surfaceRaised,
   boxShadow: vars.shadow.md,
   textAlign: "left",
+  ...themeColorTransition,
   "@media": {
     "screen and (max-width: 720px)": {
       padding: vars.space[5],
@@ -53,7 +58,7 @@ export const sourceLink = style({
   background: vars.color.surface,
   color: vars.color.text,
   fontWeight: 500,
-  transition: "border-color 150ms ease, color 150ms ease",
+  ...themeColorTransition,
   selectors: {
     "&:hover": {
       borderColor: vars.color.borderStrong,
@@ -78,7 +83,8 @@ export const logo = style({
   border: `1px solid ${vars.color.border}`,
   borderRadius: vars.radius.lg,
   background: vars.color.surface,
-  transition: "border-color 150ms ease, filter 150ms ease",
+  ...themeColorTransition,
+  transitionProperty: `${themeColorTransitionProperties}, filter`,
   selectors: {
     "&:hover": {
       borderColor: vars.color.borderStrong,
@@ -122,7 +128,7 @@ export const technologyTag = style({
   color: vars.color.text,
   fontSize: "0.875rem",
   fontWeight: 500,
-  transition: "border-color 150ms ease",
+  ...themeColorTransition,
   selectors: {
     "&:hover": {
       borderColor: vars.color.borderStrong,
@@ -151,4 +157,5 @@ export const readTheDocs = style({
   margin: 0,
   color: vars.color.textMuted,
   fontSize: "0.875rem",
+  ...themeColorTransition,
 });

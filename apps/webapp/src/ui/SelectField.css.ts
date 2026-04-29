@@ -1,4 +1,5 @@
 import { style } from "@vanilla-extract/css";
+import { themeColorTransition } from "./motion.css";
 import { vars } from "./tokens.css";
 
 export const trigger = style({
@@ -17,7 +18,7 @@ export const trigger = style({
   fontSize: "0.875rem",
   fontWeight: 500,
   outline: "none",
-  transition: "border-color 150ms ease",
+  ...themeColorTransition,
   selectors: {
     "&:hover": {
       borderColor: vars.color.borderStrong,
@@ -32,6 +33,7 @@ export const icon = style({
   color: vars.color.textMuted,
   fontSize: "0.875rem",
   lineHeight: 1,
+  ...themeColorTransition,
 });
 
 export const content = style({
@@ -41,6 +43,7 @@ export const content = style({
   borderRadius: vars.radius.md,
   background: vars.color.surface,
   boxShadow: vars.shadow.md,
+  ...themeColorTransition,
 });
 
 export const viewport = style({
@@ -54,6 +57,7 @@ export const item = style({
   color: vars.color.text,
   fontSize: "0.875rem",
   outline: "none",
+  ...themeColorTransition,
   selectors: {
     "&[data-highlighted]": {
       background: vars.color.surfaceMuted,
