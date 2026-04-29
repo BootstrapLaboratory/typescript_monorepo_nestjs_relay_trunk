@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { DataSource, DataSourceOptions } from 'typeorm';
+import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import type { DataSourceOptions } from 'typeorm';
 import { CreateMessageTable20260415190000 } from '../database/migrations/20260415190000-CreateMessageTable';
 import { MessageEntity } from '../modules/chat/entities/message.entity';
 import { parseBoolean, parseNumber } from './env.utils';
@@ -101,15 +102,19 @@ function getBaseDatabaseOptions(options: {
   preferDirectUrl?: boolean;
   synchronize: boolean;
   includeMigrations?: boolean;
+  migrationsRun?: boolean;
 }): DataSourceOptions {
+  const includeMigrations =
+    options.includeMigrations || options.migrationsRun === true;
   const baseConfig: DataSourceOptions = {
     type: 'postgres',
     entities: [MessageEntity],
     synchronize: options.synchronize,
+    migrationsRun: options.migrationsRun,
     ssl: buildSslConfig(),
     migrationsTableName: 'typeorm_migrations',
   };
-  const migrationConfig = options.includeMigrations
+  const migrationConfig = includeMigrations
     ? {
         migrations: [CreateMessageTable20260415190000],
       }
@@ -136,11 +141,25 @@ function getBaseDatabaseOptions(options: {
 }
 
 export function getDatabaseConfig(): TypeOrmModuleOptions {
+  const synchronize = parseBoolean(
+    process.env.DATABASE_SYNCHRONIZE,
+    process.env.NODE_ENV !== 'production',
+  );
+  const runMigrationsOnStart = parseBoolean(
+    process.env.DATABASE_RUN_MIGRATIONS_ON_START,
+    false,
+  );
+
+  if (synchronize && runMigrationsOnStart) {
+    throw new Error(
+      'DATABASE_SYNCHRONIZE=true cannot be used with DATABASE_RUN_MIGRATIONS_ON_START=true',
+    );
+  }
+
   return getBaseDatabaseOptions({
-    synchronize: parseBoolean(
-      process.env.DATABASE_SYNCHRONIZE,
-      process.env.NODE_ENV !== 'production',
-    ),
+    synchronize,
+    includeMigrations: runMigrationsOnStart,
+    migrationsRun: runMigrationsOnStart,
   });
 }
 

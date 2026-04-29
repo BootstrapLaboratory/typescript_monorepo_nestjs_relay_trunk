@@ -33,6 +33,9 @@ Production uses migrations, not schema synchronization.
 - Runtime config comes from `src/config/database.config.ts`.
 - Migration CLI config is `src/database/typeorm.datasource.ts`.
 - Migrations live under `src/database/migrations`.
+- Development can run migrations during application startup with
+  `DATABASE_RUN_MIGRATIONS_ON_START=true`; do not pair this with
+  `DATABASE_SYNCHRONIZE=true`.
 - `DATABASE_URL_DIRECT` is preferred for migrations when present.
 - `DATABASE_SYNCHRONIZE` defaults off in production.
 
