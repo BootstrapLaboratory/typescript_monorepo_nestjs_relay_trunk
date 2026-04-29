@@ -6,14 +6,17 @@ export const link = recipe({
     display: "inline-flex",
     alignItems: "center",
     color: vars.color.link,
-    fontWeight: 700,
+    fontWeight: 500,
     textDecoration: "none",
+    textUnderlineOffset: "4px",
+    transition: "color 150ms ease, border-color 150ms ease, background-color 150ms ease",
     selectors: {
       "&:hover": {
         color: vars.color.accentHover,
+        textDecoration: "underline",
       },
       "&:focus-visible": {
-        outline: `3px solid ${vars.color.accentSoft}`,
+        outline: `2px solid ${vars.color.accent}`,
         outlineOffset: "2px",
       },
     },

@@ -3,17 +3,20 @@ import { vars } from "../ui/tokens.css";
 
 export const shell = style({
   minHeight: "100vh",
+  background: vars.color.canvas,
+  color: vars.color.text,
 });
 
 export const shellInner = style({
-  width: "min(1180px, 100%)",
+  width: "min(72rem, 100%)",
   margin: "0 auto",
-  padding: vars.space[8],
-  display: "grid",
+  padding: `${vars.space[4]} ${vars.space[8]} ${vars.space[8]}`,
+  display: "flex",
+  flexDirection: "column",
   gap: vars.space[8],
   "@media": {
     "screen and (max-width: 720px)": {
-      padding: vars.space[4],
+      padding: `${vars.space[4]} ${vars.space[4]} ${vars.space[8]}`,
       gap: vars.space[5],
     },
   },
@@ -24,11 +27,10 @@ export const nav = style({
   alignItems: "center",
   justifyContent: "space-between",
   gap: vars.space[4],
-  padding: `${vars.space[4]} ${vars.space[5]}`,
-  border: `1px solid ${vars.color.border}`,
-  borderRadius: vars.radius.lg,
-  background: vars.color.surface,
-  boxShadow: vars.shadow.sm,
+  padding: `0 0 ${vars.space[4]}`,
+  borderBottom: `1px solid ${vars.color.border}`,
+  background: `color-mix(in srgb, ${vars.color.surface} 85%, transparent)`,
+  backdropFilter: "blur(8px)",
   "@media": {
     "screen and (max-width: 640px)": {
       alignItems: "flex-start",
@@ -39,8 +41,9 @@ export const nav = style({
 
 export const brand = style({
   color: vars.color.text,
-  fontSize: "0.95rem",
-  fontWeight: 800,
+  fontSize: "1rem",
+  fontWeight: 700,
+  letterSpacing: "0.025em",
   textTransform: "uppercase",
 });
 
@@ -61,21 +64,23 @@ export const navControls = style({
 export const navLink = style({
   display: "inline-flex",
   alignItems: "center",
-  minHeight: "2.25rem",
-  padding: `0 ${vars.space[3]}`,
+  minHeight: "2.5rem",
+  padding: `0 ${vars.space[4]}`,
   border: `1px solid ${vars.color.border}`,
-  borderRadius: vars.radius.md,
-  color: vars.color.text,
-  fontWeight: 700,
+  borderRadius: "999px",
+  background: vars.color.surface,
+  color: vars.color.textMuted,
+  fontSize: "0.875rem",
+  fontWeight: 500,
   transition:
     "background-color 150ms ease, border-color 150ms ease, color 150ms ease",
   selectors: {
     "&:hover": {
-      background: vars.color.surfaceMuted,
+      borderColor: vars.color.borderStrong,
       color: vars.color.text,
     },
     "&:focus-visible": {
-      outline: `3px solid ${vars.color.accentSoft}`,
+      outline: `2px solid ${vars.color.accent}`,
       outlineOffset: "2px",
     },
   },
@@ -84,7 +89,7 @@ export const navLink = style({
 export const navLinkActive = style({
   background: vars.color.accentSoft,
   borderColor: vars.color.accent,
-  color: vars.color.accentHover,
+  color: vars.color.text,
 });
 
 export const themePicker = style({
@@ -95,9 +100,8 @@ export const themePicker = style({
 
 export const themePickerLabel = style({
   color: vars.color.textMuted,
-  fontSize: "0.86rem",
-  fontWeight: 800,
-  textTransform: "uppercase",
+  fontSize: "0.875rem",
+  fontWeight: 500,
 });
 
 export const content = style({

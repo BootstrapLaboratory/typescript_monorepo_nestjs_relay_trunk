@@ -2,7 +2,10 @@ import { style } from "@vanilla-extract/css";
 import { vars } from "../../../ui/tokens.css";
 
 export const chatSurface = style({
-  padding: vars.space[6],
+  width: "100%",
+  maxWidth: "48rem",
+  margin: "0 auto",
+  padding: vars.space[5],
   textAlign: "left",
   "@media": {
     "screen and (max-width: 720px)": {
@@ -18,23 +21,29 @@ export const chat = style({
 
 export const title = style({
   margin: 0,
-  fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
-  lineHeight: 1.1,
+  fontSize: "1.5rem",
+  fontWeight: 600,
+  lineHeight: "2rem",
 });
 
 export const chatStatus = style({
   margin: 0,
-  padding: `${vars.space[3]} ${vars.space[4]}`,
+  padding: `${vars.space[2]} ${vars.space[3]}`,
+  border: `1px solid color-mix(in srgb, ${vars.color.accent} 20%, transparent)`,
   borderRadius: vars.radius.md,
-  fontSize: "0.95rem",
+  background: vars.color.accentSoft,
+  color: vars.color.text,
+  fontSize: "0.875rem",
 });
 
 export const chatStatusRetrying = style({
+  borderColor: "rgb(217 119 6 / 0.3)",
   background: vars.color.warningSurface,
   color: vars.color.warningText,
 });
 
 export const chatStatusDisconnected = style({
+  borderColor: "rgb(220 38 38 / 0.3)",
   background: vars.color.dangerSurface,
   color: vars.color.dangerText,
 });
@@ -42,16 +51,30 @@ export const chatStatusDisconnected = style({
 export const messages = style({
   display: "grid",
   gap: vars.space[2],
+  maxHeight: "28rem",
+  minHeight: "8rem",
   margin: 0,
-  padding: 0,
+  padding: vars.space[3],
+  overflow: "auto",
+  border: `1px solid ${vars.color.border}`,
+  borderRadius: vars.radius.md,
+  background: vars.color.surfaceMuted,
 });
 
 export const message = style({
   listStyle: "none",
-  padding: `${vars.space[2]} 0`,
-  borderBottom: `1px solid ${vars.color.border}`,
+  display: "grid",
+  gap: vars.space[1],
+  padding: `${vars.space[2]} ${vars.space[3]}`,
+  border: `1px solid ${vars.color.border}`,
+  borderRadius: vars.radius.md,
+  background: vars.color.surface,
+  color: vars.color.textMuted,
+  fontSize: "0.875rem",
 });
 
 export const messageAuthor = style({
+  display: "block",
   color: vars.color.text,
+  fontWeight: 600,
 });

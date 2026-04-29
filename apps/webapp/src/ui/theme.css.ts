@@ -29,12 +29,12 @@ globalStyle("#root", {
 });
 
 globalStyle("a", {
-  color: vars.color.link,
+  color: "inherit",
   textDecoration: "none",
 });
 
 globalStyle("a:hover", {
-  color: vars.color.accentHover,
+  color: "inherit",
 });
 
 globalStyle("button, input, textarea, select", {

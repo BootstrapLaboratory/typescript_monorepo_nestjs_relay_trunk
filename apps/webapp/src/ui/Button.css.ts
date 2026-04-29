@@ -9,15 +9,16 @@ export const button = recipe({
     gap: vars.space[2],
     border: "1px solid transparent",
     borderRadius: vars.radius.md,
+    flexShrink: 0,
     cursor: "pointer",
-    fontWeight: 700,
+    fontWeight: 500,
     lineHeight: 1,
     textDecoration: "none",
     transition:
       "background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease",
     selectors: {
       "&:focus-visible": {
-        outline: `3px solid ${vars.color.accentSoft}`,
+        outline: `2px solid ${vars.color.accent}`,
         outlineOffset: "2px",
       },
       "&:disabled": {
@@ -31,6 +32,7 @@ export const button = recipe({
       primary: {
         background: vars.color.accent,
         color: vars.color.accentText,
+        borderColor: vars.color.accent,
         selectors: {
           "&:hover:not(:disabled)": {
             background: vars.color.accentHover,
@@ -39,12 +41,12 @@ export const button = recipe({
         },
       },
       secondary: {
-        background: vars.color.surface,
-        borderColor: vars.color.borderStrong,
+        background: vars.color.surfaceRaised,
+        borderColor: vars.color.border,
         color: vars.color.text,
-        boxShadow: vars.shadow.sm,
         selectors: {
           "&:hover:not(:disabled)": {
+            borderColor: vars.color.borderStrong,
             background: vars.color.surfaceMuted,
             color: vars.color.text,
           },
@@ -63,7 +65,7 @@ export const button = recipe({
     },
     size: {
       sm: {
-        minHeight: "2rem",
+        minHeight: "2.25rem",
         padding: `0 ${vars.space[3]}`,
         fontSize: "0.875rem",
       },

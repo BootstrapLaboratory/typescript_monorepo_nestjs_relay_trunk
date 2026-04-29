@@ -14,12 +14,12 @@ export const home = style({
 
 export const sourceLinks = style({
   display: "flex",
+  flexWrap: "wrap",
   justifyContent: "center",
-  gap: vars.space[6],
-  fontSize: "1rem",
+  gap: vars.space[2],
+  fontSize: "0.875rem",
   "@media": {
     "screen and (max-width: 720px)": {
-      flexDirection: "column",
       gap: vars.space[3],
     },
   },
@@ -29,26 +29,43 @@ export const sourceLink = style({
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
-  gap: vars.space[3],
+  gap: vars.space[2],
+  minHeight: "2.25rem",
+  padding: `0 ${vars.space[3]}`,
+  border: `1px solid ${vars.color.border}`,
+  borderRadius: "999px",
+  background: vars.color.surface,
   color: vars.color.text,
-  fontWeight: 700,
+  fontWeight: 500,
+  transition: "border-color 150ms ease, color 150ms ease",
+  selectors: {
+    "&:hover": {
+      borderColor: vars.color.borderStrong,
+      color: vars.color.text,
+      textDecoration: "none",
+    },
+  },
 });
 
 export const technologies = style({
   display: "flex",
   justifyContent: "center",
   flexWrap: "wrap",
-  gap: vars.space[2],
+  gap: vars.space[3],
 });
 
 export const logo = style({
-  width: "6rem",
-  height: "6rem",
-  padding: vars.space[4],
+  width: "5rem",
+  height: "5rem",
+  padding: vars.space[3],
   objectFit: "contain",
-  transition: "filter 300ms",
+  border: `1px solid ${vars.color.border}`,
+  borderRadius: vars.radius.lg,
+  background: vars.color.surface,
+  transition: "border-color 150ms ease, filter 150ms ease",
   selectors: {
     "&:hover": {
+      borderColor: vars.color.borderStrong,
       filter: vars.color.logoGlow,
     },
   },
@@ -63,37 +80,53 @@ export const reactLogo = style({
 });
 
 export const compactLogo = style({
-  width: "2.5rem",
-  height: "2.5rem",
+  width: "1.25rem",
+  height: "1.25rem",
   padding: 0,
+  border: 0,
+  borderRadius: 0,
+  background: "transparent",
 });
 
 export const technologyTags = style({
   display: "flex",
   flexWrap: "wrap",
   justifyContent: "center",
-  gap: vars.space[3],
+  gap: vars.space[2],
 });
 
 export const technologyTag = style({
   display: "inline-flex",
   alignItems: "center",
-  minHeight: "2rem",
+  minHeight: "2.25rem",
   padding: `0 ${vars.space[3]}`,
-  border: `1px solid ${vars.color.borderStrong}`,
-  borderRadius: vars.radius.md,
+  border: `1px solid ${vars.color.border}`,
+  borderRadius: "999px",
+  background: vars.color.surface,
   color: vars.color.text,
-  fontSize: "0.95rem",
-  fontWeight: 700,
+  fontSize: "0.875rem",
+  fontWeight: 500,
+  transition: "border-color 150ms ease",
+  selectors: {
+    "&:hover": {
+      borderColor: vars.color.borderStrong,
+      color: vars.color.text,
+      textDecoration: "none",
+    },
+  },
 });
 
 export const title = style({
   margin: 0,
-  fontSize: "clamp(2rem, 5vw, 3.2rem)",
+  maxWidth: "56rem",
+  justifySelf: "center",
+  fontSize: "clamp(1.875rem, 5vw, 2.25rem)",
+  fontWeight: 600,
   lineHeight: 1.1,
 });
 
 export const readTheDocs = style({
   margin: 0,
   color: vars.color.textMuted,
+  fontSize: "0.875rem",
 });

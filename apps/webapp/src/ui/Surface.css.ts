@@ -10,6 +10,7 @@ export const surface = recipe({
     tone: {
       default: {
         background: vars.color.surface,
+        boxShadow: vars.shadow.sm,
       },
       muted: {
         background: vars.color.surfaceMuted,
