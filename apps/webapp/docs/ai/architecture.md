@@ -9,8 +9,8 @@ Cloudflare Pages build output.
 - Routing: TanStack Router in code-based mode.
 - Data layer: Relay over GraphQL HTTP for queries/mutations.
 - Realtime: `graphql-ws` subscriptions wired into Relay.
-- Auth: shared browser auth state with memory-only access tokens and
-  server-managed refresh cookies.
+- Auth: shared browser auth state with memory-only access tokens,
+  server-managed refresh cookies, and a non-secret first-paint session hint.
 - Styling: vanilla-extract tokens and component-local style modules.
 - UI primitives: app-owned wrappers in `src/ui`, with Radix UI primitives used
   behind those wrappers when accessible behavior is needed.
@@ -47,7 +47,8 @@ hand-edit them.
   feature-owned static files.
 - `src/shared/graphql` owns browser GraphQL endpoint resolution.
 - `src/shared/auth` owns auth session state, boot-time refresh, refresh-token
-  transport strategy selection, logout, and auth error parsing.
+  transport strategy selection, logout, auth error parsing, and the non-secret
+  local session hint used only for first-paint navigation.
 - `src/shared/relay` owns Relay environment creation and reusable Relay store
   helpers.
 - `src/shared/realtime` owns websocket retry, heartbeat, Cloud Run connection
@@ -91,6 +92,11 @@ refresh attempt and retries the operation. GraphQL WS connection params use the
 same access-token source and the shared realtime client restarts the socket when
 the token changes so future protected subscriptions do not duplicate auth or
 Cloud Run reconnect logic in feature code.
+
+The auth access token is never persisted in browser storage. `src/shared/auth`
+may persist a non-secret local hint that the browser last had an authenticated
+session so persistent navigation can choose the least jarring first paint while
+boot refresh confirms or clears the real session.
 
 ## Styling Boundary
 

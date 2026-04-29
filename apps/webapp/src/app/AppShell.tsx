@@ -1,7 +1,10 @@
 import { Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { Suspense, useState } from "react";
 import { logoutCurrentSession } from "../shared/auth/auth-api";
-import { useAuthState } from "../shared/auth/session";
+import {
+  shouldShowAuthenticatedNavigation,
+  useAuthState,
+} from "../shared/auth/session";
 import { setThemeName, useThemeName } from "../shared/theme/theme-store";
 import { cx } from "../ui/classNames";
 import { SelectField, type SelectFieldOption } from "../ui/SelectField";
@@ -34,18 +37,7 @@ function AuthNavigationAction() {
     }
   }
 
-  if (authState.status === "unknown") {
-    return (
-      <span
-        aria-hidden="true"
-        className={cx(styles.navLink, styles.authPlaceholder)}
-      >
-        Login/Register
-      </span>
-    );
-  }
-
-  if (authState.status === "authenticated") {
+  if (shouldShowAuthenticatedNavigation(authState)) {
     return (
       <button
         className={styles.navLink}

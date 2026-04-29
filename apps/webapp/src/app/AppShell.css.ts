@@ -105,11 +105,6 @@ export const navLinkActive = style({
   color: vars.color.text,
 });
 
-export const authPlaceholder = style({
-  pointerEvents: "none",
-  visibility: "hidden",
-});
-
 export const themePicker = style({
   display: "grid",
   alignItems: "start",
