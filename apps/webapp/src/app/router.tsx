@@ -5,9 +5,11 @@ import {
 } from "@tanstack/react-router";
 import { loadQuery } from "react-relay";
 import type { Environment } from "relay-runtime";
+import { parseAuthMode } from "../features/auth/auth-mode";
 import type { ChatQuery } from "../features/chat/relay/__generated__/ChatQuery.graphql";
 import { ChatPageQuery } from "../features/chat/relay/Chat.query";
 import { AppShell } from "./AppShell";
+import { AuthRoute } from "../routes/auth/AuthRoute";
 import { ChatRouteAdapter } from "../routes/chat/ChatRouteAdapter";
 import { InfoRoute } from "../routes/info/InfoRoute";
 import { NotFoundRoute } from "../routes/not-found/NotFoundRoute";
@@ -52,7 +54,16 @@ const infoRoute = createRoute({
   component: InfoRoute,
 });
 
-const routeTree = rootRoute.addChildren([chatRoute, infoRoute]);
+const authRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/auth",
+  validateSearch: (search: Record<string, unknown>) => ({
+    mode: parseAuthMode(search.mode),
+  }),
+  component: AuthRoute,
+});
+
+const routeTree = rootRoute.addChildren([chatRoute, infoRoute, authRoute]);
 
 export function createAppRouter(relayEnvironment: Environment) {
   return createRouter({

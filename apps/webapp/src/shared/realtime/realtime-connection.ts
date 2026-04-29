@@ -21,6 +21,8 @@ type CloseLike = {
   reason?: string;
 };
 
+type ConnectionParamsFactory = () => Record<string, string>;
+
 const HEARTBEAT_INTERVAL_MS = 10_000;
 const HEARTBEAT_TIMEOUT_MS = 5_000;
 const FATAL_CLOSE_CODES = new Set([4400, 4401, 4403, 4406, 4409, 4429]);
@@ -117,10 +119,14 @@ function initializeBrowserNetworkListeners(): void {
   syncBrowserNetworkState();
 }
 
-export function createRealtimeGraphqlWsClient(url: string): Client {
+export function createRealtimeGraphqlWsClient(
+  url: string,
+  connectionParams?: ConnectionParamsFactory,
+): Client {
   initializeBrowserNetworkListeners();
   const wsClient: Client = createClient({
     url,
+    connectionParams,
     lazy: true,
     keepAlive: HEARTBEAT_INTERVAL_MS,
     connectionAckWaitTimeout: 15_000,

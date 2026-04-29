@@ -46,6 +46,13 @@ export const brand = style({
   textTransform: "uppercase",
 });
 
+export const brandCluster = style({
+  display: "flex",
+  alignItems: "center",
+  flexWrap: "wrap",
+  gap: vars.space[3],
+});
+
 export const links = style({
   display: "flex",
   flexWrap: "wrap",
@@ -63,14 +70,18 @@ export const navControls = style({
 export const navLink = style({
   display: "inline-flex",
   alignItems: "center",
+  justifyContent: "center",
   minHeight: "2.5rem",
   padding: `0 ${vars.space[4]}`,
   border: `1px solid ${vars.color.border}`,
   borderRadius: "999px",
   background: vars.color.surface,
   color: vars.color.textMuted,
+  cursor: "pointer",
+  fontFamily: "inherit",
   fontSize: "0.875rem",
   fontWeight: 500,
+  textDecoration: "none",
   ...themeColorTransition,
   selectors: {
     "&:hover": {
@@ -81,6 +92,10 @@ export const navLink = style({
       outline: `2px solid ${vars.color.accent}`,
       outlineOffset: "2px",
     },
+    "&:disabled": {
+      cursor: "not-allowed",
+      opacity: 0.58,
+    },
   },
 });
 
@@ -88,6 +103,11 @@ export const navLinkActive = style({
   background: vars.color.accentSoft,
   borderColor: vars.color.accent,
   color: vars.color.text,
+});
+
+export const authPlaceholder = style({
+  pointerEvents: "none",
+  visibility: "hidden",
 });
 
 export const themePicker = style({

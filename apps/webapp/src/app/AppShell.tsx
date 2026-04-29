@@ -1,5 +1,7 @@
-import { Link, Outlet } from "@tanstack/react-router";
-import { Suspense } from "react";
+import { Link, Outlet, useNavigate } from "@tanstack/react-router";
+import { Suspense, useState } from "react";
+import { logoutCurrentSession } from "../shared/auth/auth-api";
+import { useAuthState } from "../shared/auth/session";
 import { setThemeName, useThemeName } from "../shared/theme/theme-store";
 import { cx } from "../ui/classNames";
 import { SelectField, type SelectFieldOption } from "../ui/SelectField";
@@ -13,6 +15,61 @@ const themeOptions: ReadonlyArray<SelectFieldOption<ThemeName>> =
     label: themeLabelByName[name],
   }));
 
+function AuthNavigationAction() {
+  const authState = useAuthState();
+  const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  async function handleLogout(): Promise<void> {
+    if (isLoggingOut) {
+      return;
+    }
+
+    setIsLoggingOut(true);
+    try {
+      await logoutCurrentSession();
+      await navigate({ to: "/" });
+    } finally {
+      setIsLoggingOut(false);
+    }
+  }
+
+  if (authState.status === "unknown") {
+    return (
+      <span
+        aria-hidden="true"
+        className={cx(styles.navLink, styles.authPlaceholder)}
+      >
+        Login/Register
+      </span>
+    );
+  }
+
+  if (authState.status === "authenticated") {
+    return (
+      <button
+        className={styles.navLink}
+        disabled={isLoggingOut}
+        type="button"
+        onClick={() => void handleLogout()}
+      >
+        Logout
+      </button>
+    );
+  }
+
+  return (
+    <Link
+      to="/auth"
+      search={{ mode: "login" }}
+      preload="intent"
+      className={styles.navLink}
+    >
+      Login/Register
+    </Link>
+  );
+}
+
 export function AppShell() {
   const themeName = useThemeName();
 
@@ -20,14 +77,17 @@ export function AppShell() {
     <div className={styles.shell}>
       <div className={styles.shellInner}>
         <nav className={styles.nav} aria-label="Primary">
-          <Link
-            to="/"
-            preload="intent"
-            className={styles.brand}
-            activeOptions={{ exact: true }}
-          >
-            Anonymous Chat
-          </Link>
+          <div className={styles.brandCluster}>
+            <Link
+              to="/"
+              preload="intent"
+              className={styles.brand}
+              activeOptions={{ exact: true }}
+            >
+              Anonymous Chat
+            </Link>
+            <AuthNavigationAction />
+          </div>
           <div className={styles.navControls}>
             <div className={styles.links}>
               <Link

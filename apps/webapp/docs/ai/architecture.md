@@ -9,6 +9,8 @@ Cloudflare Pages build output.
 - Routing: TanStack Router in code-based mode.
 - Data layer: Relay over GraphQL HTTP for queries/mutations.
 - Realtime: `graphql-ws` subscriptions wired into Relay.
+- Auth: shared browser auth state with memory-only access tokens and
+  server-managed refresh cookies.
 - Styling: vanilla-extract tokens and component-local style modules.
 - UI primitives: app-owned wrappers in `src/ui`, with Radix UI primitives used
   behind those wrappers when accessible behavior is needed.
@@ -44,6 +46,8 @@ hand-edit them.
   building blocks, `relay` for feature GraphQL documents, and `assets` for
   feature-owned static files.
 - `src/shared/graphql` owns browser GraphQL endpoint resolution.
+- `src/shared/auth` owns auth session state, boot-time refresh, refresh-token
+  transport strategy selection, logout, and auth error parsing.
 - `src/shared/relay` owns Relay environment creation and reusable Relay store
   helpers.
 - `src/shared/realtime` owns websocket retry, heartbeat, Cloud Run connection
@@ -79,6 +83,14 @@ hooks and must not create its own websocket client. `src/shared/realtime`
 centralizes the websocket retry policy, heartbeat timeout, browser offline
 tracking, fatal close-code handling, and Cloud Run persistent-connection
 termination recovery so every subscription feature gets the same behavior.
+
+Relay HTTP requests include refresh-cookie credentials and add the current
+bearer access token from `src/shared/auth` when one exists. If a GraphQL
+response reports an auth-required error, the Relay network performs one shared
+refresh attempt and retries the operation. GraphQL WS connection params use the
+same access-token source and the shared realtime client restarts the socket when
+the token changes so future protected subscriptions do not duplicate auth or
+Cloud Run reconnect logic in feature code.
 
 ## Styling Boundary
 

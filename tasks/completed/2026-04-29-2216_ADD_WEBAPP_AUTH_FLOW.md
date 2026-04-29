@@ -16,7 +16,7 @@ Primary source of truth:
 - [`apps/server/src/modules/identity/dto/login.input.ts`](../apps/server/src/modules/identity/dto/login.input.ts)
 - [`apps/server/src/modules/identity/dto/register.input.ts`](../apps/server/src/modules/identity/dto/register.input.ts)
 - [`apps/server/src/modules/identity/dto/refresh.input.ts`](../apps/server/src/modules/identity/dto/refresh.input.ts)
-- [`apps/server/src/modules/identity/dto/auth.payload.ts`](../apps/server/src/modules/identity/dto/auth.payload.ts)
+- [`apps/server/src/modules/identity/dto/auth-payload.model.ts`](../apps/server/src/modules/identity/dto/auth-payload.model.ts)
 - [`apps/server/src/modules/identity/dto/principal.model.ts`](../apps/server/src/modules/identity/dto/principal.model.ts)
 - [`apps/server/src/modules/identity/refresh-token-transport.service.ts`](../apps/server/src/modules/identity/refresh-token-transport.service.ts)
 - [`apps/server/src/app.module.ts`](../apps/server/src/app.module.ts)
@@ -110,25 +110,25 @@ Update app shell:
 
 ## Implementation Checklist
 
-- [ ] Create shared auth session store with `useSyncExternalStore`.
-- [ ] Add a refresh-token transport boundary with cookie mode as the only initial implementation.
-- [ ] Represent auth state as `unknown`, `anonymous`, or `authenticated` so the header can avoid flicker during boot refresh.
-- [ ] Keep access token in memory only.
-- [ ] On app boot, call `refresh` once so an HttpOnly refresh cookie can restore the access token.
-- [ ] Add auth GraphQL operations for login, register, refresh, and logout.
-- [ ] Make auth API write successful `AuthPayload` values into the shared session store.
-- [ ] Make Relay HTTP requests send `credentials: "include"`.
-- [ ] Make Relay HTTP requests add the bearer token when available.
-- [ ] Retry once after an auth-required response by calling `refresh`.
-- [ ] Make GraphQL WS connection params include the bearer token when available.
-- [ ] Recreate or restart the GraphQL WS connection when the access token changes, without weakening the existing Cloud Run reconnect behavior.
-- [ ] Add `/auth?mode=login` and `/auth?mode=register` behavior with a login/register mode switch.
-- [ ] Use server field constraints: email, password with minimum 8 characters, optional display name on registration.
-- [ ] Add `Login/Register` button next to the `Anonymous Chat` brand area when anonymous, linked to `/auth?mode=login`.
-- [ ] Add `Logout` button in the same area when authenticated.
-- [ ] On logout, call the server `logout` mutation, clear local auth state, and redirect to `/`.
-- [ ] If a user is already authenticated and opens `/auth`, redirect to `/`.
-- [ ] Do not add a server `me` or `viewer` query in this task.
-- [ ] Run Relay compiler after adding operations.
-- [ ] Run webapp typecheck/build.
-- [ ] Update webapp architecture docs if the shared auth/realtime architecture changes enough to matter.
+- [x] Create shared auth session store with `useSyncExternalStore`.
+- [x] Add a refresh-token transport boundary with cookie mode as the only initial implementation.
+- [x] Represent auth state as `unknown`, `anonymous`, or `authenticated` so the header can avoid flicker during boot refresh.
+- [x] Keep access token in memory only.
+- [x] On app boot, call `refresh` once so an HttpOnly refresh cookie can restore the access token.
+- [x] Add auth GraphQL operations for login, register, refresh, and logout.
+- [x] Make auth API write successful `AuthPayload` values into the shared session store.
+- [x] Make Relay HTTP requests send `credentials: "include"`.
+- [x] Make Relay HTTP requests add the bearer token when available.
+- [x] Retry once after an auth-required response by calling `refresh`.
+- [x] Make GraphQL WS connection params include the bearer token when available.
+- [x] Recreate or restart the GraphQL WS connection when the access token changes, without weakening the existing Cloud Run reconnect behavior.
+- [x] Add `/auth?mode=login` and `/auth?mode=register` behavior with a login/register mode switch.
+- [x] Use server field constraints: email, password with minimum 8 characters, optional display name on registration.
+- [x] Add `Login/Register` button next to the `Anonymous Chat` brand area when anonymous, linked to `/auth?mode=login`.
+- [x] Add `Logout` button in the same area when authenticated.
+- [x] On logout, call the server `logout` mutation, clear local auth state, and redirect to `/`.
+- [x] If a user is already authenticated and opens `/auth`, redirect to `/`.
+- [x] Do not add a server `me` or `viewer` query in this task.
+- [x] Run Relay compiler after adding operations.
+- [x] Run webapp typecheck/build.
+- [x] Update webapp architecture docs if the shared auth/realtime architecture changes enough to matter.
