@@ -63,6 +63,8 @@ resolvers.
   credential settings.
 - Response-body transport returns refresh tokens explicitly and accepts refresh
   tokens as mutation/input payloads.
+- Auth payloads always include the access token; refresh tokens are included in
+  GraphQL payloads only when the response-body transport is selected.
 - GraphQL subscriptions authenticate with access tokens from
   `graphql-ws` connection params and do not receive refresh tokens over the
   websocket connection.
@@ -95,9 +97,11 @@ type Principal = {
 - [ ] Add provider-backed registration flow for providers that support it.
 - [ ] Add token service for application access tokens.
 - [ ] Add refresh session entity with hashed refresh tokens.
-- [ ] Add provider-aware login mutation that returns access and refresh tokens.
+- [ ] Add provider-aware login mutation that returns an auth payload and
+      delivers refresh tokens through the configured transport.
 - [ ] Add provider-aware registration mutation.
-- [ ] Add refresh mutation that rotates refresh tokens.
+- [ ] Add refresh mutation that rotates refresh tokens and returns a new auth
+      payload.
 - [ ] Add logout mutation that revokes the current refresh session.
 - [ ] Add logout-all mutation that revokes all sessions for the current user.
 - [ ] Add refresh-token transport abstraction for cookie and response-body
