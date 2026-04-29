@@ -8,13 +8,24 @@ schema generation, database access, migrations, and backend deploy validation.
 - Framework: NestJS with the Fastify platform adapter.
 - API: Nest GraphQL code-first schema with Apollo.
 - Database: TypeORM with PostgreSQL.
+- Identity: provider-based authentication with local credentials as the
+  checked-in development default.
+- Access control: principal-aware guards and decorators for protected GraphQL
+  operations.
 - Realtime: GraphQL subscriptions over `graphql-ws`.
 - Pub/sub: Redis by default in checked-in development, validation, and deploy
   environments via `PUBSUB_DRIVER=redis`; in-memory pub/sub is the fallback
   when Redis is not selected.
 
-The main feature boundary is `src/modules/chat`: resolver, service, DTOs,
-entity, mapper profile, and pub/sub service stay together there.
+The main feature boundaries are:
+
+- `src/modules/chat`: resolver, service, DTOs, entity, mapper profile, and
+  pub/sub service stay together there.
+- `src/modules/identity`: provider registry, provider-backed login and
+  registration, local credential storage, access token signing, refresh session
+  rotation, and GraphQL auth mutations.
+- `src/modules/access-control`: authentication guards, role guards, principal
+  decorators, and protocol auth helpers.
 
 ## GraphQL Contract
 
@@ -25,6 +36,29 @@ generate `libs/api/schema.gql`, which the webapp uses for Relay.
 - Rush `verify` runs `graphql:check-contract` and fails on schema drift.
 - Do not edit `libs/api/schema.gql` by hand unless intentionally resolving a
   generated diff.
+
+Existing chat GraphQL operations are intentionally public while the identity
+layer lands. New protected operations should resolve callers through the shared
+`Principal` contract and use the access-control guards/decorators instead of
+provider-specific checks.
+
+GraphQL subscriptions authenticate with access tokens supplied through
+`graphql-ws` connection params. HTTP GraphQL requests can resolve principals
+from `Authorization: Bearer ...` headers.
+
+## Identity And Sessions
+
+Identity providers are selected by configuration. `AUTH_PROVIDERS` enables one
+or more providers, and provider adapters normalize their result into the same
+internal principal shape. The local provider stores users, provider accounts,
+roles, and refresh sessions in PostgreSQL.
+
+Application sessions use short-lived signed access tokens plus opaque refresh
+tokens. Refresh tokens are stored only as hashes, rotated on refresh, and can be
+revoked per session or per user. Refresh delivery is a transport concern:
+`AUTH_REFRESH_TOKEN_TRANSPORT=cookie` uses Fastify cookies with CORS
+credentials, while `response_body` returns and accepts refresh tokens through
+GraphQL mutation payloads for non-browser clients.
 
 ## Database
 

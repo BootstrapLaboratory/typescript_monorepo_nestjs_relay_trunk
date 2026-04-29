@@ -1,10 +1,11 @@
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import fastifyCookie from '@fastify/cookie';
 import { AppModule } from './app.module';
 import { parseList, parseNumber } from './config/env.utils';
 import { logStructuredEvent } from './logging/structured-log';
@@ -23,15 +24,29 @@ async function bootstrap() {
     );
 
     const configService = app.get(ConfigService);
+    await app.register(fastifyCookie);
+
     const corsOrigins = parseList(configService.get<string>('CORS_ORIGIN'));
     const corsOrigin =
       corsOrigins.length === 0 || corsOrigins.includes('*')
         ? true
         : corsOrigins;
+    const usesCookieRefreshTransport =
+      configService
+        .get<string>('AUTH_REFRESH_TOKEN_TRANSPORT')
+        ?.trim()
+        .toLowerCase() !== 'response_body';
 
     app.enableCors({
+      credentials: usesCookieRefreshTransport,
       origin: corsOrigin,
     });
+    app.useGlobalPipes(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+      }),
+    );
 
     app.enableShutdownHooks();
 
@@ -47,6 +62,7 @@ async function bootstrap() {
       port,
       graphqlPath,
       pubsubDriver,
+      corsCredentials: usesCookieRefreshTransport,
       corsOrigin: corsOrigin === true ? '*' : corsOrigins,
     });
 

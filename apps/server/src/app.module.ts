@@ -15,7 +15,6 @@ import type { IncomingMessage } from 'http';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { getEnvFilePaths } from './config/env-paths';
-import { ChatModule } from './modules/chat/chat.module';
 import {
   createLoggedDataSource,
   getDatabaseConfig,
@@ -24,16 +23,76 @@ import {
   isGraphqlSubscriptionLoggingEnabled,
   logStructuredEvent,
 } from './logging/structured-log';
+import { AccessControlModule } from './modules/access-control/access-control.module';
+import { extractBearerToken } from './modules/access-control/bearer-token';
+import { extractGraphqlWsAuthorization } from './modules/access-control/graphql-ws-auth';
+import { ChatModule } from './modules/chat/chat.module';
+import { IdentityGraphqlContext } from './modules/identity/graphql/identity-graphql.context';
+import { IdentityModule } from './modules/identity/identity.module';
+import { Principal } from './modules/identity/identity.types';
+import { AccessTokenService } from './modules/identity/token.service';
 
 const subscriptionLogger = new Logger('GraphQLSubscriptions');
 
 type GraphqlWsExtra = {
   connectionId?: string;
+  principal?: Principal | null;
   request?: IncomingMessage;
 };
 
 function getGraphqlWsExtra(extra: unknown): GraphqlWsExtra {
-  return extra ?? {};
+  if (typeof extra === 'object' && extra !== null) {
+    return extra;
+  }
+
+  return {};
+}
+
+async function resolvePrincipalFromAuthorization(
+  accessTokenService: AccessTokenService,
+  authorizationHeader: string | string[] | undefined,
+): Promise<Principal | null> {
+  const bearerToken = extractBearerToken(authorizationHeader);
+  if (!bearerToken) {
+    return null;
+  }
+
+  return accessTokenService.verifyAccessToken(bearerToken);
+}
+
+function getGraphqlContextParts(
+  contextOrRequest:
+    | {
+        extra?: unknown;
+        reply?: IdentityGraphqlContext['reply'];
+        req?: IdentityGraphqlContext['req'];
+      }
+    | IdentityGraphqlContext['req']
+    | undefined,
+  reply?: IdentityGraphqlContext['reply'],
+): {
+  extra?: unknown;
+  reply?: IdentityGraphqlContext['reply'];
+  req?: IdentityGraphqlContext['req'];
+} {
+  if (
+    typeof contextOrRequest === 'object' &&
+    contextOrRequest !== null &&
+    ('extra' in contextOrRequest ||
+      'req' in contextOrRequest ||
+      'reply' in contextOrRequest)
+  ) {
+    return {
+      extra: contextOrRequest.extra,
+      reply: contextOrRequest.reply ?? reply,
+      req: contextOrRequest.req,
+    };
+  }
+
+  return {
+    reply,
+    req: contextOrRequest as IdentityGraphqlContext['req'],
+  };
 }
 
 function getClientIp(request: IncomingMessage | undefined): string | null {
@@ -72,24 +131,63 @@ function logSubscriptionEvent(
       ignoreEnvFile: process.env.NODE_ENV === 'production',
     }),
     ChatModule,
+    IdentityModule,
+    AccessControlModule,
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
+      imports: [IdentityModule],
+      inject: [ConfigService, AccessTokenService],
+      useFactory: (
+        configService: ConfigService,
+        accessTokenService: AccessTokenService,
+      ) => {
         return {
           path: configService.get<string>('GRAPHQL_PATH') ?? '/graphql',
+          context: async (
+            contextOrRequest:
+              | {
+                  extra?: unknown;
+                  reply?: IdentityGraphqlContext['reply'];
+                  req?: IdentityGraphqlContext['req'];
+                }
+              | IdentityGraphqlContext['req']
+              | undefined,
+            reply?: IdentityGraphqlContext['reply'],
+          ): Promise<IdentityGraphqlContext> => {
+            const {
+              extra,
+              req,
+              reply: contextReply,
+            } = getGraphqlContextParts(contextOrRequest, reply);
+            const wsExtra = getGraphqlWsExtra(extra);
+            return {
+              principal:
+                wsExtra.principal ??
+                (await resolvePrincipalFromAuthorization(
+                  accessTokenService,
+                  req?.headers?.authorization,
+                )),
+              reply: contextReply,
+              req,
+            };
+          },
           subscriptions: {
             'graphql-ws': {
               connectionInitWaitTimeout: 15_000,
-              onConnect: (ctx) => {
+              onConnect: async (ctx) => {
                 const extra = getGraphqlWsExtra(ctx.extra);
                 const connectionId = randomUUID();
                 extra.connectionId = connectionId;
+                extra.principal = await resolvePrincipalFromAuthorization(
+                  accessTokenService,
+                  extractGraphqlWsAuthorization(ctx.connectionParams),
+                );
 
                 logSubscriptionEvent('graphql_subscription_connect', {
                   connectionId,
                   ip: getClientIp(extra.request),
                   path: extra.request?.url ?? null,
+                  principalUserId: extra.principal?.userId ?? null,
                 });
               },
               onDisconnect: (ctx, code, reason) => {

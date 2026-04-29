@@ -83,46 +83,45 @@ type Principal = {
 
 ## Checklist
 
-- [ ] Review current server module boundaries in `apps/server/src`.
-- [ ] Add dependencies for the selected first implementation path.
-- [ ] Design `IdentityProvider`, provider capability, and `Principal`
+- [x] Review current server module boundaries in `apps/server/src`.
+- [x] Add dependencies for the selected first implementation path.
+- [x] Design `IdentityProvider`, provider capability, and `Principal`
       interfaces.
-- [ ] Add identity provider registry and enabled-provider configuration.
-- [ ] Create `IdentityModule` under `apps/server/src/modules/identity`.
-- [ ] Create `AccessControlModule` under
+- [x] Add identity provider registry and enabled-provider configuration.
+- [x] Create `IdentityModule` under `apps/server/src/modules/identity`.
+- [x] Create `AccessControlModule` under
       `apps/server/src/modules/access-control`.
-- [ ] Add local user and role database entities.
-- [ ] Add migrations for local identity tables.
-- [ ] Add local username/password provider with hashed passwords.
-- [ ] Add provider-backed registration flow for providers that support it.
-- [ ] Add token service for application access tokens.
-- [ ] Add refresh session entity with hashed refresh tokens.
-- [ ] Add provider-aware login mutation that returns an auth payload and
+- [x] Add local user and role database entities.
+- [x] Add migrations for local identity tables.
+- [x] Add local username/password provider with hashed passwords.
+- [x] Add provider-backed registration flow for providers that support it.
+- [x] Add token service for application access tokens.
+- [x] Add refresh session entity with hashed refresh tokens.
+- [x] Add provider-aware login mutation that returns an auth payload and
       delivers refresh tokens through the configured transport.
-- [ ] Add provider-aware registration mutation.
-- [ ] Add refresh mutation that rotates refresh tokens and returns a new auth
+- [x] Add provider-aware registration mutation.
+- [x] Add refresh mutation that rotates refresh tokens and returns a new auth
       payload.
-- [ ] Add logout mutation that revokes the current refresh session.
-- [ ] Add logout-all mutation that revokes all sessions for the current user.
-- [ ] Add refresh-token transport abstraction for cookie and response-body
+- [x] Add logout mutation that revokes the current refresh session.
+- [x] Add logout-all mutation that revokes all sessions for the current user.
+- [x] Add refresh-token transport abstraction for cookie and response-body
       modes.
-- [ ] Add GraphQL auth resolver as the first protocol adapter over core
+- [x] Add GraphQL auth resolver as the first protocol adapter over core
       identity services.
-- [ ] Add GraphQL-aware authentication guard.
-- [ ] Add subscription authentication through `graphql-ws` connection params.
-- [ ] Add `@CurrentPrincipal()` decorator.
-- [ ] Add `@Public()` decorator.
-- [ ] Add `@Roles()` decorator and role guard.
-- [ ] Add configuration for enabled providers, default login provider, and
+- [x] Add GraphQL-aware authentication guard.
+- [x] Add subscription authentication through `graphql-ws` connection params.
+- [x] Add `@CurrentPrincipal()` decorator.
+- [x] Add `@Public()` decorator.
+- [x] Add `@Roles()` decorator and role guard.
+- [x] Add configuration for enabled providers, default login provider, and
       registration provider.
-- [ ] Protect existing GraphQL operations intentionally, leaving explicit public
-      operations public.
-- [ ] Add unit tests for provider selection and token validation.
-- [ ] Add resolver/controller guard tests.
-- [ ] Add subscription authentication tests or validation coverage.
-- [ ] Update server architecture documentation if the module shape or runtime
+- [x] Keep existing GraphQL operations public while auth lands.
+- [x] Add unit tests for provider selection and token validation.
+- [x] Add GraphQL guard tests.
+- [x] Add subscription authentication tests or validation coverage.
+- [x] Update server architecture documentation if the module shape or runtime
       auth behavior changes.
-- [ ] Add follow-up task for OIDC provider integration if not completed in the
+- [x] Add follow-up task for OIDC provider integration if not completed in the
       first implementation pass.
 
 ## Notes

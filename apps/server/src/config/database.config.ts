@@ -2,7 +2,12 @@ import { Logger } from '@nestjs/common';
 import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import type { DataSourceOptions } from 'typeorm';
+import { CreateIdentityTables20260429143000 } from '../database/migrations/20260429143000-CreateIdentityTables';
 import { CreateMessageTable20260415190000 } from '../database/migrations/20260415190000-CreateMessageTable';
+import { IdentityAccountEntity } from '../modules/identity/entities/identity-account.entity';
+import { IdentityRefreshSessionEntity } from '../modules/identity/entities/identity-refresh-session.entity';
+import { IdentityUserRoleEntity } from '../modules/identity/entities/identity-user-role.entity';
+import { IdentityUserEntity } from '../modules/identity/entities/identity-user.entity';
 import { MessageEntity } from '../modules/chat/entities/message.entity';
 import { parseBoolean, parseNumber } from './env.utils';
 import { logStructuredEvent } from '../logging/structured-log';
@@ -108,7 +113,13 @@ function getBaseDatabaseOptions(options: {
     options.includeMigrations || options.migrationsRun === true;
   const baseConfig: DataSourceOptions = {
     type: 'postgres',
-    entities: [MessageEntity],
+    entities: [
+      IdentityAccountEntity,
+      IdentityRefreshSessionEntity,
+      IdentityUserEntity,
+      IdentityUserRoleEntity,
+      MessageEntity,
+    ],
     synchronize: options.synchronize,
     migrationsRun: options.migrationsRun,
     ssl: buildSslConfig(),
@@ -116,7 +127,10 @@ function getBaseDatabaseOptions(options: {
   };
   const migrationConfig = includeMigrations
     ? {
-        migrations: [CreateMessageTable20260415190000],
+        migrations: [
+          CreateMessageTable20260415190000,
+          CreateIdentityTables20260429143000,
+        ],
       }
     : {};
 

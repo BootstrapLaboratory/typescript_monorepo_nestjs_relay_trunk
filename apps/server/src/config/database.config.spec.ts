@@ -3,12 +3,20 @@ jest.mock('typeorm', () => {
 
   return {
     Column: decorator,
+    CreateDateColumn: decorator,
     DataSource: jest.fn().mockImplementation((options) => ({
       initialize: jest.fn().mockResolvedValue({ options }),
     })),
     Entity: decorator,
+    JoinColumn: decorator,
+    ManyToOne: decorator,
+    OneToMany: decorator,
+    PrimaryColumn: decorator,
     PrimaryGeneratedColumn: decorator,
     Table: jest.fn().mockImplementation((options) => options),
+    TableForeignKey: jest.fn().mockImplementation((options) => options),
+    Unique: decorator,
+    UpdateDateColumn: decorator,
   };
 });
 
@@ -74,6 +82,11 @@ describe('getDatabaseConfig', () => {
         typeof migration === 'string' ? migration : migration.name,
       ),
     ).toContain('CreateMessageTable20260415190000');
+    expect(
+      migrations?.map((migration) =>
+        typeof migration === 'string' ? migration : migration.name,
+      ),
+    ).toContain('CreateIdentityTables20260429143000');
   });
 
   it('rejects schema synchronization with migrations on application start', () => {

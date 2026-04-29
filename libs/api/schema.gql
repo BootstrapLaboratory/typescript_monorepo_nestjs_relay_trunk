@@ -1,5 +1,19 @@
+type AuthPayload {
+  accessToken: String!
+  accessTokenExpiresAt: String!
+  principal: PrincipalModel!
+  refreshToken: String
+  refreshTokenExpiresAt: String!
+}
+
 """Date custom scalar type"""
 scalar Date
+
+input LoginInput {
+  email: String!
+  password: String!
+  provider: String
+}
 
 """chat message"""
 type Message {
@@ -10,6 +24,11 @@ type Message {
 
 type Mutation {
   addMessage(newMessageData: NewMessageInput!): Message!
+  login(input: LoginInput!): AuthPayload!
+  logout(input: RefreshInput): Boolean!
+  logoutAll: Boolean!
+  refresh(input: RefreshInput): AuthPayload!
+  register(input: RegisterInput!): AuthPayload!
   removeMessage(id: Float!): Boolean!
 }
 
@@ -18,9 +37,28 @@ input NewMessageInput {
   body: String!
 }
 
+type PrincipalModel {
+  permissions: [String!]!
+  provider: String!
+  roles: [String!]!
+  subject: String!
+  userId: String!
+}
+
 type Query {
   getMessage(id: String!): Message!
   getMessages: [Message!]!
+}
+
+input RefreshInput {
+  refreshToken: String
+}
+
+input RegisterInput {
+  displayName: String
+  email: String!
+  password: String!
+  provider: String
 }
 
 type Subscription {

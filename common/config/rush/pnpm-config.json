@@ -9,6 +9,7 @@
     "@apollo/protobufjs",
     "@nestjs/core",
     "@swc/core",
+    "argon2",
     "unrs-resolver"
   ]
 }
