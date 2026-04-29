@@ -8,18 +8,12 @@ export const shell = style({
 });
 
 export const shellInner = style({
-  width: "min(72rem, 100%)",
-  margin: "0 auto",
-  padding: `${vars.space[4]} ${vars.space[8]} ${vars.space[8]}`,
+  width: "100%",
+  margin: 0,
+  padding: 0,
   display: "flex",
   flexDirection: "column",
-  gap: vars.space[8],
-  "@media": {
-    "screen and (max-width: 720px)": {
-      padding: `${vars.space[4]} ${vars.space[4]} ${vars.space[8]}`,
-      gap: vars.space[5],
-    },
-  },
+  gap: 0,
 });
 
 export const nav = style({
@@ -27,14 +21,16 @@ export const nav = style({
   alignItems: "center",
   justifyContent: "space-between",
   gap: vars.space[4],
-  padding: `0 0 ${vars.space[4]}`,
+  padding: `${vars.space[6]} ${vars.space[8]}`,
   borderBottom: `1px solid ${vars.color.border}`,
-  background: `color-mix(in srgb, ${vars.color.surface} 85%, transparent)`,
+  background: `color-mix(in oklab, ${vars.color.surface} 85%, transparent)`,
   backdropFilter: "blur(8px)",
+  WebkitBackdropFilter: "blur(8px)",
   "@media": {
     "screen and (max-width: 640px)": {
       alignItems: "flex-start",
       flexDirection: "column",
+      padding: `${vars.space[5]} ${vars.space[4]}`,
     },
   },
 });
@@ -55,7 +51,7 @@ export const links = style({
 
 export const navControls = style({
   display: "flex",
-  alignItems: "center",
+  alignItems: "flex-end",
   justifyContent: "flex-end",
   flexWrap: "wrap",
   gap: vars.space[3],
@@ -93,8 +89,8 @@ export const navLinkActive = style({
 });
 
 export const themePicker = style({
-  display: "inline-flex",
-  alignItems: "center",
+  display: "grid",
+  alignItems: "start",
   gap: vars.space[2],
 });
 
@@ -105,5 +101,13 @@ export const themePickerLabel = style({
 });
 
 export const content = style({
+  width: "min(72rem, 100%)",
+  margin: "0 auto",
+  padding: `${vars.space[8]} ${vars.space[8]}`,
   minWidth: 0,
+  "@media": {
+    "screen and (max-width: 720px)": {
+      padding: `${vars.space[5]} ${vars.space[4]} ${vars.space[8]}`,
+    },
+  },
 });

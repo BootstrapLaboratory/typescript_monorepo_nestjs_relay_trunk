@@ -17,7 +17,7 @@ const PROJECT_REPOSITORY_URL =
 
 function Header() {
   return (
-    <>
+    <div className={styles.headerPanel}>
       <div className={styles.sourceLinks}>
         <Link
           href={PROJECT_REPOSITORY_URL}
@@ -32,7 +32,7 @@ function Header() {
             className={cx(styles.logo, styles.compactLogo)}
             alt="GitHub Logo"
           />
-          View source code
+          Source code
         </Link>
         <Link
           href={HTTP_ENDPOINT}
@@ -47,9 +47,12 @@ function Header() {
             className={cx(styles.logo, styles.compactLogo)}
             alt="Apollo Logo"
           />
-          Browse API with Apollo Sandbox
+          Apollo Sandbox
         </Link>
       </div>
+      <h1 className={styles.title}>
+        Vite + React + Relay + NestJS + Cloud Run + Neon + Cloudflare
+      </h1>
       <div className={styles.technologies}>
         <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className={styles.logo} alt="Vite logo" />
@@ -116,10 +119,7 @@ function Header() {
           Upstash
         </Link>
       </div>
-      <h1 className={styles.title}>
-        Vite + React + Relay + NestJS + Cloud Run + Neon + Cloudflare
-      </h1>
-    </>
+    </div>
   );
 }
 

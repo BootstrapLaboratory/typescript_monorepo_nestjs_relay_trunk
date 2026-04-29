@@ -5,7 +5,7 @@ import * as styles from "./ProjectInfoPage.css";
 
 export default function ProjectInfoPage() {
   return (
-    <Surface tone="raised" className={styles.page}>
+    <Surface className={styles.page}>
       <MarkdownRenderer markdown={projectReadme} />
     </Surface>
   );

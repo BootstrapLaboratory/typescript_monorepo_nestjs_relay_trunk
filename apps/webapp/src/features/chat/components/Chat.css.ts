@@ -19,11 +19,22 @@ export const chat = style({
   gap: vars.space[5],
 });
 
+export const chatHeader = style({
+  display: "grid",
+  gap: vars.space[1],
+});
+
 export const title = style({
   margin: 0,
   fontSize: "1.5rem",
   fontWeight: 600,
   lineHeight: "2rem",
+});
+
+export const subtitle = style({
+  margin: 0,
+  color: vars.color.textMuted,
+  fontSize: "0.875rem",
 });
 
 export const chatStatus = style({

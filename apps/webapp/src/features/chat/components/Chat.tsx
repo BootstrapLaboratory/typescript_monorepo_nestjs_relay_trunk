@@ -60,9 +60,14 @@ export default function Chat({ queryRef }: ChatProps) {
         : undefined;
 
   return (
-    <Surface tone="raised" className={styles.chatSurface}>
+    <Surface className={styles.chatSurface}>
       <div className={styles.chat}>
-        <h1 className={styles.title}>Anonymous Chat</h1>
+        <div className={styles.chatHeader}>
+          <h1 className={styles.title}>Anonymous Chat</h1>
+          <p className={styles.subtitle}>
+            Messages are backed by Relay and GraphQL subscriptions.
+          </p>
+        </div>
         {realtimeConnectionMessage ? (
           <p
             className={cx(styles.chatStatus, statusClass)}

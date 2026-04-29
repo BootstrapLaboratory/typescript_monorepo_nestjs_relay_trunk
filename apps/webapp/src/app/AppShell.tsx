@@ -1,25 +1,20 @@
 import { Link, Outlet } from "@tanstack/react-router";
-import { Suspense, type ChangeEvent } from "react";
-import {
-  isThemeName,
-  setThemeName,
-  useThemeName,
-} from "../shared/theme/theme-store";
+import { Suspense } from "react";
+import { setThemeName, useThemeName } from "../shared/theme/theme-store";
 import { cx } from "../ui/classNames";
-import { SelectField } from "../ui/SelectField";
+import { SelectField, type SelectFieldOption } from "../ui/SelectField";
 import * as styles from "./AppShell.css";
 import { PendingState } from "../ui/StatusState";
-import { THEME_NAMES, themeLabelByName } from "../ui/themes.css";
+import { THEME_NAMES, themeLabelByName, type ThemeName } from "../ui/themes.css";
+
+const themeOptions: ReadonlyArray<SelectFieldOption<ThemeName>> =
+  THEME_NAMES.map((name) => ({
+    value: name,
+    label: themeLabelByName[name],
+  }));
 
 export function AppShell() {
   const themeName = useThemeName();
-
-  function handleThemeChange(event: ChangeEvent<HTMLSelectElement>) {
-    const nextThemeName = event.currentTarget.value;
-    if (isThemeName(nextThemeName)) {
-      setThemeName(nextThemeName);
-    }
-  }
 
   return (
     <div className={styles.shell}>
@@ -57,16 +52,14 @@ export function AppShell() {
                 Info
               </Link>
             </div>
-            <label className={styles.themePicker}>
-              <span className={styles.themePickerLabel}>Style</span>
-              <SelectField value={themeName} onChange={handleThemeChange}>
-                {THEME_NAMES.map((name) => (
-                  <option key={name} value={name}>
-                    {themeLabelByName[name]}
-                  </option>
-                ))}
-              </SelectField>
-            </label>
+            <div className={styles.themePicker}>
+              <SelectField
+                ariaLabel="Theme"
+                value={themeName}
+                options={themeOptions}
+                onValueChange={setThemeName}
+              />
+            </div>
           </div>
         </nav>
         <main className={styles.content}>

@@ -12,6 +12,22 @@ export const home = style({
   textAlign: "center",
 });
 
+export const headerPanel = style({
+  display: "grid",
+  gap: vars.space[6],
+  padding: `${vars.space[10]} ${vars.space[10]}`,
+  border: `1px solid ${vars.color.border}`,
+  borderRadius: vars.radius.lg,
+  background: vars.color.surfaceRaised,
+  boxShadow: vars.shadow.md,
+  textAlign: "left",
+  "@media": {
+    "screen and (max-width: 720px)": {
+      padding: vars.space[5],
+    },
+  },
+});
+
 export const sourceLinks = style({
   display: "flex",
   flexWrap: "wrap",
@@ -120,9 +136,15 @@ export const title = style({
   margin: 0,
   maxWidth: "56rem",
   justifySelf: "center",
-  fontSize: "clamp(1.875rem, 5vw, 2.25rem)",
+  textAlign: "center",
+  fontSize: "1.875rem",
   fontWeight: 600,
   lineHeight: 1.1,
+  "@media": {
+    "screen and (min-width: 640px)": {
+      fontSize: "2.25rem",
+    },
+  },
 });
 
 export const readTheDocs = style({
