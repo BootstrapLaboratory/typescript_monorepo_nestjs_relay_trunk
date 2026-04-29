@@ -9,7 +9,7 @@ import viteLogo from "/vite.svg";
 import rushStackLogo from "./info/assets/rushstack.svg";
 
 const HTTP_ENDPOINT = import.meta.env.VITE_GRAPHQL_HTTP!;
-const PROJECT_REPOSITORY_URL = "https://github.com/BeltOrg/beltapp";
+const PROJECT_REPOSITORY_URL = "https://github.com/BootstrapLaboratory/typescript_monorepo_nestjs_relay_trunk";
 
 function Header() {
   return (

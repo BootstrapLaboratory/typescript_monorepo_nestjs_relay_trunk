@@ -1,7 +1,8 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-const PROJECT_REPOSITORY_URL = "https://github.com/BeltOrg/beltapp";
+const PROJECT_REPOSITORY_URL =
+  "https://github.com/BootstrapLaboratory/typescript_monorepo_nestjs_relay_trunk";
 const PROJECT_REPOSITORY_BLOB_URL = `${PROJECT_REPOSITORY_URL}/blob/main`;
 
 function normalizeLinkTarget(href: string): string {
