@@ -7,3 +7,6 @@
   in the same task.
 - Keep server architecture documentation scoped to the backend boundary. Do not
   restate repository-level architecture there.
+- Treat database migrations as immutable once committed or applied anywhere;
+  create a new migration for follow-up schema changes instead of editing an
+  existing migration.
