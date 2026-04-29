@@ -46,6 +46,18 @@ Important behavior:
 - GraphQL WS can receive the same bearer token through connection params.
 - There is no current `me` or `viewer` query; the client can recover a session on app boot by calling `refresh`.
 
+## Decisions
+
+- Implement the default HttpOnly-cookie refresh mode first.
+- Shape `shared/auth` around a small refresh-token transport boundary so `response_body` support can be added later without rewriting the auth feature UI or Relay integration.
+- Use `/auth?mode=login` and `/auth?mode=register`.
+- Make the header `Login/Register` link point to `/auth?mode=login`.
+- Use the server `logout` mutation for the header logout button.
+- Keep access tokens memory-only.
+- Restore the session during app boot by calling `refresh`.
+- Do not add `me` or `viewer` in this task; use `refresh` to restore the principal.
+- Add `viewer` later when the UI needs richer authenticated account data.
+
 ## Reference Checked
 
 The BeltApp reference repo was cloned to `/tmp/beltapp-auth-reference` and reviewed for ideas only.
@@ -71,6 +83,7 @@ Add shared auth infrastructure:
 - `apps/webapp/src/shared/auth/auth-api.ts`
 - `apps/webapp/src/shared/auth/auth-errors.ts`, if useful
 - `apps/webapp/src/shared/auth/auth-boot.ts`, if boot refresh needs a small boundary
+- `apps/webapp/src/shared/auth/refresh-token-transport.ts`, or equivalent small strategy boundary
 
 Add auth feature UI:
 
@@ -98,8 +111,9 @@ Update app shell:
 ## Implementation Checklist
 
 - [ ] Create shared auth session store with `useSyncExternalStore`.
+- [ ] Add a refresh-token transport boundary with cookie mode as the only initial implementation.
 - [ ] Represent auth state as `unknown`, `anonymous`, or `authenticated` so the header can avoid flicker during boot refresh.
-- [ ] Keep access token in memory by default.
+- [ ] Keep access token in memory only.
 - [ ] On app boot, call `refresh` once so an HttpOnly refresh cookie can restore the access token.
 - [ ] Add auth GraphQL operations for login, register, refresh, and logout.
 - [ ] Make auth API write successful `AuthPayload` values into the shared session store.
@@ -108,29 +122,13 @@ Update app shell:
 - [ ] Retry once after an auth-required response by calling `refresh`.
 - [ ] Make GraphQL WS connection params include the bearer token when available.
 - [ ] Recreate or restart the GraphQL WS connection when the access token changes, without weakening the existing Cloud Run reconnect behavior.
-- [ ] Add `/auth` route with a login/register mode switch.
+- [ ] Add `/auth?mode=login` and `/auth?mode=register` behavior with a login/register mode switch.
 - [ ] Use server field constraints: email, password with minimum 8 characters, optional display name on registration.
-- [ ] Add `Login/Register` button next to the `Anonymous Chat` brand area when anonymous.
+- [ ] Add `Login/Register` button next to the `Anonymous Chat` brand area when anonymous, linked to `/auth?mode=login`.
 - [ ] Add `Logout` button in the same area when authenticated.
 - [ ] On logout, call the server `logout` mutation, clear local auth state, and redirect to `/`.
 - [ ] If a user is already authenticated and opens `/auth`, redirect to `/`.
+- [ ] Do not add a server `me` or `viewer` query in this task.
 - [ ] Run Relay compiler after adding operations.
 - [ ] Run webapp typecheck/build.
 - [ ] Update webapp architecture docs if the shared auth/realtime architecture changes enough to matter.
-
-## Open Questions
-
-1. Should the webapp support only the default HttpOnly-cookie refresh transport first, or should it also support `AUTH_REFRESH_TOKEN_TRANSPORT=response_body` from day one?
-2. Is `/auth` the route you want for the combined login/register page, or do you prefer `/login` with register as a tab/mode?
-3. Should the `Logout` button revoke only the current session with `logout`, or all sessions with `logoutAll`?
-4. Should access tokens stay memory-only with boot refresh through the HttpOnly cookie, or should the client persist anything auth-related across reloads besides relying on the server cookie?
-5. Do we want to add a server `me`/`viewer` query now, or keep this task client-only by restoring the principal through `refresh`?
-
-## Suggested Defaults
-
-- Use `/auth`.
-- Prefer HttpOnly-cookie refresh transport first.
-- Keep access tokens in memory.
-- Use `logout`, not `logoutAll`, for the header button.
-- Do not add `me` yet; use `refresh` for boot session restore and add a viewer query later when protected user-facing data needs it.
-
