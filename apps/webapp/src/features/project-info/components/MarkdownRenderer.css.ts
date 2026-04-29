@@ -52,9 +52,8 @@ globalStyle(`${root} code`, {
 globalStyle(`${root} p code, ${root} li code`, {
   padding: `${vars.space[1]} ${vars.space[2]}`,
   borderRadius: vars.radius.sm,
-  background: vars.color.codeSurface,
+  background: "color-mix(in srgb, currentColor 12%, transparent)",
   color: "inherit",
-  ...themeColorTransition,
 });
 
 globalStyle(`${root} pre`, {
