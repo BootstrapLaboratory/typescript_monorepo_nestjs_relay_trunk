@@ -9,7 +9,9 @@ schema generation, database access, migrations, and backend deploy validation.
 - API: Nest GraphQL code-first schema with Apollo.
 - Database: TypeORM with PostgreSQL.
 - Realtime: GraphQL subscriptions over `graphql-ws`.
-- Pub/sub: in-memory locally by default, Redis when `PUBSUB_DRIVER=redis`.
+- Pub/sub: Redis by default in checked-in development, validation, and deploy
+  environments via `PUBSUB_DRIVER=redis`; in-memory pub/sub is the fallback
+  when Redis is not selected.
 
 The main feature boundary is `src/modules/chat`: resolver, service, DTOs,
 entity, mapper profile, and pub/sub service stay together there.
