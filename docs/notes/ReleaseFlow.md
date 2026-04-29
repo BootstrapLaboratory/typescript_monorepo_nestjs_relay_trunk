@@ -20,14 +20,14 @@ Both force-deploy workflows call the same reusable release workflow with differe
 The GitHub release workflow uses:
 
 ```yaml
-uses: BootstrapLaboratory/rush-delivery@v0.3.3
+uses: BootstrapLaboratory/rush-delivery@v0.4.1
 ```
 
 The pull-request validation workflow uses the same released action with
 `entrypoint: validate`:
 
 ```yaml
-uses: BootstrapLaboratory/rush-delivery@v0.3.3
+uses: BootstrapLaboratory/rush-delivery@v0.4.1
 with:
   entrypoint: validate
 ```
@@ -188,7 +188,7 @@ The full checklist is in
 After editing metadata, run from the repository root:
 
 ```bash
-dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.3 call validate-metadata-contract --repo=.
+dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.4.1 call validate-metadata-contract --repo=.
 ```
 
 ## Operational Notes

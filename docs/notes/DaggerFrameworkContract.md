@@ -8,7 +8,7 @@ workflow wiring.
 Run the metadata contract validator before changing target metadata:
 
 ```bash
-dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.3 call validate-metadata-contract --repo=.
+dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.4.1 call validate-metadata-contract --repo=.
 ```
 
 The same validation runs before the release and validation workflows do
@@ -47,16 +47,15 @@ Delivery runs. They are not source metadata.
 
 ## Editor Schemas
 
-Rush Delivery publishes metadata schemas at:
+Rush Delivery publishes metadata schemas at versioned URLs such as:
 
 ```text
-https://bootstraplaboratory.github.io/rush-delivery/schemas/*
+https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.4.1/*
 ```
 
-VS Code maps this repository's `.dagger/**/*.yaml` files to those hosted
-schemas through [.vscode/settings.json](../../.vscode/settings.json), with
-`redhat.vscode-yaml` recommended in
-[.vscode/extensions.json](../../.vscode/extensions.json).
+Each `.dagger/**/*.yaml` metadata file declares its schema with a
+`# yaml-language-server: $schema=...` comment. This keeps metadata files
+self-describing without adding unsupported `$schema` data fields.
 
 Schemas catch file-shape mistakes while editing. The Rush Delivery metadata
 contract validator remains the source of truth for cross-file checks such as
