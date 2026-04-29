@@ -11,6 +11,7 @@ export const RegisterMutationNode = graphql`
         userId
         subject
         provider
+        displayName
         roles
         permissions
       }

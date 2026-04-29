@@ -5,6 +5,7 @@ export type Principal = {
   userId: string;
   subject: string;
   provider: string;
+  displayName?: string | null;
   roles: ReadonlyArray<string>;
   permissions: ReadonlyArray<string>;
 };
@@ -69,6 +70,10 @@ export function getAccessToken(): string | null {
   return getAuthSession()?.accessToken ?? null;
 }
 
+export function getPrincipalDisplayName(principal: Principal): string {
+  return principal.displayName?.trim() || principal.subject;
+}
+
 export function setAuthSessionFromPayload(payload: AuthPayload): AuthSession {
   refreshTokenTransport.handleAuthPayload(payload);
 
@@ -77,6 +82,7 @@ export function setAuthSessionFromPayload(payload: AuthPayload): AuthSession {
     accessTokenExpiresAt: parseTimestamp(payload.accessTokenExpiresAt),
     refreshTokenExpiresAt: parseTimestamp(payload.refreshTokenExpiresAt),
     principal: {
+      displayName: payload.principal.displayName ?? null,
       permissions: [...payload.principal.permissions],
       provider: payload.principal.provider,
       roles: [...payload.principal.roles],
@@ -99,4 +105,3 @@ export function useAuthState(): AuthState {
 }
 
 export { subscribeAuthState };
-

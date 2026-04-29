@@ -30,6 +30,7 @@ export class IdentitySessionService {
     const refreshTokenExpiresAt = this.getRefreshTokenExpiresAt();
     const sessionId = randomUUID();
     const principal: Principal = {
+      displayName: identity.displayName,
       permissions: identity.permissions,
       provider: identity.provider,
       roles: identity.roles,
@@ -66,7 +67,14 @@ export class IdentitySessionService {
 
   async refreshSession(refreshToken: string): Promise<AuthSessionResult> {
     const tokenHash = this.refreshTokenService.hashRefreshToken(refreshToken);
-    const session = await this.refreshSessionRepo.findOneBy({ tokenHash });
+    const session = await this.refreshSessionRepo.findOne({
+      relations: {
+        user: true,
+      },
+      where: {
+        tokenHash,
+      },
+    });
 
     if (!session) {
       throw new UnauthorizedException('Invalid refresh token');
@@ -85,6 +93,7 @@ export class IdentitySessionService {
 
     const roles = await this.getRoles(session.userId);
     const result = await this.createSession({
+      displayName: session.user.displayName,
       permissions: [],
       provider: session.provider,
       roles,

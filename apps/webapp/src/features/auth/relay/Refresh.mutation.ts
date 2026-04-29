@@ -11,6 +11,7 @@ export const RefreshMutationNode = graphql`
         userId
         subject
         provider
+        displayName
         roles
         permissions
       }

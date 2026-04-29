@@ -2,6 +2,7 @@ export type Principal = {
   userId: string;
   subject: string;
   provider: string;
+  displayName?: string;
   roles: string[];
   permissions: string[];
   sessionId?: string;
@@ -28,6 +29,7 @@ export type ProviderIdentity = {
   userId: string;
   subject: string;
   provider: string;
+  displayName?: string;
   roles: string[];
   permissions: string[];
 };

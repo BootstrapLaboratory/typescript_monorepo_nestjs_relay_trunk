@@ -11,6 +11,7 @@ export const LoginMutationNode = graphql`
         userId
         subject
         provider
+        displayName
         roles
         permissions
       }

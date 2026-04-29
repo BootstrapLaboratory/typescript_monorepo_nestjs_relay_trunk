@@ -7,6 +7,7 @@ import { Principal } from './identity.types';
 type AccessTokenClaims = {
   provider: string;
   providerSubject: string;
+  displayName?: string;
   roles: string[];
   permissions: string[];
   sessionId: string;
@@ -34,6 +35,7 @@ export class AccessTokenService {
 
     return sign(
       {
+        displayName: principal.displayName,
         permissions: principal.permissions,
         provider: principal.provider,
         providerSubject: principal.subject,
@@ -68,6 +70,7 @@ export class AccessTokenService {
       const userId = jwtPayload.sub;
       const provider = jwtPayload.provider;
       const providerSubject = jwtPayload.providerSubject;
+      const displayName = jwtPayload.displayName;
       const roles = jwtPayload.roles;
       const permissions = jwtPayload.permissions;
       const sessionId = jwtPayload.sessionId;
@@ -76,6 +79,7 @@ export class AccessTokenService {
         typeof userId !== 'string' ||
         typeof provider !== 'string' ||
         typeof providerSubject !== 'string' ||
+        (displayName !== undefined && typeof displayName !== 'string') ||
         !Array.isArray(roles) ||
         !Array.isArray(permissions) ||
         typeof sessionId !== 'string'
@@ -83,7 +87,7 @@ export class AccessTokenService {
         throw new UnauthorizedException('Invalid access token claims');
       }
 
-      return {
+      const principal: Principal = {
         permissions: permissions.filter((value): value is string => {
           return typeof value === 'string';
         }),
@@ -95,6 +99,12 @@ export class AccessTokenService {
         subject: providerSubject,
         userId,
       };
+
+      if (typeof displayName === 'string') {
+        principal.displayName = displayName;
+      }
+
+      return principal;
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         throw error;

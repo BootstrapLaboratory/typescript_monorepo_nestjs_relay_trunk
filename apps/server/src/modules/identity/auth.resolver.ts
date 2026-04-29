@@ -98,6 +98,7 @@ export class AuthResolver {
 
   private toPrincipalModel(principal: Principal) {
     return {
+      displayName: principal.displayName,
       permissions: principal.permissions,
       provider: principal.provider,
       roles: principal.roles,

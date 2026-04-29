@@ -15,6 +15,7 @@ describe('AccessTokenService', () => {
   it('issues and verifies normalized principals', async () => {
     const service = createAccessTokenService();
     const principal: Principal = {
+      displayName: 'Test User',
       permissions: ['message:read'],
       provider: 'local',
       roles: ['user'],

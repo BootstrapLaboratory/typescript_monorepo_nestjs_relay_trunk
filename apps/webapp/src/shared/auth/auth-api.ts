@@ -37,6 +37,7 @@ const AUTH_PAYLOAD_FIELDS = `
     userId
     subject
     provider
+    displayName
     roles
     permissions
   }

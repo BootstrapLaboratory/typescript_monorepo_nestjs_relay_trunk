@@ -64,6 +64,7 @@ export class LocalIdentityProvider implements IdentityProvider {
 
     const roles = await this.getRoles(account.userId);
     return {
+      displayName: account.user.displayName,
       permissions: [],
       provider: LOCAL_PROVIDER_ID,
       roles,
@@ -118,6 +119,7 @@ export class LocalIdentityProvider implements IdentityProvider {
     });
 
     return {
+      displayName: request.displayName,
       permissions: [],
       provider: LOCAL_PROVIDER_ID,
       roles: [defaultRole],

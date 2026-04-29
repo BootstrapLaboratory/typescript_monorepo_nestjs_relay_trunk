@@ -1,6 +1,10 @@
 import { useState } from "react";
 import type { MessageAddFormAddMessageMutation } from "../relay/__generated__/MessageAddFormAddMessageMutation.graphql";
 import { useMutation } from "react-relay";
+import {
+  getPrincipalDisplayName,
+  useAuthState,
+} from "../../../shared/auth/session";
 import { appendRootFieldRecordIfMissing } from "../../../shared/relay/store";
 import { Button } from "../../../ui/Button";
 import { TextField } from "../../../ui/TextField";
@@ -17,6 +21,7 @@ export default function MessageAddForm({
   disableBecauseLiveUpdatesAreRecovering = false,
   liveUpdatesUnavailableMessage = null,
 }: MessageAddFormProps) {
+  const authState = useAuthState();
   // Set up the mutation
   const [commitAddMessage, isInFlight] =
     useMutation<MessageAddFormAddMessageMutation>(
@@ -27,6 +32,11 @@ export default function MessageAddForm({
   const [author, setAuthor] = useState("");
   const [body, setBody] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const authenticatedAuthor =
+    authState.status === "authenticated"
+      ? getPrincipalDisplayName(authState.session.principal)
+      : null;
+  const authorValue = authenticatedAuthor ?? author;
 
   // Handle form submit
   const onSubmit = (e: React.FormEvent) => {
@@ -36,7 +46,7 @@ export default function MessageAddForm({
     commitAddMessage({
       variables: {
         input: {
-          author: author || null,
+          author: authorValue || null,
           body,
         },
       },
@@ -61,7 +71,8 @@ export default function MessageAddForm({
       <TextField
         type="text"
         placeholder="Your name (Optional)"
-        value={author}
+        value={authorValue}
+        disabled={authenticatedAuthor !== null}
         onChange={(e) => setAuthor(e.target.value)}
       />
       <TextField

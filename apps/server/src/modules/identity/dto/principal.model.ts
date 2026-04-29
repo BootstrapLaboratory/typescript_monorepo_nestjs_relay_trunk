@@ -11,6 +11,9 @@ export class PrincipalModel {
   @Field()
   provider!: string;
 
+  @Field({ nullable: true })
+  displayName?: string;
+
   @Field(() => [String])
   roles!: string[];
 

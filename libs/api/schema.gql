@@ -38,6 +38,7 @@ input NewMessageInput {
 }
 
 type PrincipalModel {
+  displayName: String
   permissions: [String!]!
   provider: String!
   roles: [String!]!
