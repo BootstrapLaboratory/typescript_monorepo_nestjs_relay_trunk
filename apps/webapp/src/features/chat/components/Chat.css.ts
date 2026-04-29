@@ -45,7 +45,6 @@ export const chatStatus = style({
   border: `1px solid color-mix(in srgb, ${vars.color.accent} 20%, transparent)`,
   borderRadius: vars.radius.md,
   background: vars.color.accentSoft,
-  color: vars.color.text,
   fontSize: "0.875rem",
   ...themeColorTransition,
 });

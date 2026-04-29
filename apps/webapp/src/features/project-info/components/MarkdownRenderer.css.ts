@@ -11,9 +11,7 @@ export const root = style({
 globalStyle(`${root} h1, ${root} h2, ${root} h3, ${root} h4, ${root} h5, ${root} h6`, {
   margin: `${vars.space[4]} 0 0`,
   lineHeight: 1.2,
-  color: vars.color.text,
   fontWeight: 600,
-  ...themeColorTransition,
 });
 
 globalStyle(`${root} h1`, {
@@ -55,7 +53,7 @@ globalStyle(`${root} p code, ${root} li code`, {
   padding: `${vars.space[1]} ${vars.space[2]}`,
   borderRadius: vars.radius.sm,
   background: vars.color.codeSurface,
-  color: vars.color.text,
+  color: "inherit",
   ...themeColorTransition,
 });
 
