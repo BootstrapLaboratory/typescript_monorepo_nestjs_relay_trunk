@@ -25,10 +25,14 @@ type ConnectionParamsFactory = () => Record<string, string>;
 
 const HEARTBEAT_INTERVAL_MS = 10_000;
 const HEARTBEAT_TIMEOUT_MS = 5_000;
+const DEFAULT_RECONNECT_WATCHDOG_MS = 30_000;
 const FATAL_CLOSE_CODES = new Set([4400, 4401, 4403, 4406, 4409, 4429]);
 const listeners = new Set<() => void>();
 const SHOULD_LOG_RECONNECTS =
   import.meta.env.VITE_GRAPHQL_LOG_RECONNECTS === "true";
+const RECONNECT_WATCHDOG_MS = parseReconnectWatchdogMs(
+  import.meta.env.VITE_GRAPHQL_RECONNECT_WATCHDOG_MS,
+);
 
 let connectionState: GraphqlWsConnectionState = {
   status: "idle",
@@ -41,6 +45,7 @@ let connectionState: GraphqlWsConnectionState = {
 
 let browserNetworkListenersInitialized = false;
 let heartbeatTimeout: ReturnType<typeof setTimeout> | undefined;
+let reconnectWatchdogTimeout: ReturnType<typeof setTimeout> | undefined;
 
 function emitConnectionStateChange(): void {
   for (const listener of listeners) {
@@ -59,6 +64,19 @@ function logRealtime(message: string, details?: Record<string, unknown>): void {
   }
 
   console.info(`[realtime] ${message}`);
+}
+
+function parseReconnectWatchdogMs(value: string | undefined): number {
+  if (!value) {
+    return DEFAULT_RECONNECT_WATCHDOG_MS;
+  }
+
+  const parsedValue = Number(value);
+  if (!Number.isFinite(parsedValue) || parsedValue < 0) {
+    return DEFAULT_RECONNECT_WATCHDOG_MS;
+  }
+
+  return parsedValue;
 }
 
 function setConnectionState(
@@ -94,6 +112,20 @@ function clearHeartbeatTimeout(): void {
   }
 }
 
+function clearReconnectWatchdog(): void {
+  if (reconnectWatchdogTimeout) {
+    clearTimeout(reconnectWatchdogTimeout);
+    reconnectWatchdogTimeout = undefined;
+  }
+}
+
+function isReconnectInProgress(): boolean {
+  return (
+    connectionState.status === "connecting" ||
+    connectionState.status === "retrying"
+  );
+}
+
 function initializeBrowserNetworkListeners(): void {
   if (
     browserNetworkListenersInitialized ||
@@ -124,7 +156,33 @@ export function createRealtimeGraphqlWsClient(
   connectionParams?: ConnectionParamsFactory,
 ): Client {
   initializeBrowserNetworkListeners();
-  const wsClient: Client = createClient({
+
+  const startReconnectWatchdog = (client: Client) => {
+    clearReconnectWatchdog();
+    if (RECONNECT_WATCHDOG_MS === 0 || !connectionState.browserOnline) {
+      return;
+    }
+
+    reconnectWatchdogTimeout = setTimeout(() => {
+      reconnectWatchdogTimeout = undefined;
+
+      if (!connectionState.browserOnline || !isReconnectInProgress()) {
+        return;
+      }
+
+      setConnectionState({
+        detail: "Live updates reconnect timed out. Restarting the socket.",
+      });
+      logRealtime(
+        "Live GraphQL reconnect watchdog timed out. Terminating socket.",
+        { timeoutMs: RECONNECT_WATCHDOG_MS },
+      );
+      client.terminate();
+      startReconnectWatchdog(client);
+    }, RECONNECT_WATCHDOG_MS);
+  };
+
+  const wsClient = createClient({
     url,
     connectionParams,
     lazy: true,
@@ -161,9 +219,11 @@ export function createRealtimeGraphqlWsClient(
             : "Opening the live GraphQL connection.",
           { attempt: isRetrying ? connectionState.attempt + 1 : 0 },
         );
+        startReconnectWatchdog(wsClient);
       },
       connected: (_socket, _payload, wasRetry) => {
         clearHeartbeatTimeout();
+        clearReconnectWatchdog();
         setConnectionState({
           status: "connected",
           attempt: 0,
@@ -189,6 +249,7 @@ export function createRealtimeGraphqlWsClient(
           });
           logRealtime("No pong received in time. Terminating stuck socket.");
           wsClient.terminate();
+          startReconnectWatchdog(wsClient);
         }, HEARTBEAT_TIMEOUT_MS);
       },
       pong: (received) => {
@@ -207,19 +268,27 @@ export function createRealtimeGraphqlWsClient(
             detail: "The live connection closed unexpectedly.",
           });
           logRealtime("Live GraphQL connection closed unexpectedly.");
+          startReconnectWatchdog(wsClient);
           return;
         }
 
+        const isFatalClose = isFatalCloseCode(event.code);
         setConnectionState({
-          status: isFatalCloseCode(event.code) ? "disconnected" : "retrying",
+          status: isFatalClose ? "disconnected" : "retrying",
           closeCode: event.code ?? null,
           detail: getCloseDetail(event),
         });
         logRealtime("Live GraphQL connection closed.", {
           code: event.code ?? null,
           reason: getCloseDetail(event),
-          fatal: isFatalCloseCode(event.code),
+          fatal: isFatalClose,
         });
+        if (isFatalClose) {
+          clearReconnectWatchdog();
+          return;
+        }
+
+        startReconnectWatchdog(wsClient);
       },
       error: (error) => {
         if (
@@ -237,6 +306,7 @@ export function createRealtimeGraphqlWsClient(
           error:
             error instanceof Error ? error.message : String(error ?? "unknown"),
         });
+        startReconnectWatchdog(wsClient);
       },
     },
   });

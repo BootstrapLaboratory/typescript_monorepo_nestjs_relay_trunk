@@ -82,8 +82,9 @@ GraphQL subscriptions must use Relay's subscription network from
 `src/shared/relay/environment.ts`. Feature code should call Relay subscription
 hooks and must not create its own websocket client. `src/shared/realtime`
 centralizes the websocket retry policy, heartbeat timeout, browser offline
-tracking, fatal close-code handling, and Cloud Run persistent-connection
-termination recovery so every subscription feature gets the same behavior.
+tracking, reconnect watchdog, fatal close-code handling, and Cloud Run
+persistent-connection termination recovery so every subscription feature gets
+the same behavior.
 
 Relay HTTP requests include refresh-cookie credentials and add the current
 bearer access token from `src/shared/auth` when one exists. If a GraphQL
@@ -145,6 +146,10 @@ Important webapp environment variables:
   same-origin websocket path if reverse-proxied.
 - `VITE_GRAPHQL_LOG_RECONNECTS`: set to `true` to log realtime reconnect
   behavior in the browser console. It should normally be `false` in production.
+- `VITE_GRAPHQL_RECONNECT_WATCHDOG_MS`: timeout for a stuck GraphQL WS
+  `connecting` or `retrying` state. Default is `30000`. Set to `0` to disable.
+  Local development may use a lower value such as `15000` to recover faster
+  after laptop sleep or network changes.
 
 Deployment helpers may expose these as `WEBAPP_VITE_GRAPHQL_HTTP` and
 `WEBAPP_VITE_GRAPHQL_WS` before mapping them into the Vite build environment.
