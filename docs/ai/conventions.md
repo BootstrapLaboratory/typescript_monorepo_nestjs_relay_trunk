@@ -10,6 +10,12 @@
   markdown links from scoped AI documents to parent or sibling AI documents;
   loading order belongs in `AGENTS.md` or in an explicit top-level router
   document such as `docs/ai/deployment.md`.
+- When editing AI documents, keep statements you add or change aligned with the
+  implementation, scripts, config, workflows, and metadata in the current
+  checkout after the current task's intended changes. Prefer source files over
+  older documentation when resolving conflicts. Do not broaden the task to fix
+  unrelated documentation drift; if unrelated drift is noticed, mention it
+  separately.
 - When AI conventions point to architecture documents, use plain inline
   repo-root-relative paths like `apps/server/docs/ai/architecture.md`; do not
   use markdown links or relative paths such as `./architecture.md`.
