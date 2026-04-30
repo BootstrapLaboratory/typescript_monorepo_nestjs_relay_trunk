@@ -3,6 +3,9 @@
 - if you do not find files referenced in this document, then STOP processing and write error message about it
 - Always read `docs/ai/conventions.md` before making code or
   architecture changes in this repository.
+- Read `docs/ai/deployment.md` when working on production setup,
+  pre-deployment tasks, deployment instructions, GitHub Actions deployment
+  workflows, Rush Delivery package/deploy metadata, or files under `deploy`.
 - Read `apps/server/docs/ai/conventions.md` when working under `apps/server`,
   `deploy/cloudrun`, server Rush Delivery metadata, backend GraphQL schema
   generation, database migrations, or Cloud Run deployment behavior.
