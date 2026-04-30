@@ -93,10 +93,65 @@ same access-token source and the shared realtime client restarts the socket when
 the token changes so future protected subscriptions do not duplicate auth or
 Cloud Run reconnect logic in feature code.
 
-The auth access token is never persisted in browser storage. `src/shared/auth`
-may persist a non-secret local hint that the browser last had an authenticated
-session so persistent navigation can choose the least jarring first paint while
-boot refresh confirms or clears the real session.
+## Browser Auth Security
+
+The current webapp auth setup is optimized for browser security:
+
+- Access tokens live in memory only.
+- Refresh tokens are expected to be HttpOnly server cookies.
+- Relay HTTP always sends `credentials: "include"` so the server can read the
+  refresh cookie for login, refresh, and logout flows.
+- Relay HTTP adds `Authorization: Bearer ...` only while an in-memory access
+  token exists.
+- GraphQL WS connection params add the same bearer token while authenticated.
+- The shared realtime client restarts the websocket when the access token
+  changes so server-side connection context does not keep an old identity after
+  login, logout, or refresh.
+
+`src/shared/auth` also persists a small first-paint session hint in
+`localStorage` under `webapp:auth-session-hint`. That hint is intentionally not
+an auth credential. It contains only a marker that this browser last had an
+authenticated session plus a timestamp; it contains no access token, refresh
+token, email, display name, roles, or permissions. Persistent navigation may use
+the hint to choose `Logout` on the first paint while boot refresh confirms the
+real session. If refresh fails, the hint is cleared and the UI returns to
+anonymous state.
+
+Do not treat the local session hint as authorization. Only the in-memory access
+token and server-validated refresh cookie establish real authentication.
+
+Security options, from preferred to least preferred for browsers:
+
+- Preferred: HttpOnly refresh cookie plus memory-only access token. This is the
+  current webapp design and should remain the default.
+- Acceptable UX improvement: persist a non-secret local session hint only. This
+  is the current first-paint optimization and does not let JavaScript recover a
+  session by itself.
+- Usually avoid: persist access tokens in `sessionStorage` or `localStorage`.
+  It reduces reload work but exposes bearer tokens to XSS.
+- Avoid for browser production unless explicitly required:
+  `AUTH_REFRESH_TOKEN_TRANSPORT=response_body` with client-managed refresh
+  token storage. This can be right for non-browser clients, but it is weaker for
+  browser apps than HttpOnly cookies.
+
+Important webapp environment variables:
+
+- `VITE_GRAPHQL_HTTP`: GraphQL HTTP endpoint used by Relay queries and
+  mutations. In production this should be an absolute `https://.../graphql`
+  URL, or a same-origin path if the backend is intentionally reverse-proxied
+  behind the webapp origin.
+- `VITE_GRAPHQL_WS`: GraphQL WS endpoint used by Relay subscriptions. In
+  production this should be an absolute `wss://.../graphql` URL, or a
+  same-origin websocket path if reverse-proxied.
+- `VITE_GRAPHQL_LOG_RECONNECTS`: set to `true` to log realtime reconnect
+  behavior in the browser console. It should normally be `false` in production.
+
+Deployment helpers may expose these as `WEBAPP_VITE_GRAPHQL_HTTP` and
+`WEBAPP_VITE_GRAPHQL_WS` before mapping them into the Vite build environment.
+Keep these values aligned with the server `GRAPHQL_PATH`, refresh cookie path,
+and backend `CORS_ORIGIN`. For cookie refresh transport, the backend CORS
+allowlist must include the exact webapp origin because credentialed browser
+requests cannot safely rely on wildcard production CORS.
 
 ## Styling Boundary
 
