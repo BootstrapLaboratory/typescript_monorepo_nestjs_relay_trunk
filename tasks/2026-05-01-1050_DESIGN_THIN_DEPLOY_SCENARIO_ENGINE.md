@@ -289,8 +289,8 @@ Future web usage should be possible without rewriting the scenario:
 
 ## Phase 3: Wrap Existing Provider Scripts
 
-- [ ] Create a Cloud Run provider module with functions that wrap existing
-      Cloud Run setup scripts.
+- [ ] Create a Cloud Run provider module with functions that replace or wrap
+      existing Cloud Run setup scripts.
 - [ ] Create a Cloudflare Pages provider module with functions that wrap
       existing Cloudflare setup scripts.
 - [ ] Create Neon and Upstash provider modules for manual-input guidance first.
@@ -298,6 +298,23 @@ Future web usage should be possible without rewriting the scenario:
       scenario steps.
 - [ ] Do not change existing shell script behavior unless the change is needed
       for the wrapper and covered by a check.
+
+### Phase 3 Progress
+
+- [x] Added `deploy/providers/cloudrun` as a TypeScript Rush project for a
+      Cloud Run provider design spike.
+- [x] Added typed `bootstrapCloudRun(input, deps)` orchestration with
+      bash-compatible defaults and an output object matching the current
+      bootstrap script's useful values.
+- [x] Added dependency interfaces for project, billing, service usage, Artifact
+      Registry, IAM, and Workload Identity operations so concrete SDK clients
+      can be added incrementally.
+- [x] Added an SDK-first policy: prefer official Google Cloud Node clients,
+      use Google's official `googleapis` generated clients where Cloud clients
+      do not expose the needed IAM/WIF surface, and avoid custom REST unless
+      no official Google client supports the operation.
+- [x] Added fake-dependency tests for defaults, orchestration order, output
+      shape, and optional billing behavior.
 
 ## Phase 4: Add First Real Scenario
 

@@ -135,7 +135,10 @@ Production uses migrations, not schema synchronization.
 
 Server package materialization uses `rush deploy` with
 `common/config/rush/deploy-server.json`. Provider deployment behavior belongs
-under `deploy/cloudrun`, not in Nest modules.
+under `deploy/cloudrun` and deploy provider modules, not in Nest modules.
+`deploy/providers/cloudrun` is currently a TypeScript design spike for typed
+Cloud Run bootstrap orchestration. It does not make live Google Cloud calls or
+replace the existing Cloud Run shell scripts yet.
 
 Rush Delivery validation for this project starts backing Postgres and Redis
 services, runs migrations, starts the production server, and executes the Cloud

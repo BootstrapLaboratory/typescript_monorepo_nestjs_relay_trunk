@@ -18,12 +18,16 @@ ordering, and lockfile ownership.
   fallback/reference implementation, persists sanitized XState snapshots for
   resume/fresh-run behavior, includes a local JSON store, CLI demo scenario,
   and redacting shell helper for future provider wrappers, and is not a
-  production deploy executor.
+  production deploy executor. `deploy/providers/cloudrun` is a TypeScript
+  provider design spike for Cloud Run bootstrap orchestration; it currently has
+  fake-dependency tests only and does not replace `deploy/cloudrun` scripts.
 
 ## Rush Rules
 
 - Add or remove Rush projects in `rush.json`.
 - Keep Rush `packageName` values aligned with Rush Delivery target names.
+- Deploy provider Rush projects may live under `deploy/providers/*`; the Rush
+  project folder depth limit is set to allow that shape.
 - Do not run ad-hoc package-manager installs in project folders.
 - Use `npm run rush:install` for lockfile-faithful installs.
 - Use `npm run rush:update` after changing dependencies.
