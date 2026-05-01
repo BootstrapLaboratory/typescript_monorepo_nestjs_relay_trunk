@@ -55,6 +55,10 @@ export function createMemoryStore(initialValues = {}) {
     },
     saved,
     snapshots,
+    async clear() {
+      snapshot = undefined;
+      values = {};
+    },
     async clearSnapshot() {
       snapshot = undefined;
     },
@@ -82,10 +86,12 @@ export function createMemoryStore(initialValues = {}) {
 }
 
 export function createScriptedUi(values) {
+  const continued = [];
   const prompted = [];
   const shownSteps = [];
 
   return {
+    continued,
     prompted,
     shownSteps,
     async showStep(step) {
@@ -103,6 +109,9 @@ export function createScriptedUi(values) {
       }
 
       return collected;
+    },
+    async waitForContinue(request) {
+      continued.push(request);
     },
   };
 }

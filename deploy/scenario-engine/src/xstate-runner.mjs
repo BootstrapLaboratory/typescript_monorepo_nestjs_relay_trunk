@@ -83,6 +83,12 @@ export function compileScenarioToXState(scenario, runtime = {}) {
       runStep: fromPromise(async ({ input }) => {
         const output = await input.step.run(
           pickStepInput(input.step, input.values),
+          {
+            store: runtime.store,
+            step: input.step,
+            ui: runtime.ui,
+            values: input.values,
+          },
         );
 
         return persistStepOutput({
@@ -125,7 +131,11 @@ export async function startScenarioXState(scenario, options) {
     options.fresh === true ? undefined : await options.store.loadSnapshot?.();
 
   if (options.fresh === true) {
-    await options.store.clearSnapshot?.({ scenario });
+    if (options.store.clear !== undefined) {
+      await options.store.clear({ scenario });
+    } else {
+      await options.store.clearSnapshot?.({ scenario });
+    }
   }
 
   const actor = createActor(
@@ -160,23 +170,36 @@ export async function startScenarioXState(scenario, options) {
   };
 
   const done = new Promise((resolve, reject) => {
-    subscription = actor.subscribe((snapshot) => {
-      saveSnapshot(snapshot);
+    const rejectWithError = (error) => {
+      subscription?.unsubscribe();
+      pendingSnapshotSave.then(() => reject(error), reject);
+    };
 
-      if (snapshot.status === "done") {
-        subscription.unsubscribe();
-        pendingSnapshotSave
-          .then(() => options.store.clearSnapshot?.({ scenario }))
-          .then(() => resolve(snapshot.output), reject);
-      }
+    subscription = actor.subscribe({
+      error(error) {
+        rejectWithError(error);
+      },
+      next(snapshot) {
+        saveSnapshot(snapshot);
 
-      if (snapshot.status === "error") {
-        subscription.unsubscribe();
-        pendingSnapshotSave.then(() => reject(snapshot.error), reject);
-      }
+        if (snapshot.status === "done") {
+          subscription.unsubscribe();
+          pendingSnapshotSave
+            .then(() => options.store.clearSnapshot?.({ scenario }))
+            .then(() => resolve(snapshot.output), reject);
+        }
+
+        if (snapshot.status === "error") {
+          rejectWithError(snapshot.error);
+        }
+      },
     });
 
-    actor.start();
+    try {
+      actor.start();
+    } catch (error) {
+      rejectWithError(error);
+    }
   });
 
   return {

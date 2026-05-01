@@ -18,8 +18,13 @@ ordering, and lockfile ownership.
   fallback/reference implementation, persists sanitized XState snapshots for
   resume/fresh-run behavior, includes a local JSON store, CLI demo scenario,
   redacting shell helper for future provider wrappers, and a Cloud Run
-  bootstrap action wrapper for the first production scenario. It is not a
-  production deploy executor. `deploy/providers/cloudrun` is a TypeScript
+  bootstrap action wrapper. The first production scenario skeleton lives under
+  `deploy/scenarios/cloudrun-cloudflare-neon-upstash`; it collects a Google
+  Cloud project name, generates and persists a project ID when one is not
+  provided, and currently executes only the Cloud Run bootstrap step. The Cloud
+  Run step can pause for manual billing enablement and retry when Google
+  reports that billing is required. It is not a production deploy executor.
+  `deploy/providers/cloudrun` is a TypeScript
   provider spike for Cloud Run bootstrap orchestration; it includes SDK-backed
   Resource Manager, Cloud Billing, Service Usage, Artifact Registry repository,
   and Artifact Registry repository IAM dependencies plus IAM service account
@@ -27,8 +32,8 @@ ordering, and lockfile ownership.
   Resource Manager-backed project IAM dependencies, and Workload Identity pool
   plus GitHub OIDC provider dependencies through `@googleapis/iam`. It exports
   a default Google-backed dependency factory for `bootstrapCloudRun`, and the
-  scenario engine has a step wrapper that can lazy-load it. The full production
-  scenario is not wired yet and this does not replace `deploy/cloudrun` scripts.
+  scenario engine has a step wrapper that can lazy-load it. This does not
+  replace `deploy/cloudrun` scripts.
 
 ## Rush Rules
 

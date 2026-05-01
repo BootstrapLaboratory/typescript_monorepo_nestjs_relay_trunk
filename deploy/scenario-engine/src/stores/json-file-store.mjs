@@ -14,6 +14,9 @@ export function createJsonFileStore(filePath) {
   };
 
   return {
+    async clear() {
+      await updateState(() => ({ values: {} }));
+    },
     async clearSnapshot() {
       await updateState((state) => {
         delete state.snapshot;
@@ -51,6 +54,10 @@ export function createJsonFileStore(filePath) {
 async function readState(filePath) {
   try {
     const raw = await readFile(filePath, "utf8");
+    if (raw.trim() === "") {
+      return { values: {} };
+    }
+
     const parsed = JSON.parse(raw);
 
     return {

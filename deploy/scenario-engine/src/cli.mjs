@@ -3,6 +3,9 @@ import { homedir } from "node:os";
 import { resolve } from "node:path";
 import { exit, stdout } from "node:process";
 
+import {
+  createCloudRunCloudflareNeonUpstashScenario,
+} from "../../scenarios/cloudrun-cloudflare-neon-upstash/scenario.mjs";
 import { createTinyScenario } from "./demo/tiny-scenario.mjs";
 import { redactScenarioValues } from "./runtime.mjs";
 import { createJsonFileStore } from "./stores/json-file-store.mjs";
@@ -10,6 +13,8 @@ import { createCliUi } from "./ui/cli-ui.mjs";
 import { runScenarioXState } from "./xstate-runner.mjs";
 
 const scenarios = {
+  "cloudrun-cloudflare-neon-upstash":
+    createCloudRunCloudflareNeonUpstashScenario,
   demo: createTinyScenario,
 };
 
@@ -129,7 +134,11 @@ function parseVariable(value) {
 }
 
 function printHelp() {
-  stdout.write(`Usage: node src/cli.mjs demo [options]
+  stdout.write(`Usage: node src/cli.mjs <scenario> [options]
+
+Scenarios:
+  cloudrun-cloudflare-neon-upstash
+  demo
 
 Options:
   --fresh              Ignore saved progress and start from the first step.

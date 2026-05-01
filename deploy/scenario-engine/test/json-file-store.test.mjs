@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
@@ -34,6 +34,10 @@ describe("JSON file scenario store", () => {
         PROJECT_NUMBER: "demo-123",
       });
 
+      await restoredStore.clear();
+      assert.equal(await restoredStore.loadSnapshot(), undefined);
+      assert.deepEqual(await restoredStore.loadValues(), {});
+
       const raw = await readFile(statePath, "utf8");
       assert.doesNotMatch(raw, /snapshot/);
     } finally {
@@ -61,6 +65,22 @@ describe("JSON file scenario store", () => {
       assert.deepEqual(await store.loadSnapshot(), {
         value: "step_1",
       });
+    } finally {
+      await rm(directory, { force: true, recursive: true });
+    }
+  });
+
+  it("treats an existing empty state file as fresh state", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "scenario-store-"));
+    const statePath = join(directory, "state.json");
+
+    try {
+      await writeFile(statePath, "");
+
+      const store = createJsonFileStore(statePath);
+
+      assert.deepEqual(await store.loadValues(), {});
+      assert.equal(await store.loadSnapshot(), undefined);
     } finally {
       await rm(directory, { force: true, recursive: true });
     }

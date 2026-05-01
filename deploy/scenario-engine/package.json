@@ -7,6 +7,7 @@
     "deploy-scenario-engine": "src/cli.mjs"
   },
   "scripts": {
+    "cloudrun-cloudflare-neon-upstash": "node src/cli.mjs cloudrun-cloudflare-neon-upstash",
     "demo": "node src/cli.mjs demo",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run test"

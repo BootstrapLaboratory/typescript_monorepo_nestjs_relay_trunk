@@ -44,6 +44,107 @@ describe("Google Resource Manager projects dependency", () => {
     assert.equal(client.createdOperationAwaited, true);
   });
 
+  it("attempts creation when project lookup is permission denied", async () => {
+    const client = new FakeProjectsClient();
+    client.getProjectError = Object.assign(
+      new Error("7 PERMISSION_DENIED: project may not exist"),
+      {
+        code: 7,
+      },
+    );
+    const projects = createGoogleProjectsDependency(client);
+
+    await projects.ensureProject({
+      displayName: "Demo Project",
+      projectId: "demo-project",
+    });
+
+    assert.deepEqual(client.createProjectCalls, [
+      {
+        project: {
+          displayName: "Demo Project",
+          projectId: "demo-project",
+        },
+      },
+    ]);
+    assert.equal(client.createdOperationAwaited, true);
+  });
+
+  it("explains missing project creation permission", async () => {
+    const client = new FakeProjectsClient();
+    client.getProjectError = Object.assign(
+      new Error("7 PERMISSION_DENIED: project may not exist"),
+      {
+        code: 7,
+      },
+    );
+    client.createProjectError = Object.assign(
+      new Error("7 PERMISSION_DENIED: caller cannot create projects"),
+      {
+        code: 7,
+      },
+    );
+    const projects = createGoogleProjectsDependency(client);
+
+    await assert.rejects(
+      projects.ensureProject({
+        displayName: "Demo Project",
+        projectId: "demo-project",
+      }),
+      /resourcemanager\.projects\.create/,
+    );
+  });
+
+  it("explains a deleted ADC quota project during project creation", async () => {
+    const client = new FakeProjectsClient();
+    client.getProjectError = Object.assign(
+      new Error("7 PERMISSION_DENIED: project may not exist"),
+      {
+        code: 7,
+      },
+    );
+    client.createProjectError = Object.assign(
+      new Error("7 PERMISSION_DENIED: Project old-quota-project has been deleted."),
+      {
+        code: 7,
+      },
+    );
+    const projects = createGoogleProjectsDependency(client);
+
+    await assert.rejects(
+      projects.ensureProject({
+        displayName: "Demo Project",
+        projectId: "demo-project",
+      }),
+      /login --disable-quota-project/,
+    );
+  });
+
+  it("explains a deleted target project ID during project creation", async () => {
+    const client = new FakeProjectsClient();
+    client.getProjectError = Object.assign(
+      new Error("7 PERMISSION_DENIED: project may not exist"),
+      {
+        code: 7,
+      },
+    );
+    client.createProjectError = Object.assign(
+      new Error("7 PERMISSION_DENIED: Project demo-project has been deleted."),
+      {
+        code: 7,
+      },
+    );
+    const projects = createGoogleProjectsDependency(client);
+
+    await assert.rejects(
+      projects.ensureProject({
+        displayName: "Demo Project",
+        projectId: "demo-project",
+      }),
+      /cannot be reused/,
+    );
+  });
+
   it("returns the numeric project number from the project resource name", async () => {
     const client = new FakeProjectsClient({
       "demo-project": {
@@ -64,8 +165,8 @@ describe("Google Resource Manager projects dependency", () => {
 
   it("rethrows non-not-found errors during ensureProject", async () => {
     const client = new FakeProjectsClient();
-    client.getProjectError = Object.assign(new Error("permission denied"), {
-      code: 7,
+    client.getProjectError = Object.assign(new Error("service unavailable"), {
+      code: 13,
     });
     const projects = createGoogleProjectsDependency(client);
 
@@ -74,7 +175,7 @@ describe("Google Resource Manager projects dependency", () => {
         displayName: "Demo Project",
         projectId: "demo-project",
       }),
-      /permission denied/,
+      /service unavailable/,
     );
     assert.deepEqual(client.createProjectCalls, []);
   });
@@ -88,6 +189,7 @@ class FakeProjectsClient implements ProjectsClientLike {
       projectId: string;
     };
   }> = [];
+  createProjectError?: Error & { code?: number };
   getProjectError?: Error & { code?: number };
 
   constructor(private readonly projects: Record<string, { name: string }> = {}) {}
@@ -98,6 +200,10 @@ class FakeProjectsClient implements ProjectsClientLike {
       projectId: string;
     };
   }) {
+    if (this.createProjectError !== undefined) {
+      throw this.createProjectError;
+    }
+
     this.createProjectCalls.push(request);
 
     return [

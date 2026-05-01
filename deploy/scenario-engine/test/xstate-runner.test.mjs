@@ -6,6 +6,7 @@ import {
   runScenarioXState,
   startScenarioXState,
 } from "../src/xstate-runner.mjs";
+import { scenario, step } from "../src/define.mjs";
 import {
   createMemoryStore,
   createScriptedUi,
@@ -172,6 +173,33 @@ describe("XState-backed scenario runner spike", () => {
     assert.equal(
       result.values.SERVICE_URL,
       "https://fresh-123.fresh-region.example.test",
+    );
+    assert.deepEqual(await store.loadValues(), {
+      PROJECT_NUMBER: "fresh-123",
+      SERVICE_URL: "https://fresh-123.fresh-region.example.test",
+    });
+  });
+
+  it("rejects when a step fails", async () => {
+    const failingScenario = scenario({
+      id: "failing-scenario",
+      steps: [
+        step({
+          id: "failing.step",
+          run: async () => {
+            throw new Error("Step failed cleanly.");
+          },
+        }),
+      ],
+    });
+
+    await assert.rejects(
+      () =>
+        runScenarioXState(failingScenario, {
+          store: createMemoryStore(),
+          ui: createScriptedUi({}),
+        }),
+      /Step failed cleanly/,
     );
   });
 });

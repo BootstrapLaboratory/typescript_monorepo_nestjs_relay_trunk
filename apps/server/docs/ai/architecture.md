@@ -144,9 +144,13 @@ account creation, service-account IAM binding, and Resource Manager-backed
 project IAM dependencies, plus `@googleapis/iam`-backed Workload Identity pool
 and GitHub OIDC provider dependencies. It exports a default Google-backed
 dependency factory for `bootstrapCloudRun`, and `deploy/scenario-engine` has a
-Cloud Run bootstrap step wrapper that can lazy-load it. The full production
-scenario is not wired yet and this does not replace the existing Cloud Run
-shell scripts yet.
+Cloud Run bootstrap step wrapper that can lazy-load it. The first production
+scenario skeleton under `deploy/scenarios/cloudrun-cloudflare-neon-upstash`
+collects a Google Cloud project name, generates and persists a project ID when
+one is not provided, and currently executes only that Cloud Run bootstrap step.
+The Cloud Run step can pause for manual billing enablement and retry when
+Google reports that billing is required. This does not replace the existing
+Cloud Run shell scripts yet.
 
 Rush Delivery validation for this project starts backing Postgres and Redis
 services, runs migrations, starts the production server, and executes the Cloud

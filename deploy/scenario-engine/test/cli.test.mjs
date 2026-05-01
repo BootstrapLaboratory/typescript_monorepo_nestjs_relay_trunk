@@ -11,6 +11,19 @@ const execFileAsync = promisify(execFile);
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 describe("scenario CLI", () => {
+  it("lists the production scenario command", async () => {
+    const { stdout } = await execFileAsync(
+      process.execPath,
+      [join(projectRoot, "src/cli.mjs"), "--help"],
+      {
+        cwd: projectRoot,
+      },
+    );
+
+    assert.match(stdout, /cloudrun-cloudflare-neon-upstash/);
+    assert.match(stdout, /demo/);
+  });
+
   it("runs the demo scenario non-interactively without printing secrets", async () => {
     const directory = await mkdtemp(join(tmpdir(), "scenario-cli-"));
     const statePath = join(directory, "state.json");

@@ -26,6 +26,23 @@ export function createCliUi(options = {}) {
 
       return values;
     },
+    async waitForContinue({ message }) {
+      if (input.isTTY !== true) {
+        throw new Error(
+          [
+            message,
+            "Run this scenario in an interactive terminal, or complete the manual step and rerun without --fresh.",
+          ].join("\n"),
+        );
+      }
+
+      output.write(`\n${message.trim()}\n`);
+      await askText({
+        input,
+        output,
+        prompt: "Press Enter after completing the manual step",
+      });
+    },
   };
 }
 

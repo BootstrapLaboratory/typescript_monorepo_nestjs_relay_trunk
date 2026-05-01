@@ -6,9 +6,9 @@ preparation flows. Scenario authors use project-owned interfaces (`scenario`,
 XState internally.
 
 The demo executable path is intentionally fake. It proves the CLI, JSON state
-store, resume/fresh behavior, and secret redaction. A real Cloud Run bootstrap
-action wrapper exists for the first production scenario, but no production
-scenario is wired into the CLI yet.
+store, resume/fresh behavior, and secret redaction. The first production
+scenario skeleton is wired into the CLI and currently collects Google Cloud
+project details before running the real Cloud Run bootstrap action.
 
 ## Cloud Run Bootstrap Action
 
@@ -22,9 +22,28 @@ Build the Cloud Run provider before executing this action for real:
 npm --prefix deploy/providers/cloudrun run build
 ```
 
+Authenticate Google SDK calls with Application Default Credentials. Fresh
+project scenarios should avoid copying the current `gcloud` project into ADC as
+a quota project, because that local quota setting is not the deployment target:
+
+```sh
+gcloud auth application-default login --disable-quota-project
+```
+
+If ADC already points at a deleted or stale quota project, recreate it:
+
+```sh
+gcloud auth application-default revoke
+gcloud auth application-default login --disable-quota-project
+```
+
 Tests can inject a provider object into `createCloudRunBootstrapStep` so they
 exercise the scenario action without initializing Google clients or making real
 Google Cloud calls.
+
+When Google reports that billing is not enabled for the target project, the CLI
+action pauses for manual billing enablement and retries the same bootstrap step
+after the user presses Enter.
 
 ## Shell Helper
 
@@ -52,6 +71,13 @@ Run the tiny fake scenario interactively:
 
 ```sh
 npm --prefix deploy/scenario-engine run demo
+```
+
+Run the first production scenario skeleton:
+
+```sh
+npm --prefix deploy/providers/cloudrun run build
+npm --prefix deploy/scenario-engine run cloudrun-cloudflare-neon-upstash
 ```
 
 Run it non-interactively:

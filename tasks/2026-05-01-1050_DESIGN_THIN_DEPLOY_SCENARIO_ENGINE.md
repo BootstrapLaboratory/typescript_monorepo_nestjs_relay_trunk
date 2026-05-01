@@ -381,13 +381,31 @@ Future web usage should be possible without rewriting the scenario:
 
 ## Phase 4: Add First Real Scenario
 
-- [ ] Add `cloudrun-cloudflare-neon-upstash` as the first scenario.
-- [ ] Keep the scenario file readable enough to serve as the production setup
+- [x] Add `cloudrun-cloudflare-neon-upstash` as the first scenario.
+- [x] Keep the scenario file readable enough to serve as the production setup
       runbook.
-- [ ] Make the CLI runner execute one step at a time, showing the step guide
+- [x] Make the CLI runner execute one step at a time, showing the step guide
       and prompting only for missing inputs.
-- [ ] Persist generated non-secret outputs for later steps.
-- [ ] Ensure secret inputs are never persisted as generated state.
+- [x] Persist generated non-secret outputs for later steps.
+- [x] Ensure secret inputs are never persisted as generated state.
+
+### Phase 4 Progress
+
+- [x] Added `deploy/scenarios/cloudrun-cloudflare-neon-upstash/scenario.mjs`
+      as the first production scenario skeleton.
+- [x] Wired the scenario into `deploy-scenario-engine` CLI and package scripts
+      while keeping the existing demo command intact.
+- [x] Kept the first scenario slice to one real provider action:
+      `cloudrun.bootstrap`.
+- [x] Added a scenario test that runs the skeleton through the XState runner
+      with injected Cloud Run provider functions, avoiding real Google Cloud
+      calls.
+- [x] Added a local `google.project` scenario step that prompts for
+      `PROJECT_NAME`, accepts optional `PROJECT_ID` overrides, and generates a
+      valid persisted Google Cloud project ID when no override is supplied.
+- [x] Added a manual billing enablement pause/retry path for Cloud Run
+      bootstrap when Google reports that billing is required for service
+      activation.
 
 ## Phase 5: Documentation And Migration
 
