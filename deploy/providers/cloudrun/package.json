@@ -18,7 +18,8 @@
   "dependencies": {
     "@google-cloud/artifact-registry": "^4.4.0",
     "@google-cloud/resource-manager": "^6.1.0",
-    "@google-cloud/service-usage": "^3.3.0"
+    "@google-cloud/service-usage": "^3.3.0",
+    "@googleapis/iam": "^36.0.0"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",

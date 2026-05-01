@@ -31,8 +31,8 @@ export const googleSdkPolicy = [
   },
   {
     notes:
-      "Use the official IAM client when it exposes the needed IAM Admin surface. If the generated Cloud client is incomplete for service accounts, policies, or Workload Identity Federation, use Google's official googleapis IAM v1 client before considering custom REST.",
-    preferredPackage: "@google-cloud/iam or googleapis",
+      "Use the official IAM client when it exposes the needed IAM Admin surface. For user-managed service accounts, use Google's official @googleapis/iam IAM v1 client; createGoogleIamDependency implements service account creation through that client. Continue to prefer official generated Google clients before considering custom REST.",
+    preferredPackage: "@google-cloud/iam or @googleapis/iam",
     providerArea: "iam",
   },
   {

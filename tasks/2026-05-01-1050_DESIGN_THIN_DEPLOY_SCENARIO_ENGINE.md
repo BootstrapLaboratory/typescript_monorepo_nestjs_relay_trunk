@@ -340,6 +340,11 @@ Future web usage should be possible without rewriting the scenario:
 - [x] Added fake IAM policy tests for adding a member to an existing binding,
       adding a missing role binding, skipping an existing member, and keeping
       conditional bindings separate from unconditional bindings.
+- [x] Added `createGoogleIamDependency` using Google's official
+      `@googleapis/iam` IAM v1 client for `ensureServiceAccount`.
+- [x] Added fake IAM service account tests for existing account no-op, missing
+      account creation, non-404 error propagation, and IAM service account
+      resource name formatting.
 
 ## Phase 4: Add First Real Scenario
 
