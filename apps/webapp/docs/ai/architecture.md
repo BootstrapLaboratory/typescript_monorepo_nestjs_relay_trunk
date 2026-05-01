@@ -45,6 +45,9 @@ hand-edit them.
   `pages` for route-facing feature pages, `components` for feature-local
   building blocks, `relay` for feature GraphQL documents, and `assets` for
   feature-owned static files.
+- Feature components that depend on Relay, auth stores, realtime stores, or
+  route state should keep that dependency in a thin container and expose a
+  plain view component for reusable UI composition and isolated rendering.
 - `src/shared/graphql` owns browser GraphQL endpoint resolution.
 - `src/shared/auth` owns auth session state, boot-time refresh, refresh-token
   transport strategy selection, logout, auth error parsing, and the non-secret

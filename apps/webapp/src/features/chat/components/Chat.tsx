@@ -12,17 +12,30 @@ import type { GraphQLSubscriptionConfig } from "relay-runtime";
 import { appendRootFieldRecordIfMissing } from "../../../shared/relay/store";
 import {
   getRealtimeConnectionMessage,
+  type GraphqlWsConnectionStatus,
   useRealtimeConnectionState,
 } from "../../../shared/realtime/realtime-connection";
-import { Surface } from "../../../ui/Surface";
-import { cx } from "../../../ui/classNames";
-import * as styles from "./Chat.css";
 import { ChatPageQuery } from "../relay/Chat.query";
 import { ChatMessageAddedSubscriptionNode } from "../relay/ChatMessageAdded.subscription";
+import { ChatView, type ChatStatusTone } from "./ChatView";
 
 type ChatProps = {
   queryRef: PreloadedQuery<ChatQuery>;
 };
+
+function getChatStatusTone(
+  status: GraphqlWsConnectionStatus,
+): ChatStatusTone | undefined {
+  if (status === "retrying") {
+    return "warning";
+  }
+
+  if (status === "disconnected") {
+    return "danger";
+  }
+
+  return undefined;
+}
 
 export default function Chat({ queryRef }: ChatProps) {
   const data = usePreloadedQuery<ChatQuery>(ChatPageQuery, queryRef);
@@ -63,43 +76,26 @@ export default function Chat({ queryRef }: ChatProps) {
     messagesElement.scrollTop = messagesElement.scrollHeight;
   }, [messages.length, lastMessageId]);
 
-  const statusClass =
-    realtimeConnectionState.status === "retrying"
-      ? styles.chatStatusRetrying
-      : realtimeConnectionState.status === "disconnected"
-        ? styles.chatStatusDisconnected
-        : undefined;
-
   return (
-    <Surface className={styles.chatSurface}>
-      <div className={styles.chat}>
-        <div className={styles.chatHeader}>
-          <h1 className={styles.title}>Anonymous Chat</h1>
-          <p className={styles.subtitle}>
-            Messages are backed by Relay and GraphQL subscriptions.
-          </p>
-        </div>
-        {realtimeConnectionMessage ? (
-          <p
-            className={cx(styles.chatStatus, statusClass)}
-            role="status"
-            aria-live="polite"
-          >
-            {realtimeConnectionMessage}
-          </p>
-        ) : null}
-        <ul className={styles.messages} ref={messagesRef}>
+    <ChatView
+      messagesRef={messagesRef}
+      realtimeConnectionMessage={realtimeConnectionMessage}
+      realtimeConnectionTone={getChatStatusTone(realtimeConnectionState.status)}
+      messageItems={
+        <>
           {messages.map((msg) => (
             <MessageItem key={msg.id} message={msg} />
           ))}
-        </ul>
+        </>
+      }
+      composer={
         <MessageAddForm
           disableBecauseLiveUpdatesAreRecovering={
             disableSendBecauseLiveUpdatesAreRecovering
           }
           liveUpdatesUnavailableMessage={realtimeConnectionMessage}
         />
-      </div>
-    </Surface>
+      }
+    />
   );
 }

@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from "react";
+import { useState } from "react";
 import { useMutation } from "react-relay";
 import {
   AuthApiError,
@@ -8,14 +8,12 @@ import {
   setAuthSessionFromPayload,
   type AuthPayload,
 } from "../../../shared/auth/session";
-import { Button } from "../../../ui/Button";
-import { TextField } from "../../../ui/TextField";
 import type { AuthMode } from "../auth-mode";
 import type { LoginMutation } from "../relay/__generated__/LoginMutation.graphql";
 import type { RegisterMutation } from "../relay/__generated__/RegisterMutation.graphql";
 import { LoginMutationNode } from "../relay/Login.mutation";
 import { RegisterMutationNode } from "../relay/Register.mutation";
-import * as styles from "./AuthForm.css";
+import { AuthFormView } from "./AuthFormView";
 
 type AuthFormProps = {
   mode: AuthMode;
@@ -77,8 +75,7 @@ export function AuthForm({ mode, onAuthenticated }: AuthFormProps) {
     });
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function handleSubmit() {
     setError(null);
 
     const trimmedEmail = email.trim();
@@ -104,62 +101,17 @@ export function AuthForm({ mode, onAuthenticated }: AuthFormProps) {
   }
 
   return (
-    <form
-      aria-busy={isSubmitting}
-      className={styles.form}
-      onSubmit={(event) => void handleSubmit(event)}
-    >
-      {error ? (
-        <p className={styles.error} role="alert">
-          {error}
-        </p>
-      ) : null}
-      <label className={styles.field}>
-        <span className={styles.label}>Email</span>
-        <TextField
-          autoComplete="email"
-          inputMode="email"
-          maxLength={320}
-          required
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-      </label>
-      {isRegisterMode ? (
-        <label className={styles.field}>
-          <span className={styles.label}>
-            Display name <span className={styles.optional}>optional</span>
-          </span>
-          <TextField
-            autoComplete="name"
-            maxLength={120}
-            value={displayName}
-            onChange={(event) => setDisplayName(event.target.value)}
-          />
-        </label>
-      ) : null}
-      <label className={styles.field}>
-        <span className={styles.label}>Password</span>
-        <TextField
-          autoComplete={isRegisterMode ? "new-password" : "current-password"}
-          minLength={8}
-          maxLength={256}
-          required
-          type="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-        />
-      </label>
-      <div className={styles.actions}>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting
-            ? "Working..."
-            : isRegisterMode
-              ? "Create account"
-              : "Login"}
-        </Button>
-      </div>
-    </form>
+    <AuthFormView
+      mode={mode}
+      email={email}
+      displayName={displayName}
+      password={password}
+      isSubmitting={isSubmitting}
+      submitError={error}
+      onEmailChange={setEmail}
+      onDisplayNameChange={setDisplayName}
+      onPasswordChange={setPassword}
+      onSubmit={() => void handleSubmit()}
+    />
   );
 }
