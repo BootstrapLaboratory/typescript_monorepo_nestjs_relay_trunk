@@ -32,10 +32,16 @@ Both runners consume that same scenario definition.
 - Boundary rule: XState stays hidden behind `compileScenarioToXState`; scenario
   and provider files should keep using the project-owned DSL
 
-## Decision Notes
+## Decision
 
-Use the plain runner if the production flow stays mostly linear and CLI-first.
+Use the XState-backed runner as the default execution engine.
 
-Use the XState-backed runner if pause/resume, branching, retries, cancellation,
-or a browser wizard become first-class requirements soon enough to justify the
-extra machinery.
+The extra engine code is acceptable because persistence/resume matters for CLI
+interrupts and future web page reloads. The compiled machine also gives a
+natural place for flow preview, retries, branching, cancellation, and more
+complex provider setup paths.
+
+Keep the plain runner as a fallback/reference implementation. It is useful as a
+small executable definition of the scenario semantics, and it gives the project
+a simple escape hatch if the XState compiler boundary starts to obscure the
+scenario model.

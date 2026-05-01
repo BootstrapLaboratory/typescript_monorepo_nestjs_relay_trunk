@@ -13,8 +13,9 @@ ordering, and lockfile ownership.
   toolchain images, and Rush install cache.
 - `deploy`: provider-specific scripts for Cloud Run and Cloudflare Pages.
   `deploy/scenario-engine` is a small Rush project for the deployment scenario
-  engine spike; it compares a plain runner with an XState-backed runner behind
-  the same project-owned scenario DSL and is not a production deploy executor.
+  engine spike. It uses the XState-backed runner as the default execution
+  engine behind the project-owned scenario DSL, keeps a plain runner as a
+  fallback/reference implementation, and is not a production deploy executor.
 
 ## Rush Rules
 

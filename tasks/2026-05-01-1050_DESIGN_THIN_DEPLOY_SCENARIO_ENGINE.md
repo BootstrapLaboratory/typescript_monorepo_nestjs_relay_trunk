@@ -222,9 +222,10 @@ Future web usage should be possible without rewriting the scenario:
       code size, testability, CLI/web portability, persistence/resume support,
       branching/retry support, and how much XState vocabulary leaks into
       provider or scenario files.
-- [ ] Prefer plain TypeScript unless XState clearly improves lifecycle,
-      persistence/resume, branching, retries, or future web wizard behavior
-      without hiding scenario readability.
+- [x] Decide to use the XState-backed runner by default because
+      persistence/resume, previewable flow, retries, branching, and future web
+      wizard behavior are worth the small extra engine cost. Retain the plain
+      runner as a fallback/reference implementation.
 - [ ] Decide whether input schemas should use a dependency such as Zod or a
       tiny first-party schema.
 - [ ] Define the minimal `scenario`, `step`, `text`, `secret`, `runScenario`,
@@ -246,6 +247,8 @@ Future web usage should be possible without rewriting the scenario:
       touching real provider scripts.
 - [x] Added `deploy/scenario-engine/SPIKE_COMPARISON.md` with the side-by-side
       comparison notes.
+- [x] Chose the XState-backed runner as the default execution engine while
+      keeping the plain runner as a fallback/reference implementation.
 
 ## Phase 2: Add Scenario Engine Skeleton
 
