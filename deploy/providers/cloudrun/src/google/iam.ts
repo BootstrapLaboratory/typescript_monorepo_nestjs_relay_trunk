@@ -20,6 +20,18 @@ type GetServiceAccountRequest = {
   name: string;
 };
 
+type GetServiceAccountIamPolicyRequest = {
+  "options.requestedPolicyVersion"?: number;
+  resource: string;
+};
+
+type SetServiceAccountIamPolicyRequest = {
+  requestBody: {
+    policy: ServiceAccountIamPolicy;
+  };
+  resource: string;
+};
+
 type GetProjectIamPolicyRequest = {
   resource: string;
 };
@@ -31,6 +43,7 @@ type SetProjectIamPolicyRequest = {
 
 type ProjectIamPolicy = protos.google.iam.v1.IPolicy;
 type ServiceAccount = iam_v1.Schema$ServiceAccount;
+type ServiceAccountIamPolicy = iam_v1.Schema$Policy;
 
 type Response<T> = {
   data: T;
@@ -39,6 +52,12 @@ type Response<T> = {
 export type IamServiceAccountsClientLike = {
   create(request: CreateServiceAccountRequest): Promise<Response<ServiceAccount>>;
   get(request: GetServiceAccountRequest): Promise<Response<ServiceAccount>>;
+  getIamPolicy(
+    request: GetServiceAccountIamPolicyRequest,
+  ): Promise<Response<ServiceAccountIamPolicy>>;
+  setIamPolicy(
+    request: SetServiceAccountIamPolicyRequest,
+  ): Promise<Response<ServiceAccountIamPolicy>>;
 };
 
 export type IamProjectsClientLike = {
@@ -52,7 +71,9 @@ export type IamProjectsClientLike = {
 
 export type GoogleIamDependency = Pick<
   CloudRunProviderDeps["iam"],
-  "ensureProjectIamBinding" | "ensureServiceAccount"
+  | "ensureProjectIamBinding"
+  | "ensureServiceAccount"
+  | "ensureServiceAccountIamBinding"
 >;
 
 export function createGoogleIamDependency(
@@ -103,6 +124,31 @@ export function createGoogleIamDependency(
         },
       });
     },
+    async ensureServiceAccountIamBinding(input) {
+      const resource = serviceAccountResourceNameFromEmail({
+        projectId: input.projectId,
+        serviceAccountEmail: input.serviceAccountEmail,
+      });
+      const { data: policy } = await serviceAccounts.getIamPolicy({
+        "options.requestedPolicyVersion": 3,
+        resource,
+      });
+      const nextPolicy = addIamBindingMember(policy, {
+        member: input.member,
+        role: input.role,
+      });
+
+      if (nextPolicy === policy) {
+        return;
+      }
+
+      await serviceAccounts.setIamPolicy({
+        requestBody: {
+          policy: nextPolicy,
+        },
+        resource,
+      });
+    },
   };
 }
 
@@ -136,7 +182,17 @@ export function serviceAccountResourceName(input: {
   accountId: string;
   projectId: string;
 }): string {
-  return `${projectResourceName(input.projectId)}/serviceAccounts/${serviceAccountEmail(input)}`;
+  return serviceAccountResourceNameFromEmail({
+    projectId: input.projectId,
+    serviceAccountEmail: serviceAccountEmail(input),
+  });
+}
+
+export function serviceAccountResourceNameFromEmail(input: {
+  projectId: string;
+  serviceAccountEmail: string;
+}): string {
+  return `${projectResourceName(input.projectId)}/serviceAccounts/${input.serviceAccountEmail}`;
 }
 
 function isNotFoundError(error: unknown): boolean {

@@ -351,6 +351,12 @@ Future web usage should be possible without rewriting the scenario:
 - [x] Moved shared IAM binding mutation into a reusable helper and covered
       project IAM tests for existing binding append, missing role binding,
       existing member no-op, and conditional binding preservation.
+- [x] Added service-account-scoped IAM binding support to
+      `createGoogleIamDependency`, using `@googleapis/iam` service account
+      `getIamPolicy` and `setIamPolicy`.
+- [x] Reused the shared IAM binding mutation helper for service-account IAM and
+      covered existing binding append, missing role binding, existing member
+      no-op, requested policy version, and conditional binding preservation.
 
 ## Phase 4: Add First Real Scenario
 

@@ -6,6 +6,7 @@ import {
   projectResourceName,
   serviceAccountEmail,
   serviceAccountResourceName,
+  serviceAccountResourceNameFromEmail,
   type IamProjectsClientLike,
   type IamServiceAccountsClientLike,
 } from "../src/google/iam.js";
@@ -87,6 +88,14 @@ describe("Google IAM dependency", () => {
         projectId: "demo-project",
       }),
       "projects/demo-project/serviceAccounts/cloud-run-runtime@demo-project.iam.gserviceaccount.com",
+    );
+    assert.equal(
+      serviceAccountResourceNameFromEmail({
+        projectId: "demo-project",
+        serviceAccountEmail:
+          "github-actions-deployer@demo-project.iam.gserviceaccount.com",
+      }),
+      "projects/demo-project/serviceAccounts/github-actions-deployer@demo-project.iam.gserviceaccount.com",
     );
   });
 
@@ -229,10 +238,198 @@ describe("Google IAM dependency", () => {
       },
     ]);
   });
+
+  it("adds a service account IAM member to an existing role binding", async () => {
+    const resource =
+      "projects/demo-project/serviceAccounts/github-actions-deployer@demo-project.iam.gserviceaccount.com";
+    const client = new FakeIamServiceAccountsClient(
+      {},
+      {
+        [resource]: {
+          bindings: [
+            {
+              members: [
+                "principalSet://iam.googleapis.com/projects/123456/locations/global/workloadIdentityPools/github/attribute.repository/Other/repo",
+              ],
+              role: "roles/iam.workloadIdentityUser",
+            },
+          ],
+          etag: "abc123",
+          version: 3,
+        },
+      },
+    );
+    const iam = createGoogleIamDependency(client);
+
+    await iam.ensureServiceAccountIamBinding({
+      member:
+        "principalSet://iam.googleapis.com/projects/123456/locations/global/workloadIdentityPools/github/attribute.repository/BeltOrg/beltapp",
+      projectId: "demo-project",
+      role: "roles/iam.workloadIdentityUser",
+      serviceAccountEmail:
+        "github-actions-deployer@demo-project.iam.gserviceaccount.com",
+    });
+
+    assert.deepEqual(client.getIamPolicyCalls, [
+      {
+        "options.requestedPolicyVersion": 3,
+        resource,
+      },
+    ]);
+    assert.deepEqual(client.setIamPolicyCalls, [
+      {
+        requestBody: {
+          policy: {
+            bindings: [
+              {
+                members: [
+                  "principalSet://iam.googleapis.com/projects/123456/locations/global/workloadIdentityPools/github/attribute.repository/Other/repo",
+                  "principalSet://iam.googleapis.com/projects/123456/locations/global/workloadIdentityPools/github/attribute.repository/BeltOrg/beltapp",
+                ],
+                role: "roles/iam.workloadIdentityUser",
+              },
+            ],
+            etag: "abc123",
+            version: 3,
+          },
+        },
+        resource,
+      },
+    ]);
+  });
+
+  it("adds a missing service account IAM role binding", async () => {
+    const resource =
+      "projects/demo-project/serviceAccounts/github-actions-deployer@demo-project.iam.gserviceaccount.com";
+    const client = new FakeIamServiceAccountsClient(
+      {},
+      {
+        [resource]: {
+          bindings: [],
+          etag: "abc123",
+        },
+      },
+    );
+    const iam = createGoogleIamDependency(client);
+
+    await iam.ensureServiceAccountIamBinding({
+      member:
+        "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+      projectId: "demo-project",
+      role: "roles/iam.serviceAccountUser",
+      serviceAccountEmail:
+        "github-actions-deployer@demo-project.iam.gserviceaccount.com",
+    });
+
+    assert.deepEqual(
+      client.setIamPolicyCalls[0]?.requestBody.policy.bindings,
+      [
+        {
+          members: [
+            "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+          ],
+          role: "roles/iam.serviceAccountUser",
+        },
+      ],
+    );
+  });
+
+  it("does not update service account IAM when the role member already exists", async () => {
+    const resource =
+      "projects/demo-project/serviceAccounts/github-actions-deployer@demo-project.iam.gserviceaccount.com";
+    const client = new FakeIamServiceAccountsClient(
+      {},
+      {
+        [resource]: {
+          bindings: [
+            {
+              members: [
+                "principalSet://iam.googleapis.com/projects/123456/locations/global/workloadIdentityPools/github/attribute.repository/BeltOrg/beltapp",
+              ],
+              role: "roles/iam.workloadIdentityUser",
+            },
+          ],
+          etag: "abc123",
+        },
+      },
+    );
+    const iam = createGoogleIamDependency(client);
+
+    await iam.ensureServiceAccountIamBinding({
+      member:
+        "principalSet://iam.googleapis.com/projects/123456/locations/global/workloadIdentityPools/github/attribute.repository/BeltOrg/beltapp",
+      projectId: "demo-project",
+      role: "roles/iam.workloadIdentityUser",
+      serviceAccountEmail:
+        "github-actions-deployer@demo-project.iam.gserviceaccount.com",
+    });
+
+    assert.deepEqual(client.setIamPolicyCalls, []);
+  });
+
+  it("keeps conditional service account IAM bindings separate", async () => {
+    const resource =
+      "projects/demo-project/serviceAccounts/github-actions-deployer@demo-project.iam.gserviceaccount.com";
+    const client = new FakeIamServiceAccountsClient(
+      {},
+      {
+        [resource]: {
+          bindings: [
+            {
+              condition: {
+                expression:
+                  "request.time < timestamp('2030-01-01T00:00:00Z')",
+                title: "temporary",
+              },
+              members: [
+                "principalSet://iam.googleapis.com/projects/123456/locations/global/workloadIdentityPools/github/attribute.repository/Other/repo",
+              ],
+              role: "roles/iam.workloadIdentityUser",
+            },
+          ],
+        },
+      },
+    );
+    const iam = createGoogleIamDependency(client);
+
+    await iam.ensureServiceAccountIamBinding({
+      member:
+        "principalSet://iam.googleapis.com/projects/123456/locations/global/workloadIdentityPools/github/attribute.repository/BeltOrg/beltapp",
+      projectId: "demo-project",
+      role: "roles/iam.workloadIdentityUser",
+      serviceAccountEmail:
+        "github-actions-deployer@demo-project.iam.gserviceaccount.com",
+    });
+
+    assert.deepEqual(
+      client.setIamPolicyCalls[0]?.requestBody.policy.bindings,
+      [
+        {
+          condition: {
+            expression: "request.time < timestamp('2030-01-01T00:00:00Z')",
+            title: "temporary",
+          },
+          members: [
+            "principalSet://iam.googleapis.com/projects/123456/locations/global/workloadIdentityPools/github/attribute.repository/Other/repo",
+          ],
+          role: "roles/iam.workloadIdentityUser",
+        },
+        {
+          members: [
+            "principalSet://iam.googleapis.com/projects/123456/locations/global/workloadIdentityPools/github/attribute.repository/BeltOrg/beltapp",
+          ],
+          role: "roles/iam.workloadIdentityUser",
+        },
+      ],
+    );
+  });
 });
 
 type ServiceAccount = Awaited<
   ReturnType<IamServiceAccountsClientLike["get"]>
+>["data"];
+type ServiceAccountIamPolicy = Awaited<
+  ReturnType<IamServiceAccountsClientLike["getIamPolicy"]>
 >["data"];
 type ProjectIamPolicy = Awaited<
   ReturnType<IamProjectsClientLike["getIamPolicy"]>
@@ -249,9 +446,20 @@ class FakeIamServiceAccountsClient implements IamServiceAccountsClientLike {
     };
   }> = [];
   getError?: Error & { code?: number };
+  getIamPolicyCalls: Array<{
+    "options.requestedPolicyVersion"?: number;
+    resource: string;
+  }> = [];
+  setIamPolicyCalls: Array<{
+    requestBody: {
+      policy: ServiceAccountIamPolicy;
+    };
+    resource: string;
+  }> = [];
 
   constructor(
     private readonly serviceAccounts: Record<string, ServiceAccount> = {},
+    private readonly policies: Record<string, ServiceAccountIamPolicy> = {},
   ) {}
 
   async create(request: {
@@ -276,6 +484,27 @@ class FakeIamServiceAccountsClient implements IamServiceAccountsClientLike {
     this.serviceAccounts[serviceAccount.name] = serviceAccount;
 
     return { data: serviceAccount };
+  }
+
+  async getIamPolicy(request: {
+    "options.requestedPolicyVersion"?: number;
+    resource: string;
+  }) {
+    this.getIamPolicyCalls.push(request);
+
+    return { data: this.policies[request.resource] ?? {} };
+  }
+
+  async setIamPolicy(request: {
+    requestBody: {
+      policy: ServiceAccountIamPolicy;
+    };
+    resource: string;
+  }) {
+    this.setIamPolicyCalls.push(request);
+    this.policies[request.resource] = request.requestBody.policy;
+
+    return { data: request.requestBody.policy };
   }
 
   async get(request: { name: string }) {

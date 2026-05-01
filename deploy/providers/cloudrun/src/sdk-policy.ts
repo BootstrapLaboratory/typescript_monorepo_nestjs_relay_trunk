@@ -31,7 +31,7 @@ export const googleSdkPolicy = [
   },
   {
     notes:
-      "Use the official IAM client when it exposes the needed IAM Admin surface. For user-managed service accounts, use Google's official @googleapis/iam IAM v1 client; createGoogleIamDependency implements service account creation through that client. Continue to prefer official generated Google clients before considering custom REST.",
+      "Use the official IAM client when it exposes the needed IAM Admin surface. For user-managed service accounts, use Google's official @googleapis/iam IAM v1 client; createGoogleIamDependency implements service account creation and service-account-scoped IAM binding updates through that client. Continue to prefer official generated Google clients before considering custom REST.",
     preferredPackage: "@google-cloud/iam or @googleapis/iam",
     providerArea: "iam",
   },

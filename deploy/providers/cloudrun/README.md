@@ -10,8 +10,8 @@ intentionally adopted.
 
 Concrete SDK-backed dependencies are available for Resource Manager projects,
 Service Usage, Artifact Registry repository creation plus repository IAM
-binding updates, and IAM service account creation plus project IAM binding
-updates:
+binding updates, and IAM service account creation plus project and service
+account IAM binding updates:
 
 ```ts
 import {
@@ -34,10 +34,11 @@ uses `@google-cloud/service-usage` for required API enablement. The Artifact
 Registry repository adapter uses `@google-cloud/artifact-registry` for Docker
 repository creation and repository-scoped IAM policy updates through
 `getIamPolicy` and `setIamPolicy`. The IAM adapter uses Google's official
-`@googleapis/iam` IAM v1 client for service account creation and the Resource
-Manager Projects client for project-scoped IAM policy updates through
-`getIamPolicy` and `setIamPolicy`. Tests inject fake clients; verification does
-not call Google Cloud.
+`@googleapis/iam` IAM v1 client for service account creation and
+service-account-scoped IAM policy updates through `getIamPolicy` and
+`setIamPolicy`. It uses the Resource Manager Projects client for
+project-scoped IAM policy updates through `getIamPolicy` and `setIamPolicy`.
+Tests inject fake clients; verification does not call Google Cloud.
 
 ## Shape
 

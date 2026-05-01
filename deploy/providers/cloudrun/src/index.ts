@@ -21,6 +21,7 @@ export {
   projectResourceName,
   serviceAccountEmail,
   serviceAccountResourceName,
+  serviceAccountResourceNameFromEmail,
 } from "./google/iam.js";
 export { googleSdkPolicy } from "./sdk-policy.js";
 export type {
