@@ -22,6 +22,12 @@ and disable Cloudflare Git automatic deployments for Git-integrated projects.
 It does not deploy assets, configure GitHub repository values, or derive
 backend GraphQL URLs.
 
+The guided scenario under `deploy/scenarios/cloudrun-cloudflare-neon-upstash`
+now calls that provider after backend runtime secrets are synced. It prompts
+for `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, and
+`CLOUDFLARE_PAGES_PROJECT_NAME`; the API token remains transient and is not
+written to scenario state.
+
 ## Deployment Boundary
 
 The Cloudflare Pages deploy target is `webapp`.
@@ -44,6 +50,14 @@ human-facing deployment trigger is GitHub Actions.
 This provider reuses the shared deploy config under `deploy/cloudrun/config`.
 Start from `deploy/cloudrun/config/.env.example`, copy it to
 `deploy/cloudrun/config/.env`, and fill the Cloudflare and webapp values.
+
+For the guided combined flow, run the scenario engine when the human wants a
+single resumable CLI path:
+
+```bash
+npm --prefix deploy/providers/cloudflare-pages run build
+npm --prefix deploy/scenario-engine run cloudrun-cloudflare-neon-upstash
+```
 
 1. Create or reuse the Cloudflare Pages project.
    Use a real Pages project, not a Worker project. The current deployment style

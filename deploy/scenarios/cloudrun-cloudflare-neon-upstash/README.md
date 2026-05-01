@@ -4,17 +4,16 @@ This is the first production setup scenario skeleton. It currently collects a
 Google Cloud project name, generates and persists a project ID when one is not
 provided, executes Cloud Run backend bootstrap through `deploy-provider-cloudrun`,
 then collects Neon database URLs and the Upstash Redis URL as transient
-secrets, and syncs those secrets into Google Secret Manager.
-
-Cloudflare Pages steps are intentionally not wired yet. Add them as small
-provider actions after this entrypoint stays readable.
+secrets, syncs those secrets into Google Secret Manager, and prepares the
+Cloudflare Pages project through `deploy-provider-cloudflare-pages`.
 
 ## Run
 
-Build the Cloud Run provider first:
+Build the Cloud Run and Cloudflare Pages providers first:
 
 ```sh
 npm --prefix deploy/providers/cloudrun run build
+npm --prefix deploy/providers/cloudflare-pages run build
 ```
 
 Authenticate Google SDK calls with Application Default Credentials. Use
@@ -47,7 +46,10 @@ npm --prefix deploy/scenario-engine run cloudrun-cloudflare-neon-upstash -- \
   --var GITHUB_REPOSITORY=owner/repository \
   --var DATABASE_URL="postgres://..." \
   --var DATABASE_URL_DIRECT="postgres://..." \
-  --var REDIS_URL="rediss://..."
+  --var REDIS_URL="rediss://..." \
+  --var CLOUDFLARE_ACCOUNT_ID="..." \
+  --var CLOUDFLARE_API_TOKEN="..." \
+  --var CLOUDFLARE_PAGES_PROJECT_NAME="your-pages-project"
 ```
 
 Pass `--var PROJECT_ID=your-exact-project-id` only when you need to choose the
@@ -66,6 +68,12 @@ The Neon database URL and Upstash Redis URL inputs are secrets. They are
 validated and stay available to later steps in the same run, but are not printed
 in CLI summaries or written to the scenario state file.
 
+The Cloudflare API token is also a secret. It is used to prepare the Pages
+project during the current run, but is not printed or written to the scenario
+state file. The Pages production branch defaults to `main`; pass
+`--var CLOUDFLARE_PAGES_PRODUCTION_BRANCH=...` only when using a different
+branch.
+
 The Cloud Run runtime secrets step writes these Secret Manager entries:
 
 - `DATABASE_URL`
@@ -75,6 +83,11 @@ The Cloud Run runtime secrets step writes these Secret Manager entries:
 It grants the deployer service account access to all three secrets, and grants
 the Cloud Run runtime service account access to `DATABASE_URL` and `REDIS_URL`.
 Only `CLOUD_RUN_RUNTIME_SECRETS_SYNCED=true` is written to scenario state.
+
+The Cloudflare Pages step ensures the project exists, sets the production
+branch, and disables Cloudflare Git automatic deployments when the project has
+Git source deployment controls. It does not deploy assets, configure GitHub
+repository values, or derive backend GraphQL URLs.
 
 When Cloud Run bootstrap finishes, the CLI prints a Cloud Run backend handoff
 section with the GitHub repository variables required by the backend deploy
@@ -86,6 +99,15 @@ workflow:
 - `GCP_ARTIFACT_REGISTRY_REPOSITORY`
 - `CLOUD_RUN_SERVICE`
 - `CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT`
+
+When Cloudflare Pages provisioning finishes, the CLI prints safe Pages handoff
+values:
+
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_PAGES_PROJECT_NAME`
+- `CLOUDFLARE_PAGES_PRODUCTION_BRANCH`
+- `CLOUDFLARE_PAGES_AUTOMATIC_DEPLOYMENTS`
+- `WEBAPP_URL`
 
 Use `--fresh` to ignore saved progress, and `--state <path>` to choose a
 specific JSON state file. By default, state is stored at

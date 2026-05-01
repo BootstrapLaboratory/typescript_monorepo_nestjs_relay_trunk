@@ -445,6 +445,11 @@ Future web usage should be possible without rewriting the scenario:
 - [x] Added a Cloud Run runtime secrets sync step that writes `DATABASE_URL`,
       `DATABASE_URL_DIRECT`, and `REDIS_URL` into Google Secret Manager without
       storing the secret values in scenario state.
+- [x] Added a Cloudflare Pages project preparation step that prompts for
+      `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, and
+      `CLOUDFLARE_PAGES_PROJECT_NAME`, keeps the API token transient, persists
+      only safe Pages handoff values, and calls
+      `prepareCloudflarePagesProject`.
 
 ## Phase 5: Documentation And Migration
 

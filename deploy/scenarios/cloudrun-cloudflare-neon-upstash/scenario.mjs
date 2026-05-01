@@ -6,6 +6,7 @@ import {
   step,
   text,
 } from "../../scenario-engine/src/define.mjs";
+import { createCloudflarePagesProjectStep } from "../../scenario-engine/src/providers/cloudflare-pages-project.mjs";
 import { createCloudRunBootstrapStep } from "../../scenario-engine/src/providers/cloudrun-bootstrap.mjs";
 import { createCloudRunRuntimeSecretsStep } from "../../scenario-engine/src/providers/cloudrun-runtime-secrets.mjs";
 
@@ -21,6 +22,14 @@ export const CLOUD_RUN_BACKEND_GITHUB_VARIABLES = [
   "CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT",
 ];
 
+export const CLOUDFLARE_PAGES_PROJECT_HANDOFF_VARIABLES = [
+  "CLOUDFLARE_ACCOUNT_ID",
+  "CLOUDFLARE_PAGES_PROJECT_NAME",
+  "CLOUDFLARE_PAGES_PRODUCTION_BRANCH",
+  "CLOUDFLARE_PAGES_AUTOMATIC_DEPLOYMENTS",
+  "WEBAPP_URL",
+];
+
 export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
   return scenario({
     completionSections: [
@@ -30,10 +39,15 @@ export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
         variables: CLOUD_RUN_BACKEND_GITHUB_VARIABLES,
       },
       {
+        guide: "Cloudflare Pages project provisioning is complete. The API token is secret and is not printed or stored.",
+        title: "Cloudflare Pages project",
+        variables: CLOUDFLARE_PAGES_PROJECT_HANDOFF_VARIABLES,
+      },
+      {
         lines: [
-          "Cloud Run backend bootstrap is complete, Neon database URLs were validated, and Upstash Redis URL was validated for this run.",
-          "Database and Redis URLs were synced into Google Secret Manager and are not written to the scenario state file.",
-          "Next scenario slices will configure Cloudflare Pages.",
+          "Cloud Run backend bootstrap is complete, backend runtime secrets are synced, and the Cloudflare Pages project is prepared.",
+          "Database URLs, Redis URL, and Cloudflare API token are not written to the scenario state file.",
+          "Next scenario slices will configure GitHub repository values and webapp GraphQL endpoints.",
         ],
         title: "Next",
       },
@@ -45,8 +59,7 @@ export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
         ...(options.cloudRun ?? {}),
         guide: [
           "Prepare the Google Cloud project prerequisites for the Cloud Run backend.",
-          "After bootstrap, the scenario collects Neon and Upstash credentials, then syncs runtime secrets.",
-          "Cloudflare Pages steps will be added as separate provider actions.",
+          "After bootstrap, the scenario collects Neon and Upstash credentials, syncs runtime secrets, then prepares Cloudflare Pages.",
         ].join("\n"),
         title: "Bootstrap Cloud Run backend",
       }),
@@ -60,6 +73,15 @@ export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
           "The Cloud Run runtime service account receives access to DATABASE_URL and REDIS_URL.",
         ].join("\n"),
         title: "Sync Cloud Run runtime secrets",
+      }),
+      createCloudflarePagesProjectStep({
+        ...(options.cloudflarePages ?? {}),
+        guide: [
+          "Prepare the Cloudflare Pages project for the webapp.",
+          "The API token is used to call Cloudflare and is not written to scenario state.",
+          "This step does not deploy assets or configure GitHub repository values.",
+        ].join("\n"),
+        title: "Prepare Cloudflare Pages project",
       }),
     ],
     title: "Cloud Run + Cloudflare Pages + Neon + Upstash",

@@ -83,12 +83,14 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     );
   });
 
-  it("runs the current project setup, Cloud Run bootstrap, credentials, and secret sync slices", async () => {
-    const calls = [];
+  it("runs the current project setup, Cloud Run bootstrap, credentials, secret sync, and Pages project slices", async () => {
+    const cloudRunCalls = [];
+    const cloudflareCalls = [];
     const deps = { fake: "deps" };
+    const cloudflareDeps = { fake: "cloudflare-deps" };
     const provider = {
       bootstrapCloudRun: async (input, receivedDeps) => {
-        calls.push({ deps: receivedDeps, input });
+        cloudRunCalls.push({ deps: receivedDeps, input });
 
         return {
           CLOUD_RUN_REGION: "europe-west4",
@@ -107,14 +109,40 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
       },
       createGoogleCloudRunProviderDeps: () => deps,
       syncCloudRunRuntimeSecrets: async (input, receivedDeps) => {
-        calls.push({ deps: receivedDeps, input });
+        cloudRunCalls.push({ deps: receivedDeps, input });
 
         return {
           CLOUD_RUN_RUNTIME_SECRETS_SYNCED: "true",
         };
       },
     };
+    const cloudflareProvider = {
+      createCloudflarePagesProviderDeps: (input) => {
+        cloudflareCalls.push({ input, name: "createDeps" });
+
+        return cloudflareDeps;
+      },
+      prepareCloudflarePagesProject: async (input, receivedDeps) => {
+        cloudflareCalls.push({
+          deps: receivedDeps,
+          input,
+          name: "prepareProject",
+        });
+
+        return {
+          CLOUDFLARE_ACCOUNT_ID: input.CLOUDFLARE_ACCOUNT_ID,
+          CLOUDFLARE_PAGES_AUTOMATIC_DEPLOYMENTS: "disabled",
+          CLOUDFLARE_PAGES_PRODUCTION_BRANCH:
+            input.CLOUDFLARE_PAGES_PRODUCTION_BRANCH ?? "main",
+          CLOUDFLARE_PAGES_PROJECT_NAME:
+            input.CLOUDFLARE_PAGES_PROJECT_NAME,
+          CLOUDFLARE_PAGES_PROJECT_READY: "true",
+          WEBAPP_URL: `https://${input.CLOUDFLARE_PAGES_PROJECT_NAME}.pages.dev`,
+        };
+      },
+    };
     const scenario = createCloudRunCloudflareNeonUpstashScenario({
+      cloudflarePages: { provider: cloudflareProvider },
       cloudRun: { provider },
       googleProject: { randomSuffix: "a7f3c2" },
       runtimeSecrets: { provider },
@@ -124,6 +152,9 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
       DATABASE_URL: "postgres://app:secret@example.test/app?sslmode=require",
       DATABASE_URL_DIRECT:
         "postgresql://owner:secret@example.test/app?sslmode=require",
+      CLOUDFLARE_ACCOUNT_ID: "cloudflare-account",
+      CLOUDFLARE_API_TOKEN: "cloudflare-secret-token",
+      CLOUDFLARE_PAGES_PROJECT_NAME: "demo-webapp",
       GITHUB_REPOSITORY: "BeltOrg/beltapp",
       PROJECT_NAME: "Demo Project",
       REDIS_URL: "rediss://default:secret@example.upstash.io:6379",
@@ -143,6 +174,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
         "neon.database",
         "upstash.redis",
         "cloudrun.runtime-secrets",
+        "cloudflare-pages.project",
       ],
     );
     assert.deepEqual(
@@ -153,9 +185,12 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
         "DATABASE_URL",
         "DATABASE_URL_DIRECT",
         "REDIS_URL",
+        "CLOUDFLARE_ACCOUNT_ID",
+        "CLOUDFLARE_API_TOKEN",
+        "CLOUDFLARE_PAGES_PROJECT_NAME",
       ],
     );
-    assert.deepEqual(calls, [
+    assert.deepEqual(cloudRunCalls, [
       {
         deps,
         input: {
@@ -180,7 +215,31 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
         },
       },
     ]);
+    assert.deepEqual(cloudflareCalls, [
+      {
+        input: {
+          apiToken: "cloudflare-secret-token",
+        },
+        name: "createDeps",
+      },
+      {
+        deps: cloudflareDeps,
+        input: {
+          CLOUDFLARE_ACCOUNT_ID: "cloudflare-account",
+          CLOUDFLARE_API_TOKEN: "cloudflare-secret-token",
+          CLOUDFLARE_PAGES_PROJECT_NAME: "demo-webapp",
+        },
+        name: "prepareProject",
+      },
+    ]);
     assert.equal(result.values.CLOUD_RUN_RUNTIME_SECRETS_SYNCED, "true");
+    assert.equal(result.values.CLOUDFLARE_ACCOUNT_ID, "cloudflare-account");
+    assert.equal(
+      result.values.CLOUDFLARE_PAGES_AUTOMATIC_DEPLOYMENTS,
+      "disabled",
+    );
+    assert.equal(result.values.CLOUDFLARE_PAGES_PROJECT_NAME, "demo-webapp");
+    assert.equal(result.values.CLOUDFLARE_PAGES_PROJECT_READY, "true");
     assert.equal(result.values.GCP_PROJECT_ID, "demo-project-a7f3c2");
     assert.equal(result.values.GITHUB_REPOSITORY, "BeltOrg/beltapp");
     assert.equal(result.values.NEON_DATABASE_URLS_READY, "true");
@@ -227,6 +286,14 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
         {
           CLOUD_RUN_RUNTIME_SECRETS_SYNCED: "true",
         },
+        {
+          CLOUDFLARE_ACCOUNT_ID: "cloudflare-account",
+          CLOUDFLARE_PAGES_AUTOMATIC_DEPLOYMENTS: "disabled",
+          CLOUDFLARE_PAGES_PRODUCTION_BRANCH: "main",
+          CLOUDFLARE_PAGES_PROJECT_NAME: "demo-webapp",
+          CLOUDFLARE_PAGES_PROJECT_READY: "true",
+          WEBAPP_URL: "https://demo-webapp.pages.dev",
+        },
       ],
     );
     assert.deepEqual(redactScenarioValues(scenario, result.values), {
@@ -235,6 +302,11 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
       CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT:
         "cloud-run-runtime@demo-project.iam.gserviceaccount.com",
       CLOUD_RUN_SERVICE: "api",
+      CLOUDFLARE_ACCOUNT_ID: "cloudflare-account",
+      CLOUDFLARE_PAGES_AUTOMATIC_DEPLOYMENTS: "disabled",
+      CLOUDFLARE_PAGES_PRODUCTION_BRANCH: "main",
+      CLOUDFLARE_PAGES_PROJECT_NAME: "demo-webapp",
+      CLOUDFLARE_PAGES_PROJECT_READY: "true",
       GCP_ARTIFACT_REGISTRY_REPOSITORY: "cloud-run-backend",
       GCP_PROJECT_ID: "demo-project-a7f3c2",
       GCP_SERVICE_ACCOUNT:
@@ -247,15 +319,19 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
       PROJECT_NAME: "Demo Project",
       PROJECT_NUMBER: "123456789",
       UPSTASH_REDIS_URL_READY: "true",
+      WEBAPP_URL: "https://demo-webapp.pages.dev",
     });
 
     const completion = formatCompletionSections(scenario, result.values);
     assert.match(completion, /Cloud Run backend GitHub variables/);
     assert.match(completion, /GCP_PROJECT_ID=demo-project-a7f3c2/);
     assert.match(completion, /CLOUD_RUN_SERVICE=api/);
+    assert.match(completion, /Cloudflare Pages project/);
+    assert.match(completion, /WEBAPP_URL=https:\/\/demo-webapp.pages.dev/);
     assert.match(completion, /not written to the scenario state file/);
-    assert.match(completion, /configure Cloudflare Pages/);
+    assert.match(completion, /configure GitHub repository values/);
     assert.doesNotMatch(completion, /app:secret/);
+    assert.doesNotMatch(completion, /cloudflare-secret-token/);
     assert.doesNotMatch(completion, /default:secret/);
   });
 });

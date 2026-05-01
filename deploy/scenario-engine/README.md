@@ -10,7 +10,8 @@ store, resume/fresh behavior, and secret redaction. The first production
 scenario skeleton is wired into the CLI and currently collects Google Cloud
 project details, runs the real Cloud Run bootstrap action, and collects Neon
 database plus Upstash Redis URLs as transient secrets before syncing them into
-Google Secret Manager.
+Google Secret Manager. It then prepares the Cloudflare Pages project while
+keeping the Cloudflare API token transient.
 
 Scenarios can expose structured `completionSections`. The CLI renders them
 after the generic known-values list, and future UIs can render the same
@@ -67,6 +68,19 @@ URLs, validates `REDIS_URL` as a Redis URL, and writes all three values to
 Google Secret Manager. The secret values remain transient inputs; the scenario
 state only records `CLOUD_RUN_RUNTIME_SECRETS_SYNCED=true`.
 
+## Cloudflare Pages Project Action
+
+`src/providers/cloudflare-pages-project.mjs` exposes
+`createCloudflarePagesProjectStep`. By default it lazy-loads
+`deploy-provider-cloudflare-pages` and calls
+`prepareCloudflarePagesProject(input, createCloudflarePagesProviderDeps())`.
+
+The action prompts for `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, and
+`CLOUDFLARE_PAGES_PROJECT_NAME`. The production branch defaults to `main` and
+can be supplied with `--var CLOUDFLARE_PAGES_PRODUCTION_BRANCH=...`. The API
+token remains transient; the scenario state records only safe Pages project
+outputs such as `WEBAPP_URL`.
+
 ## Shell Helper
 
 Provider wrappers can use `runShell` to call existing scripts without moving
@@ -99,6 +113,7 @@ Run the first production scenario skeleton:
 
 ```sh
 npm --prefix deploy/providers/cloudrun run build
+npm --prefix deploy/providers/cloudflare-pages run build
 npm --prefix deploy/scenario-engine run cloudrun-cloudflare-neon-upstash
 ```
 

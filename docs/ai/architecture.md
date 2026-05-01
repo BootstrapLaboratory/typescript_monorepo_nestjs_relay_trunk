@@ -18,15 +18,17 @@ ordering, and lockfile ownership.
   fallback/reference implementation, persists sanitized XState snapshots for
   resume/fresh-run behavior, includes a local JSON store, CLI demo scenario,
   redacting shell helper for future provider wrappers, and a Cloud Run
-  bootstrap action wrapper. The first production scenario skeleton lives under
+  bootstrap action wrapper plus Cloud Run runtime-secret and Cloudflare Pages
+  project action wrappers. The first production scenario skeleton lives under
   `deploy/scenarios/cloudrun-cloudflare-neon-upstash`; it collects a Google
   Cloud project name, generates and persists a project ID when one is not
   provided, executes the Cloud Run bootstrap step, prints a structured backend
   GitHub variable handoff, and collects Neon database URLs plus the Upstash
   Redis URL as transient secret inputs before syncing them into Google Secret
-  Manager. The Cloud Run step can pause for manual billing enablement and retry
-  when Google reports that billing is required. It is not a production deploy
-  executor.
+  Manager. It then prepares the Cloudflare Pages project while keeping the
+  Cloudflare API token transient. The Cloud Run step can pause for manual
+  billing enablement and retry when Google reports that billing is required. It
+  is not a production deploy executor.
   `deploy/providers/cloudrun` is a TypeScript
   provider spike for Cloud Run bootstrap orchestration and runtime Secret
   Manager sync; it includes SDK-backed Resource Manager, Cloud Billing, Service
