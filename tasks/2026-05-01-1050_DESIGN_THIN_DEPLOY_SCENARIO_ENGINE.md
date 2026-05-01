@@ -1,0 +1,286 @@
+# Design Thin Deploy Scenario Engine
+
+## Goal
+
+Create a small, readable deployment scenario layer that can run the same
+scenario definitions from different interfaces: first CLI, later a web wizard.
+
+The scenario layer should make provider orchestration easy to read. A scenario
+should look like a runbook made of typed steps, not like a large deployment
+framework.
+
+## Problem
+
+Current deploy helpers are mostly shell scripts under provider-specific
+directories. They work, but the full production preparation flow requires a
+human to move values between scripts and providers manually.
+
+The desired improvement is not a large TypeScript rewrite. The desired
+improvement is a thin orchestration layer that:
+
+- knows which inputs a step needs from the user
+- shows guidance for the current step
+- calls one provider function
+- captures provider outputs
+- passes outputs into later steps
+- can use different UI adapters for CLI or web
+
+## Design Principles
+
+- Keep scenarios readable first. A reviewer should understand the deploy flow
+  by opening one scenario file.
+- Keep provider functions focused on one provider. Cloud Run code should not
+  know about Cloudflare, Neon, or Upstash orchestration.
+- Keep UI separate from scenario definitions. CLI prompts and future web forms
+  should consume the same scenario model.
+- Preserve existing shell scripts initially. Provider functions may wrap them
+  before any behavior is converted to TypeScript.
+- Keep secrets redacted by default in logs, summaries, persisted state, and UI.
+- Prefer explicit input/output names over clever inference.
+- Add abstractions only when at least two scenario steps or UIs need them.
+- Avoid a generic provider interface that hides provider-specific behavior.
+  Providers can expose different functions; scenarios decide how to compose
+  them.
+
+## Non-Goals
+
+- Do not replace Rush Delivery deployment executors in the first phase.
+- Do not move all deploy directories at once.
+- Do not introduce a heavy workflow engine unless the thin runner is proven
+  insufficient.
+- Do not implement a web UI in the first phase. Design for it, but build CLI
+  first.
+- Do not store secret values in generated scenario state.
+
+## Target Shape
+
+Possible directory shape:
+
+```text
+deploy/
+  scenario-engine/
+    define.ts
+    runner.ts
+    stores/
+      env-file-store.ts
+    ui/
+      cli-ui.ts
+
+  providers/
+    cloudrun/
+      actions.ts
+    cloudflare-pages/
+      actions.ts
+    neon/
+      actions.ts
+    upstash/
+      actions.ts
+
+  scenarios/
+    cloudrun-cloudflare-neon-upstash/
+      scenario.ts
+```
+
+Compatibility wrappers may keep old script paths working while this shape is
+introduced incrementally.
+
+## Core Interfaces
+
+The exact implementation can change, but the first implementation should stay
+close to this shape.
+
+### Input Definitions
+
+```ts
+type InputDefinition =
+  | { kind: "text"; name: string; label?: string; optional?: boolean }
+  | { kind: "secret"; name: string; label?: string; optional?: boolean };
+```
+
+Input definitions are for humans and UI adapters. In CLI, each input becomes a
+prompt. In web, each input becomes a form field.
+
+### Provider Functions
+
+```ts
+type ProviderFunction<Input, Output> = (input: Input) => Promise<Output>;
+```
+
+Provider functions are normal TypeScript functions. They can wrap existing
+shell scripts at first:
+
+```ts
+export async function syncSecrets(input: {
+  PROJECT_ID: string;
+  DATABASE_URL: string;
+  DATABASE_URL_DIRECT: string;
+  REDIS_URL: string;
+}): Promise<{
+  syncedSecrets: string[];
+}> {
+  return runShell("deploy/cloudrun/scripts/sync-secrets.sh", {
+    env: input,
+    redact: ["DATABASE_URL", "DATABASE_URL_DIRECT", "REDIS_URL"],
+  });
+}
+```
+
+### Scenario Steps
+
+```ts
+const syncBackendSecrets = step({
+  id: "cloudrun.sync-secrets",
+  title: "Sync backend runtime secrets",
+  guide: `
+Paste Neon and Upstash connection strings. They will be written to Google
+Secret Manager.
+`,
+  inputs: {
+    PROJECT_ID: text(),
+    DATABASE_URL: secret(),
+    DATABASE_URL_DIRECT: secret(),
+    REDIS_URL: secret(),
+  },
+  run: cloudrun.syncSecrets,
+  outputs: ["syncedSecrets"],
+});
+```
+
+### Scenario Definition
+
+```ts
+export const cloudrunCloudflareNeonUpstash = scenario({
+  id: "cloudrun-cloudflare-neon-upstash",
+  title: "Cloud Run + Cloudflare Pages + Neon + Upstash",
+  steps: [
+    step({
+      id: "cloudrun.bootstrap",
+      title: "Bootstrap Google Cloud",
+      guide: `
+Create or select the Google Cloud project and prepare Cloud Run infrastructure.
+`,
+      inputs: {
+        PROJECT_ID: text(),
+        GITHUB_REPOSITORY: text(),
+        BILLING_ACCOUNT_ID: text().optional(),
+      },
+      run: cloudrun.bootstrap,
+      outputs: [
+        "PROJECT_NUMBER",
+        "GCP_SERVICE_ACCOUNT",
+        "CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT",
+      ],
+    }),
+
+    syncBackendSecrets,
+
+    step({
+      id: "cloudflare.pages",
+      title: "Prepare Cloudflare Pages",
+      guide: `
+Create or configure the Pages project for GitHub Actions direct upload.
+`,
+      inputs: {
+        CLOUDFLARE_ACCOUNT_ID: text(),
+        CLOUDFLARE_API_TOKEN: secret(),
+        CLOUDFLARE_PAGES_PROJECT_NAME: text(),
+      },
+      run: cloudflarePages.prepareProject,
+      outputs: ["WEBAPP_URL"],
+    }),
+  ],
+});
+```
+
+### Runner
+
+```ts
+await runScenario(cloudrunCloudflareNeonUpstash, {
+  ui: cliUi(),
+  store: envFileStore("deploy/scenarios/cloudrun-cloudflare-neon-upstash/state.env"),
+});
+```
+
+Future web usage should be possible without rewriting the scenario:
+
+```tsx
+<ScenarioWizard scenario={cloudrunCloudflareNeonUpstash} store={browserStore} />
+```
+
+## Phase 1: Thin Design Spike
+
+- [ ] Decide whether to implement the engine in plain TypeScript plus a small
+      prompt library, or introduce a production workflow library.
+- [ ] Prefer plain TypeScript unless a library clearly improves CLI and web
+      reuse without hiding scenario readability.
+- [ ] Decide whether input schemas should use a dependency such as Zod or a
+      tiny first-party schema.
+- [ ] Define the minimal `scenario`, `step`, `text`, `secret`, `runScenario`,
+      UI adapter, and state store interfaces.
+- [ ] Write one small example scenario in a test or fixture before touching
+      real provider scripts.
+
+## Phase 2: Add Scenario Engine Skeleton
+
+- [ ] Add the smallest possible scenario engine module.
+- [ ] Add a CLI UI adapter that can prompt for missing text/secret inputs.
+- [ ] Add a local env/state store that persists non-secret outputs and can load
+      existing values.
+- [ ] Add a shell runner helper with redaction support.
+- [ ] Add unit tests for input collection, output handoff, secret redaction,
+      and step ordering.
+
+## Phase 3: Wrap Existing Provider Scripts
+
+- [ ] Create a Cloud Run provider module with functions that wrap existing
+      Cloud Run setup scripts.
+- [ ] Create a Cloudflare Pages provider module with functions that wrap
+      existing Cloudflare setup scripts.
+- [ ] Create Neon and Upstash provider modules for manual-input guidance first.
+- [ ] Keep provider functions small and named after provider actions, not
+      scenario steps.
+- [ ] Do not change existing shell script behavior unless the change is needed
+      for the wrapper and covered by a check.
+
+## Phase 4: Add First Real Scenario
+
+- [ ] Add `cloudrun-cloudflare-neon-upstash` as the first scenario.
+- [ ] Keep the scenario file readable enough to serve as the production setup
+      runbook.
+- [ ] Make the CLI runner execute one step at a time, showing the step guide
+      and prompting only for missing inputs.
+- [ ] Persist generated non-secret outputs for later steps.
+- [ ] Ensure secret inputs are never persisted as generated state.
+
+## Phase 5: Documentation And Migration
+
+- [ ] Document how to run the scenario from CLI.
+- [ ] Document how the same scenario model can be used by a future web wizard.
+- [ ] Update AI deployment guidance only after implemented behavior exists.
+- [ ] Keep existing provider docs and scripts aligned during migration.
+- [ ] Decide later whether old helper scripts remain public entrypoints or
+      become compatibility wrappers.
+
+## Acceptance Criteria
+
+- [ ] A scenario file is easy to read as an ordered production setup flow.
+- [ ] Provider functions remain focused and testable.
+- [ ] The CLI runner and future web wizard can share the same scenario
+      definition.
+- [ ] Existing deploy scripts still work.
+- [ ] Secret values are redacted and are not stored in generated scenario
+      state.
+- [ ] The implementation is meaningfully smaller and simpler than the previous
+      typed orchestration attempt.
+
+## Open Questions
+
+- [ ] Should the schema layer use Zod, or is a tiny first-party schema enough?
+- [ ] Should provider functions return plain output objects, or a richer result
+      with logs/warnings/next actions?
+- [ ] Should the first CLI be interactive only, or also support non-interactive
+      `--var KEY=value` execution?
+- [ ] How should scenario state be named for multiple deployments of the same
+      repository?
+- [ ] How much markdown should be allowed in `guide` before it becomes a docs
+      maintenance problem?
