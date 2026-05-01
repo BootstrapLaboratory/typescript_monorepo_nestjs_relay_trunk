@@ -3,6 +3,8 @@ import { assign, createActor, fromPromise, setup } from "xstate";
 import {
   collectSecretInputNames,
   collectStepInputs,
+  hasMissingStepInputs,
+  hasStepOutputs,
   loadStoreValues,
   persistStepOutput,
   pickStepInput,
@@ -17,8 +19,26 @@ export function compileScenarioToXState(scenario, runtime = {}) {
       index === scenario.steps.length - 1 ? "complete" : `step_${index + 1}`;
 
     states[stepState] = {
-      initial: "collecting",
+      initial: "checking",
       states: {
+        checking: {
+          always: [
+            {
+              actions: assign({
+                events: ({ context }) => [
+                  ...context.events,
+                  `xstate:${scenarioStep.id}:skip`,
+                  `xstate:${scenarioStep.id}:done`,
+                ],
+              }),
+              guard: ({ context }) => hasStepOutputs(scenarioStep, context.values),
+              target: "done",
+            },
+            {
+              target: "collecting",
+            },
+          ],
+        },
         collecting: {
           invoke: {
             src: "collectInputs",
@@ -127,8 +147,12 @@ export async function runScenarioXState(scenario, options) {
 export async function startScenarioXState(scenario, options) {
   const storeValues =
     options.fresh === true ? {} : await loadStoreValues(options.store);
-  const restoredSnapshot =
+  const loadedSnapshot =
     options.fresh === true ? undefined : await options.store.loadSnapshot?.();
+  const restoredSnapshot =
+    options.fresh === true
+      ? undefined
+      : normalizeRestoredSnapshot(loadedSnapshot, scenario);
 
   if (options.fresh === true) {
     if (options.store.clear !== undefined) {
@@ -136,6 +160,8 @@ export async function startScenarioXState(scenario, options) {
     } else {
       await options.store.clearSnapshot?.({ scenario });
     }
+  } else if (loadedSnapshot !== undefined && restoredSnapshot === undefined) {
+    await options.store.clearSnapshot?.({ scenario });
   }
 
   const actor = createActor(
@@ -162,8 +188,14 @@ export async function startScenarioXState(scenario, options) {
       return;
     }
 
+    const persistedSnapshot = createSerializableSnapshot(actor, scenario);
+
+    if (!isRestorableSnapshot(persistedSnapshot, scenario)) {
+      return;
+    }
+
     pendingSnapshotSave = pendingSnapshotSave.then(() =>
-      options.store.saveSnapshot?.(createSerializableSnapshot(actor, scenario), {
+      options.store.saveSnapshot?.(persistedSnapshot, {
         scenario,
       }),
     );
@@ -221,6 +253,60 @@ function createSerializableSnapshot(actor, scenario) {
   return snapshot;
 }
 
+function normalizeRestoredSnapshot(snapshot, scenario) {
+  if (snapshot === undefined) {
+    return undefined;
+  }
+
+  return isRestorableSnapshot(snapshot, scenario) ? snapshot : undefined;
+}
+
+function isRestorableSnapshot(snapshot, scenario) {
+  if (snapshot?.status !== "active") {
+    return false;
+  }
+
+  const runningStepIndex = getRunningStepIndex(snapshot);
+
+  if (runningStepIndex === undefined) {
+    return true;
+  }
+
+  const runningStep = scenario.steps[runningStepIndex];
+
+  if (runningStep === undefined) {
+    return false;
+  }
+
+  return !hasMissingStepInputs(runningStep, snapshot.context?.values ?? {});
+}
+
+function getRunningStepIndex(snapshot) {
+  const value = snapshot.value;
+
+  if (typeof value === "string") {
+    return undefined;
+  }
+
+  if (value === null || typeof value !== "object") {
+    return undefined;
+  }
+
+  for (const [stateName, childValue] of Object.entries(value)) {
+    const match = stateName.match(/^step_(?<index>\d+)$/);
+
+    if (match?.groups?.index === undefined) {
+      continue;
+    }
+
+    if (childValue === "running") {
+      return Number(match.groups.index);
+    }
+  }
+
+  return undefined;
+}
+
 function redactSecretValues(value, secretNames) {
   if (Array.isArray(value)) {
     value.forEach((item) => redactSecretValues(item, secretNames));
@@ -231,12 +317,17 @@ function redactSecretValues(value, secretNames) {
     return;
   }
 
-  for (const key of Object.keys(value)) {
-    if (secretNames.has(key)) {
-      delete value[key];
-      continue;
+  if (isRecord(value.values)) {
+    for (const secretName of secretNames) {
+      delete value.values[secretName];
     }
-
-    redactSecretValues(value[key], secretNames);
   }
+
+  for (const childValue of Object.values(value)) {
+    redactSecretValues(childValue, secretNames);
+  }
+}
+
+function isRecord(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }

@@ -28,6 +28,20 @@ export function missingStepInputs(step, values) {
     }));
 }
 
+export function hasMissingStepInputs(step, values) {
+  return missingStepInputs(step, values).length > 0;
+}
+
+export function hasStepOutputs(step, values) {
+  return (
+    step.outputs.length > 0 &&
+    step.outputs.every((name) => {
+      const value = values[name];
+      return value !== undefined && value !== "";
+    })
+  );
+}
+
 export async function collectStepInputs({ step, ui, values }) {
   await ui.showStep?.(step);
 

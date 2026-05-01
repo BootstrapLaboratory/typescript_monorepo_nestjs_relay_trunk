@@ -4,9 +4,11 @@ import { describe, it } from "node:test";
 import {
   createGoogleProjectStep,
   createCloudRunCloudflareNeonUpstashScenario,
+  createNeonDatabaseStep,
   generateGoogleProjectId,
 } from "../../scenarios/cloudrun-cloudflare-neon-upstash/scenario.mjs";
 import { formatCompletionSections } from "../src/completion-summary.mjs";
+import { redactScenarioValues } from "../src/runtime.mjs";
 import { runScenarioXState } from "../src/xstate-runner.mjs";
 import { createMemoryStore, createScriptedUi } from "./fixtures.mjs";
 
@@ -36,7 +38,31 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     );
   });
 
-  it("runs the current project setup and Cloud Run bootstrap slice with injected provider functions", async () => {
+  it("validates Neon database URLs without returning secret outputs", async () => {
+    const step = createNeonDatabaseStep();
+
+    assert.deepEqual(
+      await step.run({
+        DATABASE_URL: "postgres://app:secret@example.test/app?sslmode=require",
+        DATABASE_URL_DIRECT:
+          "postgresql://owner:secret@example.test/app?sslmode=require",
+      }),
+      {
+        NEON_DATABASE_URLS_READY: "true",
+      },
+    );
+    await assert.rejects(
+      () =>
+        step.run({
+          DATABASE_URL: "https://example.test",
+          DATABASE_URL_DIRECT:
+            "postgres://owner:secret@example.test/app?sslmode=require",
+        }),
+      /DATABASE_URL must use postgres:\/\/ or postgresql:\/\//,
+    );
+  });
+
+  it("runs the current project setup, Cloud Run bootstrap, and Neon credential slice", async () => {
     const calls = [];
     const deps = { fake: "deps" };
     const provider = {
@@ -66,6 +92,9 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     });
     const store = createMemoryStore();
     const ui = createScriptedUi({
+      DATABASE_URL: "postgres://app:secret@example.test/app?sslmode=require",
+      DATABASE_URL_DIRECT:
+        "postgresql://owner:secret@example.test/app?sslmode=require",
       GITHUB_REPOSITORY: "BeltOrg/beltapp",
       PROJECT_NAME: "Demo Project",
     });
@@ -78,11 +107,16 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     assert.equal(scenario.id, "cloudrun-cloudflare-neon-upstash");
     assert.deepEqual(
       scenario.steps.map((step) => step.id),
-      ["google.project", "cloudrun.bootstrap"],
+      ["google.project", "cloudrun.bootstrap", "neon.database"],
     );
     assert.deepEqual(
       ui.prompted.map((input) => input.name),
-      ["PROJECT_NAME", "GITHUB_REPOSITORY"],
+      [
+        "PROJECT_NAME",
+        "GITHUB_REPOSITORY",
+        "DATABASE_URL",
+        "DATABASE_URL_DIRECT",
+      ],
     );
     assert.deepEqual(calls, [
       {
@@ -96,14 +130,65 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     ]);
     assert.equal(result.values.GCP_PROJECT_ID, "demo-project-a7f3c2");
     assert.equal(result.values.GITHUB_REPOSITORY, "BeltOrg/beltapp");
+    assert.equal(result.values.NEON_DATABASE_URLS_READY, "true");
     assert.equal(result.values.PROJECT_ID, "demo-project-a7f3c2");
     assert.equal(result.values.PROJECT_NAME, "Demo Project");
     assert.equal(result.values.PROJECT_NUMBER, "123456789");
+    assert.equal(
+      result.values.DATABASE_URL,
+      "postgres://app:secret@example.test/app?sslmode=require",
+    );
+    assert.deepEqual(
+      store.saved.map((entry) => entry.output),
+      [
+        {
+          PROJECT_ID: "demo-project-a7f3c2",
+          PROJECT_NAME: "Demo Project",
+        },
+        {
+          CLOUD_RUN_REGION: "europe-west4",
+          CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT:
+            "cloud-run-runtime@demo-project.iam.gserviceaccount.com",
+          CLOUD_RUN_SERVICE: "api",
+          GCP_ARTIFACT_REGISTRY_REPOSITORY: "cloud-run-backend",
+          GCP_PROJECT_ID: "demo-project-a7f3c2",
+          GCP_SERVICE_ACCOUNT:
+            "github-actions-deployer@demo-project.iam.gserviceaccount.com",
+          GCP_WORKLOAD_IDENTITY_PROVIDER:
+            "projects/123456789/locations/global/workloadIdentityPools/github-actions/providers/github",
+          GITHUB_REPOSITORY: "BeltOrg/beltapp",
+          PROJECT_ID: "demo-project-a7f3c2",
+          PROJECT_NUMBER: "123456789",
+        },
+        {
+          NEON_DATABASE_URLS_READY: "true",
+        },
+      ],
+    );
+    assert.deepEqual(redactScenarioValues(scenario, result.values), {
+      CLOUD_RUN_REGION: "europe-west4",
+      CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT:
+        "cloud-run-runtime@demo-project.iam.gserviceaccount.com",
+      CLOUD_RUN_SERVICE: "api",
+      GCP_ARTIFACT_REGISTRY_REPOSITORY: "cloud-run-backend",
+      GCP_PROJECT_ID: "demo-project-a7f3c2",
+      GCP_SERVICE_ACCOUNT:
+        "github-actions-deployer@demo-project.iam.gserviceaccount.com",
+      GCP_WORKLOAD_IDENTITY_PROVIDER:
+        "projects/123456789/locations/global/workloadIdentityPools/github-actions/providers/github",
+      GITHUB_REPOSITORY: "BeltOrg/beltapp",
+      NEON_DATABASE_URLS_READY: "true",
+      PROJECT_ID: "demo-project-a7f3c2",
+      PROJECT_NAME: "Demo Project",
+      PROJECT_NUMBER: "123456789",
+    });
 
     const completion = formatCompletionSections(scenario, result.values);
     assert.match(completion, /Cloud Run backend GitHub variables/);
     assert.match(completion, /GCP_PROJECT_ID=demo-project-a7f3c2/);
     assert.match(completion, /CLOUD_RUN_SERVICE=api/);
+    assert.match(completion, /transient secrets/);
     assert.match(completion, /Next scenario slices/);
+    assert.doesNotMatch(completion, /app:secret/);
   });
 });

@@ -1,6 +1,11 @@
 import { randomBytes } from "node:crypto";
 
-import { scenario, step, text } from "../../scenario-engine/src/define.mjs";
+import {
+  scenario,
+  secret,
+  step,
+  text,
+} from "../../scenario-engine/src/define.mjs";
 import { createCloudRunBootstrapStep } from "../../scenario-engine/src/providers/cloudrun-bootstrap.mjs";
 
 export const CLOUDRUN_CLOUDFLARE_NEON_UPSTASH_SCENARIO_ID =
@@ -25,8 +30,9 @@ export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
       },
       {
         lines: [
-          "Cloud Run backend bootstrap is complete.",
-          "Next scenario slices will collect Neon database URLs, Upstash Redis, Cloud Run runtime secrets, and Cloudflare Pages settings.",
+          "Cloud Run backend bootstrap is complete and Neon database URLs were validated for this run.",
+          "Database URLs are transient secrets and are not written to the scenario state file.",
+          "Next scenario slices will collect Upstash Redis, sync Cloud Run runtime secrets, and configure Cloudflare Pages.",
         ],
         title: "Next",
       },
@@ -38,11 +44,12 @@ export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
         ...(options.cloudRun ?? {}),
         guide: [
           "Prepare the Google Cloud project prerequisites for the Cloud Run backend.",
-          "This first production scenario slice only runs Cloud Run bootstrap.",
-          "Cloudflare Pages, Neon, and Upstash steps will be added as separate provider actions.",
+          "This production scenario slice runs Cloud Run bootstrap before collecting database credentials.",
+          "Cloudflare Pages, Upstash, and Cloud Run secret sync steps will be added as separate provider actions.",
         ].join("\n"),
         title: "Bootstrap Cloud Run backend",
       }),
+      createNeonDatabaseStep(options.neon),
     ],
     title: "Cloud Run + Cloudflare Pages + Neon + Upstash",
   });
@@ -74,6 +81,39 @@ export function createGoogleProjectStep(options = {}) {
   });
 }
 
+export function createNeonDatabaseStep() {
+  return step({
+    guide: [
+      "Enter the Neon PostgreSQL connection strings for the backend.",
+      "Use the pooled application connection string for DATABASE_URL.",
+      "Use the direct connection string for DATABASE_URL_DIRECT so migrations can run safely.",
+      "These values are transient secrets; they are available to later steps in this run and are not persisted to the scenario state file.",
+    ].join("\n"),
+    id: "neon.database",
+    inputs: {
+      DATABASE_URL: secret({
+        label: "DATABASE_URL (Neon pooled connection string)",
+      }),
+      DATABASE_URL_DIRECT: secret({
+        label: "DATABASE_URL_DIRECT (Neon direct connection string)",
+      }),
+    },
+    outputs: ["NEON_DATABASE_URLS_READY"],
+    title: "Collect Neon database URLs",
+    run: async (input) => {
+      assertPostgresConnectionUrl(input.DATABASE_URL, "DATABASE_URL");
+      assertPostgresConnectionUrl(
+        input.DATABASE_URL_DIRECT,
+        "DATABASE_URL_DIRECT",
+      );
+
+      return {
+        NEON_DATABASE_URLS_READY: "true",
+      };
+    },
+  });
+}
+
 export function generateGoogleProjectId(projectName, options = {}) {
   const suffix = options.randomSuffix ?? randomBytes(3).toString("hex");
   const base = projectName
@@ -88,4 +128,18 @@ export function generateGoogleProjectId(projectName, options = {}) {
     .replace(/-+$/, "");
 
   return `${trimmedBase}-${suffix}`;
+}
+
+function assertPostgresConnectionUrl(value, name) {
+  let parsed;
+
+  try {
+    parsed = new URL(value);
+  } catch {
+    throw new Error(`${name} must be a valid PostgreSQL connection URL.`);
+  }
+
+  if (parsed.protocol !== "postgres:" && parsed.protocol !== "postgresql:") {
+    throw new Error(`${name} must use postgres:// or postgresql://.`);
+  }
 }

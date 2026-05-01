@@ -180,6 +180,147 @@ describe("XState-backed scenario runner spike", () => {
     });
   });
 
+  it("skips steps whose outputs already exist in the state store", async () => {
+    const calls = [];
+    const scenario = createTinyScenario({
+      onRun: (stepId) => calls.push(stepId),
+    });
+    const store = createMemoryStore({
+      PROJECT_NUMBER: "demo-123",
+    });
+    const ui = createScriptedUi({
+      REGION: "europe-west4",
+    });
+
+    const result = await runScenarioXState(scenario, {
+      store,
+      ui,
+    });
+
+    assert.deepEqual(calls, ["cloud.service"]);
+    assert.deepEqual(
+      ui.prompted.map((input) => input.name),
+      ["REGION"],
+    );
+    assert.deepEqual(result.events, [
+      "xstate:cloud.bootstrap:skip",
+      "xstate:cloud.bootstrap:done",
+      "xstate:cloud.service:collect",
+      "xstate:cloud.service:run",
+      "xstate:cloud.service:done",
+    ]);
+  });
+
+  it("ignores failed snapshots and prompts for missing inputs again", async () => {
+    const resumableScenario = scenario({
+      id: "failed-snapshot-scenario",
+      steps: [
+        step({
+          id: "cloud.bootstrap",
+          outputs: ["PROJECT_NUMBER"],
+          run: async () => ({
+            PROJECT_NUMBER: "demo-123",
+          }),
+        }),
+        step({
+          id: "cloud.secret",
+          inputs: {
+            DATABASE_URL: {
+              kind: "secret",
+            },
+          },
+          outputs: ["READY"],
+          run: async () => ({
+            READY: "true",
+          }),
+        }),
+      ],
+    });
+    const store = createMemoryStore({
+      PROJECT_NUMBER: "demo-123",
+    });
+    await store.saveSnapshot({
+      context: {
+        events: ["xstate:cloud.bootstrap:done", "xstate:cloud.secret:collect"],
+        values: {
+          PROJECT_NUMBER: "demo-123",
+        },
+      },
+      status: "error",
+      value: {
+        step_1: "running",
+      },
+    });
+    const ui = createScriptedUi({
+      DATABASE_URL: "postgres://app:secret@example.test/app",
+    });
+
+    const result = await runScenarioXState(resumableScenario, {
+      store,
+      ui,
+    });
+
+    assert.deepEqual(
+      ui.prompted.map((input) => input.name),
+      ["DATABASE_URL"],
+    );
+    assert.deepEqual(result.events.slice(0, 2), [
+      "xstate:cloud.bootstrap:skip",
+      "xstate:cloud.bootstrap:done",
+    ]);
+    assert.equal(result.values.READY, "true");
+    assert.equal(store.snapshot, undefined);
+  });
+
+  it("resumes secret collection after interrupted input", async () => {
+    const secretScenario = scenario({
+      id: "interrupted-secret-scenario",
+      steps: [
+        step({
+          id: "cloud.secret",
+          inputs: {
+            DATABASE_URL: {
+              kind: "secret",
+            },
+          },
+          outputs: ["READY"],
+          run: async () => ({
+            READY: "true",
+          }),
+        }),
+      ],
+    });
+    const store = createMemoryStore();
+    const interruptedUi = createScriptedUi({});
+    interruptedUi.collectInputs = async () => {
+      throw new Error("Interrupted.");
+    };
+
+    await assert.rejects(
+      () =>
+        runScenarioXState(secretScenario, {
+          store,
+          ui: interruptedUi,
+        }),
+      /Interrupted/,
+    );
+    assert.notEqual(store.snapshot?.status, "error");
+
+    const ui = createScriptedUi({
+      DATABASE_URL: "postgres://app:secret@example.test/app",
+    });
+    const result = await runScenarioXState(secretScenario, {
+      store,
+      ui,
+    });
+
+    assert.deepEqual(
+      ui.prompted.map((input) => input.name),
+      ["DATABASE_URL"],
+    );
+    assert.equal(result.values.READY, "true");
+  });
+
   it("rejects when a step fails", async () => {
     const failingScenario = scenario({
       id: "failing-scenario",

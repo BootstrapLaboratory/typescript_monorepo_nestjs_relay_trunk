@@ -21,9 +21,11 @@ ordering, and lockfile ownership.
   bootstrap action wrapper. The first production scenario skeleton lives under
   `deploy/scenarios/cloudrun-cloudflare-neon-upstash`; it collects a Google
   Cloud project name, generates and persists a project ID when one is not
-  provided, and currently executes only the Cloud Run bootstrap step. The Cloud
-  Run step can pause for manual billing enablement and retry when Google
-  reports that billing is required. It is not a production deploy executor.
+  provided, executes the Cloud Run bootstrap step, prints a structured backend
+  GitHub variable handoff, and collects Neon database URLs as transient secret
+  inputs for later same-run secret sync steps. The Cloud Run step can pause for
+  manual billing enablement and retry when Google reports that billing is
+  required. It is not a production deploy executor.
   `deploy/providers/cloudrun` is a TypeScript
   provider spike for Cloud Run bootstrap orchestration; it includes SDK-backed
   Resource Manager, Cloud Billing, Service Usage, Artifact Registry repository,

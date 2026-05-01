@@ -18,10 +18,12 @@ export function createCliUi(options = {}) {
 
       for (const inputDefinition of inputs) {
         const label = inputDefinition.label ?? inputDefinition.name;
-        values[inputDefinition.name] =
-          inputDefinition.kind === "secret"
-            ? await askSecret({ input, output, prompt: `${label}:` })
-            : await askText({ input, output, prompt: `${label}:` });
+        values[inputDefinition.name] = await askRequiredValue({
+          input,
+          inputDefinition,
+          label,
+          output,
+        });
       }
 
       return values;
@@ -44,6 +46,21 @@ export function createCliUi(options = {}) {
       });
     },
   };
+}
+
+async function askRequiredValue({ input, inputDefinition, label, output }) {
+  for (;;) {
+    const value =
+      inputDefinition.kind === "secret"
+        ? await askSecret({ input, output, prompt: `${label}:` })
+        : await askText({ input, output, prompt: `${label}:` });
+
+    if (value !== "") {
+      return value;
+    }
+
+    output.write(`${label} is required.\n`);
+  }
 }
 
 async function askText({ input, output, prompt }) {

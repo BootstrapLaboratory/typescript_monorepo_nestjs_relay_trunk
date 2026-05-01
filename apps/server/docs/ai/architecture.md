@@ -147,10 +147,11 @@ dependency factory for `bootstrapCloudRun`, and `deploy/scenario-engine` has a
 Cloud Run bootstrap step wrapper that can lazy-load it. The first production
 scenario skeleton under `deploy/scenarios/cloudrun-cloudflare-neon-upstash`
 collects a Google Cloud project name, generates and persists a project ID when
-one is not provided, and currently executes only that Cloud Run bootstrap step.
-The Cloud Run step can pause for manual billing enablement and retry when
-Google reports that billing is required. This does not replace the existing
-Cloud Run shell scripts yet.
+one is not provided, executes that Cloud Run bootstrap step, prints a backend
+GitHub variable handoff, and collects Neon database URLs as transient secret
+inputs for later same-run secret sync steps. The Cloud Run step can pause for
+manual billing enablement and retry when Google reports that billing is
+required. This does not replace the existing Cloud Run shell scripts yet.
 
 Rush Delivery validation for this project starts backing Postgres and Redis
 services, runs migrations, starts the production server, and executes the Cloud

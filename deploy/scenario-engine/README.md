@@ -8,7 +8,8 @@ XState internally.
 The demo executable path is intentionally fake. It proves the CLI, JSON state
 store, resume/fresh behavior, and secret redaction. The first production
 scenario skeleton is wired into the CLI and currently collects Google Cloud
-project details before running the real Cloud Run bootstrap action.
+project details, runs the real Cloud Run bootstrap action, and collects Neon
+database URLs as transient secrets for later same-run secret sync steps.
 
 Scenarios can expose structured `completionSections`. The CLI renders them
 after the generic known-values list, and future UIs can render the same
@@ -105,6 +106,10 @@ progress and start from the first step:
 npm --prefix deploy/scenario-engine run demo -- --fresh
 ```
 
-Secrets supplied through `secret()` inputs are removed from persisted XState
-snapshots and from the CLI completion summary. Provider outputs are persisted
-through the configured state store.
+When a step's declared outputs are already present in the state store, the
+runner treats that step as completed and moves to the next incomplete step.
+
+Secrets supplied through `secret()` inputs are available to later steps in the
+same run, but are removed from persisted XState snapshots and from the CLI
+completion summary. Input values are not saved to the JSON state file unless a
+step intentionally returns them as provider outputs.
