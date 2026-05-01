@@ -1,13 +1,25 @@
 # Cloud Run Provider
 
-This package is the TypeScript design spike for replacing Cloud Run provider
+This package is the TypeScript provider spike for replacing Cloud Run provider
 bootstrap shell logic with typed provider actions.
 
-The package does not make live Google Cloud calls yet. The first slice defines
-the bootstrap operation shape, the dependency boundary, SDK selection policy,
-and fake-dependency tests. Existing scripts under `deploy/cloudrun` remain the
-working manual/deployment entrypoints until concrete SDK-backed dependencies
-are implemented and wired into scenarios.
+The package is not wired into scenarios or deployment scripts yet. Existing
+scripts under `deploy/cloudrun` remain the working manual/deployment
+entrypoints until the concrete SDK-backed dependencies are implemented and
+intentionally adopted.
+
+The first concrete SDK-backed dependency is available for Resource Manager
+projects:
+
+```ts
+import { createGoogleProjectsDependency } from "deploy-provider-cloudrun";
+
+const projects = createGoogleProjectsDependency();
+```
+
+This adapter uses `@google-cloud/resource-manager` for project existence,
+project creation, and project-number lookup. Tests inject a fake
+`ProjectsClientLike`; verification does not call Google Cloud.
 
 ## Shape
 

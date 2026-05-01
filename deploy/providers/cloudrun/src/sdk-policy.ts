@@ -7,7 +7,7 @@ export type GoogleSdkPolicyEntry = {
 export const googleSdkPolicy = [
   {
     notes:
-      "Use the official Resource Manager client for project existence, creation, and project number lookup.",
+      "Use the official Resource Manager client for project existence, creation, and project number lookup. This adapter is implemented by createGoogleProjectsDependency.",
     preferredPackage: "@google-cloud/resource-manager",
     providerArea: "projects",
   },

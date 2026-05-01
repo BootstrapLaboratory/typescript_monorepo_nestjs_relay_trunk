@@ -15,6 +15,9 @@
     "test": "npm run build && node --test dist/test/*.test.js",
     "verify": "npm run test"
   },
+  "dependencies": {
+    "@google-cloud/resource-manager": "^6.1.0"
+  },
   "devDependencies": {
     "@types/node": "^25.6.0",
     "typescript": "^6.0.3"

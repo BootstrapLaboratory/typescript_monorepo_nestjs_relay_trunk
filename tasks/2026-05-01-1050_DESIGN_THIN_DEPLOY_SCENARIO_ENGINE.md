@@ -315,6 +315,12 @@ Future web usage should be possible without rewriting the scenario:
       no official Google client supports the operation.
 - [x] Added fake-dependency tests for defaults, orchestration order, output
       shape, and optional billing behavior.
+- [x] Added the first concrete SDK-backed dependency,
+      `createGoogleProjectsDependency`, using `@google-cloud/resource-manager`
+      for `ensureProject` and `getProjectNumber`.
+- [x] Added fake `ProjectsClientLike` tests for existing projects, missing
+      project creation, long-running operation awaiting, project-number
+      parsing, and non-404 error propagation.
 
 ## Phase 4: Add First Real Scenario
 
