@@ -372,6 +372,12 @@ Future web usage should be possible without rewriting the scenario:
       factory for all real Google-backed Cloud Run bootstrap dependencies.
 - [x] Added a composition test with injected lightweight factory outputs so
       verification does not initialize real Google clients.
+- [x] Added `deploy-provider-cloudrun` as a scenario-engine dependency and
+      introduced `createCloudRunBootstrapStep` as the first real scenario
+      action wrapper.
+- [x] Added a scenario-engine action test that injects fake Cloud Run provider
+      functions, verifies input mapping, and persists generated bootstrap
+      outputs without initializing Google clients.
 
 ## Phase 4: Add First Real Scenario
 

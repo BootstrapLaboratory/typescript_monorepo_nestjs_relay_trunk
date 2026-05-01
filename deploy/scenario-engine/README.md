@@ -5,9 +5,26 @@ preparation flows. Scenario authors use project-owned interfaces (`scenario`,
 `step`, `text`, `secret`) while the default runner compiles that model to
 XState internally.
 
-The current executable path is intentionally fake. It proves the CLI, JSON
-state store, resume/fresh behavior, and secret redaction before any real
-Cloud Run or Cloudflare provider scripts are wrapped.
+The demo executable path is intentionally fake. It proves the CLI, JSON state
+store, resume/fresh behavior, and secret redaction. A real Cloud Run bootstrap
+action wrapper exists for the first production scenario, but no production
+scenario is wired into the CLI yet.
+
+## Cloud Run Bootstrap Action
+
+`src/providers/cloudrun-bootstrap.mjs` exposes `createCloudRunBootstrapStep`.
+By default it lazy-loads `deploy-provider-cloudrun` and calls
+`bootstrapCloudRun(input, createGoogleCloudRunProviderDeps())`.
+
+Build the Cloud Run provider before executing this action for real:
+
+```sh
+npm --prefix deploy/providers/cloudrun run build
+```
+
+Tests can inject a provider object into `createCloudRunBootstrapStep` so they
+exercise the scenario action without initializing Google clients or making real
+Google Cloud calls.
 
 ## Shell Helper
 

@@ -143,8 +143,10 @@ Registry repository IAM dependencies plus `@googleapis/iam`-backed IAM service
 account creation, service-account IAM binding, and Resource Manager-backed
 project IAM dependencies, plus `@googleapis/iam`-backed Workload Identity pool
 and GitHub OIDC provider dependencies. It exports a default Google-backed
-dependency factory for `bootstrapCloudRun`, but is not wired into scenarios and
-does not replace the existing Cloud Run shell scripts yet.
+dependency factory for `bootstrapCloudRun`, and `deploy/scenario-engine` has a
+Cloud Run bootstrap step wrapper that can lazy-load it. The full production
+scenario is not wired yet and this does not replace the existing Cloud Run
+shell scripts yet.
 
 Rush Delivery validation for this project starts backing Postgres and Redis
 services, runs migrations, starts the production server, and executes the Cloud

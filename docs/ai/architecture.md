@@ -17,7 +17,8 @@ ordering, and lockfile ownership.
   engine behind the project-owned scenario DSL, keeps a plain runner as a
   fallback/reference implementation, persists sanitized XState snapshots for
   resume/fresh-run behavior, includes a local JSON store, CLI demo scenario,
-  and redacting shell helper for future provider wrappers, and is not a
+  redacting shell helper for future provider wrappers, and a Cloud Run
+  bootstrap action wrapper for the first production scenario. It is not a
   production deploy executor. `deploy/providers/cloudrun` is a TypeScript
   provider spike for Cloud Run bootstrap orchestration; it includes SDK-backed
   Resource Manager, Cloud Billing, Service Usage, Artifact Registry repository,
@@ -25,8 +26,9 @@ ordering, and lockfile ownership.
   creation and service-account IAM binding through `@googleapis/iam`,
   Resource Manager-backed project IAM dependencies, and Workload Identity pool
   plus GitHub OIDC provider dependencies through `@googleapis/iam`. It exports
-  a default Google-backed dependency factory for `bootstrapCloudRun`, but is not
-  wired into scenarios yet and does not replace `deploy/cloudrun` scripts.
+  a default Google-backed dependency factory for `bootstrapCloudRun`, and the
+  scenario engine has a step wrapper that can lazy-load it. The full production
+  scenario is not wired yet and this does not replace `deploy/cloudrun` scripts.
 
 ## Rush Rules
 

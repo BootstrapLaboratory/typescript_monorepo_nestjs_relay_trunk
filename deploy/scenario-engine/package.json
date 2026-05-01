@@ -12,6 +12,7 @@
     "verify": "npm run test"
   },
   "dependencies": {
+    "deploy-provider-cloudrun": "0.0.1",
     "xstate": "^5.30.0"
   }
 }
