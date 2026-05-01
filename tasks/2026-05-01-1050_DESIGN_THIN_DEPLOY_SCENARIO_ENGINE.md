@@ -252,12 +252,12 @@ Future web usage should be possible without rewriting the scenario:
 
 ## Phase 2: Add Scenario Engine Skeleton
 
-- [ ] Add the smallest possible scenario engine module.
-- [ ] Add a CLI UI adapter that can prompt for missing text/secret inputs.
-- [ ] Add a local env/state store that persists non-secret outputs and can load
+- [x] Add the smallest possible scenario engine module.
+- [x] Add a CLI UI adapter that can prompt for missing text/secret inputs.
+- [x] Add a local JSON state store that persists non-secret outputs and can load
       existing values.
 - [ ] Add a shell runner helper with redaction support.
-- [ ] Add unit tests for input collection, output handoff, secret redaction,
+- [x] Add unit tests for input collection, output handoff, secret redaction,
       and step ordering.
 
 ### Phase 2 Progress
@@ -271,6 +271,16 @@ Future web usage should be possible without rewriting the scenario:
 - [x] Added tests that simulate interruption after step 1, resume at step 2
       without re-running step 1, verify secret values are not present in the
       persisted snapshot, and verify fresh runs ignore saved progress.
+- [x] Added a local JSON file store for CLI state with serialized writes for
+      snapshot/output races.
+- [x] Added a CLI UI adapter that prints step guidance, prompts for missing
+      text/secret inputs, and hides secret input on TTY prompts.
+- [x] Added a fake executable demo scenario with `--state`, `--fresh`, and
+      `--var KEY=value` support.
+- [x] Updated `fresh: true` to ignore stored values as well as stored
+      snapshots for the current run.
+- [x] Added tests for the JSON store, CLI non-interactive execution, fresh-run
+      stored-value isolation, and secret redaction in CLI output.
 
 ## Phase 3: Wrap Existing Provider Scripts
 
@@ -320,7 +330,7 @@ Future web usage should be possible without rewriting the scenario:
 - [ ] Should the schema layer use Zod, or is a tiny first-party schema enough?
 - [ ] Should provider functions return plain output objects, or a richer result
       with logs/warnings/next actions?
-- [ ] Should the first CLI be interactive only, or also support non-interactive
+- [x] Should the first CLI be interactive only, or also support non-interactive
       `--var KEY=value` execution?
 - [ ] How should scenario state be named for multiple deployments of the same
       repository?

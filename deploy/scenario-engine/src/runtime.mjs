@@ -62,3 +62,28 @@ export async function persistStepOutput({ output, step, store }) {
 export async function loadStoreValues(store) {
   return await store.loadValues?.() ?? await store.load?.() ?? {};
 }
+
+export function collectSecretInputNames(scenario) {
+  return new Set(
+    scenario.steps.flatMap((step) =>
+      Object.entries(step.inputs)
+        .filter(([, definition]) => definition.kind === "secret")
+        .map(([name]) => name),
+    ),
+  );
+}
+
+export function redactScenarioValues(scenario, values) {
+  const secretNames = collectSecretInputNames(scenario);
+  const redacted = {};
+
+  for (const [name, value] of Object.entries(values)) {
+    if (secretNames.has(name)) {
+      continue;
+    }
+
+    redacted[name] = value;
+  }
+
+  return redacted;
+}

@@ -146,6 +146,34 @@ describe("XState-backed scenario runner spike", () => {
       "https://demo-123.europe-west4.example.test",
     );
   });
+
+  it("does not reuse stored values during a fresh run", async () => {
+    const store = createMemoryStore({
+      PROJECT_ID: "stored",
+      PROJECT_NUMBER: "stored-123",
+      REGION: "stored-region",
+    });
+    const ui = createScriptedUi({
+      ADMIN_TOKEN: "secret-token",
+      PROJECT_ID: "fresh",
+      REGION: "fresh-region",
+    });
+
+    const result = await runScenarioXState(createTinyScenario(), {
+      fresh: true,
+      store,
+      ui,
+    });
+
+    assert.deepEqual(
+      ui.prompted.map((input) => input.name),
+      ["ADMIN_TOKEN", "PROJECT_ID", "REGION"],
+    );
+    assert.equal(
+      result.values.SERVICE_URL,
+      "https://fresh-123.fresh-region.example.test",
+    );
+  });
 });
 
 async function waitFor(predicate) {

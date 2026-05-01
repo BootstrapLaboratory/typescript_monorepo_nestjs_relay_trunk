@@ -56,3 +56,21 @@ supports `fresh: true` to ignore saved progress and start from the beginning.
 Secret inputs are removed from persisted snapshots before the store sees them.
 If a run resumes before a secret-consuming step has completed, the UI must ask
 for that secret again.
+
+## CLI And Store Skeleton
+
+The spike now includes a small CLI adapter, a local JSON file store, and an
+executable fake scenario:
+
+```sh
+npm --prefix deploy/scenario-engine run demo -- \
+  --state /tmp/tiny-cloud.json \
+  --var ADMIN_TOKEN=secret-token \
+  --var PROJECT_ID=demo \
+  --var REGION=europe-west4
+```
+
+The CLI prompts for missing inputs, supports `--var KEY=value` for
+non-interactive runs, resumes from the JSON state file by default, and accepts
+`--fresh` to start from the first step. This path is deliberately separate from
+real provider scripts until the engine boundary is stable.

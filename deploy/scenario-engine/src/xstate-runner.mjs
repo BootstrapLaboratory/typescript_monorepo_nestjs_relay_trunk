@@ -1,6 +1,7 @@
 import { assign, createActor, fromPromise, setup } from "xstate";
 
 import {
+  collectSecretInputNames,
   collectStepInputs,
   loadStoreValues,
   persistStepOutput,
@@ -118,7 +119,8 @@ export async function runScenarioXState(scenario, options) {
 }
 
 export async function startScenarioXState(scenario, options) {
-  const storeValues = await loadStoreValues(options.store);
+  const storeValues =
+    options.fresh === true ? {} : await loadStoreValues(options.store);
   const restoredSnapshot =
     options.fresh === true ? undefined : await options.store.loadSnapshot?.();
 
@@ -194,16 +196,6 @@ function createSerializableSnapshot(actor, scenario) {
   redactSecretValues(snapshot, secretNames);
 
   return snapshot;
-}
-
-function collectSecretInputNames(scenario) {
-  return new Set(
-    scenario.steps.flatMap((step) =>
-      Object.entries(step.inputs)
-        .filter(([, definition]) => definition.kind === "secret")
-        .map(([name]) => name),
-    ),
-  );
 }
 
 function redactSecretValues(value, secretNames) {

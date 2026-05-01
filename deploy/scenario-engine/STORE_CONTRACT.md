@@ -26,6 +26,28 @@ type ScenarioStore = {
   changes.
 - `clearSnapshot` removes saved progress after the scenario completes or when
   the caller requests a fresh run.
+- `fresh: true` makes the runner ignore both stored snapshots and stored values
+  for the current run. The store may still keep the old file on disk; the run
+  starts from an empty in-memory value set plus explicit caller-provided values.
+
+## JSON File Store
+
+`src/stores/json-file-store.mjs` provides the first local CLI store. It writes a
+single JSON document:
+
+```json
+{
+  "values": {
+    "PROJECT_NUMBER": "demo-123"
+  },
+  "snapshot": {
+    "status": "active"
+  }
+}
+```
+
+Writes are serialized inside the store because active snapshot saves and
+provider output saves can happen close together.
 
 ## Secret Handling
 
