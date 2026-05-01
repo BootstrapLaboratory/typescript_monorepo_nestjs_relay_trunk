@@ -47,11 +47,11 @@ describe("Cloud Run provider bootstrap spike", () => {
     assert.deepEqual(calls, [
       "projects.ensureProject:demo-project",
       "billing.linkProject:billing-123",
+      "projects.getProjectNumber:demo-project",
       `services.enableServices:${REQUIRED_BOOTSTRAP_SERVICES.join(",")}`,
       "artifactRegistry.ensureDockerRepository:cloud-run-backend",
       "iam.ensureServiceAccount:github-actions-deployer",
       "iam.ensureServiceAccount:cloud-run-runtime",
-      "projects.getProjectNumber:demo-project",
       "workloadIdentity.ensureGithubOidcProvider:github-actions/github",
       "iam.ensureServiceAccountIamBinding:roles/iam.workloadIdentityUser",
       "iam.ensureProjectIamBinding:roles/run.admin",
@@ -134,6 +134,7 @@ function createRecordingDeps(calls: string[]): CloudRunProviderDeps {
     },
     services: {
       async enableServices(input) {
+        assert.equal(input.projectNumber, "123456789");
         calls.push(`services.enableServices:${input.services.join(",")}`);
       },
     },

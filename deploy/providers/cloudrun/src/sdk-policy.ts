@@ -19,7 +19,7 @@ export const googleSdkPolicy = [
   },
   {
     notes:
-      "Use the official Service Usage client for enabling required project services.",
+      "Use the official Service Usage client for enabling required project services. This adapter is implemented by createGoogleServicesDependency.",
     preferredPackage: "@google-cloud/service-usage",
     providerArea: "services",
   },

@@ -34,8 +34,13 @@ export async function bootstrapCloudRun(
     });
   }
 
+  const projectNumber = await deps.projects.getProjectNumber(
+    resolved.PROJECT_ID,
+  );
+
   await deps.services.enableServices({
     projectId: resolved.PROJECT_ID,
+    projectNumber,
     services: [...REQUIRED_BOOTSTRAP_SERVICES],
   });
 
@@ -66,9 +71,6 @@ export async function bootstrapCloudRun(
     projectId: resolved.PROJECT_ID,
   });
 
-  const projectNumber = await deps.projects.getProjectNumber(
-    resolved.PROJECT_ID,
-  );
   const workloadIdentity = await deps.workloadIdentity.ensureGithubOidcProvider({
     attributeCondition: `assertion.repository == '${resolved.GITHUB_REPOSITORY}'`,
     attributeMapping: {

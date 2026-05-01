@@ -321,6 +321,14 @@ Future web usage should be possible without rewriting the scenario:
 - [x] Added fake `ProjectsClientLike` tests for existing projects, missing
       project creation, long-running operation awaiting, project-number
       parsing, and non-404 error propagation.
+- [x] Added `createGoogleServicesDependency` using
+      `@google-cloud/service-usage` for `enableServices`.
+- [x] Updated bootstrap orchestration to read `PROJECT_NUMBER` before enabling
+      services, because Service Usage batch enable uses a `projects/{number}`
+      parent.
+- [x] Added fake `ServiceUsageClientLike` tests for batch enable, single-service
+      enable, 20-service batch splitting, empty input no-op, and project parent
+      formatting.
 
 ## Phase 4: Add First Real Scenario
 

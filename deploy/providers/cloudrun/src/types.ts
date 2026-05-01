@@ -95,6 +95,7 @@ export type CloudRunProviderDeps = {
   services: {
     enableServices(input: {
       projectId: string;
+      projectNumber: string;
       services: string[];
     }): Promise<void>;
   };

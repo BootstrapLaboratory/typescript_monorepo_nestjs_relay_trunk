@@ -19,8 +19,8 @@ ordering, and lockfile ownership.
   resume/fresh-run behavior, includes a local JSON store, CLI demo scenario,
   and redacting shell helper for future provider wrappers, and is not a
   production deploy executor. `deploy/providers/cloudrun` is a TypeScript
-  provider spike for Cloud Run bootstrap orchestration; it includes the first
-  SDK-backed Resource Manager project dependency, is not wired into scenarios
+  provider spike for Cloud Run bootstrap orchestration; it includes SDK-backed
+  Resource Manager and Service Usage dependencies, is not wired into scenarios
   yet, and does not replace `deploy/cloudrun` scripts.
 
 ## Rush Rules

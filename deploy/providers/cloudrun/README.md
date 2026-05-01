@@ -8,18 +8,23 @@ scripts under `deploy/cloudrun` remain the working manual/deployment
 entrypoints until the concrete SDK-backed dependencies are implemented and
 intentionally adopted.
 
-The first concrete SDK-backed dependency is available for Resource Manager
-projects:
+Concrete SDK-backed dependencies are available for Resource Manager projects
+and Service Usage:
 
 ```ts
-import { createGoogleProjectsDependency } from "deploy-provider-cloudrun";
+import {
+  createGoogleProjectsDependency,
+  createGoogleServicesDependency,
+} from "deploy-provider-cloudrun";
 
 const projects = createGoogleProjectsDependency();
+const services = createGoogleServicesDependency();
 ```
 
-This adapter uses `@google-cloud/resource-manager` for project existence,
-project creation, and project-number lookup. Tests inject a fake
-`ProjectsClientLike`; verification does not call Google Cloud.
+The project adapter uses `@google-cloud/resource-manager` for project
+existence, project creation, and project-number lookup. The services adapter
+uses `@google-cloud/service-usage` for required API enablement. Tests inject
+fake clients; verification does not call Google Cloud.
 
 ## Shape
 

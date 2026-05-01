@@ -7,8 +7,13 @@ export {
   createGoogleProjectsDependency,
   projectNumberFromName,
 } from "./google/projects.js";
+export {
+  createGoogleServicesDependency,
+  projectParent,
+} from "./google/services.js";
 export { googleSdkPolicy } from "./sdk-policy.js";
 export type { ProjectsClientLike } from "./google/projects.js";
+export type { ServiceUsageClientLike } from "./google/services.js";
 export type {
   BootstrapCloudRunInput,
   BootstrapCloudRunOutput,

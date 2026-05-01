@@ -16,7 +16,8 @@
     "verify": "npm run test"
   },
   "dependencies": {
-    "@google-cloud/resource-manager": "^6.1.0"
+    "@google-cloud/resource-manager": "^6.1.0",
+    "@google-cloud/service-usage": "^3.3.0"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
