@@ -8,23 +8,28 @@ scripts under `deploy/cloudrun` remain the working manual/deployment
 entrypoints until the concrete SDK-backed dependencies are implemented and
 intentionally adopted.
 
-Concrete SDK-backed dependencies are available for Resource Manager projects
-and Service Usage:
+Concrete SDK-backed dependencies are available for Resource Manager projects,
+Service Usage, and Artifact Registry repository creation:
 
 ```ts
 import {
+  createGoogleArtifactRegistryRepositoryDependency,
   createGoogleProjectsDependency,
   createGoogleServicesDependency,
 } from "deploy-provider-cloudrun";
 
+const artifactRepositories =
+  createGoogleArtifactRegistryRepositoryDependency();
 const projects = createGoogleProjectsDependency();
 const services = createGoogleServicesDependency();
 ```
 
 The project adapter uses `@google-cloud/resource-manager` for project
 existence, project creation, and project-number lookup. The services adapter
-uses `@google-cloud/service-usage` for required API enablement. Tests inject
-fake clients; verification does not call Google Cloud.
+uses `@google-cloud/service-usage` for required API enablement. The Artifact
+Registry repository adapter uses `@google-cloud/artifact-registry` for Docker
+repository creation. Tests inject fake clients; verification does not call
+Google Cloud.
 
 ## Shape
 

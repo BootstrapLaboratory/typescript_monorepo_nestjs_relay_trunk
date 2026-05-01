@@ -42,6 +42,9 @@ importers:
       '@fastify/cookie':
         specifier: ^11.0.2
         version: 11.0.2
+      '@google-cloud/artifact-registry':
+        specifier: ^4.4.0
+        version: 4.7.0
       '@google-cloud/resource-manager':
         specifier: ^6.1.0
         version: 6.2.1
@@ -850,6 +853,10 @@ packages:
 
   '@floating-ui/utils@0.2.11':
     resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
+
+  '@google-cloud/artifact-registry@4.7.0':
+    resolution: {integrity: sha512-VWixLfsr3f59287F/Y/2QH1wz6Fulw6OqCrJSnm4VEthvyA3otwdi9PXqfxCD027KSF488xqSqDJ5icQjlb3AA==}
+    engines: {node: '>=18'}
 
   '@google-cloud/resource-manager@6.2.1':
     resolution: {integrity: sha512-x/7G3qwLt9e+D2sL3hMS/sa7F0r3mW+b+eikR7IqpJTp4n6l6MPSRo0auprf3xiG16H5IwFaIaJ7HoOaeh5tNw==}
@@ -1943,7 +1950,7 @@ packages:
     version: 0.0.0
 
   '@rush-temp/deploy-provider-cloudrun@file:projects/deploy-provider-cloudrun.tgz':
-    resolution: {integrity: sha512-69xuwD+73EVAp5bMLqVxi4m8CbU3hBs+0CIwPQucUsrmpWtvAXBVuBvKpTyjVRxTNzwszx21USejO3IDfYZ5ZQ==, tarball: file:projects/deploy-provider-cloudrun.tgz}
+    resolution: {integrity: sha512-mIT71h8qTazhy7uXPp6rwGtcJZYNxxeIkZQ+Z4BGcaYplueA+gLLzCzr//VxP0Hjik/Ozulc4Rt/+iFPFv1/VQ==, tarball: file:projects/deploy-provider-cloudrun.tgz}
     version: 0.0.0
 
   '@rush-temp/deploy-scenario-engine@file:projects/deploy-scenario-engine.tgz':
@@ -6784,6 +6791,12 @@ snapshots:
 
   '@floating-ui/utils@0.2.11': {}
 
+  '@google-cloud/artifact-registry@4.7.0':
+    dependencies:
+      google-gax: 5.0.6
+    transitivePeerDependencies:
+      - supports-color
+
   '@google-cloud/resource-manager@6.2.1':
     dependencies:
       google-gax: 5.0.6
@@ -7860,6 +7873,7 @@ snapshots:
 
   '@rush-temp/deploy-provider-cloudrun@file:projects/deploy-provider-cloudrun.tgz':
     dependencies:
+      '@google-cloud/artifact-registry': 4.7.0
       '@google-cloud/resource-manager': 6.2.1
       '@google-cloud/service-usage': 3.4.1
       '@types/node': 25.6.0

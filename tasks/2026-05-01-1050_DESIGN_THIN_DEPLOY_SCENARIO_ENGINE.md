@@ -329,6 +329,12 @@ Future web usage should be possible without rewriting the scenario:
 - [x] Added fake `ServiceUsageClientLike` tests for batch enable, single-service
       enable, 20-service batch splitting, empty input no-op, and project parent
       formatting.
+- [x] Added `createGoogleArtifactRegistryRepositoryDependency` using
+      `@google-cloud/artifact-registry` for `ensureDockerRepository`.
+- [x] Added fake `ArtifactRegistryClientLike` tests for existing repository
+      no-op, missing Docker repository creation, long-running operation
+      awaiting, non-404 error propagation, and Artifact Registry resource name
+      formatting.
 
 ## Phase 4: Add First Real Scenario
 

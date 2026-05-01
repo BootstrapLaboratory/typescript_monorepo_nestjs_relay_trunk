@@ -137,9 +137,9 @@ Server package materialization uses `rush deploy` with
 `common/config/rush/deploy-server.json`. Provider deployment behavior belongs
 under `deploy/cloudrun` and deploy provider modules, not in Nest modules.
 `deploy/providers/cloudrun` is currently a TypeScript provider spike for typed
-Cloud Run bootstrap orchestration. It includes SDK-backed Resource Manager and
-Service Usage dependencies, but is not wired into scenarios and does not
-replace the existing Cloud Run shell scripts yet.
+Cloud Run bootstrap orchestration. It includes SDK-backed Resource Manager,
+Service Usage, and Artifact Registry repository dependencies, but is not wired
+into scenarios and does not replace the existing Cloud Run shell scripts yet.
 
 Rush Delivery validation for this project starts backing Postgres and Redis
 services, runs migrations, starts the production server, and executes the Cloud

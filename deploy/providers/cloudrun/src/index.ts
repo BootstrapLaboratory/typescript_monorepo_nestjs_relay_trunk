@@ -4,6 +4,11 @@ export {
   resolveBootstrapCloudRunInput,
 } from "./bootstrap.js";
 export {
+  createGoogleArtifactRegistryRepositoryDependency,
+  repositoryParent,
+  repositoryResourceName,
+} from "./google/artifact-registry.js";
+export {
   createGoogleProjectsDependency,
   projectNumberFromName,
 } from "./google/projects.js";
@@ -12,6 +17,10 @@ export {
   projectParent,
 } from "./google/services.js";
 export { googleSdkPolicy } from "./sdk-policy.js";
+export type {
+  ArtifactRegistryClientLike,
+  ArtifactRegistryRepositoryDependency,
+} from "./google/artifact-registry.js";
 export type { ProjectsClientLike } from "./google/projects.js";
 export type { ServiceUsageClientLike } from "./google/services.js";
 export type {
