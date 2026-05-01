@@ -210,15 +210,42 @@ Future web usage should be possible without rewriting the scenario:
 ## Phase 1: Thin Design Spike
 
 - [ ] Decide whether to implement the engine in plain TypeScript plus a small
-      prompt library, or introduce a production workflow library.
-- [ ] Prefer plain TypeScript unless a library clearly improves CLI and web
-      reuse without hiding scenario readability.
+      prompt library, or to compile the scenario DSL into XState while keeping
+      XState hidden behind the project-owned interfaces.
+- [x] Keep the project-owned `scenario`, `step`, `text`, `secret`, provider
+      function, UI adapter, and state store interfaces as the authoring API in
+      both prototypes.
+- [x] Prototype one tiny scenario with a plain ESM runner.
+- [x] Prototype the same tiny scenario with the project-owned DSL compiled to
+      XState.
+- [x] Compare the two prototypes side by side for scenario readability, engine
+      code size, testability, CLI/web portability, persistence/resume support,
+      branching/retry support, and how much XState vocabulary leaks into
+      provider or scenario files.
+- [ ] Prefer plain TypeScript unless XState clearly improves lifecycle,
+      persistence/resume, branching, retries, or future web wizard behavior
+      without hiding scenario readability.
 - [ ] Decide whether input schemas should use a dependency such as Zod or a
       tiny first-party schema.
 - [ ] Define the minimal `scenario`, `step`, `text`, `secret`, `runScenario`,
       UI adapter, and state store interfaces.
-- [ ] Write one small example scenario in a test or fixture before touching
+- [x] Write one small example scenario in a test or fixture before touching
       real provider scripts.
+
+### Phase 1 Progress
+
+- [x] Added `deploy/scenario-engine` as a small Rush project for the design
+      spike.
+- [x] Added a shared project-owned DSL in `deploy/scenario-engine/src/define.mjs`.
+- [x] Added a plain linear ESM runner in
+      `deploy/scenario-engine/src/plain-runner.mjs`.
+- [x] Added an XState-backed runner in
+      `deploy/scenario-engine/src/xstate-runner.mjs` that compiles the same DSL
+      to a machine while keeping XState behind the compiler boundary.
+- [x] Added one tiny fake scenario fixture and tests for both runners before
+      touching real provider scripts.
+- [x] Added `deploy/scenario-engine/SPIKE_COMPARISON.md` with the side-by-side
+      comparison notes.
 
 ## Phase 2: Add Scenario Engine Skeleton
 

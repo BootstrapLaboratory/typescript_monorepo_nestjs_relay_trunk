@@ -12,6 +12,9 @@ ordering, and lockfile ownership.
 - `.dagger`: app-owned Rush Delivery metadata for validation, package, deploy,
   toolchain images, and Rush install cache.
 - `deploy`: provider-specific scripts for Cloud Run and Cloudflare Pages.
+  `deploy/scenario-engine` is a small Rush project for the deployment scenario
+  engine spike; it compares a plain runner with an XState-backed runner behind
+  the same project-owned scenario DSL and is not a production deploy executor.
 
 ## Rush Rules
 

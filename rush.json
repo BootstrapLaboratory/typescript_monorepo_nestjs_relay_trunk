@@ -21,6 +21,12 @@
       "projectFolder": "apps/server",
       "reviewCategory": "applications",
       "versionPolicyName": "apps"
+    },
+    {
+      "packageName": "deploy-scenario-engine",
+      "projectFolder": "deploy/scenario-engine",
+      "reviewCategory": "tools",
+      "versionPolicyName": "apps"
     }
   ]
 }
