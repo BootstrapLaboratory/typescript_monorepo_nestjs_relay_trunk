@@ -38,6 +38,12 @@ ordering, and lockfile ownership.
   default Google-backed dependency factory for `bootstrapCloudRun` and
   `syncCloudRunRuntimeSecrets`, and the scenario engine has step wrappers that
   can lazy-load it. This does not replace `deploy/cloudrun` scripts.
+  `deploy/providers/cloudflare-pages` is a TypeScript provider spike for
+  Cloudflare Pages production provisioning. It uses Cloudflare's official
+  TypeScript SDK to ensure a Pages project exists, set its production branch,
+  and disable Cloudflare Git automatic deployments for Git-integrated Pages
+  projects. It intentionally does not deploy static assets, configure GitHub
+  repository values, or derive backend GraphQL endpoints.
 
 ## Rush Rules
 

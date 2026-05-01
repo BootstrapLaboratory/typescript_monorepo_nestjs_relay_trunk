@@ -15,6 +15,13 @@ current deployment decisions and should be preferred before manual setup. Still
 explain the manual equivalent when a human needs to understand or repair the
 automation.
 
+`deploy/providers/cloudflare-pages` is the active TypeScript provider spike for
+Cloudflare Pages production provisioning. It uses Cloudflare's official
+TypeScript SDK and can ensure a Pages project exists, set the production branch,
+and disable Cloudflare Git automatic deployments for Git-integrated projects.
+It does not deploy assets, configure GitHub repository values, or derive
+backend GraphQL URLs.
+
 ## Deployment Boundary
 
 The Cloudflare Pages deploy target is `webapp`.

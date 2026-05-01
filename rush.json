@@ -34,6 +34,12 @@
       "projectFolder": "deploy/providers/cloudrun",
       "reviewCategory": "tools",
       "versionPolicyName": "apps"
+    },
+    {
+      "packageName": "deploy-provider-cloudflare-pages",
+      "projectFolder": "deploy/providers/cloudflare-pages",
+      "reviewCategory": "tools",
+      "versionPolicyName": "apps"
     }
   ]
 }

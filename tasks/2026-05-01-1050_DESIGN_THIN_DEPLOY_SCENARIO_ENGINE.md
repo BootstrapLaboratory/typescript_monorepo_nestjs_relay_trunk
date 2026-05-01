@@ -291,8 +291,8 @@ Future web usage should be possible without rewriting the scenario:
 
 - [x] Create a Cloud Run provider module with functions that replace or wrap
       existing Cloud Run setup scripts.
-- [ ] Create a Cloudflare Pages provider module with functions that wrap
-      existing Cloudflare setup scripts.
+- [x] Create a Cloudflare Pages provider module with TypeScript functions for
+      production provisioning, without wrapping the existing shell scripts.
 - [ ] Create Neon and Upstash provider modules for manual-input guidance first.
 - [x] Add a Cloud Run provider action for syncing backend runtime secrets into
       Secret Manager.
@@ -390,6 +390,14 @@ Future web usage should be possible without rewriting the scenario:
       `DATABASE_URL`, `DATABASE_URL_DIRECT`, and `REDIS_URL`; grant deployer
       access to all three; grant runtime access to `DATABASE_URL` and
       `REDIS_URL`.
+- [x] Added `deploy/providers/cloudflare-pages` as a TypeScript Rush project
+      using Cloudflare's official TypeScript SDK.
+- [x] Added `prepareCloudflarePagesProject(input, deps)` for production
+      provisioning only: ensure a Pages project exists, set the production
+      branch, and disable Cloudflare Git automatic deployments for
+      Git-integrated projects.
+- [x] Kept Cloudflare asset uploads, GitHub repository configuration, and
+      backend GraphQL endpoint derivation out of the provider module.
 
 ## Phase 4: Add First Real Scenario
 

@@ -191,3 +191,10 @@ Delivery packages it and the Cloudflare Pages deploy script publishes it from
 
 Provider-specific deploy behavior should stay under `deploy/cloudflare-pages`,
 not inside React components.
+
+`deploy/providers/cloudflare-pages` is the TypeScript provider spike for
+Cloudflare Pages production provisioning. It owns Pages project setup only:
+ensuring the project exists, setting the production branch, and disabling
+Cloudflare Git automatic deployments for Git-integrated projects. It does not
+own Wrangler uploads, GitHub repository configuration, or Vite GraphQL endpoint
+derivation.
