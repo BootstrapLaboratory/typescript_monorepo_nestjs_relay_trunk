@@ -10,6 +10,10 @@ store, resume/fresh behavior, and secret redaction. The first production
 scenario skeleton is wired into the CLI and currently collects Google Cloud
 project details before running the real Cloud Run bootstrap action.
 
+Scenarios can expose structured `completionSections`. The CLI renders them
+after the generic known-values list, and future UIs can render the same
+metadata as scenario handoff cards.
+
 ## Cloud Run Bootstrap Action
 
 `src/providers/cloudrun-bootstrap.mjs` exposes `createCloudRunBootstrapStep`.
@@ -44,6 +48,10 @@ Google Cloud calls.
 When Google reports that billing is not enabled for the target project, the CLI
 action pauses for manual billing enablement and retries the same bootstrap step
 after the user presses Enter.
+
+The Cloud Run bootstrap action persists `GITHUB_REPOSITORY` with the provider
+outputs so later scenario steps and handoff summaries can reuse the repository
+target without prompting again.
 
 ## Shell Helper
 

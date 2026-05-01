@@ -12,6 +12,7 @@ export const CLOUD_RUN_BOOTSTRAP_OUTPUTS = [
   "GCP_PROJECT_ID",
   "GCP_SERVICE_ACCOUNT",
   "GCP_WORKLOAD_IDENTITY_PROVIDER",
+  "GITHUB_REPOSITORY",
   "PROJECT_ID",
   "PROJECT_NUMBER",
 ];
@@ -62,7 +63,10 @@ export function createCloudRunBootstrapStep(options = {}) {
 
       for (;;) {
         try {
-          return await provider.bootstrapCloudRun(input, deps);
+          return {
+            ...(await provider.bootstrapCloudRun(input, deps)),
+            GITHUB_REPOSITORY: input.GITHUB_REPOSITORY,
+          };
         } catch (error) {
           const normalizedError = normalizeGoogleCredentialError(error);
 

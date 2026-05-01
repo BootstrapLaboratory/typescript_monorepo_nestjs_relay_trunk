@@ -58,6 +58,17 @@ If Google reports that billing is not enabled, the scenario pauses, asks you to
 enable billing for the project manually, and retries Cloud Run bootstrap after
 you press Enter.
 
+When Cloud Run bootstrap finishes, the CLI prints a Cloud Run backend handoff
+section with the GitHub repository variables required by the backend deploy
+workflow:
+
+- `GCP_PROJECT_ID`
+- `GCP_WORKLOAD_IDENTITY_PROVIDER`
+- `GCP_SERVICE_ACCOUNT`
+- `GCP_ARTIFACT_REGISTRY_REPOSITORY`
+- `CLOUD_RUN_SERVICE`
+- `CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT`
+
 Use `--fresh` to ignore saved progress, and `--state <path>` to choose a
 specific JSON state file. By default, state is stored at
 `~/.config/beltapp/deploy-scenarios/cloudrun-cloudflare-neon-upstash.json`.

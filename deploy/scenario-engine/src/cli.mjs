@@ -6,6 +6,7 @@ import { exit, stdout } from "node:process";
 import {
   createCloudRunCloudflareNeonUpstashScenario,
 } from "../../scenarios/cloudrun-cloudflare-neon-upstash/scenario.mjs";
+import { formatCompletionSections } from "./completion-summary.mjs";
 import { createTinyScenario } from "./demo/tiny-scenario.mjs";
 import { redactScenarioValues } from "./runtime.mjs";
 import { createJsonFileStore } from "./stores/json-file-store.mjs";
@@ -59,6 +60,15 @@ try {
     redactScenarioValues(scenario, result.values),
   ).sort(([left], [right]) => left.localeCompare(right))) {
     stdout.write(`  ${name}=${value}\n`);
+  }
+
+  const completionSummary = formatCompletionSections(
+    scenario,
+    redactScenarioValues(scenario, result.values),
+  );
+
+  if (completionSummary !== "") {
+    stdout.write(`\n${completionSummary}\n`);
   }
 } catch (error) {
   console.error(error.message);

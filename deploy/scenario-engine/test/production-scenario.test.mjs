@@ -6,6 +6,7 @@ import {
   createCloudRunCloudflareNeonUpstashScenario,
   generateGoogleProjectId,
 } from "../../scenarios/cloudrun-cloudflare-neon-upstash/scenario.mjs";
+import { formatCompletionSections } from "../src/completion-summary.mjs";
 import { runScenarioXState } from "../src/xstate-runner.mjs";
 import { createMemoryStore, createScriptedUi } from "./fixtures.mjs";
 
@@ -94,8 +95,15 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
       },
     ]);
     assert.equal(result.values.GCP_PROJECT_ID, "demo-project-a7f3c2");
+    assert.equal(result.values.GITHUB_REPOSITORY, "BeltOrg/beltapp");
     assert.equal(result.values.PROJECT_ID, "demo-project-a7f3c2");
     assert.equal(result.values.PROJECT_NAME, "Demo Project");
     assert.equal(result.values.PROJECT_NUMBER, "123456789");
+
+    const completion = formatCompletionSections(scenario, result.values);
+    assert.match(completion, /Cloud Run backend GitHub variables/);
+    assert.match(completion, /GCP_PROJECT_ID=demo-project-a7f3c2/);
+    assert.match(completion, /CLOUD_RUN_SERVICE=api/);
+    assert.match(completion, /Next scenario slices/);
   });
 });

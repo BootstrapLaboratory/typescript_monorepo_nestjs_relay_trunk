@@ -168,6 +168,7 @@ describe("Cloud Run bootstrap scenario action", () => {
             "github-actions-deployer@demo-project.iam.gserviceaccount.com",
           GCP_WORKLOAD_IDENTITY_PROVIDER:
             "projects/123456789/locations/global/workloadIdentityPools/github-actions/providers/github",
+          GITHUB_REPOSITORY: "BeltOrg/beltapp",
           PROJECT_ID: "demo-project",
           PROJECT_NUMBER: "123456789",
         },
@@ -176,5 +177,6 @@ describe("Cloud Run bootstrap scenario action", () => {
     ]);
     assert.equal(result.values.PROJECT_NUMBER, "123456789");
     assert.equal(result.values.GCP_PROJECT_ID, "demo-project");
+    assert.equal(result.values.GITHUB_REPOSITORY, "BeltOrg/beltapp");
   });
 });

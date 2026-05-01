@@ -6,8 +6,31 @@ import { createCloudRunBootstrapStep } from "../../scenario-engine/src/providers
 export const CLOUDRUN_CLOUDFLARE_NEON_UPSTASH_SCENARIO_ID =
   "cloudrun-cloudflare-neon-upstash";
 
+export const CLOUD_RUN_BACKEND_GITHUB_VARIABLES = [
+  "GCP_PROJECT_ID",
+  "GCP_WORKLOAD_IDENTITY_PROVIDER",
+  "GCP_SERVICE_ACCOUNT",
+  "GCP_ARTIFACT_REGISTRY_REPOSITORY",
+  "CLOUD_RUN_SERVICE",
+  "CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT",
+];
+
 export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
   return scenario({
+    completionSections: [
+      {
+        guide: "Set these as GitHub repository variables for the backend deploy workflow.",
+        title: "Cloud Run backend GitHub variables",
+        variables: CLOUD_RUN_BACKEND_GITHUB_VARIABLES,
+      },
+      {
+        lines: [
+          "Cloud Run backend bootstrap is complete.",
+          "Next scenario slices will collect Neon database URLs, Upstash Redis, Cloud Run runtime secrets, and Cloudflare Pages settings.",
+        ],
+        title: "Next",
+      },
+    ],
     id: CLOUDRUN_CLOUDFLARE_NEON_UPSTASH_SCENARIO_ID,
     steps: [
       createGoogleProjectStep(options.googleProject),
