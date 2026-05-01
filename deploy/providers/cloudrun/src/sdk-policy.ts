@@ -13,7 +13,7 @@ export const googleSdkPolicy = [
   },
   {
     notes:
-      "Use the official Cloud Billing client for optional project billing-account links.",
+      "Use the official Cloud Billing client for optional project billing-account links. This adapter is implemented by createGoogleBillingDependency.",
     preferredPackage: "@google-cloud/billing",
     providerArea: "billing",
   },

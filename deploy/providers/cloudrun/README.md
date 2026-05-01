@@ -9,14 +9,15 @@ entrypoints until the concrete SDK-backed dependencies are implemented and
 intentionally adopted.
 
 Concrete SDK-backed dependencies are available for Resource Manager projects,
-Service Usage, Artifact Registry repository creation plus repository IAM
-binding updates, and IAM service account creation plus project and service
-account IAM binding updates, and Workload Identity pool plus GitHub OIDC
-provider creation:
+Cloud Billing project links, Service Usage, Artifact Registry repository
+creation plus repository IAM binding updates, IAM service account creation plus
+project and service account IAM binding updates, and Workload Identity pool
+plus GitHub OIDC provider creation:
 
 ```ts
 import {
   createGoogleArtifactRegistryRepositoryDependency,
+  createGoogleBillingDependency,
   createGoogleIamDependency,
   createGoogleProjectsDependency,
   createGoogleServicesDependency,
@@ -25,6 +26,7 @@ import {
 
 const artifactRepositories =
   createGoogleArtifactRegistryRepositoryDependency();
+const billing = createGoogleBillingDependency();
 const iam = createGoogleIamDependency();
 const projects = createGoogleProjectsDependency();
 const services = createGoogleServicesDependency();
@@ -32,7 +34,9 @@ const workloadIdentity = createGoogleWorkloadIdentityDependency();
 ```
 
 The project adapter uses `@google-cloud/resource-manager` for project
-existence, project creation, and project-number lookup. The services adapter
+existence, project creation, and project-number lookup. The billing adapter
+uses `@google-cloud/billing` for optional project billing-account links through
+`getProjectBillingInfo` and `updateProjectBillingInfo`. The services adapter
 uses `@google-cloud/service-usage` for required API enablement. The Artifact
 Registry repository adapter uses `@google-cloud/artifact-registry` for Docker
 repository creation and repository-scoped IAM policy updates through

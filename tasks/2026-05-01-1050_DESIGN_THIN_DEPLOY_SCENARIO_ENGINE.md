@@ -363,6 +363,11 @@ Future web usage should be possible without rewriting the scenario:
 - [x] Added fake Workload Identity tests for existing resource no-op, missing
       pool/provider creation, long-running operation polling, non-404 error
       propagation, failed operation surfacing, and resource name formatting.
+- [x] Added `createGoogleBillingDependency` using `@google-cloud/billing` for
+      optional project billing-account links.
+- [x] Added fake Cloud Billing tests for already-linked no-op, missing link,
+      account switch, disabled billing re-link, error propagation, and billing
+      resource name formatting.
 
 ## Phase 4: Add First Real Scenario
 

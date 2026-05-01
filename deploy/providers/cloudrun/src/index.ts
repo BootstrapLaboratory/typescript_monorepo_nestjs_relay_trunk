@@ -9,6 +9,11 @@ export {
   repositoryResourceName,
 } from "./google/artifact-registry.js";
 export {
+  billingAccountResourceName,
+  billingProjectResourceName,
+  createGoogleBillingDependency,
+} from "./google/billing.js";
+export {
   createGoogleProjectsDependency,
   projectNumberFromName,
 } from "./google/projects.js";
@@ -34,6 +39,7 @@ export type {
   ArtifactRegistryClientLike,
   ArtifactRegistryRepositoryDependency,
 } from "./google/artifact-registry.js";
+export type { CloudBillingClientLike } from "./google/billing.js";
 export type {
   GoogleIamDependency,
   IamProjectsClientLike,

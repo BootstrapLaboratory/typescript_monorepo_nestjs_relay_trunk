@@ -20,12 +20,12 @@ ordering, and lockfile ownership.
   and redacting shell helper for future provider wrappers, and is not a
   production deploy executor. `deploy/providers/cloudrun` is a TypeScript
   provider spike for Cloud Run bootstrap orchestration; it includes SDK-backed
-  Resource Manager, Service Usage, Artifact Registry repository, and Artifact
-  Registry repository IAM dependencies plus `@googleapis/iam`-backed IAM service
-  account creation, service-account IAM binding, and Resource Manager-backed
-  project IAM dependencies, plus `@googleapis/iam`-backed Workload Identity
-  pool and GitHub OIDC provider dependencies. It is not wired into scenarios
-  yet, and does not replace `deploy/cloudrun` scripts.
+  Resource Manager, Cloud Billing, Service Usage, Artifact Registry repository,
+  and Artifact Registry repository IAM dependencies plus IAM service account
+  creation and service-account IAM binding through `@googleapis/iam`,
+  Resource Manager-backed project IAM dependencies, and Workload Identity pool
+  plus GitHub OIDC provider dependencies through `@googleapis/iam`. It is not
+  wired into scenarios yet, and does not replace `deploy/cloudrun` scripts.
 
 ## Rush Rules
 
