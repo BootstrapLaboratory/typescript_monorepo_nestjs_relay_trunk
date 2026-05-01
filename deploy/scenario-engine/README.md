@@ -9,6 +9,26 @@ The current executable path is intentionally fake. It proves the CLI, JSON
 state store, resume/fresh behavior, and secret redaction before any real
 Cloud Run or Cloudflare provider scripts are wrapped.
 
+## Shell Helper
+
+Provider wrappers can use `runShell` to call existing scripts without moving
+their behavior into TypeScript immediately:
+
+```js
+await runShell("bash", {
+  args: ["deploy/cloudrun/scripts/sync-secrets.sh"],
+  env: {
+    DATABASE_URL: input.DATABASE_URL,
+    PROJECT_ID: input.PROJECT_ID,
+  },
+  redact: ["DATABASE_URL"],
+});
+```
+
+`redact` entries can name variables from `env`. Matching values are removed
+from captured stdout, stderr, streamed logs, returned command args, and thrown
+`ShellCommandError` instances.
+
 ## Demo
 
 Run the tiny fake scenario interactively:

@@ -16,8 +16,9 @@ ordering, and lockfile ownership.
   engine spike. It uses the XState-backed runner as the default execution
   engine behind the project-owned scenario DSL, keeps a plain runner as a
   fallback/reference implementation, persists sanitized XState snapshots for
-  resume/fresh-run behavior, includes a local JSON store plus CLI demo scenario,
-  and is not a production deploy executor.
+  resume/fresh-run behavior, includes a local JSON store, CLI demo scenario,
+  and redacting shell helper for future provider wrappers, and is not a
+  production deploy executor.
 
 ## Rush Rules
 

@@ -256,7 +256,7 @@ Future web usage should be possible without rewriting the scenario:
 - [x] Add a CLI UI adapter that can prompt for missing text/secret inputs.
 - [x] Add a local JSON state store that persists non-secret outputs and can load
       existing values.
-- [ ] Add a shell runner helper with redaction support.
+- [x] Add a shell runner helper with redaction support.
 - [x] Add unit tests for input collection, output handoff, secret redaction,
       and step ordering.
 
@@ -281,6 +281,11 @@ Future web usage should be possible without rewriting the scenario:
       snapshots for the current run.
 - [x] Added tests for the JSON store, CLI non-interactive execution, fresh-run
       stored-value isolation, and secret redaction in CLI output.
+- [x] Added a `runShell` helper that can wrap existing scripts, pass typed
+      environment values, stream/capture redacted output, redact command args,
+      and throw redacted `ShellCommandError` failures.
+- [x] Added tests for successful shell execution, streamed log redaction,
+      command-argument redaction, and failure stderr redaction.
 
 ## Phase 3: Wrap Existing Provider Scripts
 
