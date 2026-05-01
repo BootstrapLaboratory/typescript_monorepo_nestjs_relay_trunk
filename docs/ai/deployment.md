@@ -97,11 +97,11 @@ Use this checklist as the high-level deployment preparation path.
 - Choose providers for each target. The current provider pair is Cloud Run for
   `server` and Cloudflare Pages for `webapp`.
 - Prefer checked-in preparation automation over ad hoc commands. The current
-  guided scenario under `deploy/scenarios/cloudrun-cloudflare-neon-upstash`
-  can prepare the Cloud Run backend project path, collect Neon and Upstash
-  connection URLs, sync backend runtime secrets into Secret Manager, and
-  prepare the Cloudflare Pages project. The provider scripts remain the
-  provider-specific fallback and repair path.
+  guided scenario under `deploy/scenarios/cloudrun-cloudflare-neon-upstash`,
+  run through `deploy/wizard`, can prepare the Cloud Run backend project
+  path, collect Neon and Upstash connection URLs, sync backend runtime secrets
+  into Secret Manager, and prepare the Cloudflare Pages project. The provider
+  scripts remain the provider-specific fallback and repair path.
 - Also explain the manual equivalent when the human is using a restricted
   environment, debugging automation, or only adopting part of the deployment
   stack.

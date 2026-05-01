@@ -32,16 +32,16 @@ gcloud auth application-default revoke
 gcloud auth application-default login --disable-quota-project
 ```
 
-Run the scenario:
+Run the scenario through the deployment wizard CLI host:
 
 ```sh
-npm --prefix deploy/scenario-engine run cloudrun-cloudflare-neon-upstash
+npm --prefix deploy/wizard run cloudrun-cloudflare-neon-upstash
 ```
 
 Run non-interactively:
 
 ```sh
-npm --prefix deploy/scenario-engine run cloudrun-cloudflare-neon-upstash -- \
+npm --prefix deploy/wizard run cloudrun-cloudflare-neon-upstash -- \
   --var PROJECT_NAME="Your GCP project name" \
   --var GITHUB_REPOSITORY=owner/repository \
   --var DATABASE_URL="postgres://..." \

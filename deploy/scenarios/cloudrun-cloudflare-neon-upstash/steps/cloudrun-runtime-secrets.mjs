@@ -1,4 +1,4 @@
-import { secret, step, text } from "../define.mjs";
+import { secret, step, text } from "deploy-scenario-engine/src/define.mjs";
 import { assertGoogleApplicationDefaultCredentials } from "./cloudrun-bootstrap.mjs";
 
 export const CLOUD_RUN_RUNTIME_SECRETS_OUTPUTS = [
@@ -88,7 +88,7 @@ function assertRedisConnectionUrl(value, name) {
 
 async function loadDefaultProvider() {
   try {
-    return await import("deploy-provider-cloudrun");
+    return await import("../../../providers/cloudrun/dist/src/index.js");
   } catch (error) {
     throw new Error(
       [

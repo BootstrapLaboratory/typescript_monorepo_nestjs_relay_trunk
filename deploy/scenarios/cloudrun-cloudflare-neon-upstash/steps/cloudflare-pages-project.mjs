@@ -1,4 +1,4 @@
-import { secret, step, text } from "../define.mjs";
+import { secret, step, text } from "deploy-scenario-engine/src/define.mjs";
 
 export const CLOUDFLARE_PAGES_PROJECT_OUTPUTS = [
   "CLOUDFLARE_ACCOUNT_ID",
@@ -49,7 +49,7 @@ export function createCloudflarePagesProjectStep(options = {}) {
 
 async function loadDefaultProvider() {
   try {
-    return await import("deploy-provider-cloudflare-pages");
+    return await import("../../../providers/cloudflare-pages/dist/src/index.js");
   } catch (error) {
     throw new Error(
       [

@@ -1,17 +1,13 @@
 {
-  "name": "deploy-scenario-engine",
+  "name": "deploy-scenario-cloudrun-cloudflare-neon-upstash",
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "bin": {
-    "deploy-scenario-engine": "src/cli.mjs"
-  },
   "scripts": {
-    "demo": "node src/cli.mjs demo",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run test"
   },
   "dependencies": {
-    "xstate": "^5.30.0"
+    "deploy-scenario-engine": "0.0.1"
   }
 }

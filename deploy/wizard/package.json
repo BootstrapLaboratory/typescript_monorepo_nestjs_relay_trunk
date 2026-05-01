@@ -1,0 +1,15 @@
+{
+  "name": "deploy-wizard",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "cloudrun-cloudflare-neon-upstash": "node src/cli.mjs cloudrun-cloudflare-neon-upstash",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run test"
+  },
+  "dependencies": {
+    "deploy-scenario-cloudrun-cloudflare-neon-upstash": "0.0.1",
+    "deploy-scenario-engine": "0.0.1"
+  }
+}

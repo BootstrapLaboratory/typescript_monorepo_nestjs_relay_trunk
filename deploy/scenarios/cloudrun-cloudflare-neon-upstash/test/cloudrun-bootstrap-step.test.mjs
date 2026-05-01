@@ -1,13 +1,16 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { scenario } from "../src/define.mjs";
+import { scenario } from "deploy-scenario-engine/src/define.mjs";
+import { runScenarioXState } from "deploy-scenario-engine/src/xstate-runner.mjs";
 import {
   CLOUD_RUN_BOOTSTRAP_OUTPUTS,
   createCloudRunBootstrapStep,
-} from "../src/providers/cloudrun-bootstrap.mjs";
-import { runScenarioXState } from "../src/xstate-runner.mjs";
-import { createMemoryStore, createScriptedUi } from "./fixtures.mjs";
+} from "../steps/cloudrun-bootstrap.mjs";
+import {
+  createMemoryStore,
+  createScriptedUi,
+} from "deploy-scenario-engine/test/fixtures.mjs";
 
 describe("Cloud Run bootstrap scenario action", () => {
   it("waits for manual billing enablement and retries bootstrap", async () => {

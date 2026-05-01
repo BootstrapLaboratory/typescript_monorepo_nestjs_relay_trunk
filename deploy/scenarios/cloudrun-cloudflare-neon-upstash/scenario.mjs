@@ -5,10 +5,10 @@ import {
   secret,
   step,
   text,
-} from "../../scenario-engine/src/define.mjs";
-import { createCloudflarePagesProjectStep } from "../../scenario-engine/src/providers/cloudflare-pages-project.mjs";
-import { createCloudRunBootstrapStep } from "../../scenario-engine/src/providers/cloudrun-bootstrap.mjs";
-import { createCloudRunRuntimeSecretsStep } from "../../scenario-engine/src/providers/cloudrun-runtime-secrets.mjs";
+} from "deploy-scenario-engine/src/define.mjs";
+import { createCloudflarePagesProjectStep } from "./steps/cloudflare-pages-project.mjs";
+import { createCloudRunBootstrapStep } from "./steps/cloudrun-bootstrap.mjs";
+import { createCloudRunRuntimeSecretsStep } from "./steps/cloudrun-runtime-secrets.mjs";
 
 export const CLOUDRUN_CLOUDFLARE_NEON_UPSTASH_SCENARIO_ID =
   "cloudrun-cloudflare-neon-upstash";

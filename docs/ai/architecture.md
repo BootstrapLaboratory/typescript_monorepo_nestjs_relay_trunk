@@ -17,18 +17,23 @@ ordering, and lockfile ownership.
   engine behind the project-owned scenario DSL, keeps a plain runner as a
   fallback/reference implementation, persists sanitized XState snapshots for
   resume/fresh-run behavior, includes a local JSON store, CLI demo scenario,
-  redacting shell helper for future provider wrappers, and a Cloud Run
-  bootstrap action wrapper plus Cloud Run runtime-secret and Cloudflare Pages
-  project action wrappers. The first production scenario skeleton lives under
-  `deploy/scenarios/cloudrun-cloudflare-neon-upstash`; it collects a Google
+  reusable CLI runtime, and a redacting shell helper for future compatibility
+  wrappers. Provider step adapters and concrete scenario definitions live with
+  their concrete scenario rather than inside the generic engine. The first
+  production scenario skeleton lives under
+  `deploy/scenarios/cloudrun-cloudflare-neon-upstash`; it is its own Rush
+  project/package, uses the engine as a dependency, and collects a Google
   Cloud project name, generates and persists a project ID when one is not
   provided, executes the Cloud Run bootstrap step, prints a structured backend
   GitHub variable handoff, and collects Neon database URLs plus the Upstash
   Redis URL as transient secret inputs before syncing them into Google Secret
   Manager. It then prepares the Cloudflare Pages project while keeping the
   Cloudflare API token transient. The Cloud Run step can pause for manual
-  billing enablement and retry when Google reports that billing is required. It
-  is not a production deploy executor.
+  billing enablement and retry when Google reports that billing is required.
+  `deploy/wizard` is the execution host that wires scenarios to CLI today
+  and can later grow a web wizard without putting scenario-specific knowledge
+  into `deploy/scenario-engine`. The scenario is not a production deploy
+  executor.
   `deploy/providers/cloudrun` is a TypeScript
   provider spike for Cloud Run bootstrap orchestration and runtime Secret
   Manager sync; it includes SDK-backed Resource Manager, Cloud Billing, Service
@@ -38,8 +43,9 @@ ordering, and lockfile ownership.
   Manager-backed project IAM dependencies, and Workload Identity pool plus
   GitHub OIDC provider dependencies through `@googleapis/iam`. It exports a
   default Google-backed dependency factory for `bootstrapCloudRun` and
-  `syncCloudRunRuntimeSecrets`, and the scenario engine has step wrappers that
-  can lazy-load it. This does not replace `deploy/cloudrun` scripts.
+  `syncCloudRunRuntimeSecrets`. The production scenario has step adapters that
+  can lazy-load the built provider. This does not replace `deploy/cloudrun`
+  scripts.
   `deploy/providers/cloudflare-pages` is a TypeScript provider spike for
   Cloudflare Pages production provisioning. It uses Cloudflare's official
   TypeScript SDK to ensure a Pages project exists, set its production branch,

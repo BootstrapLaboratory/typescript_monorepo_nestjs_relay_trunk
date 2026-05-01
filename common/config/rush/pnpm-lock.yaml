@@ -111,9 +111,15 @@ importers:
       '@rush-temp/deploy-provider-cloudrun':
         specifier: file:./projects/deploy-provider-cloudrun.tgz
         version: file:projects/deploy-provider-cloudrun.tgz
+      '@rush-temp/deploy-scenario-cloudrun-cloudflare-neon-upstash':
+        specifier: file:./projects/deploy-scenario-cloudrun-cloudflare-neon-upstash.tgz
+        version: file:projects/deploy-scenario-cloudrun-cloudflare-neon-upstash.tgz
       '@rush-temp/deploy-scenario-engine':
         specifier: file:./projects/deploy-scenario-engine.tgz
         version: file:projects/deploy-scenario-engine.tgz
+      '@rush-temp/deploy-wizard':
+        specifier: file:./projects/deploy-wizard.tgz
+        version: file:projects/deploy-wizard.tgz
       '@rush-temp/server':
         specifier: file:./projects/server.tgz
         version: file:projects/server.tgz(@babel/core@7.29.0)(@jest/transform@30.3.0)(@jest/types@30.3.0)(@types/eslint@9.6.1)(babel-jest@30.3.0(@babel/core@7.29.0))(esbuild@0.28.0)(fastify@5.8.5)(jest-util@30.3.0)(webpack@5.106.0(@swc/core@1.15.30)(esbuild@0.28.0))
@@ -2179,8 +2185,16 @@ packages:
     resolution: {integrity: sha512-7CCcTFArgrf9is/cjeVl2GA8yfssiNO3S3FH/Ktc+caom5Ipn5NytRiztToDKwUmziGAA0dmba8XLNy4jhgqXw==, tarball: file:projects/deploy-provider-cloudrun.tgz}
     version: 0.0.0
 
+  '@rush-temp/deploy-scenario-cloudrun-cloudflare-neon-upstash@file:projects/deploy-scenario-cloudrun-cloudflare-neon-upstash.tgz':
+    resolution: {integrity: sha512-btFxD14eAS4PGONWrHErwuA+5SM5cHa5fpfveVWY/fitVJeZJl9u3oSVphY8z+PDdhzWPeiPDFRaeLZQ9qYccA==, tarball: file:projects/deploy-scenario-cloudrun-cloudflare-neon-upstash.tgz}
+    version: 0.0.0
+
   '@rush-temp/deploy-scenario-engine@file:projects/deploy-scenario-engine.tgz':
-    resolution: {integrity: sha512-/MFVNhoLPpPQWSlGmMg8+Gu/Oq6lDTwbQlrAXGWRIC8cNipXYVn8pT+2jsgFfK0zZeT/jdQ8hl3PTB/BmoeIQQ==, tarball: file:projects/deploy-scenario-engine.tgz}
+    resolution: {integrity: sha512-CLmIpHmqirTSeMsE7arLlKS01geCDWGZCjj1SOT/vBGPLPNIcl472gOJYxSbPuo+PM8TWp+FrsnDLRZOjr8MaA==, tarball: file:projects/deploy-scenario-engine.tgz}
+    version: 0.0.0
+
+  '@rush-temp/deploy-wizard@file:projects/deploy-wizard.tgz':
+    resolution: {integrity: sha512-F6gl9oyt895PhEfwuQ65U9QWI9uQ9nkA9E+uxPOtFOTP+vn4ySxvJsGNRlhkxo74AvVBwJfhMw4KrgOiKTbVxg==, tarball: file:projects/deploy-wizard.tgz}
     version: 0.0.0
 
   '@rush-temp/server@file:projects/server.tgz':
@@ -8530,9 +8544,13 @@ snapshots:
       - encoding
       - supports-color
 
+  '@rush-temp/deploy-scenario-cloudrun-cloudflare-neon-upstash@file:projects/deploy-scenario-cloudrun-cloudflare-neon-upstash.tgz': {}
+
   '@rush-temp/deploy-scenario-engine@file:projects/deploy-scenario-engine.tgz':
     dependencies:
       xstate: 5.31.0
+
+  '@rush-temp/deploy-wizard@file:projects/deploy-wizard.tgz': {}
 
   '@rush-temp/server@file:projects/server.tgz(@babel/core@7.29.0)(@jest/transform@30.3.0)(@jest/types@30.3.0)(@types/eslint@9.6.1)(babel-jest@30.3.0(@babel/core@7.29.0))(esbuild@0.28.0)(fastify@5.8.5)(jest-util@30.3.0)(webpack@5.106.0(@swc/core@1.15.30)(esbuild@0.28.0))':
     dependencies:

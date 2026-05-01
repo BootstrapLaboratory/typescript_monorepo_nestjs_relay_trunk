@@ -5,28 +5,29 @@ preparation flows. Scenario authors use project-owned interfaces (`scenario`,
 `step`, `text`, `secret`) while the default runner compiles that model to
 XState internally.
 
-The demo executable path is intentionally fake. It proves the CLI, JSON state
-store, resume/fresh behavior, and secret redaction. The first production
-scenario skeleton is wired into the CLI and currently collects Google Cloud
-project details, runs the real Cloud Run bootstrap action, and collects Neon
-database plus Upstash Redis URLs as transient secrets before syncing them into
-Google Secret Manager. It then prepares the Cloudflare Pages project while
-keeping the Cloudflare API token transient.
+The demo executable path is intentionally fake. It proves the CLI runtime, JSON
+state store, resume/fresh behavior, and secret redaction. Concrete production
+scenarios and execution hosts live outside this package and call into the
+generic runtime.
 
 Scenarios can expose structured `completionSections`. The CLI renders them
 after the generic known-values list, and future UIs can render the same
 metadata as scenario handoff cards.
 
-## Cloud Run Bootstrap Action
+Provider-specific step adapters live with concrete scenarios. For example,
+`deploy/scenarios/cloudrun-cloudflare-neon-upstash/steps` owns the Cloud Run
+and Cloudflare Pages adapters that translate scenario inputs into provider
+function calls. Execution hosts live outside the engine; `deploy/wizard`
+currently provides the CLI host for production scenarios. The engine package
+should not depend on provider or scenario packages.
 
-`src/providers/cloudrun-bootstrap.mjs` exposes `createCloudRunBootstrapStep`.
-By default it lazy-loads `deploy-provider-cloudrun` and calls
-`bootstrapCloudRun(input, createGoogleCloudRunProviderDeps())`.
+## Provider Builds
 
-Build the Cloud Run provider before executing this action for real:
+Build provider packages before executing the production scenario for real:
 
 ```sh
 npm --prefix deploy/providers/cloudrun run build
+npm --prefix deploy/providers/cloudflare-pages run build
 ```
 
 Authenticate Google SDK calls with Application Default Credentials. Fresh
@@ -44,47 +45,11 @@ gcloud auth application-default revoke
 gcloud auth application-default login --disable-quota-project
 ```
 
-Tests can inject a provider object into `createCloudRunBootstrapStep` so they
-exercise the scenario action without initializing Google clients or making real
-Google Cloud calls.
-
-When Google reports that billing is not enabled for the target project, the CLI
-action pauses for manual billing enablement and retries the same bootstrap step
-after the user presses Enter.
-
-The Cloud Run bootstrap action persists `GITHUB_REPOSITORY` with the provider
-outputs so later scenario steps and handoff summaries can reuse the repository
-target without prompting again.
-
-## Cloud Run Runtime Secrets Action
-
-`src/providers/cloudrun-runtime-secrets.mjs` exposes
-`createCloudRunRuntimeSecretsStep`. By default it lazy-loads
-`deploy-provider-cloudrun` and calls
-`syncCloudRunRuntimeSecrets(input, createGoogleCloudRunProviderDeps())`.
-
-The action validates `DATABASE_URL` and `DATABASE_URL_DIRECT` as PostgreSQL
-URLs, validates `REDIS_URL` as a Redis URL, and writes all three values to
-Google Secret Manager. The secret values remain transient inputs; the scenario
-state only records `CLOUD_RUN_RUNTIME_SECRETS_SYNCED=true`.
-
-## Cloudflare Pages Project Action
-
-`src/providers/cloudflare-pages-project.mjs` exposes
-`createCloudflarePagesProjectStep`. By default it lazy-loads
-`deploy-provider-cloudflare-pages` and calls
-`prepareCloudflarePagesProject(input, createCloudflarePagesProviderDeps())`.
-
-The action prompts for `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, and
-`CLOUDFLARE_PAGES_PROJECT_NAME`. The production branch defaults to `main` and
-can be supplied with `--var CLOUDFLARE_PAGES_PRODUCTION_BRANCH=...`. The API
-token remains transient; the scenario state records only safe Pages project
-outputs such as `WEBAPP_URL`.
-
 ## Shell Helper
 
-Provider wrappers can use `runShell` to call existing scripts without moving
-their behavior into TypeScript immediately:
+Scenario step adapters or provider compatibility layers can use `runShell` to
+call existing scripts without moving their behavior into TypeScript
+immediately:
 
 ```js
 await runShell("bash", {
@@ -114,7 +79,7 @@ Run the first production scenario skeleton:
 ```sh
 npm --prefix deploy/providers/cloudrun run build
 npm --prefix deploy/providers/cloudflare-pages run build
-npm --prefix deploy/scenario-engine run cloudrun-cloudflare-neon-upstash
+npm --prefix deploy/wizard run cloudrun-cloudflare-neon-upstash
 ```
 
 Run it non-interactively:

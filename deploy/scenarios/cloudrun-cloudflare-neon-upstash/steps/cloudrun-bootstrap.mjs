@@ -2,7 +2,7 @@ import { access } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-import { step, text } from "../define.mjs";
+import { step, text } from "deploy-scenario-engine/src/define.mjs";
 
 export const CLOUD_RUN_BOOTSTRAP_OUTPUTS = [
   "CLOUD_RUN_REGION",
@@ -215,7 +215,7 @@ function isMissingApplicationDefaultCredentialsError(error) {
 
 async function loadDefaultProvider() {
   try {
-    return await import("deploy-provider-cloudrun");
+    return await import("../../../providers/cloudrun/dist/src/index.js");
   } catch (error) {
     throw new Error(
       [

@@ -30,6 +30,18 @@
       "versionPolicyName": "apps"
     },
     {
+      "packageName": "deploy-scenario-cloudrun-cloudflare-neon-upstash",
+      "projectFolder": "deploy/scenarios/cloudrun-cloudflare-neon-upstash",
+      "reviewCategory": "tools",
+      "versionPolicyName": "apps"
+    },
+    {
+      "packageName": "deploy-wizard",
+      "projectFolder": "deploy/wizard",
+      "reviewCategory": "tools",
+      "versionPolicyName": "apps"
+    },
+    {
       "packageName": "deploy-provider-cloudrun",
       "projectFolder": "deploy/providers/cloudrun",
       "reviewCategory": "tools",

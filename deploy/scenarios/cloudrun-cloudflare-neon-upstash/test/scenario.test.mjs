@@ -7,11 +7,16 @@ import {
   createNeonDatabaseStep,
   createUpstashRedisStep,
   generateGoogleProjectId,
-} from "../../scenarios/cloudrun-cloudflare-neon-upstash/scenario.mjs";
-import { formatCompletionSections } from "../src/completion-summary.mjs";
-import { redactScenarioValues } from "../src/runtime.mjs";
-import { runScenarioXState } from "../src/xstate-runner.mjs";
-import { createMemoryStore, createScriptedUi } from "./fixtures.mjs";
+} from "../scenario.mjs";
+import {
+  formatCompletionSections,
+} from "deploy-scenario-engine/src/completion-summary.mjs";
+import { redactScenarioValues } from "deploy-scenario-engine/src/runtime.mjs";
+import { runScenarioXState } from "deploy-scenario-engine/src/xstate-runner.mjs";
+import {
+  createMemoryStore,
+  createScriptedUi,
+} from "deploy-scenario-engine/test/fixtures.mjs";
 
 describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
   it("generates a Google Cloud project ID unless an override is supplied", async () => {

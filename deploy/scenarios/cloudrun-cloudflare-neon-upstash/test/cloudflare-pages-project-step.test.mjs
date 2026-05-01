@@ -1,14 +1,17 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { scenario } from "../src/define.mjs";
+import { scenario } from "deploy-scenario-engine/src/define.mjs";
+import { redactScenarioValues } from "deploy-scenario-engine/src/runtime.mjs";
+import { runScenarioXState } from "deploy-scenario-engine/src/xstate-runner.mjs";
 import {
   CLOUDFLARE_PAGES_PROJECT_OUTPUTS,
   createCloudflarePagesProjectStep,
-} from "../src/providers/cloudflare-pages-project.mjs";
-import { redactScenarioValues } from "../src/runtime.mjs";
-import { runScenarioXState } from "../src/xstate-runner.mjs";
-import { createMemoryStore, createScriptedUi } from "./fixtures.mjs";
+} from "../steps/cloudflare-pages-project.mjs";
+import {
+  createMemoryStore,
+  createScriptedUi,
+} from "deploy-scenario-engine/test/fixtures.mjs";
 
 describe("Cloudflare Pages project scenario action", () => {
   it("maps scenario inputs to prepareCloudflarePagesProject and persists safe outputs", async () => {

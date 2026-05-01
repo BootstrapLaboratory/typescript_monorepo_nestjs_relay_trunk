@@ -374,8 +374,7 @@ Future web usage should be possible without rewriting the scenario:
       factory for all real Google-backed Cloud Run bootstrap dependencies.
 - [x] Added a composition test with injected lightweight factory outputs so
       verification does not initialize real Google clients.
-- [x] Added `deploy-provider-cloudrun` as a scenario-engine dependency and
-      introduced `createCloudRunBootstrapStep` as the first real scenario
+- [x] Introduced `createCloudRunBootstrapStep` as the first real scenario
       action wrapper.
 - [x] Added a scenario-engine action test that injects fake Cloud Run provider
       functions, verifies input mapping, and persists generated bootstrap
@@ -413,8 +412,8 @@ Future web usage should be possible without rewriting the scenario:
 
 - [x] Added `deploy/scenarios/cloudrun-cloudflare-neon-upstash/scenario.mjs`
       as the first production scenario skeleton.
-- [x] Wired the scenario into `deploy-scenario-engine` CLI and package scripts
-      while keeping the existing demo command intact.
+- [x] Added the production scenario package and kept the engine demo command
+      intact.
 - [x] Started the first scenario slice with one real provider action:
       `cloudrun.bootstrap`, then added small manual credential steps and a
       focused `cloudrun.runtime-secrets` action after the entrypoint stayed
@@ -450,6 +449,17 @@ Future web usage should be possible without rewriting the scenario:
       `CLOUDFLARE_PAGES_PROJECT_NAME`, keeps the API token transient, persists
       only safe Pages handoff values, and calls
       `prepareCloudflarePagesProject`.
+- [x] Moved provider-specific scenario step adapters out of
+      `deploy/scenario-engine/src/providers` and into
+      `deploy/scenarios/cloudrun-cloudflare-neon-upstash/steps`.
+- [x] Removed provider package dependencies from `deploy-scenario-engine` so
+      the scenario engine remains provider-agnostic.
+- [x] Split the production scenario into its own Rush package so
+      `deploy-scenario-engine` owns only generic runner code and the demo
+      executable path.
+- [x] Added `deploy/wizard` as the execution host for production scenario
+      CLI commands so neither the engine nor the scenario package owns
+      scenario-specific execution entrypoints.
 
 ## Phase 5: Documentation And Migration
 
