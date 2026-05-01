@@ -9,7 +9,8 @@ entrypoints until the concrete SDK-backed dependencies are implemented and
 intentionally adopted.
 
 Concrete SDK-backed dependencies are available for Resource Manager projects,
-Service Usage, and Artifact Registry repository creation:
+Service Usage, and Artifact Registry repository creation plus repository IAM
+binding updates:
 
 ```ts
 import {
@@ -28,8 +29,9 @@ The project adapter uses `@google-cloud/resource-manager` for project
 existence, project creation, and project-number lookup. The services adapter
 uses `@google-cloud/service-usage` for required API enablement. The Artifact
 Registry repository adapter uses `@google-cloud/artifact-registry` for Docker
-repository creation. Tests inject fake clients; verification does not call
-Google Cloud.
+repository creation and repository-scoped IAM policy updates through
+`getIamPolicy` and `setIamPolicy`. Tests inject fake clients; verification does
+not call Google Cloud.
 
 ## Shape
 

@@ -335,6 +335,11 @@ Future web usage should be possible without rewriting the scenario:
       no-op, missing Docker repository creation, long-running operation
       awaiting, non-404 error propagation, and Artifact Registry resource name
       formatting.
+- [x] Added repository-scoped Artifact Registry IAM binding support through the
+      same dependency, using `getIamPolicy` and `setIamPolicy`.
+- [x] Added fake IAM policy tests for adding a member to an existing binding,
+      adding a missing role binding, skipping an existing member, and keeping
+      conditional bindings separate from unconditional bindings.
 
 ## Phase 4: Add First Real Scenario
 

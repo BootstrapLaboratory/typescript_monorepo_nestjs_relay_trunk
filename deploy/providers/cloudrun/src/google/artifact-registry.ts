@@ -9,6 +9,8 @@ type ArtifactRepository = {
   name?: null | string;
 };
 
+type IamPolicy = protos.google.iam.v1.IPolicy;
+
 type RepositoryOperation = {
   promise(): Promise<[ArtifactRepository, unknown?, unknown?]>;
 };
@@ -25,11 +27,18 @@ export type ArtifactRegistryClientLike = {
   getRepository(request: {
     name: string;
   }): Promise<[ArtifactRepository, unknown?, unknown?]>;
+  getIamPolicy(request: {
+    resource: string;
+  }): Promise<[IamPolicy, unknown?, unknown?]>;
+  setIamPolicy(request: {
+    policy: IamPolicy;
+    resource: string;
+  }): Promise<[IamPolicy, unknown?, unknown?]>;
 };
 
 export type ArtifactRegistryRepositoryDependency = Pick<
   CloudRunProviderDeps["artifactRegistry"],
-  "ensureDockerRepository"
+  "ensureDockerRepository" | "ensureRepositoryIamBinding"
 >;
 
 export function createGoogleArtifactRegistryRepositoryDependency(
@@ -59,6 +68,69 @@ export function createGoogleArtifactRegistryRepositoryDependency(
       });
       await operation.promise();
     },
+    async ensureRepositoryIamBinding(input) {
+      const resource = repositoryResourceName(input);
+      const [policy] = await client.getIamPolicy({
+        resource,
+      });
+      const nextPolicy = addIamBindingMember(policy, {
+        member: input.member,
+        role: input.role,
+      });
+
+      if (nextPolicy === policy) {
+        return;
+      }
+
+      await client.setIamPolicy({
+        policy: nextPolicy,
+        resource,
+      });
+    },
+  };
+}
+
+export function addIamBindingMember(
+  policy: IamPolicy,
+  input: {
+    member: string;
+    role: string;
+  },
+): IamPolicy {
+  const bindings = policy.bindings ?? [];
+  const existingBinding = bindings.find(
+    (binding) => binding.role === input.role && binding.condition == null,
+  );
+
+  if (existingBinding !== undefined) {
+    const members = existingBinding.members ?? [];
+
+    if (members.includes(input.member)) {
+      return policy;
+    }
+
+    return {
+      ...policy,
+      bindings: bindings.map((binding) =>
+        binding === existingBinding
+          ? {
+              ...binding,
+              members: [...members, input.member],
+            }
+          : binding,
+      ),
+    };
+  }
+
+  return {
+    ...policy,
+    bindings: [
+      ...bindings,
+      {
+        members: [input.member],
+        role: input.role,
+      },
+    ],
   };
 }
 

@@ -25,7 +25,7 @@ export const googleSdkPolicy = [
   },
   {
     notes:
-      "Use the official Artifact Registry client for repository creation and repository IAM policy updates. Docker repository creation is implemented by createGoogleArtifactRegistryRepositoryDependency.",
+      "Use the official Artifact Registry client for repository creation and repository IAM policy updates. Docker repository creation and repository-scoped IAM bindings are implemented by createGoogleArtifactRegistryRepositoryDependency.",
     preferredPackage: "@google-cloud/artifact-registry",
     providerArea: "artifactRegistry",
   },

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  addIamBindingMember,
   createGoogleArtifactRegistryRepositoryDependency,
   repositoryParent,
   repositoryResourceName,
@@ -91,7 +92,157 @@ describe("Google Artifact Registry repository dependency", () => {
       "projects/demo-project/locations/europe-west4/repositories/cloud-run-backend",
     );
   });
+
+  it("adds a repository IAM member to an existing role binding", async () => {
+    const client = new FakeArtifactRegistryClient();
+    client.iamPolicies[
+      "projects/demo-project/locations/europe-west4/repositories/cloud-run-backend"
+    ] = {
+      bindings: [
+        {
+          members: ["serviceAccount:other@example.test"],
+          role: "roles/artifactregistry.writer",
+        },
+      ],
+      etag: "abc123",
+      version: 1,
+    };
+    const artifactRegistry =
+      createGoogleArtifactRegistryRepositoryDependency(client);
+
+    await artifactRegistry.ensureRepositoryIamBinding({
+      member:
+        "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+      projectId: "demo-project",
+      region: "europe-west4",
+      repository: "cloud-run-backend",
+      role: "roles/artifactregistry.writer",
+    });
+
+    assert.deepEqual(client.setIamPolicyCalls, [
+      {
+        policy: {
+          bindings: [
+            {
+              members: [
+                "serviceAccount:other@example.test",
+                "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+              ],
+              role: "roles/artifactregistry.writer",
+            },
+          ],
+          etag: "abc123",
+          version: 1,
+        },
+        resource:
+          "projects/demo-project/locations/europe-west4/repositories/cloud-run-backend",
+      },
+    ]);
+  });
+
+  it("adds a new repository IAM role binding when the role is missing", async () => {
+    const client = new FakeArtifactRegistryClient();
+    client.iamPolicies[
+      "projects/demo-project/locations/europe-west4/repositories/cloud-run-backend"
+    ] = {
+      bindings: [],
+      etag: "abc123",
+    };
+    const artifactRegistry =
+      createGoogleArtifactRegistryRepositoryDependency(client);
+
+    await artifactRegistry.ensureRepositoryIamBinding({
+      member:
+        "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+      projectId: "demo-project",
+      region: "europe-west4",
+      repository: "cloud-run-backend",
+      role: "roles/artifactregistry.writer",
+    });
+
+    assert.deepEqual(client.setIamPolicyCalls[0]?.policy.bindings, [
+      {
+        members: [
+          "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+        ],
+        role: "roles/artifactregistry.writer",
+      },
+    ]);
+  });
+
+  it("does not update repository IAM when the role member already exists", async () => {
+    const client = new FakeArtifactRegistryClient();
+    client.iamPolicies[
+      "projects/demo-project/locations/europe-west4/repositories/cloud-run-backend"
+    ] = {
+      bindings: [
+        {
+          members: [
+            "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+          ],
+          role: "roles/artifactregistry.writer",
+        },
+      ],
+      etag: "abc123",
+    };
+    const artifactRegistry =
+      createGoogleArtifactRegistryRepositoryDependency(client);
+
+    await artifactRegistry.ensureRepositoryIamBinding({
+      member:
+        "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+      projectId: "demo-project",
+      region: "europe-west4",
+      repository: "cloud-run-backend",
+      role: "roles/artifactregistry.writer",
+    });
+
+    assert.deepEqual(client.setIamPolicyCalls, []);
+  });
+
+  it("keeps conditional bindings separate from unconditional repository IAM bindings", () => {
+    const nextPolicy = addIamBindingMember(
+      {
+        bindings: [
+          {
+            condition: {
+              expression: "request.time < timestamp('2030-01-01T00:00:00Z')",
+              title: "temporary",
+            },
+            members: ["serviceAccount:other@example.test"],
+            role: "roles/artifactregistry.writer",
+          },
+        ],
+      },
+      {
+        member:
+          "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+        role: "roles/artifactregistry.writer",
+      },
+    );
+
+    assert.deepEqual(nextPolicy.bindings, [
+      {
+        condition: {
+          expression: "request.time < timestamp('2030-01-01T00:00:00Z')",
+          title: "temporary",
+        },
+        members: ["serviceAccount:other@example.test"],
+        role: "roles/artifactregistry.writer",
+      },
+      {
+        members: [
+          "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+        ],
+        role: "roles/artifactregistry.writer",
+      },
+    ]);
+  });
 });
+
+type IamPolicy = Awaited<
+  ReturnType<ArtifactRegistryClientLike["getIamPolicy"]>
+>[0];
 
 class FakeArtifactRegistryClient implements ArtifactRegistryClientLike {
   createdOperationAwaited = false;
@@ -104,6 +255,11 @@ class FakeArtifactRegistryClient implements ArtifactRegistryClientLike {
     repositoryId: string;
   }> = [];
   getRepositoryError?: Error & { code?: number };
+  iamPolicies: Record<string, IamPolicy> = {};
+  setIamPolicyCalls: Array<{
+    policy: IamPolicy;
+    resource: string;
+  }> = [];
 
   constructor(
     private readonly repositories: Record<string, { name: string }> = {},
@@ -148,6 +304,21 @@ class FakeArtifactRegistryClient implements ArtifactRegistryClientLike {
 
     return [repository] satisfies Awaited<
       ReturnType<ArtifactRegistryClientLike["getRepository"]>
+    >;
+  }
+
+  async getIamPolicy(request: { resource: string }) {
+    return [this.iamPolicies[request.resource] ?? {}] satisfies Awaited<
+      ReturnType<ArtifactRegistryClientLike["getIamPolicy"]>
+    >;
+  }
+
+  async setIamPolicy(request: { policy: IamPolicy; resource: string }) {
+    this.setIamPolicyCalls.push(request);
+    this.iamPolicies[request.resource] = request.policy;
+
+    return [request.policy] satisfies Awaited<
+      ReturnType<ArtifactRegistryClientLike["setIamPolicy"]>
     >;
   }
 }
