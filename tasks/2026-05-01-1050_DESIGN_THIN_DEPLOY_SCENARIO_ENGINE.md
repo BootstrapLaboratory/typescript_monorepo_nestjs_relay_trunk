@@ -345,6 +345,12 @@ Future web usage should be possible without rewriting the scenario:
 - [x] Added fake IAM service account tests for existing account no-op, missing
       account creation, non-404 error propagation, and IAM service account
       resource name formatting.
+- [x] Added Resource Manager-backed project IAM binding support to
+      `createGoogleIamDependency`, using project `getIamPolicy` and
+      `setIamPolicy`.
+- [x] Moved shared IAM binding mutation into a reusable helper and covered
+      project IAM tests for existing binding append, missing role binding,
+      existing member no-op, and conditional binding preservation.
 
 ## Phase 4: Add First Real Scenario
 

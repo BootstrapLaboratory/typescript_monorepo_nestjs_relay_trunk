@@ -22,8 +22,8 @@ ordering, and lockfile ownership.
   provider spike for Cloud Run bootstrap orchestration; it includes SDK-backed
   Resource Manager, Service Usage, Artifact Registry repository, and Artifact
   Registry repository IAM dependencies plus `@googleapis/iam`-backed IAM service
-  account creation, is not wired into scenarios yet, and does not replace
-  `deploy/cloudrun` scripts.
+  account creation and Resource Manager-backed project IAM dependencies, is not
+  wired into scenarios yet, and does not replace `deploy/cloudrun` scripts.
 
 ## Rush Rules
 

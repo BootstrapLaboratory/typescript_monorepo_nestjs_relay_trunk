@@ -2,12 +2,12 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
-  addIamBindingMember,
   createGoogleArtifactRegistryRepositoryDependency,
   repositoryParent,
   repositoryResourceName,
   type ArtifactRegistryClientLike,
 } from "../src/google/artifact-registry.js";
+import { addIamBindingMember } from "../src/google/iam-policy.js";
 
 describe("Google Artifact Registry repository dependency", () => {
   it("does not create an existing Docker repository", async () => {

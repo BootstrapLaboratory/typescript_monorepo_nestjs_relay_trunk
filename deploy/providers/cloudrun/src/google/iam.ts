@@ -1,5 +1,7 @@
 import { auth, iam, type iam_v1 } from "@googleapis/iam";
+import { protos, v3 } from "@google-cloud/resource-manager";
 
+import { addIamBindingMember } from "./iam-policy.js";
 import type { CloudRunProviderDeps } from "../types.js";
 
 const CLOUD_PLATFORM_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
@@ -18,6 +20,16 @@ type GetServiceAccountRequest = {
   name: string;
 };
 
+type GetProjectIamPolicyRequest = {
+  resource: string;
+};
+
+type SetProjectIamPolicyRequest = {
+  policy: ProjectIamPolicy;
+  resource: string;
+};
+
+type ProjectIamPolicy = protos.google.iam.v1.IPolicy;
 type ServiceAccount = iam_v1.Schema$ServiceAccount;
 
 type Response<T> = {
@@ -29,16 +41,46 @@ export type IamServiceAccountsClientLike = {
   get(request: GetServiceAccountRequest): Promise<Response<ServiceAccount>>;
 };
 
+export type IamProjectsClientLike = {
+  getIamPolicy(
+    request: GetProjectIamPolicyRequest,
+  ): Promise<[ProjectIamPolicy, unknown?, unknown?]>;
+  setIamPolicy(
+    request: SetProjectIamPolicyRequest,
+  ): Promise<[ProjectIamPolicy, unknown?, unknown?]>;
+};
+
 export type GoogleIamDependency = Pick<
   CloudRunProviderDeps["iam"],
-  "ensureServiceAccount"
+  "ensureProjectIamBinding" | "ensureServiceAccount"
 >;
 
 export function createGoogleIamDependency(
   serviceAccounts: IamServiceAccountsClientLike =
     createDefaultIamServiceAccountsClient(),
+  projects?: IamProjectsClientLike,
 ): GoogleIamDependency {
   return {
+    async ensureProjectIamBinding(input) {
+      const projectIam = projects ?? createDefaultIamProjectsClient();
+      const resource = projectResourceName(input.projectId);
+      const [policy] = await projectIam.getIamPolicy({
+        resource,
+      });
+      const nextPolicy = addIamBindingMember(policy, {
+        member: input.member,
+        role: input.role,
+      });
+
+      if (nextPolicy === policy) {
+        return;
+      }
+
+      await projectIam.setIamPolicy({
+        policy: nextPolicy,
+        resource,
+      });
+    },
     async ensureServiceAccount(input) {
       try {
         await serviceAccounts.get({
@@ -73,6 +115,10 @@ function createDefaultIamServiceAccountsClient(): IamServiceAccountsClientLike {
     auth: googleAuth,
     version: "v1",
   }).projects.serviceAccounts as IamServiceAccountsClientLike;
+}
+
+function createDefaultIamProjectsClient(): IamProjectsClientLike {
+  return new v3.ProjectsClient() as IamProjectsClientLike;
 }
 
 export function projectResourceName(projectId: string): string {

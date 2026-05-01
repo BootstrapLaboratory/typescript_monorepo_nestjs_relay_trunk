@@ -9,8 +9,9 @@ entrypoints until the concrete SDK-backed dependencies are implemented and
 intentionally adopted.
 
 Concrete SDK-backed dependencies are available for Resource Manager projects,
-Service Usage, and Artifact Registry repository creation plus repository IAM
-binding updates, and IAM service account creation:
+Service Usage, Artifact Registry repository creation plus repository IAM
+binding updates, and IAM service account creation plus project IAM binding
+updates:
 
 ```ts
 import {
@@ -33,8 +34,10 @@ uses `@google-cloud/service-usage` for required API enablement. The Artifact
 Registry repository adapter uses `@google-cloud/artifact-registry` for Docker
 repository creation and repository-scoped IAM policy updates through
 `getIamPolicy` and `setIamPolicy`. The IAM adapter uses Google's official
-`@googleapis/iam` IAM v1 client for service account creation. Tests inject fake
-clients; verification does not call Google Cloud.
+`@googleapis/iam` IAM v1 client for service account creation and the Resource
+Manager Projects client for project-scoped IAM policy updates through
+`getIamPolicy` and `setIamPolicy`. Tests inject fake clients; verification does
+not call Google Cloud.
 
 ## Shape
 
@@ -77,7 +80,7 @@ Use official Google SDKs as far as they reasonably go:
 - Artifact Registry: `@google-cloud/artifact-registry`
 - Cloud Run: `@google-cloud/run`
 - IAM: `@google-cloud/iam` where it exposes the required surface; otherwise
-  Google's official `googleapis` IAM v1 client before custom REST
+  Google's official `@googleapis/iam` IAM v1 client before custom REST
 
 Do not add custom REST calls unless no official Google SDK or generated Google
 API client provides the needed operation.

@@ -140,8 +140,8 @@ under `deploy/cloudrun` and deploy provider modules, not in Nest modules.
 Cloud Run bootstrap orchestration. It includes SDK-backed Resource Manager,
 Service Usage, Artifact Registry repository, and Artifact Registry repository
 IAM dependencies plus `@googleapis/iam`-backed IAM service account creation,
-but is not wired into scenarios and does not replace the existing Cloud Run
-shell scripts yet.
+and Resource Manager-backed project IAM dependencies, but is not wired into
+scenarios and does not replace the existing Cloud Run shell scripts yet.
 
 Rush Delivery validation for this project starts backing Postgres and Redis
 services, runs migrations, starts the production server, and executes the Cloud

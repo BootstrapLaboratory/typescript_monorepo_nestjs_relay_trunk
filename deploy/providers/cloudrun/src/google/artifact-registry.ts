@@ -1,5 +1,6 @@
 import { protos, v1 } from "@google-cloud/artifact-registry";
 
+import { addIamBindingMember } from "./iam-policy.js";
 import type { CloudRunProviderDeps } from "../types.js";
 
 const DOCKER_FORMAT =
@@ -87,50 +88,6 @@ export function createGoogleArtifactRegistryRepositoryDependency(
         resource,
       });
     },
-  };
-}
-
-export function addIamBindingMember(
-  policy: IamPolicy,
-  input: {
-    member: string;
-    role: string;
-  },
-): IamPolicy {
-  const bindings = policy.bindings ?? [];
-  const existingBinding = bindings.find(
-    (binding) => binding.role === input.role && binding.condition == null,
-  );
-
-  if (existingBinding !== undefined) {
-    const members = existingBinding.members ?? [];
-
-    if (members.includes(input.member)) {
-      return policy;
-    }
-
-    return {
-      ...policy,
-      bindings: bindings.map((binding) =>
-        binding === existingBinding
-          ? {
-              ...binding,
-              members: [...members, input.member],
-            }
-          : binding,
-      ),
-    };
-  }
-
-  return {
-    ...policy,
-    bindings: [
-      ...bindings,
-      {
-        members: [input.member],
-        role: input.role,
-      },
-    ],
   };
 }
 

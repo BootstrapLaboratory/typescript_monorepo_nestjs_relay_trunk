@@ -6,6 +6,7 @@ import {
   projectResourceName,
   serviceAccountEmail,
   serviceAccountResourceName,
+  type IamProjectsClientLike,
   type IamServiceAccountsClientLike,
 } from "../src/google/iam.js";
 
@@ -88,11 +89,154 @@ describe("Google IAM dependency", () => {
       "projects/demo-project/serviceAccounts/cloud-run-runtime@demo-project.iam.gserviceaccount.com",
     );
   });
+
+  it("adds a project IAM member to an existing role binding", async () => {
+    const serviceAccounts = new FakeIamServiceAccountsClient();
+    const projects = new FakeIamProjectsClient({
+      "projects/demo-project": {
+        bindings: [
+          {
+            members: ["serviceAccount:other@example.test"],
+            role: "roles/run.admin",
+          },
+        ],
+        etag: "abc123",
+        version: 1,
+      },
+    });
+    const iam = createGoogleIamDependency(serviceAccounts, projects);
+
+    await iam.ensureProjectIamBinding({
+      member:
+        "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+      projectId: "demo-project",
+      role: "roles/run.admin",
+    });
+
+    assert.deepEqual(projects.setIamPolicyCalls, [
+      {
+        policy: {
+          bindings: [
+            {
+              members: [
+                "serviceAccount:other@example.test",
+                "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+              ],
+              role: "roles/run.admin",
+            },
+          ],
+          etag: "abc123",
+          version: 1,
+        },
+        resource: "projects/demo-project",
+      },
+    ]);
+  });
+
+  it("adds a missing project IAM role binding", async () => {
+    const serviceAccounts = new FakeIamServiceAccountsClient();
+    const projects = new FakeIamProjectsClient({
+      "projects/demo-project": {
+        bindings: [],
+        etag: "abc123",
+      },
+    });
+    const iam = createGoogleIamDependency(serviceAccounts, projects);
+
+    await iam.ensureProjectIamBinding({
+      member:
+        "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+      projectId: "demo-project",
+      role: "roles/run.admin",
+    });
+
+    assert.deepEqual(projects.setIamPolicyCalls[0]?.policy.bindings, [
+      {
+        members: [
+          "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+        ],
+        role: "roles/run.admin",
+      },
+    ]);
+  });
+
+  it("does not update project IAM when the role member already exists", async () => {
+    const serviceAccounts = new FakeIamServiceAccountsClient();
+    const projects = new FakeIamProjectsClient({
+      "projects/demo-project": {
+        bindings: [
+          {
+            members: [
+              "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+            ],
+            role: "roles/run.admin",
+          },
+        ],
+        etag: "abc123",
+      },
+    });
+    const iam = createGoogleIamDependency(serviceAccounts, projects);
+
+    await iam.ensureProjectIamBinding({
+      member:
+        "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+      projectId: "demo-project",
+      role: "roles/run.admin",
+    });
+
+    assert.deepEqual(projects.setIamPolicyCalls, []);
+  });
+
+  it("keeps conditional project IAM bindings separate", async () => {
+    const serviceAccounts = new FakeIamServiceAccountsClient();
+    const projects = new FakeIamProjectsClient({
+      "projects/demo-project": {
+        bindings: [
+          {
+            condition: {
+              expression: "request.time < timestamp('2030-01-01T00:00:00Z')",
+              title: "temporary",
+            },
+            members: ["serviceAccount:other@example.test"],
+            role: "roles/run.admin",
+          },
+        ],
+      },
+    });
+    const iam = createGoogleIamDependency(serviceAccounts, projects);
+
+    await iam.ensureProjectIamBinding({
+      member:
+        "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+      projectId: "demo-project",
+      role: "roles/run.admin",
+    });
+
+    assert.deepEqual(projects.setIamPolicyCalls[0]?.policy.bindings, [
+      {
+        condition: {
+          expression: "request.time < timestamp('2030-01-01T00:00:00Z')",
+          title: "temporary",
+        },
+        members: ["serviceAccount:other@example.test"],
+        role: "roles/run.admin",
+      },
+      {
+        members: [
+          "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+        ],
+        role: "roles/run.admin",
+      },
+    ]);
+  });
 });
 
 type ServiceAccount = Awaited<
   ReturnType<IamServiceAccountsClientLike["get"]>
 >["data"];
+type ProjectIamPolicy = Awaited<
+  ReturnType<IamProjectsClientLike["getIamPolicy"]>
+>[0];
 
 class FakeIamServiceAccountsClient implements IamServiceAccountsClientLike {
   createCalls: Array<{
@@ -148,5 +292,34 @@ class FakeIamServiceAccountsClient implements IamServiceAccountsClientLike {
     }
 
     return { data: serviceAccount };
+  }
+}
+
+class FakeIamProjectsClient implements IamProjectsClientLike {
+  setIamPolicyCalls: Array<{
+    policy: ProjectIamPolicy;
+    resource: string;
+  }> = [];
+
+  constructor(
+    private readonly policies: Record<string, ProjectIamPolicy> = {},
+  ) {}
+
+  async getIamPolicy(request: { resource: string }) {
+    return [this.policies[request.resource] ?? {}] satisfies Awaited<
+      ReturnType<IamProjectsClientLike["getIamPolicy"]>
+    >;
+  }
+
+  async setIamPolicy(request: {
+    policy: ProjectIamPolicy;
+    resource: string;
+  }) {
+    this.setIamPolicyCalls.push(request);
+    this.policies[request.resource] = request.policy;
+
+    return [request.policy] satisfies Awaited<
+      ReturnType<IamProjectsClientLike["setIamPolicy"]>
+    >;
   }
 }

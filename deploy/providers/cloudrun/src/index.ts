@@ -29,6 +29,7 @@ export type {
 } from "./google/artifact-registry.js";
 export type {
   GoogleIamDependency,
+  IamProjectsClientLike,
   IamServiceAccountsClientLike,
 } from "./google/iam.js";
 export type { ProjectsClientLike } from "./google/projects.js";
