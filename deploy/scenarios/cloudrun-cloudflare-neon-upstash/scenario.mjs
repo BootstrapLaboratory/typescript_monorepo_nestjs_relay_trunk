@@ -30,9 +30,9 @@ export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
       },
       {
         lines: [
-          "Cloud Run backend bootstrap is complete and Neon database URLs were validated for this run.",
-          "Database URLs are transient secrets and are not written to the scenario state file.",
-          "Next scenario slices will collect Upstash Redis, sync Cloud Run runtime secrets, and configure Cloudflare Pages.",
+          "Cloud Run backend bootstrap is complete, Neon database URLs were validated, and Upstash Redis URL was validated for this run.",
+          "Database and Redis URLs are transient secrets and are not written to the scenario state file.",
+          "Next scenario slices will sync Cloud Run runtime secrets and configure Cloudflare Pages.",
         ],
         title: "Next",
       },
@@ -50,6 +50,7 @@ export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
         title: "Bootstrap Cloud Run backend",
       }),
       createNeonDatabaseStep(options.neon),
+      createUpstashRedisStep(options.upstash),
     ],
     title: "Cloud Run + Cloudflare Pages + Neon + Upstash",
   });
@@ -114,6 +115,31 @@ export function createNeonDatabaseStep() {
   });
 }
 
+export function createUpstashRedisStep() {
+  return step({
+    guide: [
+      "Enter the Upstash Redis connection string for backend pub/sub.",
+      "Use the Redis URL from Upstash, usually starting with rediss:// for TLS.",
+      "This value is a transient secret; it is available to later steps in this run and is not persisted to the scenario state file.",
+    ].join("\n"),
+    id: "upstash.redis",
+    inputs: {
+      REDIS_URL: secret({
+        label: "REDIS_URL (Upstash Redis connection string)",
+      }),
+    },
+    outputs: ["UPSTASH_REDIS_URL_READY"],
+    title: "Collect Upstash Redis URL",
+    run: async (input) => {
+      assertRedisConnectionUrl(input.REDIS_URL, "REDIS_URL");
+
+      return {
+        UPSTASH_REDIS_URL_READY: "true",
+      };
+    },
+  });
+}
+
 export function generateGoogleProjectId(projectName, options = {}) {
   const suffix = options.randomSuffix ?? randomBytes(3).toString("hex");
   const base = projectName
@@ -141,5 +167,19 @@ function assertPostgresConnectionUrl(value, name) {
 
   if (parsed.protocol !== "postgres:" && parsed.protocol !== "postgresql:") {
     throw new Error(`${name} must use postgres:// or postgresql://.`);
+  }
+}
+
+function assertRedisConnectionUrl(value, name) {
+  let parsed;
+
+  try {
+    parsed = new URL(value);
+  } catch {
+    throw new Error(`${name} must be a valid Redis connection URL.`);
+  }
+
+  if (parsed.protocol !== "redis:" && parsed.protocol !== "rediss:") {
+    throw new Error(`${name} must use redis:// or rediss://.`);
   }
 }

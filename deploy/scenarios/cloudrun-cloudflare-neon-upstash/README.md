@@ -3,11 +3,12 @@
 This is the first production setup scenario skeleton. It currently collects a
 Google Cloud project name, generates and persists a project ID when one is not
 provided, executes Cloud Run backend bootstrap through `deploy-provider-cloudrun`,
-then collects Neon database URLs as transient secrets.
+then collects Neon database URLs and the Upstash Redis URL as transient
+secrets.
 
-Cloudflare Pages, Upstash, and Cloud Run Secret Manager sync steps are
-intentionally not wired yet. Add them as small provider actions after this
-entrypoint stays readable.
+Cloudflare Pages and Cloud Run Secret Manager sync steps are intentionally not
+wired yet. Add them as small provider actions after this entrypoint stays
+readable.
 
 ## Run
 
@@ -46,7 +47,8 @@ npm --prefix deploy/scenario-engine run cloudrun-cloudflare-neon-upstash -- \
   --var PROJECT_NAME="Your GCP project name" \
   --var GITHUB_REPOSITORY=owner/repository \
   --var DATABASE_URL="postgres://..." \
-  --var DATABASE_URL_DIRECT="postgres://..."
+  --var DATABASE_URL_DIRECT="postgres://..." \
+  --var REDIS_URL="rediss://..."
 ```
 
 Pass `--var PROJECT_ID=your-exact-project-id` only when you need to choose the
@@ -61,9 +63,9 @@ If Google reports that billing is not enabled, the scenario pauses, asks you to
 enable billing for the project manually, and retries Cloud Run bootstrap after
 you press Enter.
 
-The Neon database URL inputs are secrets. They are validated and stay available
-to later steps in the same run, but are not printed in CLI summaries or written
-to the scenario state file.
+The Neon database URL and Upstash Redis URL inputs are secrets. They are
+validated and stay available to later steps in the same run, but are not printed
+in CLI summaries or written to the scenario state file.
 
 When Cloud Run bootstrap finishes, the CLI prints a Cloud Run backend handoff
 section with the GitHub repository variables required by the backend deploy

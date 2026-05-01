@@ -5,6 +5,7 @@ import {
   createGoogleProjectStep,
   createCloudRunCloudflareNeonUpstashScenario,
   createNeonDatabaseStep,
+  createUpstashRedisStep,
   generateGoogleProjectId,
 } from "../../scenarios/cloudrun-cloudflare-neon-upstash/scenario.mjs";
 import { formatCompletionSections } from "../src/completion-summary.mjs";
@@ -62,7 +63,27 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     );
   });
 
-  it("runs the current project setup, Cloud Run bootstrap, and Neon credential slice", async () => {
+  it("validates Upstash Redis URLs without returning secret outputs", async () => {
+    const step = createUpstashRedisStep();
+
+    assert.deepEqual(
+      await step.run({
+        REDIS_URL: "rediss://default:secret@example.upstash.io:6379",
+      }),
+      {
+        UPSTASH_REDIS_URL_READY: "true",
+      },
+    );
+    await assert.rejects(
+      () =>
+        step.run({
+          REDIS_URL: "https://example.test",
+        }),
+      /REDIS_URL must use redis:\/\/ or rediss:\/\//,
+    );
+  });
+
+  it("runs the current project setup, Cloud Run bootstrap, and manual credential slices", async () => {
     const calls = [];
     const deps = { fake: "deps" };
     const provider = {
@@ -97,6 +118,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
         "postgresql://owner:secret@example.test/app?sslmode=require",
       GITHUB_REPOSITORY: "BeltOrg/beltapp",
       PROJECT_NAME: "Demo Project",
+      REDIS_URL: "rediss://default:secret@example.upstash.io:6379",
     });
 
     const result = await runScenarioXState(scenario, {
@@ -107,7 +129,12 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     assert.equal(scenario.id, "cloudrun-cloudflare-neon-upstash");
     assert.deepEqual(
       scenario.steps.map((step) => step.id),
-      ["google.project", "cloudrun.bootstrap", "neon.database"],
+      [
+        "google.project",
+        "cloudrun.bootstrap",
+        "neon.database",
+        "upstash.redis",
+      ],
     );
     assert.deepEqual(
       ui.prompted.map((input) => input.name),
@@ -116,6 +143,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
         "GITHUB_REPOSITORY",
         "DATABASE_URL",
         "DATABASE_URL_DIRECT",
+        "REDIS_URL",
       ],
     );
     assert.deepEqual(calls, [
@@ -134,9 +162,14 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     assert.equal(result.values.PROJECT_ID, "demo-project-a7f3c2");
     assert.equal(result.values.PROJECT_NAME, "Demo Project");
     assert.equal(result.values.PROJECT_NUMBER, "123456789");
+    assert.equal(result.values.UPSTASH_REDIS_URL_READY, "true");
     assert.equal(
       result.values.DATABASE_URL,
       "postgres://app:secret@example.test/app?sslmode=require",
+    );
+    assert.equal(
+      result.values.REDIS_URL,
+      "rediss://default:secret@example.upstash.io:6379",
     );
     assert.deepEqual(
       store.saved.map((entry) => entry.output),
@@ -163,6 +196,9 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
         {
           NEON_DATABASE_URLS_READY: "true",
         },
+        {
+          UPSTASH_REDIS_URL_READY: "true",
+        },
       ],
     );
     assert.deepEqual(redactScenarioValues(scenario, result.values), {
@@ -181,6 +217,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
       PROJECT_ID: "demo-project-a7f3c2",
       PROJECT_NAME: "Demo Project",
       PROJECT_NUMBER: "123456789",
+      UPSTASH_REDIS_URL_READY: "true",
     });
 
     const completion = formatCompletionSections(scenario, result.values);
@@ -190,5 +227,6 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     assert.match(completion, /transient secrets/);
     assert.match(completion, /Next scenario slices/);
     assert.doesNotMatch(completion, /app:secret/);
+    assert.doesNotMatch(completion, /default:secret/);
   });
 });

@@ -9,7 +9,8 @@ The demo executable path is intentionally fake. It proves the CLI, JSON state
 store, resume/fresh behavior, and secret redaction. The first production
 scenario skeleton is wired into the CLI and currently collects Google Cloud
 project details, runs the real Cloud Run bootstrap action, and collects Neon
-database URLs as transient secrets for later same-run secret sync steps.
+database plus Upstash Redis URLs as transient secrets for later same-run secret
+sync steps.
 
 Scenarios can expose structured `completionSections`. The CLI renders them
 after the generic known-values list, and future UIs can render the same
