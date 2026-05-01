@@ -12,25 +12,22 @@ Concrete SDK-backed dependencies are available for Resource Manager projects,
 Cloud Billing project links, Service Usage, Artifact Registry repository
 creation plus repository IAM binding updates, IAM service account creation plus
 project and service account IAM binding updates, and Workload Identity pool
-plus GitHub OIDC provider creation:
+plus GitHub OIDC provider creation. The default Google-backed dependency set is
+available through `createGoogleCloudRunProviderDeps()`:
 
 ```ts
 import {
-  createGoogleArtifactRegistryRepositoryDependency,
-  createGoogleBillingDependency,
-  createGoogleIamDependency,
-  createGoogleProjectsDependency,
-  createGoogleServicesDependency,
-  createGoogleWorkloadIdentityDependency,
+  bootstrapCloudRun,
+  createGoogleCloudRunProviderDeps,
 } from "deploy-provider-cloudrun";
 
-const artifactRepositories =
-  createGoogleArtifactRegistryRepositoryDependency();
-const billing = createGoogleBillingDependency();
-const iam = createGoogleIamDependency();
-const projects = createGoogleProjectsDependency();
-const services = createGoogleServicesDependency();
-const workloadIdentity = createGoogleWorkloadIdentityDependency();
+const output = await bootstrapCloudRun(
+  {
+    GITHUB_REPOSITORY: "BeltOrg/beltapp",
+    PROJECT_ID: "example-project",
+  },
+  createGoogleCloudRunProviderDeps(),
+);
 ```
 
 The project adapter uses `@google-cloud/resource-manager` for project
@@ -53,7 +50,8 @@ clients; verification does not call Google Cloud.
 
 ## Shape
 
-`bootstrapCloudRun(input, deps)` keeps orchestration readable:
+`bootstrapCloudRun(input, deps)` keeps orchestration readable and accepts either
+the default Google-backed dependencies or scenario-provided test doubles:
 
 ```ts
 const output = await bootstrapCloudRun(

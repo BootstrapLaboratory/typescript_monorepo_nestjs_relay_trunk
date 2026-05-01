@@ -24,8 +24,9 @@ ordering, and lockfile ownership.
   and Artifact Registry repository IAM dependencies plus IAM service account
   creation and service-account IAM binding through `@googleapis/iam`,
   Resource Manager-backed project IAM dependencies, and Workload Identity pool
-  plus GitHub OIDC provider dependencies through `@googleapis/iam`. It is not
-  wired into scenarios yet, and does not replace `deploy/cloudrun` scripts.
+  plus GitHub OIDC provider dependencies through `@googleapis/iam`. It exports
+  a default Google-backed dependency factory for `bootstrapCloudRun`, but is not
+  wired into scenarios yet and does not replace `deploy/cloudrun` scripts.
 
 ## Rush Rules
 

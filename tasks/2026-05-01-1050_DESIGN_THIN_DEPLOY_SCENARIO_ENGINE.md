@@ -368,6 +368,10 @@ Future web usage should be possible without rewriting the scenario:
 - [x] Added fake Cloud Billing tests for already-linked no-op, missing link,
       account switch, disabled billing re-link, error propagation, and billing
       resource name formatting.
+- [x] Added `createGoogleCloudRunProviderDeps` as the default composition
+      factory for all real Google-backed Cloud Run bootstrap dependencies.
+- [x] Added a composition test with injected lightweight factory outputs so
+      verification does not initialize real Google clients.
 
 ## Phase 4: Add First Real Scenario
 

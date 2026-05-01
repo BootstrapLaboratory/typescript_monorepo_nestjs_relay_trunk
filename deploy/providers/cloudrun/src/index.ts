@@ -13,6 +13,7 @@ export {
   billingProjectResourceName,
   createGoogleBillingDependency,
 } from "./google/billing.js";
+export { createGoogleCloudRunProviderDeps } from "./google/deps.js";
 export {
   createGoogleProjectsDependency,
   projectNumberFromName,
@@ -40,6 +41,7 @@ export type {
   ArtifactRegistryRepositoryDependency,
 } from "./google/artifact-registry.js";
 export type { CloudBillingClientLike } from "./google/billing.js";
+export type { GoogleCloudRunProviderDepsFactories } from "./google/deps.js";
 export type {
   GoogleIamDependency,
   IamProjectsClientLike,
