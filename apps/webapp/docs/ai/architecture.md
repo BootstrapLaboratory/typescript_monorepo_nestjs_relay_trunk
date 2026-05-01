@@ -14,6 +14,8 @@ Cloudflare Pages build output.
 - Styling: vanilla-extract tokens and component-local style modules.
 - UI primitives: app-owned wrappers in `src/ui`, with Radix UI primitives used
   behind those wrappers when accessible behavior is needed.
+- UI workshop: Storybook with the React/Vite framework for isolated reusable
+  UI components, plain feature views, and page compositions.
 - Contract source: `libs/api/schema.gql`.
 
 The build script intentionally runs Relay codegen before TypeScript and Vite:
@@ -48,6 +50,9 @@ hand-edit them.
 - Feature components that depend on Relay, auth stores, realtime stores, or
   route state should keep that dependency in a thin container and expose a
   plain view component for reusable UI composition and isolated rendering.
+- Storybook stories should target `src/ui` primitives, plain feature view
+  components, and pages that can be composed from view components. Avoid using
+  Storybook as the primary home for Relay or router container fixtures.
 - `src/shared/graphql` owns browser GraphQL endpoint resolution.
 - `src/shared/auth` owns auth session state, boot-time refresh, refresh-token
   transport strategy selection, logout, auth error parsing, and the non-secret
