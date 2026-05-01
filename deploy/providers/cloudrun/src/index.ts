@@ -4,6 +4,12 @@ export {
   resolveBootstrapCloudRunInput,
 } from "./bootstrap.js";
 export {
+  CLOUD_RUN_RUNTIME_SECRET_NAMES,
+  CLOUD_RUN_SERVICE_RUNTIME_SECRET_NAMES,
+  resolveSyncCloudRunRuntimeSecretsInput,
+  syncCloudRunRuntimeSecrets,
+} from "./runtime-secrets.js";
+export {
   createGoogleArtifactRegistryRepositoryDependency,
   repositoryParent,
   repositoryResourceName,
@@ -22,6 +28,11 @@ export {
   createGoogleServicesDependency,
   projectParent,
 } from "./google/services.js";
+export {
+  createGoogleSecretManagerDependency,
+  projectParent as secretManagerProjectParent,
+  secretResourceName,
+} from "./google/secret-manager.js";
 export {
   createGoogleIamDependency,
   projectResourceName,
@@ -48,6 +59,7 @@ export type {
   IamServiceAccountsClientLike,
 } from "./google/iam.js";
 export type { ProjectsClientLike } from "./google/projects.js";
+export type { SecretManagerClientLike } from "./google/secret-manager.js";
 export type { ServiceUsageClientLike } from "./google/services.js";
 export type {
   WorkloadIdentityOperationOptions,
@@ -61,4 +73,7 @@ export type {
   CloudRunProviderDeps,
   GithubOidcProviderOutput,
   ResolvedBootstrapCloudRunInput,
+  ResolvedSyncCloudRunRuntimeSecretsInput,
+  SyncCloudRunRuntimeSecretsInput,
+  SyncCloudRunRuntimeSecretsOutput,
 } from "./types.js";

@@ -15,6 +15,14 @@ current deployment decisions and should be preferred before manual setup. Still
 explain the manual equivalent when a human needs to understand or repair the
 automation.
 
+The guided scenario under `deploy/scenarios/cloudrun-cloudflare-neon-upstash`
+is also an active preparation path for the currently implemented combined
+flow. It can create or select the Google Cloud project, run Cloud Run backend
+bootstrap, collect already-provisioned Neon and Upstash connection URLs, and
+sync `DATABASE_URL`, `DATABASE_URL_DIRECT`, and `REDIS_URL` into Secret
+Manager without persisting the secret values. It does not yet configure
+Cloudflare Pages or replace the final GitHub Actions deployment trigger.
+
 ## Deployment Boundary
 
 The Cloud Run deploy target is `server`.
@@ -34,6 +42,19 @@ Do not describe a local script run as the final production deployment step. The
 human-facing deployment trigger is GitHub Actions.
 
 ## Recommended Automation Path
+
+For the guided combined flow, run the scenario engine when the human wants a
+single resumable CLI flow:
+
+```bash
+npm --prefix deploy/providers/cloudrun run build
+npm --prefix deploy/scenario-engine run cloudrun-cloudflare-neon-upstash
+```
+
+Use this path after the Neon and Upstash resources exist and the user has the
+final connection URLs that should be stored in Secret Manager. If a separate
+least-privilege Neon runtime user is required, create or rotate it before
+syncing the final `DATABASE_URL`.
 
 Start from [../../config/.env.example](../../config/.env.example). Copy it to
 `deploy/cloudrun/config/.env` and fill the deployment values.

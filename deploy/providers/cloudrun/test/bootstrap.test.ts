@@ -132,6 +132,10 @@ function createRecordingDeps(calls: string[]): CloudRunProviderDeps {
         return "123456789";
       },
     },
+    secretManager: {
+      async ensureSecretIamBinding() {},
+      async upsertSecretVersion() {},
+    },
     services: {
       async enableServices(input) {
         assert.equal(input.projectNumber, "123456789");

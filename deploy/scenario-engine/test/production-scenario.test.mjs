@@ -83,7 +83,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     );
   });
 
-  it("runs the current project setup, Cloud Run bootstrap, and manual credential slices", async () => {
+  it("runs the current project setup, Cloud Run bootstrap, credentials, and secret sync slices", async () => {
     const calls = [];
     const deps = { fake: "deps" };
     const provider = {
@@ -106,10 +106,18 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
         };
       },
       createGoogleCloudRunProviderDeps: () => deps,
+      syncCloudRunRuntimeSecrets: async (input, receivedDeps) => {
+        calls.push({ deps: receivedDeps, input });
+
+        return {
+          CLOUD_RUN_RUNTIME_SECRETS_SYNCED: "true",
+        };
+      },
     };
     const scenario = createCloudRunCloudflareNeonUpstashScenario({
       cloudRun: { provider },
       googleProject: { randomSuffix: "a7f3c2" },
+      runtimeSecrets: { provider },
     });
     const store = createMemoryStore();
     const ui = createScriptedUi({
@@ -134,6 +142,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
         "cloudrun.bootstrap",
         "neon.database",
         "upstash.redis",
+        "cloudrun.runtime-secrets",
       ],
     );
     assert.deepEqual(
@@ -155,7 +164,23 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
           PROJECT_NAME: "Demo Project",
         },
       },
+      {
+        deps,
+        input: {
+          CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT:
+            "cloud-run-runtime@demo-project.iam.gserviceaccount.com",
+          DATABASE_URL:
+            "postgres://app:secret@example.test/app?sslmode=require",
+          DATABASE_URL_DIRECT:
+            "postgresql://owner:secret@example.test/app?sslmode=require",
+          GCP_SERVICE_ACCOUNT:
+            "github-actions-deployer@demo-project.iam.gserviceaccount.com",
+          PROJECT_ID: "demo-project-a7f3c2",
+          REDIS_URL: "rediss://default:secret@example.upstash.io:6379",
+        },
+      },
     ]);
+    assert.equal(result.values.CLOUD_RUN_RUNTIME_SECRETS_SYNCED, "true");
     assert.equal(result.values.GCP_PROJECT_ID, "demo-project-a7f3c2");
     assert.equal(result.values.GITHUB_REPOSITORY, "BeltOrg/beltapp");
     assert.equal(result.values.NEON_DATABASE_URLS_READY, "true");
@@ -199,10 +224,14 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
         {
           UPSTASH_REDIS_URL_READY: "true",
         },
+        {
+          CLOUD_RUN_RUNTIME_SECRETS_SYNCED: "true",
+        },
       ],
     );
     assert.deepEqual(redactScenarioValues(scenario, result.values), {
       CLOUD_RUN_REGION: "europe-west4",
+      CLOUD_RUN_RUNTIME_SECRETS_SYNCED: "true",
       CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT:
         "cloud-run-runtime@demo-project.iam.gserviceaccount.com",
       CLOUD_RUN_SERVICE: "api",
@@ -224,8 +253,8 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     assert.match(completion, /Cloud Run backend GitHub variables/);
     assert.match(completion, /GCP_PROJECT_ID=demo-project-a7f3c2/);
     assert.match(completion, /CLOUD_RUN_SERVICE=api/);
-    assert.match(completion, /transient secrets/);
-    assert.match(completion, /Next scenario slices/);
+    assert.match(completion, /not written to the scenario state file/);
+    assert.match(completion, /configure Cloudflare Pages/);
     assert.doesNotMatch(completion, /app:secret/);
     assert.doesNotMatch(completion, /default:secret/);
   });

@@ -289,12 +289,14 @@ Future web usage should be possible without rewriting the scenario:
 
 ## Phase 3: Wrap Existing Provider Scripts
 
-- [ ] Create a Cloud Run provider module with functions that replace or wrap
+- [x] Create a Cloud Run provider module with functions that replace or wrap
       existing Cloud Run setup scripts.
 - [ ] Create a Cloudflare Pages provider module with functions that wrap
       existing Cloudflare setup scripts.
 - [ ] Create Neon and Upstash provider modules for manual-input guidance first.
-- [ ] Keep provider functions small and named after provider actions, not
+- [x] Add a Cloud Run provider action for syncing backend runtime secrets into
+      Secret Manager.
+- [x] Keep provider functions small and named after provider actions, not
       scenario steps.
 - [ ] Do not change existing shell script behavior unless the change is needed
       for the wrapper and covered by a check.
@@ -378,6 +380,16 @@ Future web usage should be possible without rewriting the scenario:
 - [x] Added a scenario-engine action test that injects fake Cloud Run provider
       functions, verifies input mapping, and persists generated bootstrap
       outputs without initializing Google clients.
+- [x] Added Cloud Run bootstrap resume and error handling improvements:
+      missing ADC guidance, quota-project guidance for fresh-project flows,
+      billing-required pause/retry, and exact project details in the manual
+      billing prompt.
+- [x] Added `syncCloudRunRuntimeSecrets(input, deps)` and an SDK-backed
+      Secret Manager dependency using `@google-cloud/secret-manager`.
+- [x] Matched the existing `sync-secrets.sh` behavior: create/update
+      `DATABASE_URL`, `DATABASE_URL_DIRECT`, and `REDIS_URL`; grant deployer
+      access to all three; grant runtime access to `DATABASE_URL` and
+      `REDIS_URL`.
 
 ## Phase 4: Add First Real Scenario
 
@@ -395,8 +407,10 @@ Future web usage should be possible without rewriting the scenario:
       as the first production scenario skeleton.
 - [x] Wired the scenario into `deploy-scenario-engine` CLI and package scripts
       while keeping the existing demo command intact.
-- [x] Kept the first scenario slice to one real provider action:
-      `cloudrun.bootstrap`.
+- [x] Started the first scenario slice with one real provider action:
+      `cloudrun.bootstrap`, then added small manual credential steps and a
+      focused `cloudrun.runtime-secrets` action after the entrypoint stayed
+      readable.
 - [x] Added a scenario test that runs the skeleton through the XState runner
       with injected Cloud Run provider functions, avoiding real Google Cloud
       calls.
@@ -406,12 +420,29 @@ Future web usage should be possible without rewriting the scenario:
 - [x] Added a manual billing enablement pause/retry path for Cloud Run
       bootstrap when Google reports that billing is required for service
       activation.
+- [x] Added `completionSections` metadata and CLI rendering for structured
+      handoff summaries, including the Cloud Run backend GitHub repository
+      variables.
+- [x] Persisted `GITHUB_REPOSITORY` as a non-secret Cloud Run bootstrap output
+      so later scenario steps and summaries can reuse it.
+- [x] Added a manual Neon database credentials step that validates
+      `DATABASE_URL` and `DATABASE_URL_DIRECT` as PostgreSQL URLs while keeping
+      them as transient secrets.
+- [x] Added a manual Upstash Redis credentials step that validates `REDIS_URL`
+      as a Redis/TLS Redis URL while keeping it as a transient secret.
+- [x] Hardened interrupted/resumed secret prompts so failed snapshots are not
+      restored, secret values are redacted without deleting input definitions,
+      empty required input is rejected, and steps whose outputs already exist
+      are skipped on resume.
+- [x] Added a Cloud Run runtime secrets sync step that writes `DATABASE_URL`,
+      `DATABASE_URL_DIRECT`, and `REDIS_URL` into Google Secret Manager without
+      storing the secret values in scenario state.
 
 ## Phase 5: Documentation And Migration
 
-- [ ] Document how to run the scenario from CLI.
+- [x] Document how to run the scenario from CLI.
 - [ ] Document how the same scenario model can be used by a future web wizard.
-- [ ] Update AI deployment guidance only after implemented behavior exists.
+- [x] Update AI deployment guidance only after implemented behavior exists.
 - [ ] Keep existing provider docs and scripts aligned during migration.
 - [ ] Decide later whether old helper scripts remain public entrypoints or
       become compatibility wrappers.

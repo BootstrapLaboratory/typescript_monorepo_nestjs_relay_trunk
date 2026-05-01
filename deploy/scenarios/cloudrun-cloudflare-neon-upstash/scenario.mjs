@@ -7,6 +7,7 @@ import {
   text,
 } from "../../scenario-engine/src/define.mjs";
 import { createCloudRunBootstrapStep } from "../../scenario-engine/src/providers/cloudrun-bootstrap.mjs";
+import { createCloudRunRuntimeSecretsStep } from "../../scenario-engine/src/providers/cloudrun-runtime-secrets.mjs";
 
 export const CLOUDRUN_CLOUDFLARE_NEON_UPSTASH_SCENARIO_ID =
   "cloudrun-cloudflare-neon-upstash";
@@ -31,8 +32,8 @@ export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
       {
         lines: [
           "Cloud Run backend bootstrap is complete, Neon database URLs were validated, and Upstash Redis URL was validated for this run.",
-          "Database and Redis URLs are transient secrets and are not written to the scenario state file.",
-          "Next scenario slices will sync Cloud Run runtime secrets and configure Cloudflare Pages.",
+          "Database and Redis URLs were synced into Google Secret Manager and are not written to the scenario state file.",
+          "Next scenario slices will configure Cloudflare Pages.",
         ],
         title: "Next",
       },
@@ -44,13 +45,22 @@ export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
         ...(options.cloudRun ?? {}),
         guide: [
           "Prepare the Google Cloud project prerequisites for the Cloud Run backend.",
-          "This production scenario slice runs Cloud Run bootstrap before collecting database credentials.",
-          "Cloudflare Pages, Upstash, and Cloud Run secret sync steps will be added as separate provider actions.",
+          "After bootstrap, the scenario collects Neon and Upstash credentials, then syncs runtime secrets.",
+          "Cloudflare Pages steps will be added as separate provider actions.",
         ].join("\n"),
         title: "Bootstrap Cloud Run backend",
       }),
       createNeonDatabaseStep(options.neon),
       createUpstashRedisStep(options.upstash),
+      createCloudRunRuntimeSecretsStep({
+        ...(options.runtimeSecrets ?? {}),
+        guide: [
+          "Write DATABASE_URL, DATABASE_URL_DIRECT, and REDIS_URL to Google Secret Manager.",
+          "The deployer service account receives access to all three secrets.",
+          "The Cloud Run runtime service account receives access to DATABASE_URL and REDIS_URL.",
+        ].join("\n"),
+        title: "Sync Cloud Run runtime secrets",
+      }),
     ],
     title: "Cloud Run + Cloudflare Pages + Neon + Upstash",
   });

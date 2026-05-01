@@ -9,8 +9,8 @@ The demo executable path is intentionally fake. It proves the CLI, JSON state
 store, resume/fresh behavior, and secret redaction. The first production
 scenario skeleton is wired into the CLI and currently collects Google Cloud
 project details, runs the real Cloud Run bootstrap action, and collects Neon
-database plus Upstash Redis URLs as transient secrets for later same-run secret
-sync steps.
+database plus Upstash Redis URLs as transient secrets before syncing them into
+Google Secret Manager.
 
 Scenarios can expose structured `completionSections`. The CLI renders them
 after the generic known-values list, and future UIs can render the same
@@ -54,6 +54,18 @@ after the user presses Enter.
 The Cloud Run bootstrap action persists `GITHUB_REPOSITORY` with the provider
 outputs so later scenario steps and handoff summaries can reuse the repository
 target without prompting again.
+
+## Cloud Run Runtime Secrets Action
+
+`src/providers/cloudrun-runtime-secrets.mjs` exposes
+`createCloudRunRuntimeSecretsStep`. By default it lazy-loads
+`deploy-provider-cloudrun` and calls
+`syncCloudRunRuntimeSecrets(input, createGoogleCloudRunProviderDeps())`.
+
+The action validates `DATABASE_URL` and `DATABASE_URL_DIRECT` as PostgreSQL
+URLs, validates `REDIS_URL` as a Redis URL, and writes all three values to
+Google Secret Manager. The secret values remain transient inputs; the scenario
+state only records `CLOUD_RUN_RUNTIME_SECRETS_SYNCED=true`.
 
 ## Shell Helper
 

@@ -12,6 +12,7 @@ describe("Google Cloud Run provider deps", () => {
       billing: () => markerDeps.billing,
       iam: () => markerDeps.iam,
       projects: () => markerDeps.projects,
+      secretManager: () => markerDeps.secretManager,
       services: () => markerDeps.services,
       workloadIdentity: () => markerDeps.workloadIdentity,
     });
@@ -20,6 +21,7 @@ describe("Google Cloud Run provider deps", () => {
     assert.equal(deps.billing, markerDeps.billing);
     assert.equal(deps.iam, markerDeps.iam);
     assert.equal(deps.projects, markerDeps.projects);
+    assert.equal(deps.secretManager, markerDeps.secretManager);
     assert.equal(deps.services, markerDeps.services);
     assert.equal(deps.workloadIdentity, markerDeps.workloadIdentity);
   });
@@ -44,6 +46,10 @@ function createMarkerDeps(): CloudRunProviderDeps {
       async getProjectNumber() {
         return "123456789";
       },
+    },
+    secretManager: {
+      async ensureSecretIamBinding() {},
+      async upsertSecretVersion() {},
     },
     services: {
       async enableServices() {},

@@ -40,6 +40,32 @@ export type BootstrapCloudRunOutput = {
   PROJECT_NUMBER: string;
 };
 
+export type SyncCloudRunRuntimeSecretsInput = {
+  CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT?: string;
+  DATABASE_URL: string;
+  DATABASE_URL_DIRECT: string;
+  DEPLOYER_SERVICE_ACCOUNT_EMAIL?: string;
+  DEPLOYER_SERVICE_ACCOUNT_ID?: string;
+  GCP_SERVICE_ACCOUNT?: string;
+  PROJECT_ID: string;
+  REDIS_URL: string;
+  RUNTIME_SERVICE_ACCOUNT_EMAIL?: string;
+  RUNTIME_SERVICE_ACCOUNT_ID?: string;
+};
+
+export type ResolvedSyncCloudRunRuntimeSecretsInput = {
+  DATABASE_URL: string;
+  DATABASE_URL_DIRECT: string;
+  DEPLOYER_SERVICE_ACCOUNT_EMAIL: string;
+  PROJECT_ID: string;
+  REDIS_URL: string;
+  RUNTIME_SERVICE_ACCOUNT_EMAIL: string;
+};
+
+export type SyncCloudRunRuntimeSecretsOutput = {
+  CLOUD_RUN_RUNTIME_SECRETS_SYNCED: "true";
+};
+
 export type GithubOidcProviderOutput = {
   poolName: string;
   providerName: string;
@@ -97,6 +123,19 @@ export type CloudRunProviderDeps = {
       projectId: string;
       projectNumber: string;
       services: string[];
+    }): Promise<void>;
+  };
+  secretManager: {
+    ensureSecretIamBinding(input: {
+      member: string;
+      projectId: string;
+      role: string;
+      secretName: string;
+    }): Promise<void>;
+    upsertSecretVersion(input: {
+      projectId: string;
+      secretName: string;
+      value: string;
     }): Promise<void>;
   };
   workloadIdentity: {

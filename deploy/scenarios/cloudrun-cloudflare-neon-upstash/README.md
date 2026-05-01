@@ -4,11 +4,10 @@ This is the first production setup scenario skeleton. It currently collects a
 Google Cloud project name, generates and persists a project ID when one is not
 provided, executes Cloud Run backend bootstrap through `deploy-provider-cloudrun`,
 then collects Neon database URLs and the Upstash Redis URL as transient
-secrets.
+secrets, and syncs those secrets into Google Secret Manager.
 
-Cloudflare Pages and Cloud Run Secret Manager sync steps are intentionally not
-wired yet. Add them as small provider actions after this entrypoint stays
-readable.
+Cloudflare Pages steps are intentionally not wired yet. Add them as small
+provider actions after this entrypoint stays readable.
 
 ## Run
 
@@ -66,6 +65,16 @@ you press Enter.
 The Neon database URL and Upstash Redis URL inputs are secrets. They are
 validated and stay available to later steps in the same run, but are not printed
 in CLI summaries or written to the scenario state file.
+
+The Cloud Run runtime secrets step writes these Secret Manager entries:
+
+- `DATABASE_URL`
+- `DATABASE_URL_DIRECT`
+- `REDIS_URL`
+
+It grants the deployer service account access to all three secrets, and grants
+the Cloud Run runtime service account access to `DATABASE_URL` and `REDIS_URL`.
+Only `CLOUD_RUN_RUNTIME_SECRETS_SYNCED=true` is written to scenario state.
 
 When Cloud Run bootstrap finishes, the CLI prints a Cloud Run backend handoff
 section with the GitHub repository variables required by the backend deploy

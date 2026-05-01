@@ -149,10 +149,10 @@ scenario skeleton under `deploy/scenarios/cloudrun-cloudflare-neon-upstash`
 collects a Google Cloud project name, generates and persists a project ID when
 one is not provided, executes that Cloud Run bootstrap step, prints a backend
 GitHub variable handoff, and collects Neon database URLs plus the Upstash Redis
-URL as transient secret inputs for later same-run secret sync steps. The Cloud
-Run step can pause for manual billing enablement and retry when Google reports
-that billing is required. This does not replace the existing Cloud Run shell
-scripts yet.
+URL as transient secret inputs before syncing them into Google Secret Manager.
+The Cloud Run step can pause for manual billing enablement and retry when
+Google reports that billing is required. This does not replace the existing
+Cloud Run shell scripts yet.
 
 Rush Delivery validation for this project starts backing Postgres and Redis
 services, runs migrations, starts the production server, and executes the Cloud

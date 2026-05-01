@@ -23,20 +23,21 @@ ordering, and lockfile ownership.
   Cloud project name, generates and persists a project ID when one is not
   provided, executes the Cloud Run bootstrap step, prints a structured backend
   GitHub variable handoff, and collects Neon database URLs plus the Upstash
-  Redis URL as transient secret inputs for later same-run secret sync steps.
-  The Cloud Run step can pause for manual billing enablement and retry when
-  Google reports that billing is required. It is not a production deploy
+  Redis URL as transient secret inputs before syncing them into Google Secret
+  Manager. The Cloud Run step can pause for manual billing enablement and retry
+  when Google reports that billing is required. It is not a production deploy
   executor.
   `deploy/providers/cloudrun` is a TypeScript
-  provider spike for Cloud Run bootstrap orchestration; it includes SDK-backed
-  Resource Manager, Cloud Billing, Service Usage, Artifact Registry repository,
-  and Artifact Registry repository IAM dependencies plus IAM service account
-  creation and service-account IAM binding through `@googleapis/iam`,
-  Resource Manager-backed project IAM dependencies, and Workload Identity pool
-  plus GitHub OIDC provider dependencies through `@googleapis/iam`. It exports
-  a default Google-backed dependency factory for `bootstrapCloudRun`, and the
-  scenario engine has a step wrapper that can lazy-load it. This does not
-  replace `deploy/cloudrun` scripts.
+  provider spike for Cloud Run bootstrap orchestration and runtime Secret
+  Manager sync; it includes SDK-backed Resource Manager, Cloud Billing, Service
+  Usage, Artifact Registry repository, Secret Manager, and Artifact Registry
+  repository IAM dependencies plus IAM service account creation and
+  service-account IAM binding through `@googleapis/iam`, Resource
+  Manager-backed project IAM dependencies, and Workload Identity pool plus
+  GitHub OIDC provider dependencies through `@googleapis/iam`. It exports a
+  default Google-backed dependency factory for `bootstrapCloudRun` and
+  `syncCloudRunRuntimeSecrets`, and the scenario engine has step wrappers that
+  can lazy-load it. This does not replace `deploy/cloudrun` scripts.
 
 ## Rush Rules
 
