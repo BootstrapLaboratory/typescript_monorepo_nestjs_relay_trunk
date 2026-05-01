@@ -11,7 +11,8 @@ intentionally adopted.
 Concrete SDK-backed dependencies are available for Resource Manager projects,
 Service Usage, Artifact Registry repository creation plus repository IAM
 binding updates, and IAM service account creation plus project and service
-account IAM binding updates:
+account IAM binding updates, and Workload Identity pool plus GitHub OIDC
+provider creation:
 
 ```ts
 import {
@@ -19,6 +20,7 @@ import {
   createGoogleIamDependency,
   createGoogleProjectsDependency,
   createGoogleServicesDependency,
+  createGoogleWorkloadIdentityDependency,
 } from "deploy-provider-cloudrun";
 
 const artifactRepositories =
@@ -26,6 +28,7 @@ const artifactRepositories =
 const iam = createGoogleIamDependency();
 const projects = createGoogleProjectsDependency();
 const services = createGoogleServicesDependency();
+const workloadIdentity = createGoogleWorkloadIdentityDependency();
 ```
 
 The project adapter uses `@google-cloud/resource-manager` for project
@@ -38,7 +41,11 @@ repository creation and repository-scoped IAM policy updates through
 service-account-scoped IAM policy updates through `getIamPolicy` and
 `setIamPolicy`. It uses the Resource Manager Projects client for
 project-scoped IAM policy updates through `getIamPolicy` and `setIamPolicy`.
-Tests inject fake clients; verification does not call Google Cloud.
+The Workload Identity adapter uses `@googleapis/iam` IAM v1 for workload
+identity pool creation and GitHub OIDC provider creation. Because that
+generated client returns raw long-running operation resources, the adapter
+polls the official operation `get` methods until completion. Tests inject fake
+clients; verification does not call Google Cloud.
 
 ## Shape
 

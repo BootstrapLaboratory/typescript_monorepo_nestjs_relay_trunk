@@ -23,6 +23,12 @@ export {
   serviceAccountResourceName,
   serviceAccountResourceNameFromEmail,
 } from "./google/iam.js";
+export {
+  createGoogleWorkloadIdentityDependency,
+  workloadIdentityLocationParent,
+  workloadIdentityPoolResourceName,
+  workloadIdentityProviderResourceName,
+} from "./google/workload-identity.js";
 export { googleSdkPolicy } from "./sdk-policy.js";
 export type {
   ArtifactRegistryClientLike,
@@ -35,6 +41,12 @@ export type {
 } from "./google/iam.js";
 export type { ProjectsClientLike } from "./google/projects.js";
 export type { ServiceUsageClientLike } from "./google/services.js";
+export type {
+  WorkloadIdentityOperationOptions,
+  WorkloadIdentityPoolOperationsClientLike,
+  WorkloadIdentityPoolProvidersClientLike,
+  WorkloadIdentityPoolsClientLike,
+} from "./google/workload-identity.js";
 export type {
   BootstrapCloudRunInput,
   BootstrapCloudRunOutput,

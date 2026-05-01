@@ -357,6 +357,12 @@ Future web usage should be possible without rewriting the scenario:
 - [x] Reused the shared IAM binding mutation helper for service-account IAM and
       covered existing binding append, missing role binding, existing member
       no-op, requested policy version, and conditional binding preservation.
+- [x] Added `createGoogleWorkloadIdentityDependency` using `@googleapis/iam`
+      IAM v1 for Workload Identity pool creation and GitHub OIDC provider
+      creation.
+- [x] Added fake Workload Identity tests for existing resource no-op, missing
+      pool/provider creation, long-running operation polling, non-404 error
+      propagation, failed operation surfacing, and resource name formatting.
 
 ## Phase 4: Add First Real Scenario
 
