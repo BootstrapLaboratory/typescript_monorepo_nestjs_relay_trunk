@@ -45,3 +45,14 @@ Keep the plain runner as a fallback/reference implementation. It is useful as a
 small executable definition of the scenario semantics, and it gives the project
 a simple escape hatch if the XState compiler boundary starts to obscure the
 scenario model.
+
+## Persistence Contract
+
+The XState-backed runner now supports `loadSnapshot`, `saveSnapshot`, and
+`clearSnapshot` on the scenario store. It saves sanitized actor snapshots while
+the scenario is active, clears the snapshot after successful completion, and
+supports `fresh: true` to ignore saved progress and start from the beginning.
+
+Secret inputs are removed from persisted snapshots before the store sees them.
+If a run resumes before a secret-consuming step has completed, the UI must ask
+for that secret again.

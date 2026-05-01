@@ -15,7 +15,8 @@ ordering, and lockfile ownership.
   `deploy/scenario-engine` is a small Rush project for the deployment scenario
   engine spike. It uses the XState-backed runner as the default execution
   engine behind the project-owned scenario DSL, keeps a plain runner as a
-  fallback/reference implementation, and is not a production deploy executor.
+  fallback/reference implementation, persists sanitized XState snapshots for
+  resume/fresh-run behavior, and is not a production deploy executor.
 
 ## Rush Rules
 

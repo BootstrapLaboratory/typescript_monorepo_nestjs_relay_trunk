@@ -1,11 +1,12 @@
 import {
   collectStepInputs,
+  loadStoreValues,
   persistStepOutput,
   pickStepInput,
 } from "./runtime.mjs";
 
 export async function runScenarioPlain(scenario, options) {
-  const storeValues = await options.store.load?.() ?? {};
+  const storeValues = await loadStoreValues(options.store);
   let values = {
     ...storeValues,
     ...(options.values ?? {}),

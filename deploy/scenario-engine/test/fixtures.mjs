@@ -1,6 +1,6 @@
 import { scenario, secret, step, text } from "../src/define.mjs";
 
-export function createTinyScenario() {
+export function createTinyScenario(options = {}) {
   return scenario({
     id: "tiny-cloud",
     title: "Tiny Cloud Scenario",
@@ -14,9 +14,13 @@ export function createTinyScenario() {
         },
         outputs: ["PROJECT_NUMBER"],
         title: "Bootstrap fake cloud",
-        run: async (input) => ({
-          PROJECT_NUMBER: `${input.PROJECT_ID}-123`,
-        }),
+        run: async (input) => {
+          options.onRun?.("cloud.bootstrap", input);
+
+          return {
+            PROJECT_NUMBER: `${input.PROJECT_ID}-123`,
+          };
+        },
       }),
       step({
         guide: "Use generated project number plus a region to create a URL.",
@@ -27,9 +31,13 @@ export function createTinyScenario() {
         },
         outputs: ["SERVICE_URL"],
         title: "Create fake service",
-        run: async (input) => ({
-          SERVICE_URL: `https://${input.PROJECT_NUMBER}.${input.REGION}.example.test`,
-        }),
+        run: async (input) => {
+          options.onRun?.("cloud.service", input);
+
+          return {
+            SERVICE_URL: `https://${input.PROJECT_NUMBER}.${input.REGION}.example.test`,
+          };
+        },
       }),
     ],
   });
@@ -37,13 +45,34 @@ export function createTinyScenario() {
 
 export function createMemoryStore(initialValues = {}) {
   const saved = [];
+  const snapshots = [];
+  let snapshot;
+  let values = { ...initialValues };
 
   return {
+    get snapshot() {
+      return snapshot;
+    },
     saved,
-    async load() {
-      return initialValues;
+    snapshots,
+    async clearSnapshot() {
+      snapshot = undefined;
+    },
+    async loadValues() {
+      return values;
+    },
+    async loadSnapshot() {
+      return snapshot;
+    },
+    async saveSnapshot(nextSnapshot) {
+      snapshot = nextSnapshot;
+      snapshots.push(nextSnapshot);
     },
     async saveOutputs(output, metadata) {
+      values = {
+        ...values,
+        ...output,
+      };
       saved.push({
         output,
         stepId: metadata.step.id,

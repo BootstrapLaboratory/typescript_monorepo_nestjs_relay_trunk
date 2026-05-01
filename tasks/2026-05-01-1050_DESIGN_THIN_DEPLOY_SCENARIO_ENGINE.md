@@ -260,6 +260,18 @@ Future web usage should be possible without rewriting the scenario:
 - [ ] Add unit tests for input collection, output handoff, secret redaction,
       and step ordering.
 
+### Phase 2 Progress
+
+- [x] Added a scenario store persistence/resume contract for the XState-backed
+      runner: `loadValues`, `saveOutputs`, `loadSnapshot`, `saveSnapshot`, and
+      `clearSnapshot`.
+- [x] Updated the XState-backed runner to persist sanitized actor snapshots
+      while active, restore from `loadSnapshot`, clear snapshots after
+      completion, and support `fresh: true` for starting from scratch.
+- [x] Added tests that simulate interruption after step 1, resume at step 2
+      without re-running step 1, verify secret values are not present in the
+      persisted snapshot, and verify fresh runs ignore saved progress.
+
 ## Phase 3: Wrap Existing Provider Scripts
 
 - [ ] Create a Cloud Run provider module with functions that wrap existing

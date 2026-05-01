@@ -2,11 +2,12 @@ import { assign, createActor, fromPromise, setup } from "xstate";
 
 import {
   collectStepInputs,
+  loadStoreValues,
   persistStepOutput,
   pickStepInput,
 } from "./runtime.mjs";
 
-export function compileScenarioToXState(scenario) {
+export function compileScenarioToXState(scenario, runtime = {}) {
   const states = {};
 
   scenario.steps.forEach((scenarioStep, index) => {
@@ -22,7 +23,6 @@ export function compileScenarioToXState(scenario) {
             src: "collectInputs",
             input: ({ context }) => ({
               step: scenarioStep,
-              ui: context.ui,
               values: context.values,
             }),
             onDone: {
@@ -45,7 +45,6 @@ export function compileScenarioToXState(scenario) {
             src: "runStep",
             input: ({ context }) => ({
               step: scenarioStep,
-              store: context.store,
               values: context.values,
             }),
             onDone: {
@@ -75,7 +74,10 @@ export function compileScenarioToXState(scenario) {
   return setup({
     actors: {
       collectInputs: fromPromise(async ({ input }) =>
-        collectStepInputs(input),
+        collectStepInputs({
+          ...input,
+          ui: runtime.ui,
+        }),
       ),
       runStep: fromPromise(async ({ input }) => {
         const output = await input.step.run(
@@ -85,16 +87,14 @@ export function compileScenarioToXState(scenario) {
         return persistStepOutput({
           output,
           step: input.step,
-          store: input.store,
+          store: runtime.store,
         });
       }),
     },
   }).createMachine({
     id: scenario.id,
     context: ({ input }) => ({
-      events: [],
-      store: input.store,
-      ui: input.ui,
+      events: input.events ?? [],
       values: input.values,
     }),
     initial: scenario.steps.length === 0 ? "complete" : "step_0",
@@ -113,31 +113,115 @@ export function compileScenarioToXState(scenario) {
 }
 
 export async function runScenarioXState(scenario, options) {
-  const storeValues = await options.store.load?.() ?? {};
-  const actor = createActor(compileScenarioToXState(scenario), {
-    input: {
+  const execution = await startScenarioXState(scenario, options);
+  return await execution.done;
+}
+
+export async function startScenarioXState(scenario, options) {
+  const storeValues = await loadStoreValues(options.store);
+  const restoredSnapshot =
+    options.fresh === true ? undefined : await options.store.loadSnapshot?.();
+
+  if (options.fresh === true) {
+    await options.store.clearSnapshot?.({ scenario });
+  }
+
+  const actor = createActor(
+    compileScenarioToXState(scenario, {
       store: options.store,
       ui: options.ui,
-      values: {
-        ...storeValues,
-        ...(options.values ?? {}),
+    }),
+    {
+      input: {
+        values: {
+          ...storeValues,
+          ...(options.values ?? {}),
+        },
       },
+      ...(restoredSnapshot === undefined ? {} : { snapshot: restoredSnapshot }),
     },
-  });
+  );
 
-  return await new Promise((resolve, reject) => {
-    const subscription = actor.subscribe((snapshot) => {
+  let pendingSnapshotSave = Promise.resolve();
+  let subscription;
+
+  const saveSnapshot = (snapshot) => {
+    if (snapshot.status !== "active") {
+      return;
+    }
+
+    pendingSnapshotSave = pendingSnapshotSave.then(() =>
+      options.store.saveSnapshot?.(createSerializableSnapshot(actor, scenario), {
+        scenario,
+      }),
+    );
+  };
+
+  const done = new Promise((resolve, reject) => {
+    subscription = actor.subscribe((snapshot) => {
+      saveSnapshot(snapshot);
+
       if (snapshot.status === "done") {
         subscription.unsubscribe();
-        resolve(snapshot.output);
+        pendingSnapshotSave
+          .then(() => options.store.clearSnapshot?.({ scenario }))
+          .then(() => resolve(snapshot.output), reject);
       }
 
       if (snapshot.status === "error") {
         subscription.unsubscribe();
-        reject(snapshot.error);
+        pendingSnapshotSave.then(() => reject(snapshot.error), reject);
       }
     });
 
     actor.start();
   });
+
+  return {
+    actor,
+    done,
+    stop() {
+      subscription?.unsubscribe();
+      actor.stop();
+    },
+  };
+}
+
+function createSerializableSnapshot(actor, scenario) {
+  const snapshot = JSON.parse(JSON.stringify(actor.getPersistedSnapshot()));
+  const secretNames = collectSecretInputNames(scenario);
+
+  redactSecretValues(snapshot, secretNames);
+
+  return snapshot;
+}
+
+function collectSecretInputNames(scenario) {
+  return new Set(
+    scenario.steps.flatMap((step) =>
+      Object.entries(step.inputs)
+        .filter(([, definition]) => definition.kind === "secret")
+        .map(([name]) => name),
+    ),
+  );
+}
+
+function redactSecretValues(value, secretNames) {
+  if (Array.isArray(value)) {
+    value.forEach((item) => redactSecretValues(item, secretNames));
+    return;
+  }
+
+  if (value === null || typeof value !== "object") {
+    return;
+  }
+
+  for (const key of Object.keys(value)) {
+    if (secretNames.has(key)) {
+      delete value[key];
+      continue;
+    }
+
+    redactSecretValues(value[key], secretNames);
+  }
 }

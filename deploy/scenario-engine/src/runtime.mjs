@@ -58,3 +58,7 @@ export async function persistStepOutput({ output, step, store }) {
   await store.saveOutputs?.(outputObject, { step });
   return outputObject;
 }
+
+export async function loadStoreValues(store) {
+  return await store.loadValues?.() ?? await store.load?.() ?? {};
+}
