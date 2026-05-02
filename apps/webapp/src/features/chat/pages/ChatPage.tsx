@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import rushDeliveryLogo from "../assets/rush-delivery.svg";
 import relayLogo from "../assets/relay.svg";
 import reactLogo from "../assets/react.svg";
 import nestLogo from "../assets/nest.svg";
@@ -54,6 +55,16 @@ function Header() {
         Vite + React + Relay + NestJS + Cloud Run + Neon + Cloudflare
       </h1>
       <div className={styles.technologies}>
+        <a
+          href="https://bootstraplaboratory.github.io/rush-delivery/"
+          target="_blank"
+        >
+          <img
+            src={rushDeliveryLogo}
+            className={styles.logo}
+            alt="Rush Delivery logo"
+          />
+        </a>
         <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className={styles.logo} alt="Vite logo" />
         </a>
