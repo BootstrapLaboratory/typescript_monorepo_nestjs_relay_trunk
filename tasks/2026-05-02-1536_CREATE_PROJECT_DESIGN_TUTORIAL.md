@@ -117,7 +117,7 @@ external reference:
 - [x] Write `07-rush-delivery-release-model.md` explaining why Rush Delivery is
       used, how Dagger isolation changes the release model, and how this
       project keeps GitHub Actions thin.
-- [ ] Write `08-deploy-targets-and-provider-boundaries.md` explaining package
+- [x] Write `08-deploy-targets-and-provider-boundaries.md` explaining package
       targets, deploy targets, deploy mesh ordering, build-time versus
       deploy-time environment, Cloud Run, Cloudflare Pages, and provider script
       boundaries.
