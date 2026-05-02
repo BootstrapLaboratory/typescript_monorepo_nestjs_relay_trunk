@@ -129,7 +129,7 @@ external reference:
 
 ## Phase 5: Operational Workflow And Evolution
 
-- [ ] Write `10-ci-validation-and-local-workflows.md` explaining PR validation,
+- [x] Write `10-ci-validation-and-local-workflows.md` explaining PR validation,
       main release workflow, forced target workflows, local dev commands,
       schema generation, Relay generation, migrations, and validation checks.
 - [ ] Write `11-how-to-evolve-the-project.md` as a design playbook for adding:
