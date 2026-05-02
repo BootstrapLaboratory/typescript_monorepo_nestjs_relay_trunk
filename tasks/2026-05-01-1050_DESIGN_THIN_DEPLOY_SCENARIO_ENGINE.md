@@ -411,7 +411,7 @@ Future web usage should be possible without rewriting the scenario:
 ### Phase 4 Progress
 
 - [x] Added `deploy/scenarios/cloudrun-cloudflare-neon-upstash/scenario.mjs`
-      as the first production scenario skeleton.
+      as the first production setup scenario.
 - [x] Added the production scenario package and kept the engine demo command
       intact.
 - [x] Started the first scenario slice with one real provider action:
@@ -464,22 +464,33 @@ Future web usage should be possible without rewriting the scenario:
 ## Phase 5: Documentation And Migration
 
 - [x] Document how to run the scenario from CLI.
-- [ ] Document how the same scenario model can be used by a future web wizard.
+- [x] Document how the same scenario model can be used by a future web wizard.
 - [x] Update AI deployment guidance only after implemented behavior exists.
 - [ ] Keep existing provider docs and scripts aligned during migration.
 - [ ] Decide later whether old helper scripts remain public entrypoints or
       become compatibility wrappers.
 
+### Phase 5 Progress
+
+- [x] Kept `deploy/scenario-engine` provider-agnostic: provider-specific
+      production guidance lives in scenario/provider/wizard docs, while the
+      engine README describes only the generic runtime boundary and demo.
+- [x] Split `deploy/wizard` scenario registration into `src/scenarios.mjs` so
+      the CLI and a future web wizard can share the same scenario registry.
+- [x] Verified the deploy boundary with focused tests for scenario engine,
+      wizard, production scenario, Cloud Run provider, and Cloudflare Pages
+      provider.
+
 ## Acceptance Criteria
 
-- [ ] A scenario file is easy to read as an ordered production setup flow.
-- [ ] Provider functions remain focused and testable.
-- [ ] The CLI runner and future web wizard can share the same scenario
+- [x] A scenario file is easy to read as an ordered production setup flow.
+- [x] Provider functions remain focused and testable.
+- [x] The CLI runner and future web wizard can share the same scenario
       definition.
-- [ ] Existing deploy scripts still work.
-- [ ] Secret values are redacted and are not stored in generated scenario
+- [x] Existing deploy scripts still work.
+- [x] Secret values are redacted and are not stored in generated scenario
       state.
-- [ ] The implementation is meaningfully smaller and simpler than the previous
+- [x] The implementation is meaningfully smaller and simpler than the previous
       typed orchestration attempt.
 
 ## Open Questions

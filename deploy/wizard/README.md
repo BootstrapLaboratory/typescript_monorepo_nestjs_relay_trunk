@@ -10,6 +10,11 @@ Today it provides a CLI command:
 npm --prefix deploy/wizard run cloudrun-cloudflare-neon-upstash
 ```
 
-The same boundary can host a future web wizard without moving provider-specific
-steps into `deploy/scenario-engine` or execution-specific code into scenario
-definition packages.
+Scenario registration lives in `src/scenarios.mjs`. The CLI imports that
+registry and passes it to the generic engine CLI runtime.
+
+The same boundary can host a future web wizard. A web entrypoint should import
+the same scenario registry, render each step's `title`, `guide`, and `inputs`
+as pages/forms, persist progress through a browser or backend store, and call
+the same engine/runtime APIs. Provider-specific steps stay in scenario packages;
+generic execution behavior stays in `deploy/scenario-engine`.

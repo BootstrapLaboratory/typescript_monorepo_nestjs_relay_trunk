@@ -20,7 +20,7 @@ ordering, and lockfile ownership.
   reusable CLI runtime, and a redacting shell helper for future compatibility
   wrappers. Provider step adapters and concrete scenario definitions live with
   their concrete scenario rather than inside the generic engine. The first
-  production scenario skeleton lives under
+  production scenario lives under
   `deploy/scenarios/cloudrun-cloudflare-neon-upstash`; it is its own Rush
   project/package, uses the engine as a dependency, and collects a Google
   Cloud project name, generates and persists a project ID when one is not
@@ -30,10 +30,11 @@ ordering, and lockfile ownership.
   Manager. It then prepares the Cloudflare Pages project while keeping the
   Cloudflare API token transient. The Cloud Run step can pause for manual
   billing enablement and retry when Google reports that billing is required.
-  `deploy/wizard` is the execution host that wires scenarios to CLI today
-  and can later grow a web wizard without putting scenario-specific knowledge
-  into `deploy/scenario-engine`. The scenario is not a production deploy
-  executor.
+  `deploy/wizard` is the execution host that wires scenarios to CLI today.
+  Its scenario registry is separate from the CLI entrypoint so a future web
+  wizard can reuse the same scenario definitions without putting
+  scenario-specific knowledge into `deploy/scenario-engine`. The scenario is
+  not a production deploy executor.
   `deploy/providers/cloudrun` is a TypeScript
   provider spike for Cloud Run bootstrap orchestration and runtime Secret
   Manager sync; it includes SDK-backed Resource Manager, Cloud Billing, Service

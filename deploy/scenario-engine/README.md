@@ -21,29 +21,13 @@ function calls. Execution hosts live outside the engine; `deploy/wizard`
 currently provides the CLI host for production scenarios. The engine package
 should not depend on provider or scenario packages.
 
-## Provider Builds
+## Production Scenarios
 
-Build provider packages before executing the production scenario for real:
-
-```sh
-npm --prefix deploy/providers/cloudrun run build
-npm --prefix deploy/providers/cloudflare-pages run build
-```
-
-Authenticate Google SDK calls with Application Default Credentials. Fresh
-project scenarios should avoid copying the current `gcloud` project into ADC as
-a quota project, because that local quota setting is not the deployment target:
-
-```sh
-gcloud auth application-default login --disable-quota-project
-```
-
-If ADC already points at a deleted or stale quota project, recreate it:
-
-```sh
-gcloud auth application-default revoke
-gcloud auth application-default login --disable-quota-project
-```
+Production scenario packages live outside this engine. They may depend on
+provider packages, build provider SDK clients, and define provider-specific step
+adapters. Execution hosts also live outside this engine; `deploy/wizard` is the
+current host for human-facing CLI commands and is the intended boundary for a
+future web wizard.
 
 ## Shell Helper
 
@@ -72,14 +56,6 @@ Run the tiny fake scenario interactively:
 
 ```sh
 npm --prefix deploy/scenario-engine run demo
-```
-
-Run the first production scenario skeleton:
-
-```sh
-npm --prefix deploy/providers/cloudrun run build
-npm --prefix deploy/providers/cloudflare-pages run build
-npm --prefix deploy/wizard run cloudrun-cloudflare-neon-upstash
 ```
 
 Run it non-interactively:

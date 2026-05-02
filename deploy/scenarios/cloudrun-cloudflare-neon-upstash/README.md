@@ -1,6 +1,6 @@
 # Cloud Run + Cloudflare Pages + Neon + Upstash Scenario
 
-This is the first production setup scenario skeleton. It currently collects a
+This is the first production setup scenario. It currently collects a
 Google Cloud project name, generates and persists a project ID when one is not
 provided, executes Cloud Run backend bootstrap through `deploy-provider-cloudrun`,
 then collects Neon database URLs and the Upstash Redis URL as transient
