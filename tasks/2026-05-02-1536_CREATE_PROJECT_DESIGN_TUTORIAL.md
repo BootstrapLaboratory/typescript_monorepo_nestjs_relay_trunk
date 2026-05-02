@@ -104,7 +104,7 @@ external reference:
 - [x] Write `04-server-architecture.md` explaining NestJS, Fastify, Apollo
       GraphQL, TypeORM/Postgres, migrations, identity, access control, Redis
       pub/sub, and feature module boundaries.
-- [ ] Write `05-webapp-architecture.md` explaining React, Vite, Relay,
+- [x] Write `05-webapp-architecture.md` explaining React, Vite, Relay,
       TanStack Router, feature folders, `src/shared`, `src/ui`,
       vanilla-extract, and Storybook.
 - [ ] Write `06-auth-realtime-and-browser-security.md` explaining memory-only
