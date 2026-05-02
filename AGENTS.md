@@ -15,6 +15,8 @@
 - Read `libs/api/docs/ai/conventions.md` when working under `libs/api` or
   when changing the GraphQL schema contract between server and webapp.
 - Read `docs/ai/rules/BashModules.md` only when working on bash modules, shell scripts, or shell-based project layout.
+- Read `docs/ai/rules/CodeQA.md` before running local code QA, linting,
+  formatting, security checks, or validation commands.
 - Do not load specialized docs unless the task touches that area.
 - After completing a task, if you modify any files, give two commit messages in semantic commits style: short and detailed
 - After modifying any files in source tree give a commit message in semantic commits style: short and detailed
