@@ -21,8 +21,9 @@ currently implemented combined flow. It can create or select the Google Cloud
 project, run Cloud Run backend bootstrap, collect already-provisioned Neon and
 Upstash connection URLs, and sync `DATABASE_URL`, `DATABASE_URL_DIRECT`, and
 `REDIS_URL` into Secret Manager without persisting the secret values. It also
-prepares the Cloudflare Pages project, but it does not replace the final GitHub
-Actions deployment trigger.
+prepares the Cloudflare Pages project and configures GitHub repository
+variables/secrets for the production workflow, but it does not replace the
+final GitHub Actions deployment trigger.
 
 ## Deployment Boundary
 

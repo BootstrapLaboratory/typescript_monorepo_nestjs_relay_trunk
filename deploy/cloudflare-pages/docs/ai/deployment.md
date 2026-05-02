@@ -26,7 +26,9 @@ The guided scenario under `deploy/scenarios/cloudrun-cloudflare-neon-upstash`,
 run through `deploy/wizard`, now calls that provider after backend runtime
 secrets are synced. It prompts for `CLOUDFLARE_ACCOUNT_ID`,
 `CLOUDFLARE_API_TOKEN`, and `CLOUDFLARE_PAGES_PROJECT_NAME`; the API token
-remains transient and is not written to scenario state.
+remains transient and is not written to scenario state. After Pages
+provisioning, the scenario configures the GitHub repository variables and
+Cloudflare secrets required by the production workflow.
 
 ## Deployment Boundary
 

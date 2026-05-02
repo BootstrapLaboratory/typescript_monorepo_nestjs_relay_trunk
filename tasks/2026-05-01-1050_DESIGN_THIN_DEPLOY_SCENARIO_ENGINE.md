@@ -293,6 +293,8 @@ Future web usage should be possible without rewriting the scenario:
       existing Cloud Run setup scripts.
 - [x] Create a Cloudflare Pages provider module with TypeScript functions for
       production provisioning, without wrapping the existing shell scripts.
+- [x] Create a GitHub provider module with TypeScript functions for repository
+      configuration.
 - [ ] Create Neon and Upstash provider modules for manual-input guidance first.
 - [x] Add a Cloud Run provider action for syncing backend runtime secrets into
       Secret Manager.
@@ -397,6 +399,10 @@ Future web usage should be possible without rewriting the scenario:
       Git-integrated projects.
 - [x] Kept Cloudflare asset uploads, GitHub repository configuration, and
       backend GraphQL endpoint derivation out of the provider module.
+- [x] Added `deploy/providers/github` as a TypeScript Rush project for
+      repository configuration. It writes variables and secrets through the
+      official GitHub CLI, sends secrets through stdin, and keeps workflow
+      execution out of scope.
 
 ## Phase 4: Add First Real Scenario
 
@@ -449,6 +455,10 @@ Future web usage should be possible without rewriting the scenario:
       `CLOUDFLARE_PAGES_PROJECT_NAME`, keeps the API token transient, persists
       only safe Pages handoff values, and calls
       `prepareCloudflarePagesProject`.
+- [x] Added a GitHub repository configuration step that writes the backend,
+      frontend, CORS, and GraphQL GitHub Actions values through
+      `deploy-provider-github`, while keeping the Cloudflare API token
+      transient.
 - [x] Moved provider-specific scenario step adapters out of
       `deploy/scenario-engine/src/providers` and into
       `deploy/scenarios/cloudrun-cloudflare-neon-upstash/steps`.

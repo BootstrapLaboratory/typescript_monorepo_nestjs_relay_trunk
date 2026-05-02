@@ -52,6 +52,12 @@
       "projectFolder": "deploy/providers/cloudflare-pages",
       "reviewCategory": "tools",
       "versionPolicyName": "apps"
+    },
+    {
+      "packageName": "deploy-provider-github",
+      "projectFolder": "deploy/providers/github",
+      "reviewCategory": "tools",
+      "versionPolicyName": "apps"
     }
   ]
 }

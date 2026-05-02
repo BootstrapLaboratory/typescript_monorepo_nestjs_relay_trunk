@@ -9,6 +9,7 @@ import {
 import { createCloudflarePagesProjectStep } from "./steps/cloudflare-pages-project.mjs";
 import { createCloudRunBootstrapStep } from "./steps/cloudrun-bootstrap.mjs";
 import { createCloudRunRuntimeSecretsStep } from "./steps/cloudrun-runtime-secrets.mjs";
+import { createGitHubRepositoryConfigStep } from "./steps/github-repository-config.mjs";
 
 export const CLOUDRUN_CLOUDFLARE_NEON_UPSTASH_SCENARIO_ID =
   "cloudrun-cloudflare-neon-upstash";
@@ -30,6 +31,14 @@ export const CLOUDFLARE_PAGES_PROJECT_HANDOFF_VARIABLES = [
   "WEBAPP_URL",
 ];
 
+export const GITHUB_REPOSITORY_CONFIG_VARIABLES = [
+  "GITHUB_REPOSITORY",
+  "GITHUB_REPOSITORY_CONFIGURED",
+  "CLOUD_RUN_CORS_ORIGIN",
+  "WEBAPP_VITE_GRAPHQL_HTTP",
+  "WEBAPP_VITE_GRAPHQL_WS",
+];
+
 export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
   return scenario({
     completionSections: [
@@ -44,10 +53,16 @@ export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
         variables: CLOUDFLARE_PAGES_PROJECT_HANDOFF_VARIABLES,
       },
       {
+        guide: "Repository variables and Cloudflare secrets were written for the GitHub Actions deploy workflow.",
+        title: "GitHub repository configuration",
+        variables: GITHUB_REPOSITORY_CONFIG_VARIABLES,
+      },
+      {
         lines: [
-          "Cloud Run backend bootstrap is complete, backend runtime secrets are synced, and the Cloudflare Pages project is prepared.",
+          "Production provisioning/setup is complete: Cloud Run prerequisites are ready, backend runtime secrets are synced, the Cloudflare Pages project is prepared, and GitHub repository configuration is written.",
           "Database URLs, Redis URL, and Cloudflare API token are not written to the scenario state file.",
-          "Next scenario slices will configure GitHub repository values and webapp GraphQL endpoints.",
+          "Ready for the first deploy. This scenario does not trigger deployment automatically.",
+          "From a clean pushed branch, trigger deployment with: gh workflow run main-workflow.yaml --repo ${GITHUB_REPOSITORY} --ref main",
         ],
         title: "Next",
       },
@@ -82,6 +97,15 @@ export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
           "This step does not deploy assets or configure GitHub repository values.",
         ].join("\n"),
         title: "Prepare Cloudflare Pages project",
+      }),
+      createGitHubRepositoryConfigStep({
+        ...(options.github ?? {}),
+        guide: [
+          "Configure GitHub repository variables and secrets for the production workflow.",
+          "The Cloud Run CORS origin defaults to the Pages URL.",
+          "The webapp GraphQL endpoints default to the deterministic Cloud Run service URL and can be overridden with WEBAPP_VITE_GRAPHQL_HTTP and WEBAPP_VITE_GRAPHQL_WS.",
+        ].join("\n"),
+        title: "Configure GitHub repository",
       }),
     ],
     title: "Cloud Run + Cloudflare Pages + Neon + Upstash",

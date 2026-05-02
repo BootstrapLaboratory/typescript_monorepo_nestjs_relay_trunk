@@ -17,7 +17,7 @@
 - Read `docs/ai/rules/BashModules.md` only when working on bash modules, shell scripts, or shell-based project layout.
 - Do not load specialized docs unless the task touches that area.
 - After completing a task, if you modify any files, give two commit messages in semantic commits style: short and detailed
-- after completing a coding task give two commit messages in semantic commits style: short and detailed
+- After modifying any files in source tree give a commit message in semantic commits style: short and detailed
 - Read `docs/ai/rules/DocEditing.md` only when editing documentation, markdown documents
 - if the task user is asking for is big enough and cannot be complited in one run, then create a task file under `tasks` directory with checklist/phases/etc
 - Read `docs/ai/rules/TasksFiles.md` when creating, managing, or modifying

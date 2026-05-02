@@ -18,3 +18,7 @@ services:
       - postgres
       - redis
     command: sleep infinity
+    mem_limit: 20g
+    memswap_limit: 22g
+    oom_kill_disable: false
+    oom_score_adj: 500

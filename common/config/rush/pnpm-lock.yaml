@@ -111,6 +111,9 @@ importers:
       '@rush-temp/deploy-provider-cloudrun':
         specifier: file:./projects/deploy-provider-cloudrun.tgz
         version: file:projects/deploy-provider-cloudrun.tgz
+      '@rush-temp/deploy-provider-github':
+        specifier: file:./projects/deploy-provider-github.tgz
+        version: file:projects/deploy-provider-github.tgz
       '@rush-temp/deploy-scenario-cloudrun-cloudflare-neon-upstash':
         specifier: file:./projects/deploy-scenario-cloudrun-cloudflare-neon-upstash.tgz
         version: file:projects/deploy-scenario-cloudrun-cloudflare-neon-upstash.tgz
@@ -2183,6 +2186,10 @@ packages:
 
   '@rush-temp/deploy-provider-cloudrun@file:projects/deploy-provider-cloudrun.tgz':
     resolution: {integrity: sha512-7CCcTFArgrf9is/cjeVl2GA8yfssiNO3S3FH/Ktc+caom5Ipn5NytRiztToDKwUmziGAA0dmba8XLNy4jhgqXw==, tarball: file:projects/deploy-provider-cloudrun.tgz}
+    version: 0.0.0
+
+  '@rush-temp/deploy-provider-github@file:projects/deploy-provider-github.tgz':
+    resolution: {integrity: sha512-jUhJoImu0SQu1XgoKL64eBx7JRFJJsV7qAAdwoQn1pPZ+vwHmDnAuXfGDWkOaKYcMeZaoSUaze4RRIRRwtUNKQ==, tarball: file:projects/deploy-provider-github.tgz}
     version: 0.0.0
 
   '@rush-temp/deploy-scenario-cloudrun-cloudflare-neon-upstash@file:projects/deploy-scenario-cloudrun-cloudflare-neon-upstash.tgz':
@@ -8543,6 +8550,11 @@ snapshots:
     transitivePeerDependencies:
       - encoding
       - supports-color
+
+  '@rush-temp/deploy-provider-github@file:projects/deploy-provider-github.tgz':
+    dependencies:
+      '@types/node': 25.6.0
+      typescript: 6.0.3
 
   '@rush-temp/deploy-scenario-cloudrun-cloudflare-neon-upstash@file:projects/deploy-scenario-cloudrun-cloudflare-neon-upstash.tgz': {}
 

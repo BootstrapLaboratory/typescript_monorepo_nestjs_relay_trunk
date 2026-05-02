@@ -100,7 +100,8 @@ Use this checklist as the high-level deployment preparation path.
   guided scenario under `deploy/scenarios/cloudrun-cloudflare-neon-upstash`,
   run through `deploy/wizard`, can prepare the Cloud Run backend project
   path, collect Neon and Upstash connection URLs, sync backend runtime secrets
-  into Secret Manager, and prepare the Cloudflare Pages project. The provider
+  into Secret Manager, prepare the Cloudflare Pages project, and write GitHub
+  repository variables/secrets for the production workflow. The provider
   scripts remain the provider-specific fallback and repair path.
 - Also explain the manual equivalent when the human is using a restricted
   environment, debugging automation, or only adopting part of the deployment

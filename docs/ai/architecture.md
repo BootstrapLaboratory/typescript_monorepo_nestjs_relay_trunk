@@ -28,8 +28,12 @@ ordering, and lockfile ownership.
   GitHub variable handoff, and collects Neon database URLs plus the Upstash
   Redis URL as transient secret inputs before syncing them into Google Secret
   Manager. It then prepares the Cloudflare Pages project while keeping the
-  Cloudflare API token transient. The Cloud Run step can pause for manual
-  billing enablement and retry when Google reports that billing is required.
+  Cloudflare API token transient, and configures GitHub repository variables
+  and Cloudflare secrets for the production workflow. The GitHub step derives
+  the default Cloud Run GraphQL URLs from service name, project number, and
+  region unless explicit webapp GraphQL URLs are provided. The Cloud Run step
+  can pause for manual billing enablement and retry when Google reports that
+  billing is required.
   `deploy/wizard` is the execution host that wires scenarios to CLI today.
   Its scenario registry is separate from the CLI entrypoint so a future web
   wizard can reuse the same scenario definitions without putting
@@ -53,6 +57,10 @@ ordering, and lockfile ownership.
   and disable Cloudflare Git automatic deployments for Git-integrated Pages
   projects. It intentionally does not deploy static assets, configure GitHub
   repository values, or derive backend GraphQL endpoints.
+  `deploy/providers/github` is a TypeScript provider for GitHub repository
+  configuration. It sets repository variables and secrets through the official
+  `gh` CLI, sends secrets through stdin instead of process arguments, and does
+  not run workflows or manage repository permissions.
 
 ## Rush Rules
 
