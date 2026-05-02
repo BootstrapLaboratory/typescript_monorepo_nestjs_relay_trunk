@@ -68,10 +68,7 @@ function isAuthSessionHint(value: unknown): value is AuthSessionHint {
   }
 
   const hint = value as AuthSessionHint;
-  return (
-    hint.kind === "authenticated" &&
-    typeof hint.updatedAt === "number"
-  );
+  return hint.kind === "authenticated" && typeof hint.updatedAt === "number";
 }
 
 function readStoredAuthSessionHint(): AuthSessionHint | null {
@@ -142,7 +139,9 @@ export function getPrincipalDisplayName(principal: Principal): string {
   return principal.displayName?.trim() || principal.subject;
 }
 
-export function shouldShowAuthenticatedNavigation(authState: AuthState): boolean {
+export function shouldShowAuthenticatedNavigation(
+  authState: AuthState,
+): boolean {
   return (
     authState.status === "authenticated" ||
     (authState.status === "unknown" && authState.sessionHint !== null)

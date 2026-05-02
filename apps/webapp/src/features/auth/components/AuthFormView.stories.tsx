@@ -1,9 +1,6 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import {
-  AuthFormView,
-  type AuthFormViewProps,
-} from "./AuthFormView";
+import { AuthFormView, type AuthFormViewProps } from "./AuthFormView";
 
 type AuthFormFixtureProps = Pick<
   AuthFormViewProps,

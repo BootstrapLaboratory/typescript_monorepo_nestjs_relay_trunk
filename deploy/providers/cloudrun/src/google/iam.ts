@@ -50,7 +50,9 @@ type Response<T> = {
 };
 
 export type IamServiceAccountsClientLike = {
-  create(request: CreateServiceAccountRequest): Promise<Response<ServiceAccount>>;
+  create(
+    request: CreateServiceAccountRequest,
+  ): Promise<Response<ServiceAccount>>;
   get(request: GetServiceAccountRequest): Promise<Response<ServiceAccount>>;
   getIamPolicy(
     request: GetServiceAccountIamPolicyRequest,
@@ -77,8 +79,7 @@ export type GoogleIamDependency = Pick<
 >;
 
 export function createGoogleIamDependency(
-  serviceAccounts: IamServiceAccountsClientLike =
-    createDefaultIamServiceAccountsClient(),
+  serviceAccounts: IamServiceAccountsClientLike = createDefaultIamServiceAccountsClient(),
   projects?: IamProjectsClientLike,
 ): GoogleIamDependency {
   return {

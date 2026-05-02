@@ -34,9 +34,8 @@ describe("Google Workload Identity dependency", () => {
       pollIntervalMs: 0,
     });
 
-    const output = await workloadIdentity.ensureGithubOidcProvider(
-      githubOidcInput(),
-    );
+    const output =
+      await workloadIdentity.ensureGithubOidcProvider(githubOidcInput());
 
     assert.deepEqual(output, {
       poolName,
@@ -62,13 +61,14 @@ describe("Google Workload Identity dependency", () => {
       done: false,
       name: "operations/create-provider",
     };
-    client.providers.operations.operationResponses["operations/create-provider"] =
-      [
-        {
-          done: true,
-          name: "operations/create-provider",
-        },
-      ];
+    client.providers.operations.operationResponses[
+      "operations/create-provider"
+    ] = [
+      {
+        done: true,
+        name: "operations/create-provider",
+      },
+    ];
     const workloadIdentity = createGoogleWorkloadIdentityDependency(client, {
       pollIntervalMs: 0,
     });

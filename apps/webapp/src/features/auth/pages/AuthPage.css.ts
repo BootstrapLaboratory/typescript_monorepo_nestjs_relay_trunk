@@ -46,4 +46,3 @@ export const modeSwitch = style({
   flexWrap: "wrap",
   gap: vars.space[2],
 });
-

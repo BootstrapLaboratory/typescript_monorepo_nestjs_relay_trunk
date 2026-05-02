@@ -49,7 +49,9 @@ export function createCloudflarePagesProjectStep(options = {}) {
 
 async function loadDefaultProvider() {
   try {
-    return await import("../../../providers/cloudflare-pages/dist/src/index.js");
+    return await import(
+      "../../../providers/cloudflare-pages/dist/src/index.js"
+    );
   } catch (error) {
     throw new Error(
       [

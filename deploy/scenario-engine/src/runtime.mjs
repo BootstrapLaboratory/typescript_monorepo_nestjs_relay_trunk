@@ -74,7 +74,7 @@ export async function persistStepOutput({ output, step, store }) {
 }
 
 export async function loadStoreValues(store) {
-  return await store.loadValues?.() ?? await store.load?.() ?? {};
+  return (await store.loadValues?.()) ?? (await store.load?.()) ?? {};
 }
 
 export function collectSecretInputNames(scenario) {

@@ -72,6 +72,7 @@ npm --prefix deploy/wizard run cloudrun-cloudflare-neon-upstash
    automatic Cloudflare Git builds are disabled.
 
 2. Fill Cloudflare deploy config.
+
    - `CLOUDFLARE_ACCOUNT_ID`: Cloudflare account id.
    - `CLOUDFLARE_API_TOKEN`: token with Cloudflare Pages edit access.
    - `CLOUDFLARE_PAGES_PROJECT_NAME`: Pages project name.

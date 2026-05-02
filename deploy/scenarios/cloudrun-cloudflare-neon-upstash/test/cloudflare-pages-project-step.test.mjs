@@ -35,8 +35,7 @@ describe("Cloudflare Pages project scenario action", () => {
           CLOUDFLARE_PAGES_AUTOMATIC_DEPLOYMENTS: "disabled",
           CLOUDFLARE_PAGES_PRODUCTION_BRANCH:
             input.CLOUDFLARE_PAGES_PRODUCTION_BRANCH ?? "main",
-          CLOUDFLARE_PAGES_PROJECT_NAME:
-            input.CLOUDFLARE_PAGES_PROJECT_NAME,
+          CLOUDFLARE_PAGES_PROJECT_NAME: input.CLOUDFLARE_PAGES_PROJECT_NAME,
           CLOUDFLARE_PAGES_PROJECT_READY: "true",
           WEBAPP_URL: `https://${input.CLOUDFLARE_PAGES_PROJECT_NAME}.pages.dev`,
         };

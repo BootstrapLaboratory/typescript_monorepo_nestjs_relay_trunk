@@ -197,7 +197,9 @@ Create or configure the Pages project for GitHub Actions direct upload.
 ```ts
 await runScenario(cloudrunCloudflareNeonUpstash, {
   ui: cliUi(),
-  store: envFileStore("deploy/scenarios/cloudrun-cloudflare-neon-upstash/state.env"),
+  store: envFileStore(
+    "deploy/scenarios/cloudrun-cloudflare-neon-upstash/state.env",
+  ),
 });
 ```
 

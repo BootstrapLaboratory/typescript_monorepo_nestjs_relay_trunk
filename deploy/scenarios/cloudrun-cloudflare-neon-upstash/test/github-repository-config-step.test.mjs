@@ -36,8 +36,7 @@ describe("GitHub repository configuration scenario action", () => {
         CLOUD_RUN_SERVICE: "api",
         GCP_ARTIFACT_REGISTRY_REPOSITORY: "cloud-run-backend",
         GCP_PROJECT_ID: "demo-project",
-        GCP_SERVICE_ACCOUNT:
-          "deployer@demo-project.iam.gserviceaccount.com",
+        GCP_SERVICE_ACCOUNT: "deployer@demo-project.iam.gserviceaccount.com",
         GCP_WORKLOAD_IDENTITY_PROVIDER:
           "projects/123/locations/global/workloadIdentityPools/github-actions/providers/github",
         GITHUB_REPOSITORY: "BeltOrg/beltapp",
@@ -65,8 +64,7 @@ describe("GitHub repository configuration scenario action", () => {
           CLOUD_RUN_SERVICE: "api",
           GCP_ARTIFACT_REGISTRY_REPOSITORY: "cloud-run-backend",
           GCP_PROJECT_ID: "demo-project",
-          GCP_SERVICE_ACCOUNT:
-            "deployer@demo-project.iam.gserviceaccount.com",
+          GCP_SERVICE_ACCOUNT: "deployer@demo-project.iam.gserviceaccount.com",
           GCP_WORKLOAD_IDENTITY_PROVIDER:
             "projects/123/locations/global/workloadIdentityPools/github-actions/providers/github",
           GITHUB_REPOSITORY: "BeltOrg/beltapp",
@@ -190,8 +188,7 @@ describe("GitHub repository configuration scenario action", () => {
           CLOUD_RUN_SERVICE: "api",
           GCP_ARTIFACT_REGISTRY_REPOSITORY: "cloud-run-backend",
           GCP_PROJECT_ID: "demo-project",
-          GCP_SERVICE_ACCOUNT:
-            "deployer@demo-project.iam.gserviceaccount.com",
+          GCP_SERVICE_ACCOUNT: "deployer@demo-project.iam.gserviceaccount.com",
           GCP_WORKLOAD_IDENTITY_PROVIDER:
             "projects/123/locations/global/workloadIdentityPools/github-actions/providers/github",
           GITHUB_REPOSITORY: "BeltOrg/beltapp",

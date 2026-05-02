@@ -27,7 +27,10 @@ export function SelectField<Value extends string>({
       value={value}
       onValueChange={(nextValue) => onValueChange(nextValue as Value)}
     >
-      <Select.Trigger className={cx(styles.trigger, className)} aria-label={ariaLabel}>
+      <Select.Trigger
+        className={cx(styles.trigger, className)}
+        aria-label={ariaLabel}
+      >
         <Select.Value />
         <Select.Icon className={styles.icon} aria-hidden>
           v

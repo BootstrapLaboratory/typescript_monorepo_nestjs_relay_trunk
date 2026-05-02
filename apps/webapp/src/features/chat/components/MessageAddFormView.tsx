@@ -29,7 +29,8 @@ export function MessageAddFormView({
   onBodyChange,
   onSubmit,
 }: MessageAddFormViewProps) {
-  const isSubmitDisabled = isSubmitting || disableBecauseLiveUpdatesAreRecovering;
+  const isSubmitDisabled =
+    isSubmitting || disableBecauseLiveUpdatesAreRecovering;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -37,7 +38,11 @@ export function MessageAddFormView({
   }
 
   return (
-    <form className={styles.form} aria-busy={isSubmitting} onSubmit={handleSubmit}>
+    <form
+      className={styles.form}
+      aria-busy={isSubmitting}
+      onSubmit={handleSubmit}
+    >
       <TextField
         type="text"
         placeholder="Your name (Optional)"

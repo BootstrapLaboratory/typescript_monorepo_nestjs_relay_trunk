@@ -321,17 +321,14 @@ describe("Google IAM dependency", () => {
         "github-actions-deployer@demo-project.iam.gserviceaccount.com",
     });
 
-    assert.deepEqual(
-      client.setIamPolicyCalls[0]?.requestBody.policy.bindings,
-      [
-        {
-          members: [
-            "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
-          ],
-          role: "roles/iam.serviceAccountUser",
-        },
-      ],
-    );
+    assert.deepEqual(client.setIamPolicyCalls[0]?.requestBody.policy.bindings, [
+      {
+        members: [
+          "serviceAccount:github-actions-deployer@demo-project.iam.gserviceaccount.com",
+        ],
+        role: "roles/iam.serviceAccountUser",
+      },
+    ]);
   });
 
   it("does not update service account IAM when the role member already exists", async () => {
@@ -377,8 +374,7 @@ describe("Google IAM dependency", () => {
           bindings: [
             {
               condition: {
-                expression:
-                  "request.time < timestamp('2030-01-01T00:00:00Z')",
+                expression: "request.time < timestamp('2030-01-01T00:00:00Z')",
                 title: "temporary",
               },
               members: [
@@ -401,27 +397,24 @@ describe("Google IAM dependency", () => {
         "github-actions-deployer@demo-project.iam.gserviceaccount.com",
     });
 
-    assert.deepEqual(
-      client.setIamPolicyCalls[0]?.requestBody.policy.bindings,
-      [
-        {
-          condition: {
-            expression: "request.time < timestamp('2030-01-01T00:00:00Z')",
-            title: "temporary",
-          },
-          members: [
-            "principalSet://iam.googleapis.com/projects/123456/locations/global/workloadIdentityPools/github/attribute.repository/Other/repo",
-          ],
-          role: "roles/iam.workloadIdentityUser",
+    assert.deepEqual(client.setIamPolicyCalls[0]?.requestBody.policy.bindings, [
+      {
+        condition: {
+          expression: "request.time < timestamp('2030-01-01T00:00:00Z')",
+          title: "temporary",
         },
-        {
-          members: [
-            "principalSet://iam.googleapis.com/projects/123456/locations/global/workloadIdentityPools/github/attribute.repository/BeltOrg/beltapp",
-          ],
-          role: "roles/iam.workloadIdentityUser",
-        },
-      ],
-    );
+        members: [
+          "principalSet://iam.googleapis.com/projects/123456/locations/global/workloadIdentityPools/github/attribute.repository/Other/repo",
+        ],
+        role: "roles/iam.workloadIdentityUser",
+      },
+      {
+        members: [
+          "principalSet://iam.googleapis.com/projects/123456/locations/global/workloadIdentityPools/github/attribute.repository/BeltOrg/beltapp",
+        ],
+        role: "roles/iam.workloadIdentityUser",
+      },
+    ]);
   });
 });
 
@@ -540,10 +533,7 @@ class FakeIamProjectsClient implements IamProjectsClientLike {
     >;
   }
 
-  async setIamPolicy(request: {
-    policy: ProjectIamPolicy;
-    resource: string;
-  }) {
+  async setIamPolicy(request: { policy: ProjectIamPolicy; resource: string }) {
     this.setIamPolicyCalls.push(request);
     this.policies[request.resource] = request.policy;
 

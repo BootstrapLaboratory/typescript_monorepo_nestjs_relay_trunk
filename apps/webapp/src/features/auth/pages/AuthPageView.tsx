@@ -10,11 +10,7 @@ export type AuthPageViewProps = {
   onModeChange: (mode: AuthMode) => void;
 };
 
-export function AuthPageView({
-  mode,
-  form,
-  onModeChange,
-}: AuthPageViewProps) {
+export function AuthPageView({ mode, form, onModeChange }: AuthPageViewProps) {
   const isRegisterMode = mode === "register";
 
   return (

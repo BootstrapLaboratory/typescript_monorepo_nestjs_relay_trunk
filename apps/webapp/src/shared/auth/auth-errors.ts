@@ -31,9 +31,7 @@ export function getGraphqlErrorCode(error: unknown): string | null {
   }
 
   return (
-    error.extensions?.originalError?.code ??
-    error.extensions?.code ??
-    null
+    error.extensions?.originalError?.code ?? error.extensions?.code ?? null
   );
 }
 
@@ -77,7 +75,11 @@ export function isAuthRequiredGraphqlError(error: unknown): boolean {
 }
 
 export function hasAuthRequiredGraphqlErrors(payload: unknown): boolean {
-  if (typeof payload !== "object" || payload === null || !("errors" in payload)) {
+  if (
+    typeof payload !== "object" ||
+    payload === null ||
+    !("errors" in payload)
+  ) {
     return false;
   }
 

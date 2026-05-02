@@ -8,10 +8,16 @@ resume in CLI or web environments.
 ```ts
 type ScenarioStore = {
   loadValues(): Promise<Record<string, string>>;
-  saveOutputs(output: Record<string, unknown>, metadata: { step: ScenarioStep }): Promise<void>;
+  saveOutputs(
+    output: Record<string, unknown>,
+    metadata: { step: ScenarioStep },
+  ): Promise<void>;
 
   loadSnapshot(): Promise<unknown | undefined>;
-  saveSnapshot(snapshot: unknown, metadata: { scenario: Scenario }): Promise<void>;
+  saveSnapshot(
+    snapshot: unknown,
+    metadata: { scenario: Scenario },
+  ): Promise<void>;
   clearSnapshot(metadata: { scenario: Scenario }): Promise<void>;
 };
 ```

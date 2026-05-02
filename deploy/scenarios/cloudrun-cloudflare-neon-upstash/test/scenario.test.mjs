@@ -7,9 +7,7 @@ import {
   createNeonDatabaseStep,
   createUpstashRedisStep,
 } from "../scenario.mjs";
-import {
-  formatCompletionSections,
-} from "deploy-scenario-engine/src/completion-summary.mjs";
+import { formatCompletionSections } from "deploy-scenario-engine/src/completion-summary.mjs";
 import { redactScenarioValues } from "deploy-scenario-engine/src/runtime.mjs";
 import { runScenarioXState } from "deploy-scenario-engine/src/xstate-runner.mjs";
 import {
@@ -130,8 +128,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
           CLOUDFLARE_PAGES_AUTOMATIC_DEPLOYMENTS: "disabled",
           CLOUDFLARE_PAGES_PRODUCTION_BRANCH:
             input.CLOUDFLARE_PAGES_PRODUCTION_BRANCH ?? "main",
-          CLOUDFLARE_PAGES_PROJECT_NAME:
-            input.CLOUDFLARE_PAGES_PROJECT_NAME,
+          CLOUDFLARE_PAGES_PROJECT_NAME: input.CLOUDFLARE_PAGES_PROJECT_NAME,
           CLOUDFLARE_PAGES_PROJECT_READY: "true",
           WEBAPP_URL: `https://${input.CLOUDFLARE_PAGES_PROJECT_NAME}.pages.dev`,
         };
@@ -270,7 +267,10 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
         name: "configureRepository",
       },
     ]);
-    assert.equal(result.values.CLOUD_RUN_CORS_ORIGIN, "https://demo-webapp.pages.dev");
+    assert.equal(
+      result.values.CLOUD_RUN_CORS_ORIGIN,
+      "https://demo-webapp.pages.dev",
+    );
     assert.equal(result.values.CLOUD_RUN_RUNTIME_SECRETS_SYNCED, "true");
     assert.equal(result.values.CLOUDFLARE_ACCOUNT_ID, "cloudflare-account");
     assert.equal(
@@ -286,7 +286,10 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     assert.equal(result.values.PROJECT_ID, "demo-project");
     assert.equal(result.values.PROJECT_NUMBER, "123456789");
     assert.equal(result.values.UPSTASH_REDIS_URL_READY, "true");
-    assert.equal(result.values.CLOUD_RUN_PUBLIC_URL, "https://api-live.run.app");
+    assert.equal(
+      result.values.CLOUD_RUN_PUBLIC_URL,
+      "https://api-live.run.app",
+    );
     assert.equal(
       result.values.WEBAPP_VITE_GRAPHQL_HTTP,
       "https://api-live.run.app/graphql",

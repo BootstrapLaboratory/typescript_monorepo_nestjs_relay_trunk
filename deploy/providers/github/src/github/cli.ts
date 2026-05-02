@@ -9,9 +9,11 @@ export type GitHubCliRunner = (
   },
 ) => Promise<void>;
 
-export function createGitHubCliRepositoryDependency(input: {
-  runGh?: GitHubCliRunner;
-} = {}): GitHubProviderDeps["repository"] {
+export function createGitHubCliRepositoryDependency(
+  input: {
+    runGh?: GitHubCliRunner;
+  } = {},
+): GitHubProviderDeps["repository"] {
   const runGh = input.runGh ?? createGitHubCliRunner();
 
   return {

@@ -74,10 +74,7 @@ describe("shell runner", () => {
           assert.equal(error.exitCode, 7);
           assert.match(error.stderr, /failed with \[redacted:SECRET_VALUE\]/);
           assert.match(error.stderr, /arg=\[redacted:SECRET_VALUE\]/);
-          assert.deepEqual(error.args, [
-            scriptPath,
-            "[redacted:SECRET_VALUE]",
-          ]);
+          assert.deepEqual(error.args, [scriptPath, "[redacted:SECRET_VALUE]"]);
           assert.doesNotMatch(error.message, /top-secret/);
           assert.doesNotMatch(error.stderr, /top-secret/);
           return true;

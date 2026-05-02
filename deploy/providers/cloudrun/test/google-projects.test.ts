@@ -104,7 +104,9 @@ describe("Google Resource Manager projects dependency", () => {
       },
     );
     client.createProjectError = Object.assign(
-      new Error("7 PERMISSION_DENIED: Project old-quota-project has been deleted."),
+      new Error(
+        "7 PERMISSION_DENIED: Project old-quota-project has been deleted.",
+      ),
       {
         code: 7,
       },
@@ -192,7 +194,9 @@ class FakeProjectsClient implements ProjectsClientLike {
   createProjectError?: Error & { code?: number };
   getProjectError?: Error & { code?: number };
 
-  constructor(private readonly projects: Record<string, { name: string }> = {}) {}
+  constructor(
+    private readonly projects: Record<string, { name: string }> = {},
+  ) {}
 
   async createProject(request: {
     project: {
@@ -234,6 +238,8 @@ class FakeProjectsClient implements ProjectsClientLike {
       });
     }
 
-    return [project] satisfies Awaited<ReturnType<ProjectsClientLike["getProject"]>>;
+    return [project] satisfies Awaited<
+      ReturnType<ProjectsClientLike["getProject"]>
+    >;
   }
 }

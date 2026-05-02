@@ -42,17 +42,20 @@ export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
   return scenario({
     completionSections: [
       {
-        guide: "Set these as GitHub repository variables for the backend deploy workflow.",
+        guide:
+          "Set these as GitHub repository variables for the backend deploy workflow.",
         title: "Cloud Run backend GitHub variables",
         variables: CLOUD_RUN_BACKEND_GITHUB_VARIABLES,
       },
       {
-        guide: "Cloudflare Pages project provisioning is complete. The API token is secret and is not printed or stored.",
+        guide:
+          "Cloudflare Pages project provisioning is complete. The API token is secret and is not printed or stored.",
         title: "Cloudflare Pages project",
         variables: CLOUDFLARE_PAGES_PROJECT_HANDOFF_VARIABLES,
       },
       {
-        guide: "Repository variables and Cloudflare secrets were written for the GitHub Actions deploy workflow.",
+        guide:
+          "Repository variables and Cloudflare secrets were written for the GitHub Actions deploy workflow.",
         title: "GitHub repository configuration",
         variables: GITHUB_REPOSITORY_CONFIG_VARIABLES,
       },

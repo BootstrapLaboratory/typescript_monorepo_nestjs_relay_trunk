@@ -25,4 +25,3 @@ export const refreshTokenTransport = cookieRefreshTokenTransport;
 export function getAuthRequestCredentials(): RequestCredentials {
   return refreshTokenTransport.requestCredentials;
 }
-

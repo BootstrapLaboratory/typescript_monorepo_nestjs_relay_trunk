@@ -54,9 +54,12 @@ export function createCloudflarePagesDependency(
         },
       });
 
-      const verifiedProject = await client.pages.projects.get(input.projectName, {
-        account_id: input.accountId,
-      });
+      const verifiedProject = await client.pages.projects.get(
+        input.projectName,
+        {
+          account_id: input.accountId,
+        },
+      );
 
       assertAutomaticDeploymentsDisabled(verifiedProject);
 

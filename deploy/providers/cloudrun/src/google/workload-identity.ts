@@ -9,8 +9,7 @@ const GITHUB_POOL_DISPLAY_NAME = "GitHub Actions Pool";
 
 type GoogleOperation = iam_v1.Schema$Operation;
 type WorkloadIdentityPool = iam_v1.Schema$WorkloadIdentityPool;
-type WorkloadIdentityPoolProvider =
-  iam_v1.Schema$WorkloadIdentityPoolProvider;
+type WorkloadIdentityPoolProvider = iam_v1.Schema$WorkloadIdentityPoolProvider;
 
 type Response<T> = {
   data: T;
@@ -46,7 +45,9 @@ export type WorkloadIdentityPoolOperationsClientLike = {
 
 export type WorkloadIdentityPoolProvidersClientLike = {
   create(request: CreateProviderRequest): Promise<Response<GoogleOperation>>;
-  get(request: GetProviderRequest): Promise<Response<WorkloadIdentityPoolProvider>>;
+  get(
+    request: GetProviderRequest,
+  ): Promise<Response<WorkloadIdentityPoolProvider>>;
   operations: WorkloadIdentityPoolOperationsClientLike;
 };
 
@@ -63,8 +64,7 @@ export type WorkloadIdentityOperationOptions = {
 };
 
 export function createGoogleWorkloadIdentityDependency(
-  pools: WorkloadIdentityPoolsClientLike =
-    createDefaultWorkloadIdentityPoolsClient(),
+  pools: WorkloadIdentityPoolsClientLike = createDefaultWorkloadIdentityPoolsClient(),
   operationOptions: WorkloadIdentityOperationOptions = {},
 ): CloudRunProviderDeps["workloadIdentity"] {
   const waitOptions = resolveOperationOptions(operationOptions);
@@ -173,7 +173,8 @@ function createDefaultWorkloadIdentityPoolsClient(): WorkloadIdentityPoolsClient
   return iam({
     auth: googleAuth,
     version: "v1",
-  }).projects.locations.workloadIdentityPools as WorkloadIdentityPoolsClientLike;
+  }).projects.locations
+    .workloadIdentityPools as WorkloadIdentityPoolsClientLike;
 }
 
 function workloadIdentityProjectNumberLocationParent(input: {

@@ -8,11 +8,14 @@ export const root = style({
   textAlign: "left",
 });
 
-globalStyle(`${root} h1, ${root} h2, ${root} h3, ${root} h4, ${root} h5, ${root} h6`, {
-  margin: `${vars.space[4]} 0 0`,
-  lineHeight: 1.2,
-  fontWeight: 600,
-});
+globalStyle(
+  `${root} h1, ${root} h2, ${root} h3, ${root} h4, ${root} h5, ${root} h6`,
+  {
+    margin: `${vars.space[4]} 0 0`,
+    lineHeight: 1.2,
+    fontWeight: 600,
+  },
+);
 
 globalStyle(`${root} h1`, {
   margin: 0,

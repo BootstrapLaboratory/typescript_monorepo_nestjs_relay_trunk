@@ -31,7 +31,8 @@ export function compileScenarioToXState(scenario, runtime = {}) {
                   `xstate:${scenarioStep.id}:done`,
                 ],
               }),
-              guard: ({ context }) => hasStepOutputs(scenarioStep, context.values),
+              guard: ({ context }) =>
+                hasStepOutputs(scenarioStep, context.values),
               target: "done",
             },
             {

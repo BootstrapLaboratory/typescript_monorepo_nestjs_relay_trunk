@@ -38,8 +38,7 @@ describe("Cloud Run runtime secrets sync", () => {
           "runtime@example-project.iam.gserviceaccount.com",
         DATABASE_URL: "postgres://app:secret@example.test/app",
         DATABASE_URL_DIRECT: "postgres://owner:secret@example.test/app",
-        GCP_SERVICE_ACCOUNT:
-          "deployer@example-project.iam.gserviceaccount.com",
+        GCP_SERVICE_ACCOUNT: "deployer@example-project.iam.gserviceaccount.com",
         PROJECT_ID: "demo-project",
         REDIS_URL: "rediss://default:secret@example.test:6379",
       }).DEPLOYER_SERVICE_ACCOUNT_EMAIL,
@@ -52,9 +51,7 @@ describe("Cloud Run runtime secrets sync", () => {
     const deps: Pick<CloudRunProviderDeps, "secretManager"> = {
       secretManager: {
         async ensureSecretIamBinding(input) {
-          calls.push(
-            `iam:${input.secretName}:${input.member}:${input.role}`,
-          );
+          calls.push(`iam:${input.secretName}:${input.member}:${input.role}`);
         },
         async upsertSecretVersion(input) {
           calls.push(`secret:${input.secretName}:${input.value}`);
@@ -68,8 +65,7 @@ describe("Cloud Run runtime secrets sync", () => {
           "runtime@demo-project.iam.gserviceaccount.com",
         DATABASE_URL: "postgres://app:secret@example.test/app",
         DATABASE_URL_DIRECT: "postgres://owner:secret@example.test/app",
-        GCP_SERVICE_ACCOUNT:
-          "deployer@demo-project.iam.gserviceaccount.com",
+        GCP_SERVICE_ACCOUNT: "deployer@demo-project.iam.gserviceaccount.com",
         PROJECT_ID: "demo-project",
         REDIS_URL: "rediss://default:secret@example.test:6379",
       },

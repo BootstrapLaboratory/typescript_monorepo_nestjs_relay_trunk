@@ -45,10 +45,11 @@ describe("XState-backed scenario runner spike", () => {
     const machine = compileScenarioToXState(createTinyScenario());
 
     assert.equal(machine.id, "tiny-cloud");
-    assert.deepEqual(
-      Object.keys(machine.states),
-      ["step_0", "step_1", "complete"],
-    );
+    assert.deepEqual(Object.keys(machine.states), [
+      "step_0",
+      "step_1",
+      "complete",
+    ]);
   });
 
   it("resumes from a persisted snapshot without re-running completed steps", async () => {

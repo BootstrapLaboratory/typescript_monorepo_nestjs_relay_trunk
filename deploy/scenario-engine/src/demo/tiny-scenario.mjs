@@ -6,7 +6,8 @@ export function createTinyScenario() {
     title: "Tiny Cloud Scenario",
     steps: [
       step({
-        guide: "Collect fake project details and return a generated project number.",
+        guide:
+          "Collect fake project details and return a generated project number.",
         id: "cloud.bootstrap",
         inputs: {
           ADMIN_TOKEN: secret({ label: "Admin token" }),
@@ -19,7 +20,8 @@ export function createTinyScenario() {
         }),
       }),
       step({
-        guide: "Use the generated project number plus a region to create a fake URL.",
+        guide:
+          "Use the generated project number plus a region to create a fake URL.",
         id: "cloud.service",
         inputs: {
           PROJECT_NUMBER: text(),

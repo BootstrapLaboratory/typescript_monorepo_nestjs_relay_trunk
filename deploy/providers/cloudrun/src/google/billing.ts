@@ -2,8 +2,7 @@ import { CloudBillingClient, protos } from "@google-cloud/billing";
 
 import type { CloudRunProviderDeps } from "../types.js";
 
-type ProjectBillingInfo =
-  protos.google.cloud.billing.v1.IProjectBillingInfo;
+type ProjectBillingInfo = protos.google.cloud.billing.v1.IProjectBillingInfo;
 
 export type CloudBillingClientLike = {
   getProjectBillingInfo(request: {
@@ -18,8 +17,7 @@ export type CloudBillingClientLike = {
 };
 
 export function createGoogleBillingDependency(
-  client: CloudBillingClientLike =
-    new CloudBillingClient() as CloudBillingClientLike,
+  client: CloudBillingClientLike = new CloudBillingClient() as CloudBillingClientLike,
 ): CloudRunProviderDeps["billing"] {
   return {
     async linkProject(input) {
@@ -55,5 +53,7 @@ export function billingAccountResourceName(billingAccountId: string): string {
 }
 
 export function billingProjectResourceName(projectId: string): string {
-  return projectId.startsWith("projects/") ? projectId : `projects/${projectId}`;
+  return projectId.startsWith("projects/")
+    ? projectId
+    : `projects/${projectId}`;
 }

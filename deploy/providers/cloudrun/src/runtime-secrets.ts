@@ -71,7 +71,8 @@ export function resolveSyncCloudRunRuntimeSecretsInput(
       input.GCP_SERVICE_ACCOUNT ??
       input.DEPLOYER_SERVICE_ACCOUNT_EMAIL ??
       serviceAccountEmail({
-        accountId: input.DEPLOYER_SERVICE_ACCOUNT_ID ?? "github-actions-deployer",
+        accountId:
+          input.DEPLOYER_SERVICE_ACCOUNT_ID ?? "github-actions-deployer",
         projectId: input.PROJECT_ID,
       }),
     PROJECT_ID: input.PROJECT_ID,

@@ -187,15 +187,18 @@ describe("Google Secret Manager dependency", () => {
     });
 
     assert.equal(
-      (client.setIamPolicyCalls[0]?.policy as { bindings?: unknown[] })
-        .bindings?.length,
+      (client.setIamPolicyCalls[0]?.policy as { bindings?: unknown[] }).bindings
+        ?.length,
       2,
     );
   });
 
   it("formats resource names", () => {
     assert.equal(projectParent("demo-project"), "projects/demo-project");
-    assert.equal(projectParent("projects/demo-project"), "projects/demo-project");
+    assert.equal(
+      projectParent("projects/demo-project"),
+      "projects/demo-project",
+    );
     assert.equal(
       secretResourceName({
         projectId: "demo-project",
@@ -226,7 +229,9 @@ class FakeSecretManagerClient implements SecretManagerClientLike {
       value: request.payload.data.toString("utf8"),
     });
 
-    return [{}] satisfies Awaited<ReturnType<SecretManagerClientLike["addSecretVersion"]>>;
+    return [{}] satisfies Awaited<
+      ReturnType<SecretManagerClientLike["addSecretVersion"]>
+    >;
   }
 
   async createSecret(request: {
@@ -244,11 +249,15 @@ class FakeSecretManagerClient implements SecretManagerClientLike {
     });
     this.secrets[request.secretId] = {};
 
-    return [{}] satisfies Awaited<ReturnType<SecretManagerClientLike["createSecret"]>>;
+    return [{}] satisfies Awaited<
+      ReturnType<SecretManagerClientLike["createSecret"]>
+    >;
   }
 
   async getIamPolicy() {
-    return [this.policy] satisfies Awaited<ReturnType<SecretManagerClientLike["getIamPolicy"]>>;
+    return [this.policy] satisfies Awaited<
+      ReturnType<SecretManagerClientLike["getIamPolicy"]>
+    >;
   }
 
   async getSecret(request: { name: string }) {
@@ -265,13 +274,17 @@ class FakeSecretManagerClient implements SecretManagerClientLike {
       });
     }
 
-    return [secret] satisfies Awaited<ReturnType<SecretManagerClientLike["getSecret"]>>;
+    return [secret] satisfies Awaited<
+      ReturnType<SecretManagerClientLike["getSecret"]>
+    >;
   }
 
   async setIamPolicy(request: { policy: object; resource: string }) {
     this.policy = request.policy;
     this.setIamPolicyCalls.push(request);
 
-    return [request.policy] satisfies Awaited<ReturnType<SecretManagerClientLike["setIamPolicy"]>>;
+    return [request.policy] satisfies Awaited<
+      ReturnType<SecretManagerClientLike["setIamPolicy"]>
+    >;
   }
 }

@@ -82,11 +82,7 @@ function Header() {
           <img src={nestLogo} className={styles.logo} alt="NestJS logo" />
         </a>
         <a href="https://rushstack.io/" target="_blank">
-          <img
-            src={rushStackLogo}
-            className={styles.logo}
-            alt="Rush logo"
-          />
+          <img src={rushStackLogo} className={styles.logo} alt="Rush logo" />
         </a>
         <a href="https://trunk.io/" target="_blank">
           <img src={trunkLogo} className={styles.logo} alt="Trunk.io logo" />

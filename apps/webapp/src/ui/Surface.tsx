@@ -4,12 +4,7 @@ import { surface, type SurfaceVariants } from "./Surface.css";
 
 type SurfaceProps = ComponentPropsWithoutRef<"div"> & SurfaceVariants;
 
-export function Surface({
-  className,
-  tone,
-  children,
-  ...props
-}: SurfaceProps) {
+export function Surface({ className, tone, children, ...props }: SurfaceProps) {
   return (
     <div className={cx(surface({ tone }), className)} {...props}>
       {children}

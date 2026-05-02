@@ -56,8 +56,7 @@ export function createCloudRunBootstrapStep(options = {}) {
       }
 
       const provider = options.provider ?? (await loadDefaultProvider());
-      const deps =
-        options.deps ?? provider.createGoogleCloudRunProviderDeps();
+      const deps = options.deps ?? provider.createGoogleCloudRunProviderDeps();
 
       for (;;) {
         try {

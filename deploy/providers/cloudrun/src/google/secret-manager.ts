@@ -34,8 +34,7 @@ export type SecretManagerClientLike = {
 };
 
 export function createGoogleSecretManagerDependency(
-  client: SecretManagerClientLike =
-    new v1.SecretManagerServiceClient() as unknown as SecretManagerClientLike,
+  client: SecretManagerClientLike = new v1.SecretManagerServiceClient() as unknown as SecretManagerClientLike,
 ): CloudRunProviderDeps["secretManager"] {
   return {
     async ensureSecretIamBinding(input) {
@@ -97,7 +96,9 @@ export function createGoogleSecretManagerDependency(
 }
 
 export function projectParent(projectId: string): string {
-  return projectId.startsWith("projects/") ? projectId : `projects/${projectId}`;
+  return projectId.startsWith("projects/")
+    ? projectId
+    : `projects/${projectId}`;
 }
 
 export function secretResourceName(input: {

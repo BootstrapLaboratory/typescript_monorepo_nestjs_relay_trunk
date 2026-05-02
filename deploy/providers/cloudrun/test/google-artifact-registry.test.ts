@@ -286,7 +286,9 @@ class FakeArtifactRegistryClient implements ArtifactRegistryClientLike {
           ] as [{ name: string }];
         },
       },
-    ] satisfies Awaited<ReturnType<ArtifactRegistryClientLike["createRepository"]>>;
+    ] satisfies Awaited<
+      ReturnType<ArtifactRegistryClientLike["createRepository"]>
+    >;
   }
 
   async getRepository(request: { name: string }) {

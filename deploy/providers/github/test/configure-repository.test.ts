@@ -101,9 +101,7 @@ function validInput() {
     GCP_WORKLOAD_IDENTITY_PROVIDER:
       "projects/123/locations/global/workloadIdentityPools/github-actions/providers/github",
     GITHUB_REPOSITORY: "BeltOrg/beltapp",
-    WEBAPP_VITE_GRAPHQL_HTTP:
-      "https://api-123.europe-west4.run.app/graphql",
-    WEBAPP_VITE_GRAPHQL_WS:
-      "wss://api-123.europe-west4.run.app/graphql",
+    WEBAPP_VITE_GRAPHQL_HTTP: "https://api-123.europe-west4.run.app/graphql",
+    WEBAPP_VITE_GRAPHQL_WS: "wss://api-123.europe-west4.run.app/graphql",
   };
 }

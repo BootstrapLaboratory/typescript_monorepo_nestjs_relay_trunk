@@ -101,9 +101,7 @@ function createRecordingDeps(calls: string[]): CloudRunProviderDeps {
         );
       },
       async ensureRepositoryIamBinding(input) {
-        calls.push(
-          `artifactRegistry.ensureRepositoryIamBinding:${input.role}`,
-        );
+        calls.push(`artifactRegistry.ensureRepositoryIamBinding:${input.role}`);
       },
     },
     billing: {

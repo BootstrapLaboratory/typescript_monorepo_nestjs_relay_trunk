@@ -66,23 +66,25 @@ export async function bootstrapCloudRun(
     projectId: resolved.PROJECT_ID,
   });
 
-  const workloadIdentity = await deps.workloadIdentity.ensureGithubOidcProvider({
-    attributeCondition: `assertion.repository == '${resolved.GITHUB_REPOSITORY}'`,
-    attributeMapping: {
-      "attribute.actor": "assertion.actor",
-      "attribute.ref": "assertion.ref",
-      "attribute.repository": "assertion.repository",
-      "attribute.repository_owner": "assertion.repository_owner",
-      "google.subject": "assertion.sub",
+  const workloadIdentity = await deps.workloadIdentity.ensureGithubOidcProvider(
+    {
+      attributeCondition: `assertion.repository == '${resolved.GITHUB_REPOSITORY}'`,
+      attributeMapping: {
+        "attribute.actor": "assertion.actor",
+        "attribute.ref": "assertion.ref",
+        "attribute.repository": "assertion.repository",
+        "attribute.repository_owner": "assertion.repository_owner",
+        "google.subject": "assertion.sub",
+      },
+      displayName: "GitHub repository provider",
+      issuerUri: "https://token.actions.githubusercontent.com",
+      location: "global",
+      poolId: resolved.WIF_POOL_ID,
+      projectId: resolved.PROJECT_ID,
+      projectNumber,
+      providerId: resolved.WIF_PROVIDER_ID,
     },
-    displayName: "GitHub repository provider",
-    issuerUri: "https://token.actions.githubusercontent.com",
-    location: "global",
-    poolId: resolved.WIF_POOL_ID,
-    projectId: resolved.PROJECT_ID,
-    projectNumber,
-    providerId: resolved.WIF_PROVIDER_ID,
-  });
+  );
 
   await deps.iam.ensureServiceAccountIamBinding({
     member: `principalSet://iam.googleapis.com/${workloadIdentity.poolName}/attribute.repository/${resolved.GITHUB_REPOSITORY}`,

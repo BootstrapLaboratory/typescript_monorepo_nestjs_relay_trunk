@@ -17,7 +17,9 @@ export type ProjectsClientLike = {
       projectId: string;
     };
   }): Promise<[ProjectOperation, unknown?, unknown?]>;
-  getProject(request: { name: string }): Promise<[GoogleProject, unknown?, unknown?]>;
+  getProject(request: {
+    name: string;
+  }): Promise<[GoogleProject, unknown?, unknown?]>;
 };
 
 export function createGoogleProjectsDependency(
@@ -53,7 +55,9 @@ export function createGoogleProjectsDependency(
                   `Google Cloud project ID "${input.projectId}" belongs to a deleted project and cannot be reused yet.`,
                   "Rerun the scenario with --fresh to generate a new project ID,",
                   "or provide a different PROJECT_ID.",
-                  error instanceof Error ? `Cause: ${error.message}` : undefined,
+                  error instanceof Error
+                    ? `Cause: ${error.message}`
+                    : undefined,
                 ]
                   .filter((line) => line !== undefined)
                   .join("\n")
@@ -64,7 +68,9 @@ export function createGoogleProjectsDependency(
                   "`gcloud auth application-default revoke`",
                   "`gcloud auth application-default login --disable-quota-project`",
                   "Then rerun the scenario.",
-                  error instanceof Error ? `Cause: ${error.message}` : undefined,
+                  error instanceof Error
+                    ? `Cause: ${error.message}`
+                    : undefined,
                 ]
                   .filter((line) => line !== undefined)
                   .join("\n"),
@@ -102,14 +108,18 @@ export function projectNumberFromName(name: null | string | undefined): string {
   const projectNumber = match?.groups?.projectNumber;
 
   if (projectNumber === undefined) {
-    throw new Error(`Project response did not include a numeric resource name.`);
+    throw new Error(
+      `Project response did not include a numeric resource name.`,
+    );
   }
 
   return projectNumber;
 }
 
 function projectResourceName(projectId: string): string {
-  return projectId.startsWith("projects/") ? projectId : `projects/${projectId}`;
+  return projectId.startsWith("projects/")
+    ? projectId
+    : `projects/${projectId}`;
 }
 
 function isNotFoundError(error: unknown): boolean {
@@ -167,6 +177,8 @@ function deletedProjectIdFromError(error: unknown): string | undefined {
     return undefined;
   }
 
-  const match = maybeError.message.match(/Project (?<projectId>[a-z][a-z0-9-]+) has been deleted/i);
+  const match = maybeError.message.match(
+    /Project (?<projectId>[a-z][a-z0-9-]+) has been deleted/i,
+  );
   return match?.groups?.projectId;
 }

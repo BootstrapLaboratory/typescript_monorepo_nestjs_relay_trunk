@@ -10,7 +10,11 @@ import { cx } from "../ui/classNames";
 import { SelectField, type SelectFieldOption } from "../ui/SelectField";
 import * as styles from "./AppShell.css";
 import { PendingState } from "../ui/StatusState";
-import { THEME_NAMES, themeLabelByName, type ThemeName } from "../ui/themes.css";
+import {
+  THEME_NAMES,
+  themeLabelByName,
+  type ThemeName,
+} from "../ui/themes.css";
 
 const themeOptions: ReadonlyArray<SelectFieldOption<ThemeName>> =
   THEME_NAMES.map((name) => ({

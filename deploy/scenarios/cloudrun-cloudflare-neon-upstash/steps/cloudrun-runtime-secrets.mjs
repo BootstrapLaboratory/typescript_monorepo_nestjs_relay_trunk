@@ -50,8 +50,7 @@ export function createCloudRunRuntimeSecretsStep(options = {}) {
       }
 
       const provider = options.provider ?? (await loadDefaultProvider());
-      const deps =
-        options.deps ?? provider.createGoogleCloudRunProviderDeps();
+      const deps = options.deps ?? provider.createGoogleCloudRunProviderDeps();
 
       return await provider.syncCloudRunRuntimeSecrets(input, deps);
     },

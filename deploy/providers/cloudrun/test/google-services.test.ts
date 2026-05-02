@@ -107,10 +107,7 @@ class FakeServiceUsageClient implements ServiceUsageClientLike {
     name: string;
   }> = [];
 
-  async batchEnableServices(request: {
-    parent: string;
-    serviceIds: string[];
-  }) {
+  async batchEnableServices(request: { parent: string; serviceIds: string[] }) {
     this.batchEnableServicesCalls.push(request);
     return [this.operation()] satisfies Awaited<
       ReturnType<ServiceUsageClientLike["batchEnableServices"]>

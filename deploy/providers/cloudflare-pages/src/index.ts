@@ -17,9 +17,5 @@ export type {
   PrepareCloudflarePagesProjectOutput,
   ResolvedPrepareCloudflarePagesProjectInput,
 } from "./types.js";
-export type {
-  CloudflarePagesClientLike,
-} from "./cloudflare/pages.js";
-export type {
-  CloudflarePagesProviderDepsFactories,
-} from "./cloudflare/deps.js";
+export type { CloudflarePagesClientLike } from "./cloudflare/pages.js";
+export type { CloudflarePagesProviderDepsFactories } from "./cloudflare/deps.js";

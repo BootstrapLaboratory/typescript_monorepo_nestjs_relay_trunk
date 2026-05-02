@@ -65,6 +65,7 @@ Start from [../../config/.env.example](../../config/.env.example). Copy it to
 `deploy/cloudrun/config/.env` and fill the deployment values.
 
 1. Prepare the shared deploy config.
+
    - `PROJECT_ID`: Google Cloud project id.
    - `PROJECT_NAME`: display name, usually the same as `PROJECT_ID`.
    - `GITHUB_REPOSITORY`: owner/name repository slug.
