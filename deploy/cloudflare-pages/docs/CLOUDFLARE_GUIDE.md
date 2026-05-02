@@ -207,20 +207,21 @@ Important:
 
 - `WEBAPP_VITE_GRAPHQL_HTTP` must be an absolute `https://` URL
 - `WEBAPP_VITE_GRAPHQL_WS` must be an absolute `wss://` URL
-- do not use the placeholder `api.example.com` values from [../../../apps/webapp/.env.production](../../../apps/webapp/.env.production)
+- do not use provider endpoint placeholders or commented examples from
+  [../../../apps/webapp/.env.production](../../../apps/webapp/.env.production)
 - do not forget to append `/graphql`
 
 If your real backend URL is currently:
 
 ```text
-https://api-32lgreeilq-ez.a.run.app/
+https://api-3youg5ycea-ez.a.run.app/
 ```
 
 then the exact GitHub variables are:
 
 ```dotenv
-WEBAPP_VITE_GRAPHQL_HTTP=https://api-32lgreeilq-ez.a.run.app/graphql
-WEBAPP_VITE_GRAPHQL_WS=wss://api-32lgreeilq-ez.a.run.app/graphql
+WEBAPP_VITE_GRAPHQL_HTTP=https://api-3youg5ycea-ez.a.run.app/graphql
+WEBAPP_VITE_GRAPHQL_WS=wss://api-3youg5ycea-ez.a.run.app/graphql
 ```
 
 These values are consumed by:
