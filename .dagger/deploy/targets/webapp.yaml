@@ -19,8 +19,6 @@ runtime:
     - CLOUDFLARE_API_TOKEN
     - CLOUDFLARE_PAGES_PROJECT_NAME
     - WEBAPP_URL
-    - VITE_GRAPHQL_HTTP
-    - VITE_GRAPHQL_WS
     - WEBAPP_VITE_GRAPHQL_HTTP
     - WEBAPP_VITE_GRAPHQL_WS
 
@@ -30,7 +28,5 @@ runtime:
     CLOUDFLARE_API_TOKEN: dry-run-token
     CLOUDFLARE_PAGES_PROJECT_NAME: webapp
     WEBAPP_URL: https://webapp.pages.dev
-    VITE_GRAPHQL_HTTP: https://api.example.invalid/graphql
-    VITE_GRAPHQL_WS: wss://api.example.invalid/graphql
     WEBAPP_VITE_GRAPHQL_HTTP: https://api.example.invalid/graphql
     WEBAPP_VITE_GRAPHQL_WS: wss://api.example.invalid/graphql
