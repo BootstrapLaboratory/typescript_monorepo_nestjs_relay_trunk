@@ -75,9 +75,9 @@ Production and preparation:
 
 The release model has two production deploy targets:
 
-| Target | Runtime | Package shape | Deploy path |
-| --- | --- | --- | --- |
-| `server` | NestJS backend on Cloud Run | Rush deploy archive | `deploy/cloudrun` scripts |
+| Target   | Runtime                               | Package shape                | Deploy path                       |
+| -------- | ------------------------------------- | ---------------------------- | --------------------------------- |
+| `server` | NestJS backend on Cloud Run           | Rush deploy archive          | `deploy/cloudrun` scripts         |
 | `webapp` | Static Vite build on Cloudflare Pages | `apps/webapp/dist` directory | `deploy/cloudflare-pages` scripts |
 
 The deploy mesh orders `webapp` after `server` because the frontend is built

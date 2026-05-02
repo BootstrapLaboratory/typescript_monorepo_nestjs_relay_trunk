@@ -42,8 +42,8 @@ docs/tutorial/
 Use relative links for repository-local documents. Link to Rush Delivery as an
 external reference:
 
-- https://bootstraplaboratory.github.io/rush-delivery/
-- https://bootstraplaboratory.github.io/rush-delivery/docs/tutorial/
+- [Rush Delivery](https://bootstraplaboratory.github.io/rush-delivery/)
+- [Rush Delivery tutorial](https://bootstraplaboratory.github.io/rush-delivery/docs/tutorial/)
 
 ## Style Principles
 

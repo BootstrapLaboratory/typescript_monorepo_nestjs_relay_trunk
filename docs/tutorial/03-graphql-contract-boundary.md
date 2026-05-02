@@ -28,11 +28,11 @@ API from live server introspection during normal builds.
 
 That gives each side a clear job:
 
-| Layer | Responsibility |
-| --- | --- |
+| Layer         | Responsibility                                               |
+| ------------- | ------------------------------------------------------------ |
 | `apps/server` | Define resolvers, models, inputs, scalars, and auth behavior |
-| `libs/api` | Store the generated `schema.gql` contract |
-| `apps/webapp` | Compile Relay operations against `schema.gql` |
+| `libs/api`    | Store the generated `schema.gql` contract                    |
+| `apps/webapp` | Compile Relay operations against `schema.gql`                |
 
 The contract package stays intentionally tiny. It is not a shared runtime
 library, DTO package, or place for hand-written API helpers. Its purpose is to

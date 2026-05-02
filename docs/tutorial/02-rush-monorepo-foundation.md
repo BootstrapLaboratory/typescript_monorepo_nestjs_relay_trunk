@@ -13,22 +13,22 @@ shape.
 
 `rush.json` declares every Rush project. The important product projects are:
 
-| Package | Folder | Role |
-| --- | --- | --- |
-| `server` | `apps/server` | NestJS backend |
-| `webapp` | `apps/webapp` | React/Vite frontend |
-| `api-contract` | `libs/api` | Shared GraphQL schema package |
+| Package        | Folder        | Role                          |
+| -------------- | ------------- | ----------------------------- |
+| `server`       | `apps/server` | NestJS backend                |
+| `webapp`       | `apps/webapp` | React/Vite frontend           |
+| `api-contract` | `libs/api`    | Shared GraphQL schema package |
 
 The deployment and setup tools are also Rush projects:
 
-| Package | Folder | Role |
-| --- | --- | --- |
-| `deploy-scenario-engine` | `deploy/scenario-engine` | Generic scenario DSL and runner |
-| `deploy-scenario-cloudrun-cloudflare-neon-upstash` | `deploy/scenarios/cloudrun-cloudflare-neon-upstash` | Concrete production setup scenario |
-| `deploy-wizard` | `deploy/wizard` | CLI host for scenarios |
-| `deploy-provider-cloudrun` | `deploy/providers/cloudrun` | Typed Cloud Run preparation functions |
-| `deploy-provider-cloudflare-pages` | `deploy/providers/cloudflare-pages` | Typed Cloudflare Pages preparation functions |
-| `deploy-provider-github` | `deploy/providers/github` | GitHub repository configuration functions |
+| Package                                            | Folder                                              | Role                                         |
+| -------------------------------------------------- | --------------------------------------------------- | -------------------------------------------- |
+| `deploy-scenario-engine`                           | `deploy/scenario-engine`                            | Generic scenario DSL and runner              |
+| `deploy-scenario-cloudrun-cloudflare-neon-upstash` | `deploy/scenarios/cloudrun-cloudflare-neon-upstash` | Concrete production setup scenario           |
+| `deploy-wizard`                                    | `deploy/wizard`                                     | CLI host for scenarios                       |
+| `deploy-provider-cloudrun`                         | `deploy/providers/cloudrun`                         | Typed Cloud Run preparation functions        |
+| `deploy-provider-cloudflare-pages`                 | `deploy/providers/cloudflare-pages`                 | Typed Cloudflare Pages preparation functions |
+| `deploy-provider-github`                           | `deploy/providers/github`                           | GitHub repository configuration functions    |
 
 That second group is important. Deployment preparation is code, and code needs
 dependencies, tests, and ownership. Making provider and scenario packages Rush

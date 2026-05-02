@@ -51,11 +51,11 @@ identity module depend on Apollo-specific wiring.
 
 The current main server modules are:
 
-| Module | Owns |
-| --- | --- |
-| `chat` | message entity, GraphQL message model/input, resolver, service, mapper, pub/sub |
-| `identity` | provider registry, local credentials, users, roles, refresh sessions, token signing, auth mutations |
-| `access-control` | bearer parsing, GraphQL auth guard, roles guard, principal decorators, public operation metadata |
+| Module           | Owns                                                                                                |
+| ---------------- | --------------------------------------------------------------------------------------------------- |
+| `chat`           | message entity, GraphQL message model/input, resolver, service, mapper, pub/sub                     |
+| `identity`       | provider registry, local credentials, users, roles, refresh sessions, token signing, auth mutations |
+| `access-control` | bearer parsing, GraphQL auth guard, roles guard, principal decorators, public operation metadata    |
 
 The pattern is feature-first. Chat files stay together because they change
 together. Identity files stay together because login, registration, refresh

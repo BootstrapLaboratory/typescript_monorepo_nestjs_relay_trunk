@@ -46,16 +46,16 @@ that shell.
 
 This gives the app a clean split:
 
-| Layer | Owns |
-| --- | --- |
-| `src/main.tsx` | browser mount and global recovery hooks |
-| `src/app/AppProviders.tsx` | top-level providers and boot-time effects |
-| `src/app/router.tsx` | route tree, route loaders, router context |
-| `src/app/AppShell.tsx` | persistent navigation shell |
-| `src/routes` | route adapters only |
-| `src/features` | page composition, feature components, Relay documents, feature assets |
-| `src/shared` | reusable browser transport and state modules |
-| `src/ui` | design tokens and reusable controls |
+| Layer                      | Owns                                                                  |
+| -------------------------- | --------------------------------------------------------------------- |
+| `src/main.tsx`             | browser mount and global recovery hooks                               |
+| `src/app/AppProviders.tsx` | top-level providers and boot-time effects                             |
+| `src/app/router.tsx`       | route tree, route loaders, router context                             |
+| `src/app/AppShell.tsx`     | persistent navigation shell                                           |
+| `src/routes`               | route adapters only                                                   |
+| `src/features`             | page composition, feature components, Relay documents, feature assets |
+| `src/shared`               | reusable browser transport and state modules                          |
+| `src/ui`                   | design tokens and reusable controls                                   |
 
 ## Routes Stay Thin
 
@@ -85,12 +85,12 @@ Feature folders are where product behavior becomes visible UI.
 
 The current feature shape is:
 
-| Feature | Owns |
-| --- | --- |
-| `auth` | auth page, auth form, login/register Relay mutations, auth mode parsing |
-| `chat` | chat page, message list, composer, message fragments, query, mutation, subscription, stack assets |
-| `project-info` | README-backed info page and Markdown rendering |
-| `navigation` | navigation-adjacent pages such as not found |
+| Feature        | Owns                                                                                              |
+| -------------- | ------------------------------------------------------------------------------------------------- |
+| `auth`         | auth page, auth form, login/register Relay mutations, auth mode parsing                           |
+| `chat`         | chat page, message list, composer, message fragments, query, mutation, subscription, stack assets |
+| `project-info` | README-backed info page and Markdown rendering                                                    |
+| `navigation`   | navigation-adjacent pages such as not found                                                       |
 
 Feature folders use recurring internal folders when they need them:
 
@@ -155,14 +155,14 @@ connection state.
 
 The `src/shared` folder owns browser behavior that is not a single feature:
 
-| Shared area | Owns |
-| --- | --- |
-| `auth` | auth session state, boot refresh, logout, refresh-token transport, auth errors |
-| `graphql` | endpoint resolution for HTTP and WS URLs |
-| `relay` | Relay environment and store helpers |
-| `realtime` | websocket retry and status state |
-| `theme` | persisted theme selection and document theme class |
-| `vite` | stale chunk preload recovery |
+| Shared area | Owns                                                                           |
+| ----------- | ------------------------------------------------------------------------------ |
+| `auth`      | auth session state, boot refresh, logout, refresh-token transport, auth errors |
+| `graphql`   | endpoint resolution for HTTP and WS URLs                                       |
+| `relay`     | Relay environment and store helpers                                            |
+| `realtime`  | websocket retry and status state                                               |
+| `theme`     | persisted theme selection and document theme class                             |
+| `vite`      | stale chunk preload recovery                                                   |
 
 The rule is practical: if a behavior affects multiple features or the whole
 browser runtime, put it in `src/shared`. If it is product-specific to one

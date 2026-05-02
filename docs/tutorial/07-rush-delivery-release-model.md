@@ -28,13 +28,13 @@ inside the repository.
 
 The consequence is a cleaner split:
 
-| Layer | Owns |
-| --- | --- |
-| Rush | project graph, dependency installation, bulk commands |
-| Project scripts | build, lint, test, schema generation, deploy scripts |
+| Layer              | Owns                                                                |
+| ------------------ | ------------------------------------------------------------------- |
+| Rush               | project graph, dependency installation, bulk commands               |
+| Project scripts    | build, lint, test, schema generation, deploy scripts                |
 | `.dagger` metadata | target packaging, deploy runtime shape, deploy ordering, validation |
-| GitHub Actions | trigger, permissions, provider authentication, input values |
-| Rush Delivery | release stages, Dagger isolation, target detection, orchestration |
+| GitHub Actions     | trigger, permissions, provider authentication, input values         |
+| Rush Delivery      | release stages, Dagger isolation, target detection, orchestration   |
 
 That keeps CI from becoming a long procedural script.
 
@@ -98,14 +98,14 @@ Rush Delivery treats `.dagger` as this repository's release contract.
 
 The important metadata groups are:
 
-| Path | Purpose |
-| --- | --- |
-| `.dagger/package/targets` | how each deploy artifact is materialized |
-| `.dagger/deploy/targets` | how each deploy target runs |
-| `.dagger/deploy/services-mesh.yaml` | deploy ordering between targets |
-| `.dagger/validate/targets` | target-specific validation services and steps |
-| `.dagger/rush-cache/providers.yaml` | reusable Rush install cache providers |
-| `.dagger/toolchain-images/providers.yaml` | reusable toolchain image providers |
+| Path                                      | Purpose                                       |
+| ----------------------------------------- | --------------------------------------------- |
+| `.dagger/package/targets`                 | how each deploy artifact is materialized      |
+| `.dagger/deploy/targets`                  | how each deploy target runs                   |
+| `.dagger/deploy/services-mesh.yaml`       | deploy ordering between targets               |
+| `.dagger/validate/targets`                | target-specific validation services and steps |
+| `.dagger/rush-cache/providers.yaml`       | reusable Rush install cache providers         |
+| `.dagger/toolchain-images/providers.yaml` | reusable toolchain image providers            |
 
 Metadata stays framework-generic. It does not say "run this one GitHub job."
 It says what the target needs: package shape, deploy script, runtime

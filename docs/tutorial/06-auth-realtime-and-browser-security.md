@@ -21,9 +21,9 @@ multi-instance deployment.
 
 The server issues two token types:
 
-| Token | Shape | Browser storage | Server behavior |
-| --- | --- | --- | --- |
-| Access token | signed JWT | memory only | verified on GraphQL HTTP requests and WS connects |
+| Token         | Shape               | Browser storage            | Server behavior                                     |
+| ------------- | ------------------- | -------------------------- | --------------------------------------------------- |
+| Access token  | signed JWT          | memory only                | verified on GraphQL HTTP requests and WS connects   |
 | Refresh token | opaque random token | HttpOnly cookie by default | hashed in PostgreSQL, rotated on refresh, revocable |
 
 Access tokens are short-lived bearer secrets. The webapp stores the current
@@ -46,10 +46,10 @@ it.
 
 The server supports two refresh-token transports:
 
-| Transport | Intended use | Tradeoff |
-| --- | --- | --- |
-| `cookie` | browser production default | safest for browsers, requires credentialed CORS |
-| `response_body` | tests, CLI clients, native clients, intentionally cookie-free clients | client code receives the refresh token |
+| Transport       | Intended use                                                          | Tradeoff                                        |
+| --------------- | --------------------------------------------------------------------- | ----------------------------------------------- |
+| `cookie`        | browser production default                                            | safest for browsers, requires credentialed CORS |
+| `response_body` | tests, CLI clients, native clients, intentionally cookie-free clients | client code receives the refresh token          |
 
 The webapp is currently built around cookie transport. Its refresh-token
 transport module sends GraphQL auth requests with `credentials: "include"` and
@@ -187,13 +187,13 @@ so this path is exercised before deployment.
 
 Cookie refresh transport ties together several values:
 
-| Concern | Setting |
-| --- | --- |
-| Browser origin allowed by backend | `CORS_ORIGIN` |
-| Server GraphQL path | `GRAPHQL_PATH` |
-| Refresh cookie path | `AUTH_REFRESH_COOKIE_PATH` |
-| Webapp HTTP endpoint | `VITE_GRAPHQL_HTTP` from `WEBAPP_VITE_GRAPHQL_HTTP` |
-| Webapp WS endpoint | `VITE_GRAPHQL_WS` from `WEBAPP_VITE_GRAPHQL_WS` |
+| Concern                           | Setting                                             |
+| --------------------------------- | --------------------------------------------------- |
+| Browser origin allowed by backend | `CORS_ORIGIN`                                       |
+| Server GraphQL path               | `GRAPHQL_PATH`                                      |
+| Refresh cookie path               | `AUTH_REFRESH_COOKIE_PATH`                          |
+| Webapp HTTP endpoint              | `VITE_GRAPHQL_HTTP` from `WEBAPP_VITE_GRAPHQL_HTTP` |
+| Webapp WS endpoint                | `VITE_GRAPHQL_WS` from `WEBAPP_VITE_GRAPHQL_WS`     |
 
 For production browser auth, `CORS_ORIGIN` should be the exact Cloudflare Pages
 origin or custom frontend domain. Credentialed browser requests cannot safely
