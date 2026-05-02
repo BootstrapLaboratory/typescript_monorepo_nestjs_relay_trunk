@@ -98,10 +98,10 @@ external reference:
 
 ## Phase 3: App Contract And Runtime Architecture
 
-- [ ] Write `03-graphql-contract-boundary.md` explaining why `libs/api` exists,
+- [x] Write `03-graphql-contract-boundary.md` explaining why `libs/api` exists,
       how the server generates `schema.gql`, how Relay consumes it, and how
       drift is detected.
-- [ ] Write `04-server-architecture.md` explaining NestJS, Fastify, Apollo
+- [x] Write `04-server-architecture.md` explaining NestJS, Fastify, Apollo
       GraphQL, TypeORM/Postgres, migrations, identity, access control, Redis
       pub/sub, and feature module boundaries.
 - [ ] Write `05-webapp-architecture.md` explaining React, Vite, Relay,
