@@ -6,10 +6,10 @@ and where provider-specific behavior belongs.
 
 The project has two production deploy targets:
 
-| Target   | Runtime product | Provider         | Artifact shape                  |
-| -------- | --------------- | ---------------- | ------------------------------- |
-| `server` | NestJS backend  | Cloud Run        | Rush deploy archive             |
-| `webapp` | Vite static app | Cloudflare Pages | built `apps/webapp/dist` folder |
+| Target   | Runtime product                      | Provider         | Artifact shape                  |
+| -------- | ------------------------------------ | ---------------- | ------------------------------- |
+| `server` | NestJS backend                       | Cloud Run        | Rush deploy archive             |
+| `webapp` | Vite static app plus Docusaurus docs | Cloudflare Pages | built `apps/webapp/dist` folder |
 
 Those targets are intentionally different. The backend deploys as a container
 with migrations, Secret Manager access, Redis-backed pub/sub, and a post-deploy
@@ -71,15 +71,17 @@ For `webapp`, the artifact is:
 apps/webapp/dist
 ```
 
-That is the right shape for a static app. Vite has already turned source files,
-Relay artifacts, CSS, and assets into browser-ready files. Cloudflare Pages
-does not need the monorepo. It needs the built directory.
+That is the right shape for a static frontend artifact. Vite has already turned
+source files, Relay artifacts, CSS, and assets into browser-ready files.
+Docusaurus has already turned the tutorial Markdown into static docs under
+`dist/docs`. Cloudflare Pages does not need the monorepo. It needs the merged
+built directory.
 
 The consequence is that each deploy target receives the smallest artifact that
 matches its runtime model:
 
 - the server receives a backend deploy tree
-- the webapp receives static assets
+- the webapp receives static assets for both `/` and `/docs/`
 
 ## Build-Time Versus Deploy-Time Environment
 

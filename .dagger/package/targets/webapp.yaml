@@ -8,9 +8,12 @@ artifact:
 
 build:
   map_env:
+    DOCS_APP_URL: WEBAPP_URL
+    DOCS_SITE_URL: WEBAPP_URL
     VITE_GRAPHQL_HTTP: WEBAPP_VITE_GRAPHQL_HTTP
     VITE_GRAPHQL_WS: WEBAPP_VITE_GRAPHQL_WS
 
   dry_run_defaults:
+    WEBAPP_URL: https://webapp.pages.dev
     WEBAPP_VITE_GRAPHQL_HTTP: https://api.example.invalid/graphql
     WEBAPP_VITE_GRAPHQL_WS: wss://api.example.invalid/graphql

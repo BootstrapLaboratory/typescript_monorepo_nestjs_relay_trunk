@@ -291,7 +291,15 @@ npm run webapp:build:pages
 
 That helper requires `VITE_GRAPHQL_HTTP` and `VITE_GRAPHQL_WS`, rejects
 placeholder production endpoints, runs a Rush install unless told not to, and
-builds the `webapp` project.
+builds the `webapp` project. Because `webapp` depends on `docs-site`, the
+Docusaurus docs build runs first and is copied into `apps/webapp/dist/docs`.
+
+For documentation-only work, the focused local commands are:
+
+```text
+npm run docs:dev
+npm run docs:build
+```
 
 For local backend image validation, the root script:
 
@@ -333,6 +341,10 @@ npm --prefix apps/server run migration:run
 
 When the change touches production webapp endpoints, run a production-style
 webapp build with real `VITE_GRAPHQL_HTTP` and `VITE_GRAPHQL_WS` values.
+
+When the change touches the published docs site, run `npm run docs:build` or a
+full `npm run rush -- build --to webapp` to verify that the docs still compose
+into the Cloudflare Pages artifact.
 
 When the change touches Rush Delivery metadata, run the metadata contract
 validator before relying on the full workflow.

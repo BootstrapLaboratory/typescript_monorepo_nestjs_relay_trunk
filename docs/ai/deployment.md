@@ -27,7 +27,9 @@ This repository deploys through Rush Delivery and GitHub Actions.
 Current deploy targets:
 
 - `server`: NestJS backend deployed to Cloud Run.
-- `webapp`: React/Vite frontend deployed to Cloudflare Pages.
+- `webapp`: React/Vite frontend deployed to Cloudflare Pages. Its static
+  artifact also includes the Docusaurus `docs-site` Rush project under
+  `/docs/`.
 
 Provider-specific AI documents:
 
@@ -112,6 +114,9 @@ Use this checklist as the high-level deployment preparation path.
   Manager, database, and Redis.
 - Provision frontend infrastructure: Cloudflare account, Pages project, and
   API token for direct uploads.
+- Build documentation through the `docs-site` Rush project when the deployable
+  webapp artifact is built. The public docs routes are served from the same
+  Cloudflare Pages project at `/docs/` and `/docs/tutorial/`.
 - Configure database URLs. Runtime should use the pooled low-privilege
   `DATABASE_URL`; migrations should use `DATABASE_URL_DIRECT`.
 - Configure Redis with `REDIS_URL` when production should use distributed
@@ -132,8 +137,8 @@ Use this checklist as the high-level deployment preparation path.
   `npm run rush -- verify`.
 - Commit and push configuration or code changes.
 - Run the CI workflow or targeted force-deploy workflow.
-- Verify backend health, GraphQL HTTP, GraphQL WS subscriptions, and webapp SPA
-  routes from the deployed URLs.
+- Verify backend health, GraphQL HTTP, GraphQL WS subscriptions, webapp SPA
+  routes, and Docusaurus docs routes from the deployed URLs.
 
 ## Required GitHub Configuration
 
@@ -201,6 +206,7 @@ Webapp:
 - The Cloudflare Pages project name comes from `CLOUDFLARE_PAGES_PROJECT_NAME`.
 - The generated frontend URL is
   `https://<CLOUDFLARE_PAGES_PROJECT_NAME>.pages.dev`.
+- The Docusaurus docs site is served from the same origin at `/docs/`.
 - A custom frontend domain, if added later, must be reflected in backend
   `CORS_ORIGIN`.
 

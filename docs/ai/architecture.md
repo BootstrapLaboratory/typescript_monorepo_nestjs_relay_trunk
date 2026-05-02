@@ -8,6 +8,9 @@ ordering, and lockfile ownership.
 
 - `apps/server`: NestJS backend deployed to Cloud Run.
 - `apps/webapp`: React/Vite/Relay frontend deployed to Cloudflare Pages.
+- `apps/docs`: Docusaurus documentation site built as a separate Rush project.
+  Its output is copied into `apps/webapp/dist/docs` so Cloudflare Pages serves
+  it under the same webapp origin at `/docs/`.
 - `libs/api`: generated GraphQL schema contract consumed by the webapp.
 - `.dagger`: app-owned Rush Delivery metadata for validation, package, deploy,
   toolchain images, and Rush install cache.
@@ -66,6 +69,9 @@ ordering, and lockfile ownership.
 
 - Add or remove Rush projects in `rush.json`.
 - Keep Rush `packageName` values aligned with Rush Delivery target names.
+- `docs-site` is intentionally not a separate deploy target. It is a build-time
+  dependency of `webapp`, and its static output becomes part of the webapp
+  artifact.
 - Deploy provider Rush projects may live under `deploy/providers/*`; the Rush
   project folder depth limit is set to allow that shape.
 - Do not run ad-hoc package-manager installs in project folders.

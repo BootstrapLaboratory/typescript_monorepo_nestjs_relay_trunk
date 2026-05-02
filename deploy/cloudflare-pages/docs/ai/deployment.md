@@ -42,7 +42,8 @@ Production deployment flow:
 1. GitHub Actions runs `.github/workflows/main-workflow.yaml` or
    `.github/workflows/force-deploy-webapp.yaml`.
 2. Rush Delivery detects, builds, packages, and deploys the `webapp` target.
-3. The webapp artifact is `apps/webapp/dist`.
+3. The webapp artifact is `apps/webapp/dist`, including Docusaurus docs copied
+   into `apps/webapp/dist/docs`.
 4. Rush Delivery runs [../../scripts/deploy-webapp.sh](../../scripts/deploy-webapp.sh).
 5. The deploy script uploads the built assets with `wrangler pages deploy` and
    validates deployed SPA routes.
@@ -107,7 +108,7 @@ npm --prefix deploy/wizard run cloudrun-cloudflare-neon-upstash
 
 7. Verify the deployed webapp.
    The deploy script runs [../../scripts/validate-webapp-routes.sh](../../scripts/validate-webapp-routes.sh),
-   which validates `/` and `/info` at
+   which validates `/`, `/info`, `/docs/`, and `/docs/tutorial/` at
    `https://<CLOUDFLARE_PAGES_PROJECT_NAME>.pages.dev`. Also open the deployed
    app in a browser and verify GraphQL HTTP requests and WS subscriptions.
 
@@ -214,12 +215,14 @@ For webapp-specific build validation, the production build path must have:
 - `VITE_GRAPHQL_WS` set to a non-placeholder `wss://.../graphql` value.
 - Relay artifacts generated as part of the Rush build.
 - Final static assets in `apps/webapp/dist`.
+- Docusaurus static assets copied into `apps/webapp/dist/docs`.
 
 After deployment:
 
 - Confirm the Pages deployment is visible in Cloudflare.
 - Open `https://<CLOUDFLARE_PAGES_PROJECT_NAME>.pages.dev`.
 - Confirm `/` and `/info` return successfully.
+- Confirm `/docs/` and `/docs/tutorial/` return successfully.
 - Confirm the app can call GraphQL HTTP.
 - Confirm GraphQL WS subscriptions connect and receive messages.
 - Confirm login/register works if production auth settings are deployed.

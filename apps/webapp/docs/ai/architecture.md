@@ -16,6 +16,8 @@ Cloudflare Pages build output.
   behind those wrappers when accessible behavior is needed.
 - UI workshop: Storybook with the React/Vite framework for isolated reusable
   UI components, plain feature views, and page compositions.
+- Published docs: Docusaurus in `apps/docs`, served under the webapp origin at
+  `/docs/` after its build output is copied into `apps/webapp/dist/docs`.
 - Contract source: `libs/api/schema.gql`.
 
 The build script intentionally runs Relay codegen before TypeScript and Vite:
@@ -26,6 +28,11 @@ relay -> tsc -b -> vite build
 
 Generated Relay files under `src/**/__generated__` are compiler output. Do not
 hand-edit them.
+
+When Rush builds the deployable `webapp` target, it builds the `docs-site`
+Rush dependency first. The webapp build then copies `apps/docs/build` into
+`apps/webapp/dist/docs`. That keeps Docusaurus independent while preserving a
+single Cloudflare Pages deploy artifact.
 
 ## UI Shape
 
@@ -43,6 +50,9 @@ hand-edit them.
 - `src/features/project-info` owns the README-backed info page and markdown
   rendering.
 - `src/features/navigation` owns navigation-adjacent pages such as not found.
+- `apps/docs` owns the Docusaurus documentation surface. The TanStack Router
+  app should link to `/docs/` or `/docs/tutorial/`, but it should not define
+  `/docs/*` routes.
 - Feature folders should use consistent internal folders when they grow:
   `pages` for route-facing feature pages, `components` for feature-local
   building blocks, `relay` for feature GraphQL documents, and `assets` for
@@ -190,6 +200,11 @@ individual theme names.
 The webapp package artifact is the built `apps/webapp/dist` directory. Rush
 Delivery packages it and the Cloudflare Pages deploy script publishes it from
 `deploy/cloudflare-pages`.
+
+The artifact includes two static surfaces:
+
+- `/`: the Vite/TanStack browser app
+- `/docs/`: the Docusaurus docs site copied from `apps/docs/build`
 
 Provider-specific deploy behavior should stay under `deploy/cloudflare-pages`,
 not inside React components.

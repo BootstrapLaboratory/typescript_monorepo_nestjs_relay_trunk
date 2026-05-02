@@ -20,6 +20,7 @@ The frontend stack is:
 - `graphql-ws` through the shared Relay network for subscriptions
 - vanilla-extract for typed design tokens and component-local styles
 - Storybook for isolated reusable UI and plain feature views
+- Docusaurus as a separate Rush project for `/docs/`
 
 The key design choice is that the webapp treats GraphQL as a compiled client
 contract. Relay operations are checked against `libs/api/schema.gql`, and
@@ -79,6 +80,11 @@ The route loader also disposes the preloaded query reference when the route is
 aborted. That lifecycle belongs in the route layer because it is tied to router
 ownership, not to a specific chat component.
 
+The `/docs/*` path is intentionally not part of the TanStack Router tree.
+Docusaurus owns that static route space. The webapp may link to `/docs/` or
+`/docs/tutorial/`, but route files should not try to render Docusaurus content
+inside the Vite app.
+
 ## Feature Folders Own Product Composition
 
 Feature folders are where product behavior becomes visible UI.
@@ -114,7 +120,7 @@ Relay is the frontend's data layer. The webapp does not call arbitrary GraphQL
 helpers from components. GraphQL operations live in feature `relay` folders, and
 Relay-generated files live under `__generated__`.
 
-The build script runs:
+The browser app build script runs:
 
 ```text
 relay -> tsc -b -> vite build
@@ -122,6 +128,11 @@ relay -> tsc -b -> vite build
 
 That ordering matters. Relay validates operations against the committed schema
 before TypeScript and Vite finish the app build.
+
+For the deployable `webapp` target, Rush builds `docs-site` first. After Vite
+finishes, the webapp build copies `apps/docs/build` into
+`apps/webapp/dist/docs`. That gives Cloudflare Pages one upload directory while
+keeping the docs generator independent from the browser app.
 
 The Relay environment lives in `src/shared/relay/environment.ts`. It defines
 one network layer for:
@@ -219,6 +230,11 @@ Rush Delivery packages that directory, and the Cloudflare Pages deploy script
 uploads it. React components do not know about Wrangler, Cloudflare accounts,
 Pages project settings, or GitHub repository variables.
 
+The directory contains both the Vite app at `/` and Docusaurus at `/docs/`.
+This is artifact composition, not runtime integration. TanStack Router remains
+responsible for the application routes, and Docusaurus remains responsible for
+the documentation routes.
+
 Provider-specific Pages setup belongs under `deploy/cloudflare-pages` and
 `deploy/providers/cloudflare-pages`. The webapp's job is to build correct
 static assets from explicit inputs.
@@ -232,6 +248,7 @@ The webapp architecture favors explicit browser infrastructure:
 - Relay owns data access
 - shared modules own transport, auth, realtime, theme, and Vite recovery
 - `src/ui` owns reusable visual primitives
+- `docs-site` owns documentation rendering and docs navigation
 - deployment metadata owns build-time endpoint mapping
 
 The upside is that adding a feature has a clear path. Put the product behavior

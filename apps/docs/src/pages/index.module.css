@@ -1,0 +1,43 @@
+.main {
+  min-height: calc(100vh - var(--ifm-navbar-height));
+}
+
+.hero {
+  margin: 0 auto;
+  max-width: 880px;
+  padding: 6rem 1.5rem;
+}
+
+.kicker {
+  color: var(--ifm-color-primary);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: 3rem;
+  letter-spacing: 0;
+  line-height: 1.08;
+  margin-bottom: 1.25rem;
+}
+
+.lede {
+  color: var(--ifm-color-emphasis-700);
+  font-size: 1.2rem;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+  max-width: 680px;
+}
+
+@media (max-width: 700px) {
+  .hero {
+    padding: 4rem 1.25rem;
+  }
+
+  .title {
+    font-size: 2.25rem;
+  }
+}

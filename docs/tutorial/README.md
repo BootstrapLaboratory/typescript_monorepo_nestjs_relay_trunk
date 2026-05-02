@@ -1,3 +1,8 @@
+---
+slug: /
+sidebar_label: Introduction
+---
+
 # Project Design Tutorial
 
 This tutorial explains how this project is designed from scratch. It is not a
@@ -16,6 +21,8 @@ The product is a TypeScript monorepo with:
 
 - a NestJS GraphQL backend in `apps/server`
 - a React, Vite, and Relay webapp in `apps/webapp`
+- a Docusaurus documentation site in `apps/docs`, served under the webapp
+  origin at `/docs/`
 - a committed GraphQL schema contract in `libs/api`
 - Rush-owned project membership, dependency installation, and bulk commands
 - Rush Delivery-owned release flow for detect, validate, build, package, and
@@ -60,6 +67,11 @@ Frontend:
 - vanilla-extract
 - Storybook
 
+Documentation:
+
+- Docusaurus
+- Markdown and MDX pipeline
+
 Production and preparation:
 
 - Google Cloud Run
@@ -75,10 +87,10 @@ Production and preparation:
 
 The release model has two production deploy targets:
 
-| Target   | Runtime                               | Package shape                | Deploy path                       |
-| -------- | ------------------------------------- | ---------------------------- | --------------------------------- |
-| `server` | NestJS backend on Cloud Run           | Rush deploy archive          | `deploy/cloudrun` scripts         |
-| `webapp` | Static Vite build on Cloudflare Pages | `apps/webapp/dist` directory | `deploy/cloudflare-pages` scripts |
+| Target   | Runtime                                                  | Package shape                              | Deploy path                       |
+| -------- | -------------------------------------------------------- | ------------------------------------------ | --------------------------------- |
+| `server` | NestJS backend on Cloud Run                              | Rush deploy archive                        | `deploy/cloudrun` scripts         |
+| `webapp` | Static Vite app plus Docusaurus docs on Cloudflare Pages | `apps/webapp/dist` directory with `/docs/` | `deploy/cloudflare-pages` scripts |
 
 The deploy mesh orders `webapp` after `server` because the frontend is built
 against backend GraphQL endpoint values and should be released after the backend

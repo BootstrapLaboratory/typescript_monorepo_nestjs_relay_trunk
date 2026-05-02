@@ -36,7 +36,7 @@ if (!response.ok) {
 
 cd "${REPO_ROOT}"
 
-for route in / /info; do
+for route in / /info /docs/ /docs/tutorial/; do
   for attempt in {1..12}; do
     if validate_route "${WEBAPP_URL}${route}"; then
       echo "Validated ${WEBAPP_URL}${route}"

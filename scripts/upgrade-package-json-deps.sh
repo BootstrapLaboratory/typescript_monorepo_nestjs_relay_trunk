@@ -9,6 +9,7 @@ usage() {
   cat <<'EOF'
 Usage:
   bash scripts/upgrade-package-json-deps.sh --target root
+  bash scripts/upgrade-package-json-deps.sh --target docs-site
   bash scripts/upgrade-package-json-deps.sh --target webapp
   bash scripts/upgrade-package-json-deps.sh --target server
   bash scripts/upgrade-package-json-deps.sh --target all
@@ -59,7 +60,7 @@ parse_args() {
         target="$2"
         shift 2
         ;;
-      root | webapp | server | all)
+      root | docs | docs-site | webapp | server | all)
         target="$1"
         shift
         ;;
@@ -91,6 +92,10 @@ main() {
     root)
       upgrade_root_wrapper
       ;;
+    docs | docs-site)
+      run_ncu "${REPO_DIR}/apps/docs" "apps/docs/package.json"
+      refresh_rush_lockfile
+      ;;
     webapp)
       run_ncu "${REPO_DIR}/apps/webapp" "apps/webapp/package.json"
       refresh_rush_lockfile
@@ -101,6 +106,7 @@ main() {
       ;;
     all)
       upgrade_root_wrapper
+      run_ncu "${REPO_DIR}/apps/docs" "apps/docs/package.json"
       run_ncu "${REPO_DIR}/apps/webapp" "apps/webapp/package.json"
       run_ncu "${REPO_DIR}/apps/server" "apps/server/package.json"
       refresh_rush_lockfile
