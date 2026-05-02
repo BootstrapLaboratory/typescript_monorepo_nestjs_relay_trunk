@@ -79,20 +79,20 @@ external reference:
 
 ## Phase 1: Scaffold Tutorial
 
-- [ ] Create `docs/tutorial/`.
-- [ ] Create all planned chapter files.
-- [ ] Add a `README.md` table of contents.
-- [ ] Add previous/next navigation to each chapter.
-- [ ] Keep chapter filenames stable and ordered.
+- [x] Create `docs/tutorial/`.
+- [x] Create all planned chapter files.
+- [x] Add a `README.md` table of contents.
+- [x] Add previous/next navigation to each chapter.
+- [x] Keep chapter filenames stable and ordered.
 
 ## Phase 2: Overview And Monorepo Foundation
 
-- [ ] Write `README.md` with audience, tutorial scope, technology list, deploy
+- [x] Write `README.md` with audience, tutorial scope, technology list, deploy
       target list, and chapter links.
-- [ ] Write `01-system-overview.md` explaining the system shape:
+- [x] Write `01-system-overview.md` explaining the system shape:
       `apps/server`, `apps/webapp`, `libs/api`, `.dagger`, `deploy`, and
       GitHub Actions.
-- [ ] Write `02-rush-monorepo-foundation.md` explaining Rush project identity,
+- [x] Write `02-rush-monorepo-foundation.md` explaining Rush project identity,
       dependency graph, PNPM lockfile ownership, root command wrappers, and
       bulk commands.
 
