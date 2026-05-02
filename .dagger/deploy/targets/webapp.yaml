@@ -21,6 +21,8 @@ runtime:
     - WEBAPP_URL
     - VITE_GRAPHQL_HTTP
     - VITE_GRAPHQL_WS
+    - WEBAPP_VITE_GRAPHQL_HTTP
+    - WEBAPP_VITE_GRAPHQL_WS
 
   dry_run_defaults:
     CLOUDFLARE_ACCOUNT_ID: dry-run-account
@@ -30,3 +32,5 @@ runtime:
     WEBAPP_URL: https://webapp.pages.dev
     VITE_GRAPHQL_HTTP: https://api.example.invalid/graphql
     VITE_GRAPHQL_WS: wss://api.example.invalid/graphql
+    WEBAPP_VITE_GRAPHQL_HTTP: https://api.example.invalid/graphql
+    WEBAPP_VITE_GRAPHQL_WS: wss://api.example.invalid/graphql
