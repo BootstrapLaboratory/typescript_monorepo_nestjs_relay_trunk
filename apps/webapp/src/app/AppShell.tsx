@@ -107,6 +107,9 @@ export function AppShell() {
               >
                 Info
               </Link>
+              <a className={styles.navLink} href="/docs/tutorial/">
+                Tutorial
+              </a>
             </div>
             <div className={styles.themePicker}>
               <SelectField
