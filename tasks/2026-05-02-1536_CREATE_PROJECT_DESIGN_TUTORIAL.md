@@ -107,7 +107,7 @@ external reference:
 - [x] Write `05-webapp-architecture.md` explaining React, Vite, Relay,
       TanStack Router, feature folders, `src/shared`, `src/ui`,
       vanilla-extract, and Storybook.
-- [ ] Write `06-auth-realtime-and-browser-security.md` explaining memory-only
+- [x] Write `06-auth-realtime-and-browser-security.md` explaining memory-only
       access tokens, HttpOnly refresh cookies, credentialed GraphQL requests,
       GraphQL WS authentication, socket restart behavior, CORS, and Redis
       fanout implications.
