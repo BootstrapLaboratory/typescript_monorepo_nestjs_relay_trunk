@@ -1,5 +1,3 @@
-import { randomBytes } from "node:crypto";
-
 import {
   scenario,
   secret,
@@ -69,7 +67,7 @@ export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
     ],
     id: CLOUDRUN_CLOUDFLARE_NEON_UPSTASH_SCENARIO_ID,
     steps: [
-      createGoogleProjectStep(options.googleProject),
+      createGoogleProjectStep(),
       createCloudRunBootstrapStep({
         ...(options.cloudRun ?? {}),
         guide: [
@@ -112,29 +110,32 @@ export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
   });
 }
 
-export function createGoogleProjectStep(options = {}) {
+export function createGoogleProjectStep() {
   return step({
     guide: [
-      "Enter a friendly Google Cloud project name.",
-      "If PROJECT_ID is not provided with --var, the scenario generates a valid project ID and persists it for resume.",
+      "Create or choose a Google Cloud project in Google Cloud Console before continuing.",
+      "Enable billing for that project, then copy/paste the immutable project ID here.",
+      "The scenario will not create Google Cloud projects.",
     ].join("\n"),
     id: "google.project",
     inputs: {
       PROJECT_ID: text({
-        label: "Google Cloud project ID (optional override)",
-      }).optional(),
-      PROJECT_NAME: text({ label: "Google Cloud project name" }),
+        label: "Google Cloud project ID",
+      }),
     },
-    outputs: ["PROJECT_NAME", "PROJECT_ID"],
+    outputs: ["PROJECT_ID"],
     title: "Choose Google Cloud project",
-    run: async (input) => ({
-      PROJECT_ID:
-        input.PROJECT_ID ??
-        generateGoogleProjectId(input.PROJECT_NAME, {
-          randomSuffix: options.randomSuffix,
-        }),
-      PROJECT_NAME: input.PROJECT_NAME,
-    }),
+    run: async (input) => {
+      const projectId = input.PROJECT_ID.trim();
+
+      if (projectId.length === 0) {
+        throw new Error("PROJECT_ID is required.");
+      }
+
+      return {
+        PROJECT_ID: projectId,
+      };
+    },
   });
 }
 
@@ -194,22 +195,6 @@ export function createUpstashRedisStep() {
       };
     },
   });
-}
-
-export function generateGoogleProjectId(projectName, options = {}) {
-  const suffix = options.randomSuffix ?? randomBytes(3).toString("hex");
-  const base = projectName
-    .toLowerCase()
-    .replace(/[^a-z0-9-]+/g, "-")
-    .replace(/^-+/, "")
-    .replace(/-+$/, "")
-    .replace(/-+/g, "-");
-  const normalizedBase = /^[a-z]/.test(base) ? base : `project-${base}`;
-  const trimmedBase = normalizedBase
-    .slice(0, 30 - suffix.length - 1)
-    .replace(/-+$/, "");
-
-  return `${trimmedBase}-${suffix}`;
 }
 
 function assertPostgresConnectionUrl(value, name) {

@@ -17,13 +17,15 @@ automation.
 
 The guided scenario under `deploy/scenarios/cloudrun-cloudflare-neon-upstash`,
 run through `deploy/wizard`, is also an active preparation path for the
-currently implemented combined flow. It can create or select the Google Cloud
-project, run Cloud Run backend bootstrap, collect already-provisioned Neon and
-Upstash connection URLs, and sync `DATABASE_URL`, `DATABASE_URL_DIRECT`, and
-`REDIS_URL` into Secret Manager without persisting the secret values. It also
-prepares the Cloudflare Pages project and configures GitHub repository
-variables/secrets for the production workflow, but it does not replace the
-final GitHub Actions deployment trigger.
+currently implemented combined flow. It requires the human to create or choose
+an existing billing-enabled Google Cloud project and paste its `PROJECT_ID`;
+the scenario does not create Google Cloud projects. It can run Cloud Run
+backend bootstrap, collect already-provisioned Neon and Upstash connection
+URLs, and sync `DATABASE_URL`, `DATABASE_URL_DIRECT`, and `REDIS_URL` into
+Secret Manager without persisting the secret values. It also prepares the
+Cloudflare Pages project and configures GitHub repository variables/secrets for
+the production workflow, but it does not replace the final GitHub Actions
+deployment trigger.
 
 ## Deployment Boundary
 

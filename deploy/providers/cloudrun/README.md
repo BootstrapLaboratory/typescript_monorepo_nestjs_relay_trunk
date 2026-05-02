@@ -3,10 +3,8 @@
 This package is the TypeScript provider spike for replacing Cloud Run provider
 bootstrap shell logic with typed provider actions.
 
-The package is not wired into scenarios or deployment scripts yet. Existing
-scripts under `deploy/cloudrun` remain the working manual/deployment
-entrypoints until the concrete SDK-backed dependencies are implemented and
-intentionally adopted.
+The package is wired into the guided deployment scenario. Existing scripts
+under `deploy/cloudrun` remain supported manual/deployment entrypoints.
 
 Concrete SDK-backed dependencies are available for Resource Manager projects,
 Cloud Billing project links, Service Usage, Artifact Registry repository
@@ -30,11 +28,14 @@ const output = await bootstrapCloudRun(
 );
 ```
 
-The project adapter uses `@google-cloud/resource-manager` for project
-existence, project creation, and project-number lookup. The billing adapter
-uses `@google-cloud/billing` for optional project billing-account links through
-`getProjectBillingInfo` and `updateProjectBillingInfo`. The services adapter
-uses `@google-cloud/service-usage` for required API enablement. The Artifact
+The Cloud Run bootstrap action expects an existing Google Cloud project and
+reads its project number before enabling services. The project adapter still
+exposes lower-level project existence/creation helpers for tests and possible
+future provider actions, but the guided scenario does not create Google Cloud
+projects. The billing adapter uses `@google-cloud/billing` for optional project
+billing-account links through `getProjectBillingInfo` and
+`updateProjectBillingInfo`. The services adapter uses `@google-cloud/service-usage`
+for required API enablement. The Artifact
 Registry repository adapter uses `@google-cloud/artifact-registry` for Docker
 repository creation and repository-scoped IAM policy updates through
 `getIamPolicy` and `setIamPolicy`. The IAM adapter uses Google's official

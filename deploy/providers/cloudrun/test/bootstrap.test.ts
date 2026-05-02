@@ -45,7 +45,6 @@ describe("Cloud Run provider bootstrap spike", () => {
     );
 
     assert.deepEqual(calls, [
-      "projects.ensureProject:demo-project",
       "billing.linkProject:billing-123",
       "projects.getProjectNumber:demo-project",
       `services.enableServices:${REQUIRED_BOOTSTRAP_SERVICES.join(",")}`,
@@ -124,8 +123,8 @@ function createRecordingDeps(calls: string[]): CloudRunProviderDeps {
       },
     },
     projects: {
-      async ensureProject(input) {
-        calls.push(`projects.ensureProject:${input.projectId}`);
+      async ensureProject() {
+        throw new Error("bootstrapCloudRun must not create Google projects");
       },
       async getProjectNumber(projectId) {
         calls.push(`projects.getProjectNumber:${projectId}`);

@@ -146,13 +146,13 @@ and GitHub OIDC provider dependencies. It exports a default Google-backed
 dependency factory for `bootstrapCloudRun` and `syncCloudRunRuntimeSecrets`.
 The production scenario under `deploy/scenarios/cloudrun-cloudflare-neon-upstash`
 has Cloud Run step adapters that can lazy-load the built provider. It
-collects a Google Cloud project name, generates and persists a project ID when
-one is not provided, executes Cloud Run bootstrap, prints a backend GitHub
-variable handoff, collects Neon database URLs plus the Upstash Redis URL as
-transient secret inputs, and syncs them into Google Secret Manager. The Cloud
-Run step can pause for manual billing enablement and retry when Google reports
-that billing is required. This does not replace the existing Cloud Run shell
-scripts yet.
+requires an existing billing-enabled Google Cloud `PROJECT_ID`, executes Cloud
+Run bootstrap, prints a backend GitHub variable handoff, collects Neon database
+URLs plus the Upstash Redis URL as transient secret inputs, and syncs them into
+Google Secret Manager. The Cloud Run step can pause for manual billing
+enablement and retry when Google reports that billing is required. The scenario
+does not create Google Cloud projects. This does not replace the existing Cloud
+Run shell scripts yet.
 
 Rush Delivery validation for this project starts backing Postgres and Redis
 services, runs migrations, starts the production server, and executes the Cloud

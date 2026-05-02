@@ -22,18 +22,18 @@ ordering, and lockfile ownership.
   their concrete scenario rather than inside the generic engine. The first
   production scenario lives under
   `deploy/scenarios/cloudrun-cloudflare-neon-upstash`; it is its own Rush
-  project/package, uses the engine as a dependency, and collects a Google
-  Cloud project name, generates and persists a project ID when one is not
-  provided, executes the Cloud Run bootstrap step, prints a structured backend
-  GitHub variable handoff, and collects Neon database URLs plus the Upstash
-  Redis URL as transient secret inputs before syncing them into Google Secret
-  Manager. It then prepares the Cloudflare Pages project while keeping the
-  Cloudflare API token transient, and configures GitHub repository variables
-  and Cloudflare secrets for the production workflow. The GitHub step derives
-  the default Cloud Run GraphQL URLs from service name, project number, and
-  region unless explicit webapp GraphQL URLs are provided. The Cloud Run step
-  can pause for manual billing enablement and retry when Google reports that
-  billing is required.
+  project/package, uses the engine as a dependency, and requires an existing,
+  billing-enabled Google Cloud project ID. It does not create Google Cloud
+  projects. It executes the Cloud Run bootstrap step, prints a structured
+  backend GitHub variable handoff, and collects Neon database URLs plus the
+  Upstash Redis URL as transient secret inputs before syncing them into Google
+  Secret Manager. It then prepares the Cloudflare Pages project while keeping
+  the Cloudflare API token transient, and configures GitHub repository
+  variables and Cloudflare secrets for the production workflow. The GitHub step
+  derives the default Cloud Run GraphQL URLs from service name, project number,
+  and region unless explicit webapp GraphQL URLs are provided. The Cloud Run
+  step can pause for manual billing enablement and retry when Google reports
+  that billing is required.
   `deploy/wizard` is the execution host that wires scenarios to CLI today.
   Its scenario registry is separate from the CLI entrypoint so a future web
   wizard can reuse the same scenario definitions without putting

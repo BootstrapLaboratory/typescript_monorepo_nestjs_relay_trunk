@@ -1,13 +1,12 @@
 # Cloud Run + Cloudflare Pages + Neon + Upstash Scenario
 
-This is the first production setup scenario. It currently collects a
-Google Cloud project name, generates and persists a project ID when one is not
-provided, executes Cloud Run backend bootstrap through `deploy-provider-cloudrun`,
-then collects Neon database URLs and the Upstash Redis URL as transient
-secrets, syncs those secrets into Google Secret Manager, and prepares the
-Cloudflare Pages project through `deploy-provider-cloudflare-pages`. Finally,
-it configures GitHub repository variables and secrets through
-`deploy-provider-github`.
+This is the first production setup scenario. It currently asks for an existing,
+billing-enabled Google Cloud project ID, executes Cloud Run backend bootstrap
+through `deploy-provider-cloudrun`, then collects Neon database URLs and the
+Upstash Redis URL as transient secrets, syncs those secrets into Google Secret
+Manager, and prepares the Cloudflare Pages project through
+`deploy-provider-cloudflare-pages`. Finally, it configures GitHub repository
+variables and secrets through `deploy-provider-github`.
 
 ## Run
 
@@ -18,6 +17,10 @@ npm --prefix deploy/providers/cloudrun run build
 npm --prefix deploy/providers/cloudflare-pages run build
 npm --prefix deploy/providers/github run build
 ```
+
+Before running the scenario, create or choose a Google Cloud project in Google
+Cloud Console and link it to a billing account. The scenario does not create
+Google Cloud projects.
 
 Authenticate Google SDK calls with Application Default Credentials. Use
 `--disable-quota-project` so Google does not copy the current `gcloud` project
@@ -51,7 +54,7 @@ Run non-interactively:
 
 ```sh
 npm --prefix deploy/wizard run cloudrun-cloudflare-neon-upstash -- \
-  --var PROJECT_NAME="Your GCP project name" \
+  --var PROJECT_ID="your-existing-gcp-project-id" \
   --var GITHUB_REPOSITORY=owner/repository \
   --var DATABASE_URL="postgres://..." \
   --var DATABASE_URL_DIRECT="postgres://..." \
@@ -67,14 +70,6 @@ Cloudflare Pages URL. Pass `--var WEBAPP_VITE_GRAPHQL_HTTP=...` and
 `--var WEBAPP_VITE_GRAPHQL_WS=...` only when the backend uses a custom domain;
 otherwise the scenario derives the deterministic Cloud Run `/graphql` URLs from
 the service name, project number, and region.
-
-Pass `--var PROJECT_ID=your-exact-project-id` only when you need to choose the
-immutable Google Cloud project ID yourself. Otherwise the scenario generates a
-valid ID from `PROJECT_NAME` and persists it for resume.
-
-Pass `--var BILLING_ACCOUNT_ID=XXXXXX-XXXXXX-XXXXXX` when the scenario should
-link a newly created project to a billing account. The scenario does not prompt
-for Google tokens; Google SDK calls use Application Default Credentials.
 
 If Google reports that billing is not enabled, the scenario pauses, asks you to
 enable billing for the project manually, and retries Cloud Run bootstrap after

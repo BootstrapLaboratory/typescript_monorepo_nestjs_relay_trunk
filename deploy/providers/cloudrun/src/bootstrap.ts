@@ -22,11 +22,6 @@ export async function bootstrapCloudRun(
 ): Promise<BootstrapCloudRunOutput> {
   const resolved = resolveBootstrapCloudRunInput(input);
 
-  await deps.projects.ensureProject({
-    displayName: resolved.PROJECT_NAME,
-    projectId: resolved.PROJECT_ID,
-  });
-
   if (resolved.BILLING_ACCOUNT_ID !== undefined) {
     await deps.billing.linkProject({
       billingAccountId: resolved.BILLING_ACCOUNT_ID,

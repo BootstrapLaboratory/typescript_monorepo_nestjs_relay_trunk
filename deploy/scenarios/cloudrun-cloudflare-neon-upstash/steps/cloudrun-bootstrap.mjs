@@ -27,7 +27,6 @@ export function createCloudRunBootstrapStep(options = {}) {
       ARTIFACT_REGISTRY_REPOSITORY: text({
         label: "Artifact Registry repository",
       }).optional(),
-      BILLING_ACCOUNT_ID: text({ label: "Billing account ID" }).optional(),
       CLOUD_RUN_REGION: text({ label: "Cloud Run region" }).optional(),
       CLOUD_RUN_SERVICE: text({ label: "Cloud Run service" }).optional(),
       DEPLOYER_SERVICE_ACCOUNT_ID: text({
@@ -38,7 +37,6 @@ export function createCloudRunBootstrapStep(options = {}) {
         label: "GitHub repository (ex: owner/repo)",
       }),
       PROJECT_ID: text({ label: "Google Cloud project ID" }),
-      PROJECT_NAME: text({ label: "Google Cloud project name" }).optional(),
       RUNTIME_SERVICE_ACCOUNT_ID: text({
         label: "Runtime service account ID",
       }).optional(),
@@ -171,14 +169,9 @@ export function isBillingRequiredError(error) {
 async function waitForBillingEnablement({ error, input, ui }) {
   const message = [
     `Google Cloud billing is not enabled for project "${input.PROJECT_ID}".`,
-    input.PROJECT_NAME === undefined
-      ? undefined
-      : `Project display name: ${input.PROJECT_NAME}`,
     `Billing page: https://console.cloud.google.com/billing/linkedaccount?project=${input.PROJECT_ID}`,
     "Enable billing for this project in Google Cloud Console, then continue.",
     "Google Cloud free-tier resources can still require an enabled billing account.",
-    "To automate billing attachment, rerun with",
-    "--var BILLING_ACCOUNT_ID=XXXXXX-XXXXXX-XXXXXX and credentials that can attach billing accounts.",
     error instanceof Error ? `Cause: ${error.message}` : undefined,
   ]
     .filter((line) => line !== undefined)

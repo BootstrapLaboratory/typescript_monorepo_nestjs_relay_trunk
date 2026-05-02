@@ -157,12 +157,12 @@ export const cloudrunCloudflareNeonUpstash = scenario({
       id: "cloudrun.bootstrap",
       title: "Bootstrap Google Cloud",
       guide: `
-Create or select the Google Cloud project and prepare Cloud Run infrastructure.
+Create or select a billing-enabled Google Cloud project, paste its project ID,
+and prepare Cloud Run infrastructure.
 `,
       inputs: {
         PROJECT_ID: text(),
         GITHUB_REPOSITORY: text(),
-        BILLING_ACCOUNT_ID: text().optional(),
       },
       run: cloudrun.bootstrap,
       outputs: [
@@ -427,9 +427,9 @@ Future web usage should be possible without rewriting the scenario:
 - [x] Added a scenario test that runs the skeleton through the XState runner
       with injected Cloud Run provider functions, avoiding real Google Cloud
       calls.
-- [x] Added a local `google.project` scenario step that prompts for
-      `PROJECT_NAME`, accepts optional `PROJECT_ID` overrides, and generates a
-      valid persisted Google Cloud project ID when no override is supplied.
+- [x] Added a local `google.project` scenario step that requires an existing,
+      billing-enabled `PROJECT_ID`. The scenario does not create Google Cloud
+      projects.
 - [x] Added a manual billing enablement pause/retry path for Cloud Run
       bootstrap when Google reports that billing is required for service
       activation.

@@ -6,7 +6,6 @@ import {
   createCloudRunCloudflareNeonUpstashScenario,
   createNeonDatabaseStep,
   createUpstashRedisStep,
-  generateGoogleProjectId,
 } from "../scenario.mjs";
 import {
   formatCompletionSections,
@@ -19,28 +18,18 @@ import {
 } from "deploy-scenario-engine/test/fixtures.mjs";
 
 describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
-  it("generates a Google Cloud project ID unless an override is supplied", async () => {
-    const step = createGoogleProjectStep({ randomSuffix: "a7f3c2" });
+  it("requires an existing Google Cloud project ID", async () => {
+    const step = createGoogleProjectStep();
 
-    assert.deepEqual(await step.run({ PROJECT_NAME: "Demo Project" }), {
-      PROJECT_ID: "demo-project-a7f3c2",
-      PROJECT_NAME: "Demo Project",
+    assert.deepEqual(await step.run({ PROJECT_ID: " demo-project " }), {
+      PROJECT_ID: "demo-project",
     });
-    assert.deepEqual(
-      await step.run({
-        PROJECT_ID: "custom-project-id",
-        PROJECT_NAME: "Demo Project",
-      }),
-      {
-        PROJECT_ID: "custom-project-id",
-        PROJECT_NAME: "Demo Project",
-      },
-    );
-    assert.match(
-      generateGoogleProjectId("123 Demo Project With A Very Long Name", {
-        randomSuffix: "a7f3c2",
-      }),
-      /^[a-z][a-z0-9-]{4,28}[a-z0-9]$/,
+    await assert.rejects(
+      () =>
+        step.run({
+          PROJECT_ID: "",
+        }),
+      /PROJECT_ID is required/,
     );
   });
 
@@ -166,7 +155,6 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
       cloudflarePages: { provider: cloudflareProvider },
       cloudRun: { provider },
       github: { provider: githubProvider },
-      googleProject: { randomSuffix: "a7f3c2" },
       runtimeSecrets: { provider },
     });
     const store = createMemoryStore();
@@ -178,7 +166,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
       CLOUDFLARE_API_TOKEN: "cloudflare-secret-token",
       CLOUDFLARE_PAGES_PROJECT_NAME: "demo-webapp",
       GITHUB_REPOSITORY: "BeltOrg/beltapp",
-      PROJECT_NAME: "Demo Project",
+      PROJECT_ID: "demo-project",
       REDIS_URL: "rediss://default:secret@example.upstash.io:6379",
     });
 
@@ -203,7 +191,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     assert.deepEqual(
       ui.prompted.map((input) => input.name),
       [
-        "PROJECT_NAME",
+        "PROJECT_ID",
         "GITHUB_REPOSITORY",
         "DATABASE_URL",
         "DATABASE_URL_DIRECT",
@@ -218,8 +206,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
         deps,
         input: {
           GITHUB_REPOSITORY: "BeltOrg/beltapp",
-          PROJECT_ID: "demo-project-a7f3c2",
-          PROJECT_NAME: "Demo Project",
+          PROJECT_ID: "demo-project",
         },
       },
       {
@@ -233,7 +220,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
             "postgresql://owner:secret@example.test/app?sslmode=require",
           GCP_SERVICE_ACCOUNT:
             "github-actions-deployer@demo-project.iam.gserviceaccount.com",
-          PROJECT_ID: "demo-project-a7f3c2",
+          PROJECT_ID: "demo-project",
           REDIS_URL: "rediss://default:secret@example.upstash.io:6379",
         },
       },
@@ -267,7 +254,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
             "cloud-run-runtime@demo-project.iam.gserviceaccount.com",
           CLOUD_RUN_SERVICE: "api",
           GCP_ARTIFACT_REGISTRY_REPOSITORY: "cloud-run-backend",
-          GCP_PROJECT_ID: "demo-project-a7f3c2",
+          GCP_PROJECT_ID: "demo-project",
           GCP_SERVICE_ACCOUNT:
             "github-actions-deployer@demo-project.iam.gserviceaccount.com",
           GCP_WORKLOAD_IDENTITY_PROVIDER:
@@ -290,12 +277,11 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     );
     assert.equal(result.values.CLOUDFLARE_PAGES_PROJECT_NAME, "demo-webapp");
     assert.equal(result.values.CLOUDFLARE_PAGES_PROJECT_READY, "true");
-    assert.equal(result.values.GCP_PROJECT_ID, "demo-project-a7f3c2");
+    assert.equal(result.values.GCP_PROJECT_ID, "demo-project");
     assert.equal(result.values.GITHUB_REPOSITORY, "BeltOrg/beltapp");
     assert.equal(result.values.GITHUB_REPOSITORY_CONFIGURED, "true");
     assert.equal(result.values.NEON_DATABASE_URLS_READY, "true");
-    assert.equal(result.values.PROJECT_ID, "demo-project-a7f3c2");
-    assert.equal(result.values.PROJECT_NAME, "Demo Project");
+    assert.equal(result.values.PROJECT_ID, "demo-project");
     assert.equal(result.values.PROJECT_NUMBER, "123456789");
     assert.equal(result.values.UPSTASH_REDIS_URL_READY, "true");
     assert.equal(
@@ -318,8 +304,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
       store.saved.map((entry) => entry.output),
       [
         {
-          PROJECT_ID: "demo-project-a7f3c2",
-          PROJECT_NAME: "Demo Project",
+          PROJECT_ID: "demo-project",
         },
         {
           CLOUD_RUN_REGION: "europe-west4",
@@ -327,13 +312,13 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
             "cloud-run-runtime@demo-project.iam.gserviceaccount.com",
           CLOUD_RUN_SERVICE: "api",
           GCP_ARTIFACT_REGISTRY_REPOSITORY: "cloud-run-backend",
-          GCP_PROJECT_ID: "demo-project-a7f3c2",
+          GCP_PROJECT_ID: "demo-project",
           GCP_SERVICE_ACCOUNT:
             "github-actions-deployer@demo-project.iam.gserviceaccount.com",
           GCP_WORKLOAD_IDENTITY_PROVIDER:
             "projects/123456789/locations/global/workloadIdentityPools/github-actions/providers/github",
           GITHUB_REPOSITORY: "BeltOrg/beltapp",
-          PROJECT_ID: "demo-project-a7f3c2",
+          PROJECT_ID: "demo-project",
           PROJECT_NUMBER: "123456789",
         },
         {
@@ -376,7 +361,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
       CLOUDFLARE_PAGES_PROJECT_NAME: "demo-webapp",
       CLOUDFLARE_PAGES_PROJECT_READY: "true",
       GCP_ARTIFACT_REGISTRY_REPOSITORY: "cloud-run-backend",
-      GCP_PROJECT_ID: "demo-project-a7f3c2",
+      GCP_PROJECT_ID: "demo-project",
       GCP_SERVICE_ACCOUNT:
         "github-actions-deployer@demo-project.iam.gserviceaccount.com",
       GCP_WORKLOAD_IDENTITY_PROVIDER:
@@ -384,8 +369,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
       GITHUB_REPOSITORY: "BeltOrg/beltapp",
       GITHUB_REPOSITORY_CONFIGURED: "true",
       NEON_DATABASE_URLS_READY: "true",
-      PROJECT_ID: "demo-project-a7f3c2",
-      PROJECT_NAME: "Demo Project",
+      PROJECT_ID: "demo-project",
       PROJECT_NUMBER: "123456789",
       UPSTASH_REDIS_URL_READY: "true",
       WEBAPP_URL: "https://demo-webapp.pages.dev",
@@ -397,7 +381,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
 
     const completion = formatCompletionSections(scenario, result.values);
     assert.match(completion, /Cloud Run backend GitHub variables/);
-    assert.match(completion, /GCP_PROJECT_ID=demo-project-a7f3c2/);
+    assert.match(completion, /GCP_PROJECT_ID=demo-project/);
     assert.match(completion, /CLOUD_RUN_SERVICE=api/);
     assert.match(completion, /Cloudflare Pages project/);
     assert.match(completion, /WEBAPP_URL=https:\/\/demo-webapp.pages.dev/);
