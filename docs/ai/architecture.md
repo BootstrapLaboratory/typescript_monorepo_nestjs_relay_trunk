@@ -30,10 +30,10 @@ ordering, and lockfile ownership.
   Secret Manager. It then prepares the Cloudflare Pages project while keeping
   the Cloudflare API token transient, and configures GitHub repository
   variables and Cloudflare secrets for the production workflow. The GitHub step
-  derives the default Cloud Run GraphQL URLs from service name, project number,
-  and region unless explicit webapp GraphQL URLs are provided. The Cloud Run
-  step can pause for manual billing enablement and retry when Google reports
-  that billing is required.
+  uses explicit webapp GraphQL URLs when provided, otherwise it resolves the
+  live Cloud Run service URL from Google Cloud and appends `/graphql`. The
+  Cloud Run step can pause for manual billing enablement and retry when Google
+  reports that billing is required.
   `deploy/wizard` is the execution host that wires scenarios to CLI today.
   Its scenario registry is separate from the CLI entrypoint so a future web
   wizard can reuse the same scenario definitions without putting

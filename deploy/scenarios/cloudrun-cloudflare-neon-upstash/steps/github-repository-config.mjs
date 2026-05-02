@@ -1,6 +1,12 @@
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+
 import { secret, step, text } from "deploy-scenario-engine/src/define.mjs";
 
+const execFileAsync = promisify(execFile);
+
 export const GITHUB_REPOSITORY_CONFIG_OUTPUTS = [
+  "CLOUD_RUN_PUBLIC_URL",
   "CLOUD_RUN_CORS_ORIGIN",
   "GITHUB_REPOSITORY_CONFIGURED",
   "WEBAPP_VITE_GRAPHQL_HTTP",
@@ -25,6 +31,9 @@ export function createGitHubRepositoryConfigStep(options = {}) {
       CLOUD_RUN_CORS_ORIGIN: text({
         label: "Cloud Run CORS origin (optional, default webapp URL)",
       }).optional(),
+      CLOUD_RUN_PUBLIC_URL: text({
+        label: "Cloud Run public URL (optional, default live service URL)",
+      }).optional(),
       CLOUD_RUN_REGION: text({ label: "Cloud Run region" }),
       CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT: text({
         label: "Cloud Run runtime service account",
@@ -43,7 +52,6 @@ export function createGitHubRepositoryConfigStep(options = {}) {
       GITHUB_REPOSITORY: text({
         label: "GitHub repository (ex: owner/repo)",
       }),
-      PROJECT_NUMBER: text({ label: "Google Cloud project number" }),
       WEBAPP_URL: text({ label: "Webapp URL" }),
       WEBAPP_VITE_GRAPHQL_HTTP: text({
         label: "Webapp GraphQL HTTP URL (optional)",
@@ -55,12 +63,15 @@ export function createGitHubRepositoryConfigStep(options = {}) {
     outputs: GITHUB_REPOSITORY_CONFIG_OUTPUTS,
     title: options.title ?? "Configure GitHub repository",
     run: async (input) => {
-      const resolved = resolveGitHubRepositoryConfigInput(input);
+      const resolved = await resolveGitHubRepositoryConfigInput(input, {
+        resolveCloudRunServiceUrl: options.resolveCloudRunServiceUrl,
+      });
       const provider = options.provider ?? (await loadDefaultProvider());
       const deps = options.deps ?? provider.createGitHubProviderDeps();
 
       return {
         ...(await provider.configureGitHubRepository(resolved, deps)),
+        CLOUD_RUN_PUBLIC_URL: resolved.CLOUD_RUN_PUBLIC_URL,
         CLOUD_RUN_CORS_ORIGIN: resolved.CLOUD_RUN_CORS_ORIGIN,
         WEBAPP_VITE_GRAPHQL_HTTP: resolved.WEBAPP_VITE_GRAPHQL_HTTP,
         WEBAPP_VITE_GRAPHQL_WS: resolved.WEBAPP_VITE_GRAPHQL_WS,
@@ -69,14 +80,30 @@ export function createGitHubRepositoryConfigStep(options = {}) {
   });
 }
 
-export function resolveGitHubRepositoryConfigInput(input) {
+export async function resolveGitHubRepositoryConfigInput(input, options = {}) {
   const webappUrl = trimRequired(input.WEBAPP_URL, "WEBAPP_URL");
-  const defaultHttp = defaultCloudRunGraphqlHttp(input);
+  const explicitGraphqlHttp = legacyDeterministicCloudRunGraphqlUrl(
+    trimOptional(input.WEBAPP_VITE_GRAPHQL_HTTP),
+    input,
+  )
+    ? undefined
+    : trimOptional(input.WEBAPP_VITE_GRAPHQL_HTTP);
+  const explicitGraphqlWs = legacyDeterministicCloudRunGraphqlUrl(
+    trimOptional(input.WEBAPP_VITE_GRAPHQL_WS),
+    input,
+  )
+    ? undefined
+    : trimOptional(input.WEBAPP_VITE_GRAPHQL_WS);
+  const explicitCloudRunPublicUrl = trimOptional(input.CLOUD_RUN_PUBLIC_URL);
+  const cloudRunPublicUrl =
+    explicitCloudRunPublicUrl === undefined
+      ? explicitGraphqlHttp === undefined
+        ? await resolveCloudRunPublicUrl(input, options)
+        : serviceUrlFromGraphqlHttp(explicitGraphqlHttp)
+      : serviceUrlFromPublicUrl(explicitCloudRunPublicUrl);
   const graphqlHttp =
-    trimOptional(input.WEBAPP_VITE_GRAPHQL_HTTP) ?? defaultHttp;
-  const graphqlWs =
-    trimOptional(input.WEBAPP_VITE_GRAPHQL_WS) ??
-    webSocketUrlFromHttp(graphqlHttp);
+    explicitGraphqlHttp ?? graphqlHttpFromCloudRunPublicUrl(cloudRunPublicUrl);
+  const graphqlWs = explicitGraphqlWs ?? webSocketUrlFromHttp(graphqlHttp);
   const corsOrigin = originFromUrl(
     trimOptional(input.CLOUD_RUN_CORS_ORIGIN) ?? webappUrl,
     "CLOUD_RUN_CORS_ORIGIN",
@@ -98,6 +125,7 @@ export function resolveGitHubRepositoryConfigInput(input) {
       input.CLOUDFLARE_PAGES_PROJECT_NAME,
       "CLOUDFLARE_PAGES_PROJECT_NAME",
     ),
+    CLOUD_RUN_PUBLIC_URL: cloudRunPublicUrl,
     CLOUD_RUN_CORS_ORIGIN: corsOrigin,
     CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT: trimRequired(
       input.CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT,
@@ -129,12 +157,129 @@ export function resolveGitHubRepositoryConfigInput(input) {
   };
 }
 
-function defaultCloudRunGraphqlHttp(input) {
-  const service = trimRequired(input.CLOUD_RUN_SERVICE, "CLOUD_RUN_SERVICE");
-  const projectNumber = trimRequired(input.PROJECT_NUMBER, "PROJECT_NUMBER");
-  const region = trimRequired(input.CLOUD_RUN_REGION, "CLOUD_RUN_REGION");
+async function resolveCloudRunPublicUrl(input, options) {
+  if (options.resolveCloudRunServiceUrl !== undefined) {
+    return serviceUrlFromPublicUrl(
+      await options.resolveCloudRunServiceUrl({
+        projectId: trimRequired(input.GCP_PROJECT_ID, "GCP_PROJECT_ID"),
+        region: trimRequired(input.CLOUD_RUN_REGION, "CLOUD_RUN_REGION"),
+        service: trimRequired(input.CLOUD_RUN_SERVICE, "CLOUD_RUN_SERVICE"),
+      }),
+    );
+  }
 
-  return `https://${service}-${projectNumber}.${region}.run.app/graphql`;
+  return await resolveCloudRunServiceUrlWithGcloud({
+    projectId: trimRequired(input.GCP_PROJECT_ID, "GCP_PROJECT_ID"),
+    region: trimRequired(input.CLOUD_RUN_REGION, "CLOUD_RUN_REGION"),
+    service: trimRequired(input.CLOUD_RUN_SERVICE, "CLOUD_RUN_SERVICE"),
+  });
+}
+
+async function resolveCloudRunServiceUrlWithGcloud(input) {
+  try {
+    const { stdout } = await execFileAsync(
+      "gcloud",
+      [
+        "run",
+        "services",
+        "describe",
+        input.service,
+        "--project",
+        input.projectId,
+        "--region",
+        input.region,
+        "--format=value(status.url)",
+      ],
+      {
+        timeout: 30000,
+      },
+    );
+
+    return serviceUrlFromPublicUrl(stdout);
+  } catch (error) {
+    const cause =
+      error instanceof Error && error.message.length > 0
+        ? `\nCause: ${error.message}`
+        : "";
+
+    throw new Error(
+      [
+        "Unable to resolve the deployed Cloud Run service URL.",
+        `Service: ${input.service}`,
+        `Project: ${input.projectId}`,
+        `Region: ${input.region}`,
+        "If this is the first rollout, run the server deploy first, then rerun this scenario step.",
+        "Alternatively pass WEBAPP_VITE_GRAPHQL_HTTP and WEBAPP_VITE_GRAPHQL_WS explicitly.",
+      ].join("\n") + cause,
+    );
+  }
+}
+
+function graphqlHttpFromCloudRunPublicUrl(publicUrl) {
+  const serviceUrl = serviceUrlFromPublicUrl(publicUrl);
+
+  return `${serviceUrl}/graphql`;
+}
+
+function serviceUrlFromPublicUrl(value) {
+  const publicUrl = trimRequired(value, "CLOUD_RUN_PUBLIC_URL");
+  let parsed;
+
+  try {
+    parsed = new URL(publicUrl);
+  } catch {
+    throw new Error("CLOUD_RUN_PUBLIC_URL must be an absolute HTTP URL.");
+  }
+
+  if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+    throw new Error("CLOUD_RUN_PUBLIC_URL must use https:// or http://.");
+  }
+
+  if (parsed.pathname !== "/" && parsed.pathname !== "") {
+    throw new Error(
+      "CLOUD_RUN_PUBLIC_URL must be the service origin without /graphql.",
+    );
+  }
+
+  return parsed.origin;
+}
+
+function serviceUrlFromGraphqlHttp(value) {
+  const graphqlHttp = trimRequired(value, "WEBAPP_VITE_GRAPHQL_HTTP");
+  let parsed;
+
+  try {
+    parsed = new URL(graphqlHttp);
+  } catch {
+    throw new Error("WEBAPP_VITE_GRAPHQL_HTTP must be an absolute HTTP URL.");
+  }
+
+  return parsed.origin;
+}
+
+function legacyDeterministicCloudRunGraphqlUrl(value, input) {
+  if (value === undefined) {
+    return false;
+  }
+
+  const service = trimOptional(input.CLOUD_RUN_SERVICE);
+  const region = trimOptional(input.CLOUD_RUN_REGION);
+
+  if (service === undefined || region === undefined) {
+    return false;
+  }
+
+  const escapedService = escapeRegExp(service);
+  const escapedRegion = escapeRegExp(region);
+  const legacyPattern = new RegExp(
+    `^(?:https?|wss?)://${escapedService}-[0-9]+\\.${escapedRegion}\\.run\\.app/graphql/?$`,
+  );
+
+  return legacyPattern.test(value);
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function webSocketUrlFromHttp(httpUrl) {

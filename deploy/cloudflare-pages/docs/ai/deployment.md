@@ -28,7 +28,10 @@ secrets are synced. It prompts for `CLOUDFLARE_ACCOUNT_ID`,
 `CLOUDFLARE_API_TOKEN`, and `CLOUDFLARE_PAGES_PROJECT_NAME`; the API token
 remains transient and is not written to scenario state. After Pages
 provisioning, the scenario configures the GitHub repository variables and
-Cloudflare secrets required by the production workflow.
+Cloudflare secrets required by the production workflow. For webapp GraphQL
+variables, it uses explicit overrides when supplied; otherwise it asks Google
+Cloud for the live Cloud Run service URL and appends `/graphql`. A brand-new
+environment may need a server-only deploy before that URL exists.
 
 ## Deployment Boundary
 

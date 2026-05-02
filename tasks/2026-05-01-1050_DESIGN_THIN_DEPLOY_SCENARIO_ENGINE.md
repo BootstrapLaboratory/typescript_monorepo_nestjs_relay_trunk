@@ -458,7 +458,9 @@ Future web usage should be possible without rewriting the scenario:
 - [x] Added a GitHub repository configuration step that writes the backend,
       frontend, CORS, and GraphQL GitHub Actions values through
       `deploy-provider-github`, while keeping the Cloudflare API token
-      transient.
+      transient. The step uses explicit webapp GraphQL URLs when supplied;
+      otherwise it resolves the live Cloud Run service URL and appends
+      `/graphql` instead of guessing a generated `run.app` hostname.
 - [x] Moved provider-specific scenario step adapters out of
       `deploy/scenario-engine/src/providers` and into
       `deploy/scenarios/cloudrun-cloudflare-neon-upstash/steps`.

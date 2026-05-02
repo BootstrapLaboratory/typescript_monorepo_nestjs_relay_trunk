@@ -32,6 +32,7 @@ export const CLOUDFLARE_PAGES_PROJECT_HANDOFF_VARIABLES = [
 export const GITHUB_REPOSITORY_CONFIG_VARIABLES = [
   "GITHUB_REPOSITORY",
   "GITHUB_REPOSITORY_CONFIGURED",
+  "CLOUD_RUN_PUBLIC_URL",
   "CLOUD_RUN_CORS_ORIGIN",
   "WEBAPP_VITE_GRAPHQL_HTTP",
   "WEBAPP_VITE_GRAPHQL_WS",
@@ -101,7 +102,7 @@ export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
         guide: [
           "Configure GitHub repository variables and secrets for the production workflow.",
           "The Cloud Run CORS origin defaults to the Pages URL.",
-          "The webapp GraphQL endpoints default to the deterministic Cloud Run service URL and can be overridden with WEBAPP_VITE_GRAPHQL_HTTP and WEBAPP_VITE_GRAPHQL_WS.",
+          "The webapp GraphQL endpoints default to the live Cloud Run service URL when it exists and can be overridden with WEBAPP_VITE_GRAPHQL_HTTP and WEBAPP_VITE_GRAPHQL_WS.",
         ].join("\n"),
         title: "Configure GitHub repository",
       }),

@@ -122,7 +122,9 @@ Use this checklist as the high-level deployment preparation path.
   not wildcard CORS.
 - Configure webapp GraphQL endpoints. `WEBAPP_VITE_GRAPHQL_HTTP` and
   `WEBAPP_VITE_GRAPHQL_WS` should point to the deployed backend GraphQL HTTP
-  and WS endpoints.
+  and WS endpoints. Guided setup may resolve these from the live Cloud Run
+  service URL after the backend service has been deployed at least once, or
+  accept explicit endpoint overrides.
 - Confirm `GRAPHQL_PATH`, server refresh cookie path, and webapp GraphQL
   endpoint paths all agree.
 - Configure GitHub repository variables and secrets for both providers.

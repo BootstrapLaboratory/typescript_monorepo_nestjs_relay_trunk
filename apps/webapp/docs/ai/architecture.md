@@ -161,10 +161,12 @@ Important webapp environment variables:
 
 Deployment helpers may expose these as `WEBAPP_VITE_GRAPHQL_HTTP` and
 `WEBAPP_VITE_GRAPHQL_WS` before mapping them into the Vite build environment.
-Keep these values aligned with the server `GRAPHQL_PATH`, refresh cookie path,
-and backend `CORS_ORIGIN`. For cookie refresh transport, the backend CORS
-allowlist must include the exact webapp origin because credentialed browser
-requests cannot safely rely on wildcard production CORS.
+Guided production setup may resolve the live Cloud Run service URL and append
+`/graphql` when explicit webapp GraphQL URLs are not supplied. Keep these
+values aligned with the server `GRAPHQL_PATH`, refresh cookie path, and backend
+`CORS_ORIGIN`. For cookie refresh transport, the backend CORS allowlist must
+include the exact webapp origin because credentialed browser requests cannot
+safely rely on wildcard production CORS.
 
 ## Styling Boundary
 

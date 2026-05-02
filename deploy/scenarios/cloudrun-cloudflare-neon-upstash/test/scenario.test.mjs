@@ -154,7 +154,10 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     const scenario = createCloudRunCloudflareNeonUpstashScenario({
       cloudflarePages: { provider: cloudflareProvider },
       cloudRun: { provider },
-      github: { provider: githubProvider },
+      github: {
+        provider: githubProvider,
+        resolveCloudRunServiceUrl: async () => "https://api-live.run.app",
+      },
       runtimeSecrets: { provider },
     });
     const store = createMemoryStore();
@@ -249,6 +252,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
           CLOUDFLARE_ACCOUNT_ID: "cloudflare-account",
           CLOUDFLARE_API_TOKEN: "cloudflare-secret-token",
           CLOUDFLARE_PAGES_PROJECT_NAME: "demo-webapp",
+          CLOUD_RUN_PUBLIC_URL: "https://api-live.run.app",
           CLOUD_RUN_CORS_ORIGIN: "https://demo-webapp.pages.dev",
           CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT:
             "cloud-run-runtime@demo-project.iam.gserviceaccount.com",
@@ -260,10 +264,8 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
           GCP_WORKLOAD_IDENTITY_PROVIDER:
             "projects/123456789/locations/global/workloadIdentityPools/github-actions/providers/github",
           GITHUB_REPOSITORY: "BeltOrg/beltapp",
-          WEBAPP_VITE_GRAPHQL_HTTP:
-            "https://api-123456789.europe-west4.run.app/graphql",
-          WEBAPP_VITE_GRAPHQL_WS:
-            "wss://api-123456789.europe-west4.run.app/graphql",
+          WEBAPP_VITE_GRAPHQL_HTTP: "https://api-live.run.app/graphql",
+          WEBAPP_VITE_GRAPHQL_WS: "wss://api-live.run.app/graphql",
         },
         name: "configureRepository",
       },
@@ -284,13 +286,14 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     assert.equal(result.values.PROJECT_ID, "demo-project");
     assert.equal(result.values.PROJECT_NUMBER, "123456789");
     assert.equal(result.values.UPSTASH_REDIS_URL_READY, "true");
+    assert.equal(result.values.CLOUD_RUN_PUBLIC_URL, "https://api-live.run.app");
     assert.equal(
       result.values.WEBAPP_VITE_GRAPHQL_HTTP,
-      "https://api-123456789.europe-west4.run.app/graphql",
+      "https://api-live.run.app/graphql",
     );
     assert.equal(
       result.values.WEBAPP_VITE_GRAPHQL_WS,
-      "wss://api-123456789.europe-west4.run.app/graphql",
+      "wss://api-live.run.app/graphql",
     );
     assert.equal(
       result.values.DATABASE_URL,
@@ -339,18 +342,18 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
           WEBAPP_URL: "https://demo-webapp.pages.dev",
         },
         {
+          CLOUD_RUN_PUBLIC_URL: "https://api-live.run.app",
           CLOUD_RUN_CORS_ORIGIN: "https://demo-webapp.pages.dev",
           GITHUB_REPOSITORY_CONFIGURED: "true",
-          WEBAPP_VITE_GRAPHQL_HTTP:
-            "https://api-123456789.europe-west4.run.app/graphql",
-          WEBAPP_VITE_GRAPHQL_WS:
-            "wss://api-123456789.europe-west4.run.app/graphql",
+          WEBAPP_VITE_GRAPHQL_HTTP: "https://api-live.run.app/graphql",
+          WEBAPP_VITE_GRAPHQL_WS: "wss://api-live.run.app/graphql",
         },
       ],
     );
     assert.deepEqual(redactScenarioValues(scenario, result.values), {
       CLOUD_RUN_REGION: "europe-west4",
       CLOUD_RUN_CORS_ORIGIN: "https://demo-webapp.pages.dev",
+      CLOUD_RUN_PUBLIC_URL: "https://api-live.run.app",
       CLOUD_RUN_RUNTIME_SECRETS_SYNCED: "true",
       CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT:
         "cloud-run-runtime@demo-project.iam.gserviceaccount.com",
@@ -373,10 +376,8 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
       PROJECT_NUMBER: "123456789",
       UPSTASH_REDIS_URL_READY: "true",
       WEBAPP_URL: "https://demo-webapp.pages.dev",
-      WEBAPP_VITE_GRAPHQL_HTTP:
-        "https://api-123456789.europe-west4.run.app/graphql",
-      WEBAPP_VITE_GRAPHQL_WS:
-        "wss://api-123456789.europe-west4.run.app/graphql",
+      WEBAPP_VITE_GRAPHQL_HTTP: "https://api-live.run.app/graphql",
+      WEBAPP_VITE_GRAPHQL_WS: "wss://api-live.run.app/graphql",
     });
 
     const completion = formatCompletionSections(scenario, result.values);
@@ -387,9 +388,10 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     assert.match(completion, /WEBAPP_URL=https:\/\/demo-webapp.pages.dev/);
     assert.match(completion, /GitHub repository configuration/);
     assert.match(completion, /GITHUB_REPOSITORY_CONFIGURED=true/);
+    assert.match(completion, /CLOUD_RUN_PUBLIC_URL=https:\/\/api-live.run.app/);
     assert.match(
       completion,
-      /WEBAPP_VITE_GRAPHQL_HTTP=https:\/\/api-123456789.europe-west4.run.app\/graphql/,
+      /WEBAPP_VITE_GRAPHQL_HTTP=https:\/\/api-live.run.app\/graphql/,
     );
     assert.match(completion, /not written to the scenario state file/);
     assert.match(completion, /Production provisioning\/setup is complete/);

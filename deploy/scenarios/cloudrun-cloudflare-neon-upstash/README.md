@@ -67,9 +67,16 @@ npm --prefix deploy/wizard run cloudrun-cloudflare-neon-upstash -- \
 Pass `--var CLOUD_RUN_CORS_ORIGIN=https://your-webapp.example.com` when using
 a custom frontend domain. Otherwise the GitHub configuration step uses the
 Cloudflare Pages URL. Pass `--var WEBAPP_VITE_GRAPHQL_HTTP=...` and
-`--var WEBAPP_VITE_GRAPHQL_WS=...` only when the backend uses a custom domain;
-otherwise the scenario derives the deterministic Cloud Run `/graphql` URLs from
-the service name, project number, and region.
+`--var WEBAPP_VITE_GRAPHQL_WS=...` when the backend URL is already known or
+uses a custom domain. If those values are omitted, the scenario asks Google
+Cloud for the live Cloud Run service URL and appends `/graphql`.
+
+For a brand-new environment, Cloud Run may not have a public service URL until
+after the first server deploy. In that case, run the server deploy first, rerun
+this scenario so the GitHub repository configuration step can resolve the live
+Cloud Run URL, then deploy the webapp. You can also pass
+`--var CLOUD_RUN_PUBLIC_URL=https://...run.app` when you already know the
+backend service origin.
 
 If Google reports that billing is not enabled, the scenario pauses, asks you to
 enable billing for the project manually, and retries Cloud Run bootstrap after
@@ -142,6 +149,7 @@ values:
 When GitHub repository configuration finishes, the CLI prints:
 
 - `GITHUB_REPOSITORY_CONFIGURED`
+- `CLOUD_RUN_PUBLIC_URL`
 - `CLOUD_RUN_CORS_ORIGIN`
 - `WEBAPP_VITE_GRAPHQL_HTTP`
 - `WEBAPP_VITE_GRAPHQL_WS`
