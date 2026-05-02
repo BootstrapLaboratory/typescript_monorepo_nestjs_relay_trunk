@@ -132,7 +132,7 @@ external reference:
 - [x] Write `10-ci-validation-and-local-workflows.md` explaining PR validation,
       main release workflow, forced target workflows, local dev commands,
       schema generation, Relay generation, migrations, and validation checks.
-- [ ] Write `11-how-to-evolve-the-project.md` as a design playbook for adding:
+- [x] Write `11-how-to-evolve-the-project.md` as a design playbook for adding:
       a GraphQL field, a server module, a webapp feature, a deploy target, a
       provider function, and a scenario step.
 
