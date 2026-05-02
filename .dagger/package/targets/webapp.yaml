@@ -10,3 +10,7 @@ build:
   map_env:
     VITE_GRAPHQL_HTTP: WEBAPP_VITE_GRAPHQL_HTTP
     VITE_GRAPHQL_WS: WEBAPP_VITE_GRAPHQL_WS
+
+  dry_run_defaults:
+    WEBAPP_VITE_GRAPHQL_HTTP: https://api.example.invalid/graphql
+    WEBAPP_VITE_GRAPHQL_WS: wss://api.example.invalid/graphql
