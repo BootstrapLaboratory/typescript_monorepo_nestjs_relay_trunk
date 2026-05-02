@@ -114,7 +114,7 @@ external reference:
 
 ## Phase 4: Delivery And Deployment Architecture
 
-- [ ] Write `07-rush-delivery-release-model.md` explaining why Rush Delivery is
+- [x] Write `07-rush-delivery-release-model.md` explaining why Rush Delivery is
       used, how Dagger isolation changes the release model, and how this
       project keeps GitHub Actions thin.
 - [ ] Write `08-deploy-targets-and-provider-boundaries.md` explaining package
