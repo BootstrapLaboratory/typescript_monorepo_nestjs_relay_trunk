@@ -121,7 +121,7 @@ external reference:
       targets, deploy targets, deploy mesh ordering, build-time versus
       deploy-time environment, Cloud Run, Cloudflare Pages, and provider script
       boundaries.
-- [ ] Write `09-predeploy-scenarios-and-provider-functions.md` explaining the
+- [x] Write `09-predeploy-scenarios-and-provider-functions.md` explaining the
       scenario engine, wizard host, concrete
       `cloudrun-cloudflare-neon-upstash` scenario, provider packages, typed
       provider functions, secret redaction, resumable state, and why scenarios
