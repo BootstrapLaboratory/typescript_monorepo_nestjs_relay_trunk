@@ -138,13 +138,13 @@ external reference:
 
 ## Phase 6: Review And Polish
 
-- [ ] Check all relative links.
-- [ ] Check that every chapter has a clear design decision and consequence.
-- [ ] Remove stale or speculative claims that are not true in the current
+- [x] Check all relative links.
+- [x] Check that every chapter has a clear design decision and consequence.
+- [x] Remove stale or speculative claims that are not true in the current
       checkout.
-- [ ] Ensure Rush Delivery links point to the public docs and tutorial.
-- [ ] Run markdown/documentation checks available in the repository.
-- [ ] Provide semantic commit messages after modifying docs.
+- [x] Ensure Rush Delivery links point to the public docs and tutorial.
+- [x] Run markdown/documentation checks available in the repository.
+- [x] Provide semantic commit messages after modifying docs.
 
 ## Acceptance Criteria
 
