@@ -17,6 +17,10 @@ RUN dnf -y install \
 # Force Java headless for everything (safe in devcontainer)
 ENV JAVA_TOOL_OPTIONS="-Djava.awt.headless=true"
 
+# The Trunk VS Code extension installs its launcher under root's cache volume.
+# Keep it on PATH so shells, tasks, and AI agents can run `trunk` directly.
+ENV PATH="/root/.cache/trunk/launcher:${PATH}"
+
 # Make plantuml always headless (avoid X11 in containers)
 RUN cat > /usr/local/bin/plantuml <<'EOF' \
  && chmod +x /usr/local/bin/plantuml

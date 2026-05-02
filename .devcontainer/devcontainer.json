@@ -34,7 +34,8 @@
   "postStartCommand": "",
   "containerUser": "root",
   "remoteEnv": {
-    "DOCKER_HOST": "unix:///run/host-user-runtime/podman/podman.sock"
+    "DOCKER_HOST": "unix:///run/host-user-runtime/podman/podman.sock",
+    "PATH": "/root/.cache/trunk/launcher:${containerEnv:PATH}"
   },
   // "runArgs": ["--userns=keep-id"],
   "workspaceFolder": "/workspace",

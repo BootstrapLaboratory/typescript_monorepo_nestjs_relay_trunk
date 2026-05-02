@@ -81,6 +81,10 @@ RUN install -d -m 0755 /usr/local/share/devcontainer \
 # Force Java headless for everything (safe in devcontainer)
 ENV JAVA_TOOL_OPTIONS="-Djava.awt.headless=true"
 
+# The Trunk VS Code extension installs its launcher under root's cache volume.
+# Keep it on PATH so shells, tasks, and AI agents can run `trunk` directly.
+ENV PATH="/root/.cache/trunk/launcher:${PATH}"
+
 # Make plantuml always headless (avoid X11 in containers).
 # Keep a legacy entrypoint for users/scripts that still call docker-compose.
 RUN printf '%s\n' \

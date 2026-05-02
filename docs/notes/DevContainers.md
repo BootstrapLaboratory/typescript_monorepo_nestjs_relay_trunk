@@ -23,6 +23,8 @@ The repo now prepares Docker-compatible access to a host rootless Podman socket 
   - `docker-compose-plugin`
 - mounts the host `${XDG_RUNTIME_DIR}` into the devcontainer at `/run/host-user-runtime`
 - exports `DOCKER_HOST=unix:///run/host-user-runtime/podman/podman.sock`
+- exposes the Trunk launcher directory on `PATH`, so `trunk` works directly
+  once the launcher exists in root's cache volume
 - does **not** install or run a Docker daemon inside the devcontainer
 
 Manual host steps are still required:
@@ -38,6 +40,7 @@ Quick verification inside the devcontainer after rebuild:
 - `docker info`
 - `docker ps`
 - `docker compose version`
+- `trunk --version`
 
 If `XDG_RUNTIME_DIR` is not visible to the Dev Containers extension launch environment, the bind mount will not resolve correctly. In that case, launch VS Code from a shell that has the correct session environment or adjust your local VS Code launch environment before reopening the container.
 
