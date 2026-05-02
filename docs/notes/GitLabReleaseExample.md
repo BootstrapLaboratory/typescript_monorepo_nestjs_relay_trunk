@@ -56,7 +56,7 @@ The ready-to-adapt wrapper example lives at
 The example calls:
 
 ```bash
-dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.4.1 call workflow
+dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.5.0 call workflow
 ```
 
 and passes `source-mode=git`, so Rush Delivery owns source acquisition the same

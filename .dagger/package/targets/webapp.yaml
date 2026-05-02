@@ -1,7 +1,12 @@
-# yaml-language-server: $schema=https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.4.1/package-target.schema.json
+# yaml-language-server: $schema=https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.5.0/package-target.schema.json
 
 name: webapp
 
 artifact:
   kind: directory
   path: apps/webapp/dist
+
+build:
+  map_env:
+    VITE_GRAPHQL_HTTP: WEBAPP_VITE_GRAPHQL_HTTP
+    VITE_GRAPHQL_WS: WEBAPP_VITE_GRAPHQL_WS

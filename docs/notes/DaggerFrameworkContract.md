@@ -8,7 +8,7 @@ workflow wiring.
 Run the metadata contract validator before changing target metadata:
 
 ```bash
-dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.4.1 call validate-metadata-contract --repo=.
+dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.5.0 call validate-metadata-contract --repo=.
 ```
 
 The same validation runs before the release and validation workflows do
@@ -50,7 +50,7 @@ Delivery runs. They are not source metadata.
 Rush Delivery publishes metadata schemas at versioned URLs such as:
 
 ```text
-https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.4.1/*
+https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.5.0/*
 ```
 
 Each `.dagger/**/*.yaml` metadata file declares its schema with a

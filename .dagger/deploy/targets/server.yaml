@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.4.1/deploy-target.schema.json
+# yaml-language-server: $schema=https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.5.0/deploy-target.schema.json
 
 name: server
 deploy_script: deploy/cloudrun/scripts/deploy-server.sh
