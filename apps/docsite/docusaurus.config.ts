@@ -53,6 +53,7 @@ const config: Config = {
           href: appUrl,
           label: "Application",
           position: "right",
+          target: "_self",
         },
       ],
     },
@@ -74,6 +75,7 @@ const config: Config = {
             {
               label: "Application",
               href: appUrl,
+              target: "_self",
             },
           ],
         },
