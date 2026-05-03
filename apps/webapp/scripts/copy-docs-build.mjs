@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const webappDir = path.resolve(path.dirname(scriptPath), "..");
-const docsBuildDir = path.resolve(webappDir, "../docs/build");
+const docsBuildDir = path.resolve(webappDir, "../docsite/build");
 const docsIndex = path.join(docsBuildDir, "index.html");
 const docsOutDir = path.join(webappDir, "dist/docs");
 

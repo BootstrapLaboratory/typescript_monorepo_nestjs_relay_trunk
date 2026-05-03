@@ -19,7 +19,7 @@
     },
     {
       "packageName": "docs-site",
-      "projectFolder": "apps/docs",
+      "projectFolder": "apps/docsite",
       "reviewCategory": "applications",
       "versionPolicyName": "apps"
     },

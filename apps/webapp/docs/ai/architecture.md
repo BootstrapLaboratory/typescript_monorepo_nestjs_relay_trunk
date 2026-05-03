@@ -16,7 +16,7 @@ Cloudflare Pages build output.
   behind those wrappers when accessible behavior is needed.
 - UI workshop: Storybook with the React/Vite framework for isolated reusable
   UI components, plain feature views, and page compositions.
-- Published docs: Docusaurus in `apps/docs`, served under the webapp origin at
+- Published docs: Docusaurus in `apps/docsite`, served under the webapp origin at
   `/docs/` after its build output is copied into `apps/webapp/dist/docs`.
 - Contract source: `libs/api/schema.gql`.
 
@@ -30,7 +30,7 @@ Generated Relay files under `src/**/__generated__` are compiler output. Do not
 hand-edit them.
 
 When Rush builds the deployable `webapp` target, it builds the `docs-site`
-Rush dependency first. The webapp build then copies `apps/docs/build` into
+Rush dependency first. The webapp build then copies `apps/docsite/build` into
 `apps/webapp/dist/docs`. That keeps Docusaurus independent while preserving a
 single Cloudflare Pages deploy artifact.
 
@@ -50,7 +50,7 @@ single Cloudflare Pages deploy artifact.
 - `src/features/project-info` owns the README-backed info page and markdown
   rendering.
 - `src/features/navigation` owns navigation-adjacent pages such as not found.
-- `apps/docs` owns the Docusaurus documentation surface. The TanStack Router
+- `apps/docsite` owns the Docusaurus documentation surface. The TanStack Router
   app should link to `/docs/` or `/docs/tutorial/`, but it should not define
   `/docs/*` routes.
 - Feature folders should use consistent internal folders when they grow:
@@ -204,7 +204,7 @@ Delivery packages it and the Cloudflare Pages deploy script publishes it from
 The artifact includes two static surfaces:
 
 - `/`: the Vite/TanStack browser app
-- `/docs/`: the Docusaurus docs site copied from `apps/docs/build`
+- `/docs/`: the Docusaurus docs site copied from `apps/docsite/build`
 
 Provider-specific deploy behavior should stay under `deploy/cloudflare-pages`,
 not inside React components.

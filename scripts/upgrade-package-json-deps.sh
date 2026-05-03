@@ -93,7 +93,7 @@ main() {
       upgrade_root_wrapper
       ;;
     docs | docs-site)
-      run_ncu "${REPO_DIR}/apps/docs" "apps/docs/package.json"
+      run_ncu "${REPO_DIR}/apps/docsite" "apps/docsite/package.json"
       refresh_rush_lockfile
       ;;
     webapp)
@@ -106,7 +106,7 @@ main() {
       ;;
     all)
       upgrade_root_wrapper
-      run_ncu "${REPO_DIR}/apps/docs" "apps/docs/package.json"
+      run_ncu "${REPO_DIR}/apps/docsite" "apps/docsite/package.json"
       run_ncu "${REPO_DIR}/apps/webapp" "apps/webapp/package.json"
       run_ncu "${REPO_DIR}/apps/server" "apps/server/package.json"
       refresh_rush_lockfile

@@ -130,7 +130,7 @@ That ordering matters. Relay validates operations against the committed schema
 before TypeScript and Vite finish the app build.
 
 For the deployable `webapp` target, Rush builds `docs-site` first. After Vite
-finishes, the webapp build copies `apps/docs/build` into
+finishes, the webapp build copies `apps/docsite/build` into
 `apps/webapp/dist/docs`. That gives Cloudflare Pages one upload directory while
 keeping the docs generator independent from the browser app.
 

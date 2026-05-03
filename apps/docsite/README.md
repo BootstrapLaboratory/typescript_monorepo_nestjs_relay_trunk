@@ -9,8 +9,8 @@ reads that Markdown directly and publishes it under `/docs/tutorial/`.
 ## Commands
 
 ```bash
-npm --prefix apps/docs run start:dev
-npm --prefix apps/docs run build
+npm --prefix apps/docsite run start:dev
+npm --prefix apps/docsite run build
 ```
 
 The production webapp artifact copies this project's `build` output into

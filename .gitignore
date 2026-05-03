@@ -7,7 +7,7 @@ node_modules/
 dist
 dist-ssr
 .docusaurus
-apps/docs/build/
+apps/docsite/build/
 *.local
 gha-creds-*.json
 .dagger/runtime/

@@ -8,7 +8,7 @@ ordering, and lockfile ownership.
 
 - `apps/server`: NestJS backend deployed to Cloud Run.
 - `apps/webapp`: React/Vite/Relay frontend deployed to Cloudflare Pages.
-- `apps/docs`: Docusaurus documentation site built as a separate Rush project.
+- `apps/docsite`: Docusaurus documentation site built as a separate Rush project.
   Its output is copied into `apps/webapp/dist/docs` so Cloudflare Pages serves
   it under the same webapp origin at `/docs/`.
 - `libs/api`: generated GraphQL schema contract consumed by the webapp.

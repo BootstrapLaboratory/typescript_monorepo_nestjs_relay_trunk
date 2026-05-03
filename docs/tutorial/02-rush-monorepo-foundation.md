@@ -13,12 +13,12 @@ shape.
 
 `rush.json` declares every Rush project. The important product projects are:
 
-| Package        | Folder        | Role                          |
-| -------------- | ------------- | ----------------------------- |
-| `server`       | `apps/server` | NestJS backend                |
-| `webapp`       | `apps/webapp` | React/Vite frontend           |
-| `docs-site`    | `apps/docs`   | Docusaurus documentation site |
-| `api-contract` | `libs/api`    | Shared GraphQL schema package |
+| Package        | Folder         | Role                          |
+| -------------- | -------------- | ----------------------------- |
+| `server`       | `apps/server`  | NestJS backend                |
+| `webapp`       | `apps/webapp`  | React/Vite frontend           |
+| `docs-site`    | `apps/docsite` | Docusaurus documentation site |
+| `api-contract` | `libs/api`     | Shared GraphQL schema package |
 
 The deployment and setup tools are also Rush projects:
 
@@ -49,7 +49,7 @@ The consequence is practical:
 
 - backend dependencies belong in `apps/server/package.json`
 - webapp dependencies belong in `apps/webapp/package.json`
-- docs dependencies belong in `apps/docs/package.json`
+- docs dependencies belong in `apps/docsite/package.json`
 - provider SDK dependencies belong in the matching `deploy/providers/*`
   package
 - shared generated schema belongs in `libs/api`
