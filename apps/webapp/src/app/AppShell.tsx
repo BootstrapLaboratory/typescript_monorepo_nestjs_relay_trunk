@@ -22,6 +22,9 @@ const themeOptions: ReadonlyArray<SelectFieldOption<ThemeName>> =
     label: themeLabelByName[name],
   }));
 
+const tutorialUrl =
+  import.meta.env.VITE_DOCS_TUTORIAL_URL?.trim() || "/docs/tutorial/";
+
 function AuthNavigationAction() {
   const authState = useAuthState();
   const navigate = useNavigate();
@@ -107,7 +110,7 @@ export function AppShell() {
               >
                 Info
               </Link>
-              <a className={styles.navLink} href="/docs/tutorial/">
+              <a className={styles.navLink} href={tutorialUrl}>
                 Tutorial
               </a>
             </div>

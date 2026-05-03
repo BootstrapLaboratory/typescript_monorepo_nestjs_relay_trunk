@@ -3,10 +3,10 @@
   "private": true,
   "version": "0.0.1",
   "scripts": {
-    "start:dev": "docusaurus start --host 0.0.0.0 --port 3001",
-    "dev": "docusaurus start --host 0.0.0.0 --port 3001",
+    "start:dev": "DOCS_SITE_URL=http://localhost:3001 DOCS_APP_URL=http://localhost:5173 docusaurus start --host 0.0.0.0 --port 3001",
+    "dev": "DOCS_SITE_URL=http://localhost:3001 DOCS_APP_URL=http://localhost:5173 docusaurus start --host 0.0.0.0 --port 3001",
     "build": "docusaurus build",
-    "serve": "docusaurus serve --host 0.0.0.0 --port 3001",
+    "serve": "DOCS_SITE_URL=http://localhost:3001 DOCS_APP_URL=http://localhost:5173 docusaurus serve --host 0.0.0.0 --port 3001",
     "clear": "docusaurus clear",
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm run build"

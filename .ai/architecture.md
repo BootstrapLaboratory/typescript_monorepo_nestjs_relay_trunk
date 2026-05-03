@@ -129,8 +129,10 @@ comments. Do not add `$schema` as data fields.
 
 ## Local Development
 
-`npm run dev` uses a small Nx wrapper only to run Rush project `start:dev`
-targets together. Nx is not the build or dependency manager for this repo.
+`npm run dev` uses a small Nx wrapper only to run local development processes
+together: API contract watch, server watch, webapp Vite dev server, and
+Docusaurus docs live preview. Nx is not the build or dependency manager for
+this repo.
 
 Prefer Rush commands for repo-wide checks and package scripts for project-local
 behavior.

@@ -49,9 +49,13 @@ to start the long-running development processes for:
 - `api-contract`
 - `webapp`
 - `server`
+- `docs-site`
 
 Nx is used here because it gives a pleasant multi-process terminal experience.
 It is not the repository's package manager, build system, or CI orchestrator.
+The webapp tutorial link points to the Docusaurus live preview at
+`http://localhost:3001/docs/tutorial/` in this mode. Production uses
+`/docs/tutorial/` from the packaged Cloudflare Pages artifact.
 
 The local process shape is:
 
@@ -100,6 +104,10 @@ run project scripts:
 That means adding a new Rush project does not require editing a central CI
 script just to make lint or tests work. The project exposes the scripts it
 supports, and Rush runs them through the graph-aware command surface.
+
+The root `npm run dev` command is a local convenience wrapper around Nx rather
+than the release path. It starts the API contract watcher, server watcher, Vite
+webapp, and Docusaurus live preview together.
 
 ## Local Code QA With Trunk
 

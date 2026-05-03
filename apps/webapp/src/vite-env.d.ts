@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   readonly VITE_GRAPHQL_WS: string;
   readonly VITE_GRAPHQL_LOG_RECONNECTS?: string;
   readonly VITE_GRAPHQL_RECONNECT_WATCHDOG_MS?: string;
+  readonly VITE_DOCS_TUTORIAL_URL?: string;
 }
 
 interface ImportMeta {

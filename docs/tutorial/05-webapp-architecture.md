@@ -81,9 +81,10 @@ aborted. That lifecycle belongs in the route layer because it is tied to router
 ownership, not to a specific chat component.
 
 The `/docs/*` path is intentionally not part of the TanStack Router tree.
-Docusaurus owns that static route space. The webapp may link to `/docs/` or
-`/docs/tutorial/`, but route files should not try to render Docusaurus content
-inside the Vite app.
+Docusaurus owns that static route space. The webapp uses an environment-backed
+tutorial URL so local development can point to the Docusaurus live preview
+while production points to the same-origin `/docs/tutorial/` route. Route files
+should not try to render Docusaurus content inside the Vite app.
 
 ## Feature Folders Own Product Composition
 
@@ -203,6 +204,7 @@ The browser bundle needs GraphQL endpoint values at build time:
 
 - `VITE_GRAPHQL_HTTP`
 - `VITE_GRAPHQL_WS`
+- `VITE_DOCS_TUTORIAL_URL`
 
 Vite embeds these values into the built app. In production, the repository uses
 deployment-facing variable names:
@@ -217,7 +219,10 @@ values for validation and handoff, but it does not require the build-only
 
 That distinction matters because frontend endpoint values are build-time
 inputs, not runtime secrets. They must be present when the static assets are
-built; changing them later requires rebuilding the webapp.
+built; changing them later requires rebuilding the webapp. In local
+development, `VITE_DOCS_TUTORIAL_URL` points to the Docusaurus dev server. In
+production, it points to `/docs/tutorial/` inside the same Cloudflare Pages
+artifact.
 
 ## Deployment Boundary
 

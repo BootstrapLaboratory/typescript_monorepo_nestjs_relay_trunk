@@ -41,4 +41,4 @@ ensure_nx() {
 ensure_nx
 
 cd "${REPO_ROOT}"
-exec node "${NX_BIN}" run-many --target=start:dev --projects=api-contract,webapp,server "$@"
+exec node "${NX_BIN}" run-many --target=start:dev --projects=api-contract,webapp,server,docs-site "$@"

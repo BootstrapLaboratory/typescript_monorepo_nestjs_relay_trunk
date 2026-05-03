@@ -52,7 +52,7 @@ preserving a single Cloudflare Pages deploy artifact.
   rendering.
 - `src/features/navigation` owns navigation-adjacent pages such as not found.
 - `apps/docsite` owns the Docusaurus documentation surface. The TanStack Router
-  app should link to `/docs/` or `/docs/tutorial/`, but it should not define
+  app should link to the configured docs URL, but it should not define
   `/docs/*` routes.
 - Feature folders should use consistent internal folders when they grow:
   `pages` for route-facing feature pages, `components` for feature-local
@@ -169,6 +169,10 @@ Important webapp environment variables:
   `connecting` or `retrying` state. Default is `30000`. Set to `0` to disable.
   Local development may use a lower value such as `15000` to recover faster
   after laptop sleep or network changes.
+- `VITE_DOCS_TUTORIAL_URL`: header tutorial link. Local development points to
+  the Docusaurus dev server at `http://localhost:3001/docs/tutorial/`.
+  Production should use the same-origin `/docs/tutorial/` path because the
+  Docusaurus build is copied into the webapp artifact.
 
 Deployment helpers may expose these as `WEBAPP_VITE_GRAPHQL_HTTP` and
 `WEBAPP_VITE_GRAPHQL_WS` before mapping them into the Vite build environment.

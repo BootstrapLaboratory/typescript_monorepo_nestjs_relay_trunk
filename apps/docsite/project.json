@@ -1,0 +1,12 @@
+{
+  "name": "docs-site",
+  "targets": {
+    "start:dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run start:dev",
+        "cwd": "apps/docsite"
+      }
+    }
+  }
+}
