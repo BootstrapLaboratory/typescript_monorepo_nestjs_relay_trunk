@@ -9,6 +9,8 @@ NX_VERSION="22.6.5"
 NX_INSTALL_DIR="${REPO_ROOT}/.nx/installation"
 NX_BIN="${NX_INSTALL_DIR}/node_modules/nx/bin/nx.js"
 NX_PACKAGE_JSON="${NX_INSTALL_DIR}/node_modules/nx/package.json"
+DEV_PROJECTS=(api-contract webapp server docs-site)
+DEV_PROJECT_LIST="$(IFS=,; printf '%s' "${DEV_PROJECTS[*]}")"
 
 installed_nx_version() {
   if [[ ! -f "${NX_PACKAGE_JSON}" ]]; then
@@ -41,4 +43,8 @@ ensure_nx() {
 ensure_nx
 
 cd "${REPO_ROOT}"
-exec node "${NX_BIN}" run-many --target=start:dev --projects=api-contract,webapp,server,docs-site "$@"
+exec node "${NX_BIN}" run-many \
+  --target=start:dev \
+  --projects="${DEV_PROJECT_LIST}" \
+  --parallel="${#DEV_PROJECTS[@]}" \
+  "$@"
