@@ -1,9 +1,9 @@
 # AGENTS.md
 
 - if you do not find files referenced in this document, then STOP processing and write error message about it
-- Always read `docs/ai/conventions.md` before making code or
+- Always read `.ai/conventions.md` before making code or
   architecture changes in this repository.
-- Read `docs/ai/deployment.md` when working on production setup,
+- Read `.ai/deployment.md` when working on production setup,
   pre-deployment tasks, deployment instructions, GitHub Actions deployment
   workflows, Rush Delivery package/deploy metadata, or files under `deploy`.
 - Read `apps/server/docs/ai/conventions.md` when working under `apps/server`,
@@ -14,13 +14,13 @@
   or Cloudflare Pages deployment behavior.
 - Read `libs/api/docs/ai/conventions.md` when working under `libs/api` or
   when changing the GraphQL schema contract between server and webapp.
-- Read `docs/ai/rules/BashModules.md` only when working on bash modules, shell scripts, or shell-based project layout.
-- Read `docs/ai/rules/CodeQA.md` before running local code QA, linting,
+- Read `.ai/rules/BashModules.md` only when working on bash modules, shell scripts, or shell-based project layout.
+- Read `.ai/rules/CodeQA.md` before running local code QA, linting,
   formatting, security checks, or validation commands.
 - Do not load specialized docs unless the task touches that area.
 - After completing a task, if you modify any files, give two commit messages in semantic commits style: short and detailed
 - After modifying any files in source tree give a commit message in semantic commits style: short and detailed
-- Read `docs/ai/rules/DocEditing.md` only when editing documentation, markdown documents
+- Read `.ai/rules/DocEditing.md` only when editing documentation, markdown documents
 - if the task user is asking for is big enough and cannot be complited in one run, then create a task file under `tasks` directory with checklist/phases/etc
-- Read `docs/ai/rules/TasksFiles.md` when creating, managing, or modifying
+- Read `.ai/rules/TasksFiles.md` when creating, managing, or modifying
   files under the `tasks` directory.

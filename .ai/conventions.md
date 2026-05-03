@@ -1,15 +1,15 @@
 # Project AI Conventions
 
-- Read `docs/ai/architecture.md` before making code or architecture
+- Read `.ai/architecture.md` before making code or architecture
   changes in this repository.
 - If repository-level architecture changes, update
-  `docs/ai/architecture.md` in the same task.
+  `.ai/architecture.md` in the same task.
 - Keep architecture documents self-contained. Do not add markdown links from
   architecture documents to other documentation files.
 - Keep scoped AI documents self-contained within their own boundary. Do not add
   markdown links from scoped AI documents to parent or sibling AI documents;
   loading order belongs in `AGENTS.md` or in an explicit top-level router
-  document such as `docs/ai/deployment.md`.
+  document such as `.ai/deployment.md`.
 - When editing AI documents, keep statements you add or change aligned with the
   implementation, scripts, config, workflows, and metadata in the current
   checkout after the current task's intended changes. Prefer source files over

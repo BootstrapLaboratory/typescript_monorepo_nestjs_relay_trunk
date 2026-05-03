@@ -343,11 +343,11 @@ Architecture documentation should move with architectural changes.
 
 Use the scoped docs as ownership mirrors:
 
-- repository-wide boundary changes: `docs/ai/architecture.md`
+- repository-wide boundary changes: `.ai/architecture.md`
 - server behavior or schema generation: `apps/server/docs/ai/architecture.md`
 - webapp behavior or deployment boundary: `apps/webapp/docs/ai/architecture.md`
 - GraphQL contract behavior: `libs/api/docs/ai/architecture.md`
-- deployment setup and workflow behavior: `docs/ai/deployment.md` and provider
+- deployment setup and workflow behavior: `.ai/deployment.md` and provider
   deployment docs
 
 Do not update every document by reflex. Update the document that owns the

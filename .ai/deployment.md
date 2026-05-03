@@ -33,14 +33,14 @@ Current deploy targets:
 
 Provider-specific AI documents:
 
-- Cloud Run backend: [../../deploy/cloudrun/docs/ai/deployment.md](../../deploy/cloudrun/docs/ai/deployment.md)
-- Cloudflare Pages frontend: [../../deploy/cloudflare-pages/docs/ai/deployment.md](../../deploy/cloudflare-pages/docs/ai/deployment.md)
+- Cloud Run backend: [../deploy/cloudrun/docs/ai/deployment.md](../deploy/cloudrun/docs/ai/deployment.md)
+- Cloudflare Pages frontend: [../deploy/cloudflare-pages/docs/ai/deployment.md](../deploy/cloudflare-pages/docs/ai/deployment.md)
 
 Workflow files:
 
-- Main deployment workflow: [../../.github/workflows/main-workflow.yaml](../../.github/workflows/main-workflow.yaml)
-- Manual targeted server deploy wrapper: [../../.github/workflows/force-deploy-server.yaml](../../.github/workflows/force-deploy-server.yaml)
-- Manual targeted webapp deploy wrapper: [../../.github/workflows/force-deploy-webapp.yaml](../../.github/workflows/force-deploy-webapp.yaml)
+- Main deployment workflow: [../.github/workflows/main-workflow.yaml](../.github/workflows/main-workflow.yaml)
+- Manual targeted server deploy wrapper: [../.github/workflows/force-deploy-server.yaml](../.github/workflows/force-deploy-server.yaml)
+- Manual targeted webapp deploy wrapper: [../.github/workflows/force-deploy-webapp.yaml](../.github/workflows/force-deploy-webapp.yaml)
 
 ## Provider Document Loading
 

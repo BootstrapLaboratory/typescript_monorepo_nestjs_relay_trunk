@@ -14,6 +14,9 @@ ordering, and lockfile ownership.
   It consumes content from `docs/tutorial`; its output is copied into
   `apps/webapp/dist/docs` so Cloudflare Pages serves it under the same webapp
   origin at `/docs/`.
+- `.ai`: repository-wide AI assistant guidance. It is intentionally outside
+  the `docs` Rush project so assistant rule changes do not affect the
+  Docusaurus/webapp release graph.
 - `libs/api`: generated GraphQL schema contract consumed by the webapp.
 - `.dagger`: app-owned Rush Delivery metadata for validation, package, deploy,
   toolchain images, and Rush install cache.
