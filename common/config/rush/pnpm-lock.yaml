@@ -145,6 +145,9 @@ importers:
       '@rush-temp/deploy-wizard':
         specifier: file:./projects/deploy-wizard.tgz
         version: file:projects/deploy-wizard.tgz
+      '@rush-temp/docs':
+        specifier: file:./projects/docs.tgz
+        version: file:projects/docs.tgz
       '@rush-temp/docs-site':
         specifier: file:./projects/docs-site.tgz
         version: file:projects/docs-site.tgz(@algolia/client-search@5.52.0)(@swc/core@1.15.30)(esbuild@0.28.0)
@@ -3509,7 +3512,11 @@ packages:
     version: 0.0.0
 
   '@rush-temp/docs-site@file:projects/docs-site.tgz':
-    resolution: {integrity: sha512-xiVTdSm1A1r8JHo9Yt0LI6fhgeKp6Z4HPiiSk5i/TfPvGOQChQtj++b1djFrdzHyWdtdxeu2/38UMWayf+SBmg==, tarball: file:projects/docs-site.tgz}
+    resolution: {integrity: sha512-TenlHEhNHA5vMsNoQtYYp69V+VXDSBWxDtKlyISMKhPYngkqR2hBQKIx02TrVwblqIUY+YeqEzuwZTTXlW351w==, tarball: file:projects/docs-site.tgz}
+    version: 0.0.0
+
+  '@rush-temp/docs@file:projects/docs.tgz':
+    resolution: {integrity: sha512-myXBWmkgsua1MrXxOzMAJRAUYS/H1EXuJIlm2inlqMCl6iimNEoreqzywYotzl4it7MG2i68/SV9VfjhgK0GVQ==, tarball: file:projects/docs.tgz}
     version: 0.0.0
 
   '@rush-temp/server@file:projects/server.tgz':
@@ -14169,6 +14176,8 @@ snapshots:
       - uglify-js
       - utf-8-validate
       - webpack-cli
+
+  '@rush-temp/docs@file:projects/docs.tgz': {}
 
   '@rush-temp/server@file:projects/server.tgz(@babel/core@7.29.0)(@jest/transform@30.3.0)(@jest/types@30.3.0)(@types/eslint@9.6.1)(babel-jest@30.3.0(@babel/core@7.29.0))(esbuild@0.28.0)(fastify@5.8.5)(jest-util@30.3.0)(jiti@1.21.7)(webpack@5.106.0(@swc/core@1.15.30)(esbuild@0.28.0))':
     dependencies:

@@ -114,9 +114,10 @@ Use this checklist as the high-level deployment preparation path.
   Manager, database, and Redis.
 - Provision frontend infrastructure: Cloudflare account, Pages project, and
   API token for direct uploads.
-- Build documentation through the `docs-site` Rush project when the deployable
-  webapp artifact is built. The public docs routes are served from the same
-  Cloudflare Pages project at `/docs/` and `/docs/tutorial/`.
+- Build documentation through the `docs -> docs-site -> webapp` Rush dependency
+  chain when the deployable webapp artifact is built. The public docs routes
+  are served from the same Cloudflare Pages project at `/docs/` and
+  `/docs/tutorial/`.
 - Configure database URLs. Runtime should use the pooled low-privilege
   `DATABASE_URL`; migrations should use `DATABASE_URL_DIRECT`.
 - Configure Redis with `REDIS_URL` when production should use distributed

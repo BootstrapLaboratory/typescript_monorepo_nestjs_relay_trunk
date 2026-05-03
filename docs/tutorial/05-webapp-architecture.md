@@ -129,10 +129,11 @@ relay -> tsc -b -> vite build
 That ordering matters. Relay validates operations against the committed schema
 before TypeScript and Vite finish the app build.
 
-For the deployable `webapp` target, Rush builds `docs-site` first. After Vite
-finishes, the webapp build copies `apps/docsite/build` into
-`apps/webapp/dist/docs`. That gives Cloudflare Pages one upload directory while
-keeping the docs generator independent from the browser app.
+For the deployable `webapp` target, Rush follows the documentation chain
+`docs -> docs-site -> webapp`. After Vite finishes, the webapp build copies
+`apps/docsite/build` into `apps/webapp/dist/docs`. That gives Cloudflare Pages
+one upload directory while keeping docs content, the docs generator, and the
+browser app independent.
 
 The Relay environment lives in `src/shared/relay/environment.ts`. It defines
 one network layer for:

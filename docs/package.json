@@ -1,0 +1,10 @@
+{
+  "name": "docs",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "build": "node -e \"require('node:fs').accessSync('tutorial')\"",
+    "start:dev": "npm run build",
+    "verify": "npm run build"
+  }
+}

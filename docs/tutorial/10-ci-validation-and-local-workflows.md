@@ -291,8 +291,9 @@ npm run webapp:build:pages
 
 That helper requires `VITE_GRAPHQL_HTTP` and `VITE_GRAPHQL_WS`, rejects
 placeholder production endpoints, runs a Rush install unless told not to, and
-builds the `webapp` project. Because `webapp` depends on `docs-site`, the
-Docusaurus docs build runs first and is copied into `apps/webapp/dist/docs`.
+builds the `webapp` project. Because the graph is
+`docs -> docs-site -> webapp`, documentation content is part of the selected
+build chain and the Docusaurus output is copied into `apps/webapp/dist/docs`.
 
 For documentation-only work, the focused local commands are:
 

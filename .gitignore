@@ -25,6 +25,7 @@ gha-creds-*.json
 
 # Rush
 **/.rush/
+**/rush-logs/
 /common/temp/
 /common/temp*/   # includes npm-tmp, npm-cache, pnpm-store
 /common/deploy/

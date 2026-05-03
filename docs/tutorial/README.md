@@ -21,8 +21,9 @@ The product is a TypeScript monorepo with:
 
 - a NestJS GraphQL backend in `apps/server`
 - a React, Vite, and Relay webapp in `apps/webapp`
-- a Docusaurus documentation site in `apps/docsite`, served under the webapp
-  origin at `/docs/`
+- documentation content in `docs`
+- a Docusaurus documentation site in `apps/docsite` that renders the tutorial
+  and is served under the webapp origin at `/docs/`
 - a committed GraphQL schema contract in `libs/api`
 - Rush-owned project membership, dependency installation, and bulk commands
 - Rush Delivery-owned release flow for detect, validate, build, package, and

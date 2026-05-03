@@ -6,6 +6,10 @@ the webapp origin at `/docs/`.
 The project design tutorial source stays in `../../docs/tutorial`. Docusaurus
 reads that Markdown directly and publishes it under `/docs/tutorial/`.
 
+The root `docs` directory is also a private Rush project. This project depends
+on it so documentation content changes flow through the Rush graph before the
+webapp artifact is built.
+
 ## Commands
 
 ```bash

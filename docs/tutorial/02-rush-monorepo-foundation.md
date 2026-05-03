@@ -17,6 +17,7 @@ shape.
 | -------------- | -------------- | ----------------------------- |
 | `server`       | `apps/server`  | NestJS backend                |
 | `webapp`       | `apps/webapp`  | React/Vite frontend           |
+| `docs`         | `docs`         | Documentation content         |
 | `docs-site`    | `apps/docsite` | Docusaurus documentation site |
 | `api-contract` | `libs/api`     | Shared GraphQL schema package |
 
@@ -49,7 +50,8 @@ The consequence is practical:
 
 - backend dependencies belong in `apps/server/package.json`
 - webapp dependencies belong in `apps/webapp/package.json`
-- docs dependencies belong in `apps/docsite/package.json`
+- documentation content project identity belongs in `docs/package.json`
+- Docusaurus dependencies belong in `apps/docsite/package.json`
 - provider SDK dependencies belong in the matching `deploy/providers/*`
   package
 - shared generated schema belongs in `libs/api`
@@ -119,10 +121,11 @@ Adding a new app, provider, or tool is not just creating a folder. It usually
 means deciding whether it is a Rush project.
 
 Make it a Rush project when it has its own dependencies, build script, tests, or
-release relevance. `docs-site` is a good example: it is not deployed as its own
-target, but it has its own Docusaurus dependency set and must build before the
-webapp artifact is complete. Keep files as ordinary files when they are just
-static configuration owned by another project.
+release relevance. `docs` and `docs-site` show two sides of that rule: `docs`
+is a lightweight content project so documentation edits are visible to release
+detection, while `docs-site` owns the Docusaurus dependency set and must build
+before the webapp artifact is complete. Keep files as ordinary files when they
+are just static configuration owned by another project.
 
 That rule keeps the monorepo from drifting into two extremes: too much global
 state at the root, or too many tiny packages with no reason to exist.

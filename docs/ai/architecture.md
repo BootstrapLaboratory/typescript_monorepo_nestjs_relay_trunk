@@ -8,9 +8,12 @@ ordering, and lockfile ownership.
 
 - `apps/server`: NestJS backend deployed to Cloud Run.
 - `apps/webapp`: React/Vite/Relay frontend deployed to Cloudflare Pages.
+- `docs`: repository documentation content. It is a private Rush project so
+  documentation changes participate in Rush dependency and release detection.
 - `apps/docsite`: Docusaurus documentation site built as a separate Rush project.
-  Its output is copied into `apps/webapp/dist/docs` so Cloudflare Pages serves
-  it under the same webapp origin at `/docs/`.
+  It consumes content from `docs/tutorial`; its output is copied into
+  `apps/webapp/dist/docs` so Cloudflare Pages serves it under the same webapp
+  origin at `/docs/`.
 - `libs/api`: generated GraphQL schema contract consumed by the webapp.
 - `.dagger`: app-owned Rush Delivery metadata for validation, package, deploy,
   toolchain images, and Rush install cache.
@@ -68,7 +71,11 @@ ordering, and lockfile ownership.
 ## Rush Rules
 
 - Add or remove Rush projects in `rush.json`.
-- Keep Rush `packageName` values aligned with Rush Delivery target names.
+- Keep Rush `packageName` values aligned with Rush Delivery target names for
+  deployable projects.
+- The documentation graph is `docs -> docs-site -> webapp`. This makes changes
+  under `docs` affect the Docusaurus renderer and, through that, the deployable
+  webapp artifact.
 - `docs-site` is intentionally not a separate deploy target. It is a build-time
   dependency of `webapp`, and its static output becomes part of the webapp
   artifact.

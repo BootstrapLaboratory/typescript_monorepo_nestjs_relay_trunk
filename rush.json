@@ -18,6 +18,12 @@
       "versionPolicyName": "apps"
     },
     {
+      "packageName": "docs",
+      "projectFolder": "docs",
+      "reviewCategory": "libraries",
+      "versionPolicyName": "apps"
+    },
+    {
       "packageName": "docs-site",
       "projectFolder": "apps/docsite",
       "reviewCategory": "applications",

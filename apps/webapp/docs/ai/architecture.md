@@ -16,8 +16,9 @@ Cloudflare Pages build output.
   behind those wrappers when accessible behavior is needed.
 - UI workshop: Storybook with the React/Vite framework for isolated reusable
   UI components, plain feature views, and page compositions.
-- Published docs: Docusaurus in `apps/docsite`, served under the webapp origin at
-  `/docs/` after its build output is copied into `apps/webapp/dist/docs`.
+- Published docs: content in `docs`, rendered by Docusaurus in `apps/docsite`,
+  served under the webapp origin at `/docs/` after its build output is copied
+  into `apps/webapp/dist/docs`.
 - Contract source: `libs/api/schema.gql`.
 
 The build script intentionally runs Relay codegen before TypeScript and Vite:
@@ -29,10 +30,10 @@ relay -> tsc -b -> vite build
 Generated Relay files under `src/**/__generated__` are compiler output. Do not
 hand-edit them.
 
-When Rush builds the deployable `webapp` target, it builds the `docs-site`
-Rush dependency first. The webapp build then copies `apps/docsite/build` into
-`apps/webapp/dist/docs`. That keeps Docusaurus independent while preserving a
-single Cloudflare Pages deploy artifact.
+When Rush builds the deployable `webapp` target, the documentation chain is
+`docs -> docs-site -> webapp`. The webapp build copies `apps/docsite/build`
+into `apps/webapp/dist/docs`. That keeps Docusaurus independent while
+preserving a single Cloudflare Pages deploy artifact.
 
 ## UI Shape
 
