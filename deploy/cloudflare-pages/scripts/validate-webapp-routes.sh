@@ -19,14 +19,14 @@ validate_route() {
 	fi
 
 	if command -v node >/dev/null 2>&1; then
-		WEBAPP_VALIDATE_URL="${url}" node --input-type=module -e '
+		WEBAPP_VALIDATE_URL="${url}" node --input-type=module >/dev/null <<'NODE'
 const response = await fetch(process.env.WEBAPP_VALIDATE_URL, { redirect: "follow" })
 
 if (!response.ok) {
   console.error(`HTTP ${response.status} for ${process.env.WEBAPP_VALIDATE_URL}`)
   process.exit(1)
 }
-' >/dev/null
+NODE
 		return
 	fi
 
@@ -38,7 +38,12 @@ cd "${REPO_ROOT}"
 
 for route in / /info /docs/ /docs/tutorial/; do
 	for attempt in {1..12}; do
-		if validate_route "${WEBAPP_URL}${route}"; then
+		set +e
+		validate_route "${WEBAPP_URL}${route}"
+		route_status=$?
+		set -e
+
+		if ((route_status == 0)); then
 			echo "Validated ${WEBAPP_URL}${route}"
 			break
 		fi

@@ -23,6 +23,7 @@ upsert_env_local() {
 	local key="$1"
 	local value="$2"
 	local env_local_file="${CONFIG_DIR}/.env.local"
+	local escaped_value
 	local temp_file
 	temp_file="$(mktemp)"
 
@@ -36,7 +37,8 @@ upsert_env_local() {
 EOF
 	fi
 
-	printf '%s="%s"\n' "${key}" "$(escape_env_value "${value}")" >>"${temp_file}"
+	escaped_value="$(escape_env_value "${value}")"
+	printf '%s="%s"\n' "${key}" "${escaped_value}" >>"${temp_file}"
 	mv "${temp_file}" "${env_local_file}"
 }
 
@@ -97,6 +99,12 @@ if [[ ${SYNC_SECRETS} == "1" ]]; then
 	bash "${SCRIPT_DIR}/sync-secrets.sh"
 fi
 
+if [[ ${SYNC_SECRETS} == "1" ]]; then
+	secrets_message="  DATABASE_URL synced to Secret Manager."
+else
+	secrets_message="  Secret Manager sync skipped."
+fi
+
 cat <<EOF
 Neon app user is ready.
 
@@ -107,11 +115,7 @@ Updated files:
   ${CONFIG_DIR}/.env.local
 
 Secrets:
-$(if [[ ${SYNC_SECRETS} == "1" ]]; then
-	printf '  DATABASE_URL synced to Secret Manager.\n'
-else
-	printf '  Secret Manager sync skipped.\n'
-fi)
+${secrets_message}
 
 Notes:
   - DATABASE_URL now points at the pooled runtime user.

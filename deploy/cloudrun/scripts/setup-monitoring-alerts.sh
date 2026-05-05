@@ -160,11 +160,17 @@ ensure_log_metric() {
 
 delete_policies_by_display_name() {
 	local display_name="$1"
-	mapfile -t policy_names < <(
+	local policies_json
+	local policy_names_output
+	local -a policy_names=()
+
+	policies_json="$(
 		gcloud monitoring policies list \
 			--project "${PROJECT_ID}" \
-			--format=json |
-			node -e '
+			--format=json
+	)"
+	policy_names_output="$(
+		node -e '
         const fs = require("fs");
         const policies = JSON.parse(fs.readFileSync(0, "utf8"));
         const displayName = process.argv[1];
@@ -173,8 +179,12 @@ delete_policies_by_display_name() {
             console.log(policy.name);
           }
         }
-      ' "${display_name}"
-	)
+      ' "${display_name}" <<<"${policies_json}"
+	)"
+
+	if [[ -n ${policy_names_output} ]]; then
+		mapfile -t policy_names <<<"${policy_names_output}"
+	fi
 
 	for policy_name in "${policy_names[@]}"; do
 		gcloud monitoring policies delete "${policy_name}" \

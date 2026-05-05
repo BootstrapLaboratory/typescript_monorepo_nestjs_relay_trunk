@@ -38,9 +38,12 @@ fi
 
 # Archive any existing ~/.bashrc that is not the exact managed symlink.
 if [[ -e ${USER_BASHRC} ]] || [[ -L ${USER_BASHRC} ]]; then
-	# Keep the symlink check inside the conditional so a non-match does not
-	# abort the script under `set -e`.
-	if ! is_managed_symlink; then
+	set +e
+	is_managed_symlink
+	managed_symlink_status=$?
+	set -e
+
+	if ((managed_symlink_status != 0)); then
 		archive_existing_bashrc
 	fi
 fi

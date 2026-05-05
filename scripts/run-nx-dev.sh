@@ -25,11 +25,15 @@ installed_nx_version() {
 
 ensure_nx() {
 	local current_version=""
+	local installed_status=0
 
-	if current_version="$(installed_nx_version 2>/dev/null)"; then
-		if [[ ${current_version} == "${NX_VERSION}" && -f ${NX_BIN} ]]; then
-			return 0
-		fi
+	set +e
+	current_version="$(installed_nx_version 2>/dev/null)"
+	installed_status=$?
+	set -e
+
+	if [[ ${installed_status} -eq 0 && ${current_version} == "${NX_VERSION}" && -f ${NX_BIN} ]]; then
+		return 0
 	fi
 
 	mkdir -p "${NX_INSTALL_DIR}"

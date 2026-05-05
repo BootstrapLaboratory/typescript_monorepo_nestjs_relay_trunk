@@ -30,6 +30,21 @@ require_env CLOUDFLARE_API_TOKEN
 require_env CLOUDFLARE_PAGES_PROJECT_NAME
 
 production_branch="${CLOUDFLARE_PAGES_PRODUCTION_BRANCH:-main}"
+request_body="$(
+	node -e '
+	  const productionBranch = process.argv[1];
+	  process.stdout.write(JSON.stringify({
+	    production_branch: productionBranch,
+	    source: {
+	      config: {
+	        deployments_enabled: false,
+	        production_deployments_enabled: false,
+	        preview_deployment_setting: "none",
+	      },
+	    },
+	  }));
+	' "${production_branch}"
+)"
 response_file="$(mktemp)"
 verify_file="$(mktemp)"
 trap 'rm -f "${response_file}" "${verify_file}"' EXIT
@@ -44,11 +59,7 @@ http_status="$(
 		"https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${CLOUDFLARE_PAGES_PROJECT_NAME}" \
 		--header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
 		--header "Content-Type: application/json" \
-		--data "$(
-			cat <<EOF
-{"production_branch":"${production_branch}","source":{"config":{"deployments_enabled":false,"production_deployments_enabled":false,"preview_deployment_setting":"none"}}}
-EOF
-		)"
+		--data "${request_body}"
 )"
 
 if [[ ! ${http_status} =~ ^2 ]]; then

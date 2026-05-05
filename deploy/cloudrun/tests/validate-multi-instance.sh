@@ -136,7 +136,13 @@ restore_original_min_instances() {
 
 cleanup() {
 	local exit_code=$?
-	restore_original_min_instances || true
+	set +e
+	restore_original_min_instances
+	restore_status=$?
+	set -e
+	if ((restore_status != 0)); then
+		echo "Failed to restore min instances to ${ORIGINAL_MIN_INSTANCES}." >&2
+	fi
 	cleanup_files
 	exit "${exit_code}"
 }
