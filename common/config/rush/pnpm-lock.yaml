@@ -98,7 +98,7 @@ importers:
         specifier: ~11.1.0
         version: 11.1.0(graphql@16.13.2)
       '@nestjs/apollo':
-        specifier: ^13.3.0
+        specifier: ^13.4.0
         version: 13.4.0(@apollo/server@5.5.0(graphql@16.13.2))(@as-integrations/fastify@3.1.0(@apollo/server@5.5.0(graphql@16.13.2))(fastify@5.8.5))(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/graphql@13.4.0(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(class-transformer@0.5.1)(class-validator@0.15.1)(graphql@16.13.2)(reflect-metadata@0.2.2))(graphql@16.13.2)
       '@nestjs/common':
         specifier: ^11.1.19
@@ -110,7 +110,7 @@ importers:
         specifier: ^11.1.19
         version: 11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/graphql':
-        specifier: ^13.3.0
+        specifier: ^13.4.0
         version: 13.4.0(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(class-transformer@0.5.1)(class-validator@0.15.1)(graphql@16.13.2)(reflect-metadata@0.2.2)
       '@nestjs/platform-fastify':
         specifier: ^11.1.19
@@ -201,7 +201,7 @@ importers:
         specifier: ^0.8.1
         version: 0.8.1(@swc/core@1.15.33)
       '@swc/core':
-        specifier: ^1.15.30
+        specifier: ^1.15.33
         version: 1.15.33
       '@types/express':
         specifier: ^5.0.6
@@ -222,7 +222,7 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0
       eslint:
-        specifier: ^10.2.1
+        specifier: ^10.3.0
         version: 10.3.0(jiti@1.21.7)
       eslint-config-prettier:
         specifier: ^10.1.8
@@ -231,7 +231,7 @@ importers:
         specifier: ^5.5.5
         version: 5.5.5(@types/eslint@9.6.1)(eslint-config-prettier@10.1.8(eslint@10.3.0(jiti@1.21.7)))(eslint@10.3.0(jiti@1.21.7))(prettier@3.8.3)
       globals:
-        specifier: ^17.5.0
+        specifier: ^17.6.0
         version: 17.6.0
       jest:
         specifier: ^30.3.0
@@ -261,7 +261,7 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       typescript-eslint:
-        specifier: ^8.59.0
+        specifier: ^8.59.2
         version: 8.59.2(eslint@10.3.0(jiti@1.21.7))(typescript@6.0.3)
 
   ../../apps/webapp:
@@ -294,7 +294,7 @@ importers:
         specifier: ^1.2.4
         version: 1.2.4(@types/react@19.2.14)(react@19.2.5)
       '@tanstack/react-router':
-        specifier: ^1.168.25
+        specifier: ^1.169.1
         version: 1.169.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@vanilla-extract/css':
         specifier: ^1.20.1
@@ -376,7 +376,7 @@ importers:
         specifier: workspace:*
         version: link:../docsite
       eslint:
-        specifier: ^10.2.1
+        specifier: ^10.3.0
         version: 10.3.0(jiti@1.21.7)
       eslint-plugin-react-hooks:
         specifier: ^7.1.1
@@ -385,7 +385,7 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2(eslint@10.3.0(jiti@1.21.7))
       globals:
-        specifier: ^17.5.0
+        specifier: ^17.6.0
         version: 17.6.0
       graphql:
         specifier: ^16.13.2
@@ -403,7 +403,7 @@ importers:
         specifier: ~6.0.3
         version: 6.0.3
       typescript-eslint:
-        specifier: ^8.59.0
+        specifier: ^8.59.2
         version: 8.59.2(eslint@10.3.0(jiti@1.21.7))(typescript@6.0.3)
       vite:
         specifier: ^8.0.10
