@@ -107,6 +107,10 @@ ordering, and lockfile ownership.
   `node_modules`.
 - Use `npm run deps:upgrade`, `npm run deps:upgrade:server`, or
   `npm run deps:upgrade:webapp` for dependency range upgrades.
+- Use `workspace:*` for `dependencies` and `devDependencies` that point at
+  another Rush project. Local project dependencies must not use registry semver
+  ranges. Rush pnpm workspace mode is enabled in
+  `common/config/rush/pnpm-config.json` to make those links installable.
 - The root `package.json` is intentionally only a command wrapper; project
   dependencies belong in each Rush project.
 
