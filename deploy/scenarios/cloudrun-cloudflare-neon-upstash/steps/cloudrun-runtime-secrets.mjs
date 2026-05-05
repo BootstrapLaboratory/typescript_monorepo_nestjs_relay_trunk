@@ -93,8 +93,9 @@ async function loadDefaultProvider() {
       [
         "Unable to load deploy-provider-cloudrun.",
         "Build it with `npm --prefix deploy/providers/cloudrun run build` before running this action, or inject provider functions in tests.",
-        `Cause: ${error.message}`,
+        `Cause: ${error instanceof Error ? error.message : "unknown error"}`,
       ].join(" "),
+      { cause: error },
     );
   }
 }

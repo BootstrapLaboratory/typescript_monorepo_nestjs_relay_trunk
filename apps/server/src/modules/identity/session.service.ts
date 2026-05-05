@@ -1,146 +1,56 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { randomUUID } from 'node:crypto';
-import { IsNull, Repository } from 'typeorm';
-import { IdentityConfigService } from './identity-config.service';
-import { IdentityRefreshSessionEntity } from './entities/identity-refresh-session.entity';
-import { IdentityUserRoleEntity } from './entities/identity-user-role.entity';
+import { Inject, Injectable } from '@nestjs/common';
 import {
-  AuthSessionResult,
-  Principal,
-  ProviderIdentity,
-} from './identity.types';
-import { RefreshTokenService } from './refresh-token.service';
+  SERVER_AUTH_REFRESH_SESSION_REPOSITORY,
+  SERVER_AUTH_ROLE_REPOSITORY,
+  ServerAuthSessionOrchestrator,
+  type ServerAuthRefreshSessionRepository,
+  type ServerAuthRoleRepository,
+} from '@omgjs/labkit-server-auth';
+import { IdentityConfigService } from './identity-config.service';
+import { AuthSessionResult, ProviderIdentity } from './identity.types';
 import { AccessTokenService } from './token.service';
 
 @Injectable()
 export class IdentitySessionService {
+  private readonly sessionOrchestrator: ServerAuthSessionOrchestrator;
+
   constructor(
     private readonly accessTokenService: AccessTokenService,
     private readonly identityConfig: IdentityConfigService,
-    private readonly refreshTokenService: RefreshTokenService,
-    @InjectRepository(IdentityRefreshSessionEntity)
-    private readonly refreshSessionRepo: Repository<IdentityRefreshSessionEntity>,
-    @InjectRepository(IdentityUserRoleEntity)
-    private readonly roleRepo: Repository<IdentityUserRoleEntity>,
-  ) {}
+    @Inject(SERVER_AUTH_REFRESH_SESSION_REPOSITORY)
+    private readonly refreshSessionRepository: ServerAuthRefreshSessionRepository,
+    @Inject(SERVER_AUTH_ROLE_REPOSITORY)
+    private readonly roleRepository: ServerAuthRoleRepository,
+  ) {
+    this.sessionOrchestrator = new ServerAuthSessionOrchestrator({
+      getAccessTokenExpiresAt: () =>
+        this.accessTokenService.getAccessTokenExpiresAt(),
+      getRefreshTokenTtlSeconds: () =>
+        this.identityConfig.getRefreshTokenTtlSeconds(),
+      issueAccessToken: ({ accessTokenExpiresAt, principal, sessionId }) =>
+        this.accessTokenService.issueAccessToken(
+          principal,
+          sessionId,
+          accessTokenExpiresAt,
+        ),
+      refreshSessionRepository: this.refreshSessionRepository,
+      roleRepository: this.roleRepository,
+    });
+  }
 
   async createSession(identity: ProviderIdentity): Promise<AuthSessionResult> {
-    const refreshToken = this.refreshTokenService.generateRefreshToken();
-    const refreshTokenExpiresAt = this.getRefreshTokenExpiresAt();
-    const sessionId = randomUUID();
-    const principal: Principal = {
-      displayName: identity.displayName,
-      permissions: identity.permissions,
-      provider: identity.provider,
-      roles: identity.roles,
-      sessionId,
-      subject: identity.subject,
-      userId: identity.userId,
-    };
-    const accessTokenExpiresAt =
-      this.accessTokenService.getAccessTokenExpiresAt();
-
-    await this.refreshSessionRepo.save(
-      this.refreshSessionRepo.create({
-        expiresAt: refreshTokenExpiresAt,
-        id: sessionId,
-        provider: identity.provider,
-        providerSubject: identity.subject,
-        tokenHash: this.refreshTokenService.hashRefreshToken(refreshToken),
-        userId: Number(identity.userId),
-      }),
-    );
-
-    return {
-      accessToken: await this.accessTokenService.issueAccessToken(
-        principal,
-        sessionId,
-        accessTokenExpiresAt,
-      ),
-      accessTokenExpiresAt,
-      principal,
-      refreshToken,
-      refreshTokenExpiresAt,
-    };
+    return this.sessionOrchestrator.createSession(identity);
   }
 
   async refreshSession(refreshToken: string): Promise<AuthSessionResult> {
-    const tokenHash = this.refreshTokenService.hashRefreshToken(refreshToken);
-    const session = await this.refreshSessionRepo.findOne({
-      relations: {
-        user: true,
-      },
-      where: {
-        tokenHash,
-      },
-    });
-
-    if (!session) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
-
-    if (session.revokedAt) {
-      await this.revokeAllSessionsForUser(session.userId);
-      throw new UnauthorizedException('Refresh token has been revoked');
-    }
-
-    if (session.expiresAt.getTime() <= Date.now()) {
-      session.revokedAt = new Date();
-      await this.refreshSessionRepo.save(session);
-      throw new UnauthorizedException('Refresh token has expired');
-    }
-
-    const roles = await this.getRoles(session.userId);
-    const result = await this.createSession({
-      displayName: session.user.displayName,
-      permissions: [],
-      provider: session.provider,
-      roles,
-      subject: session.providerSubject,
-      userId: String(session.userId),
-    });
-
-    session.revokedAt = new Date();
-    session.lastUsedAt = session.revokedAt;
-    session.replacedBySessionId = result.principal.sessionId;
-    await this.refreshSessionRepo.save(session);
-
-    return result;
+    return this.sessionOrchestrator.refreshSession(refreshToken);
   }
 
   async revokeRefreshToken(refreshToken: string): Promise<boolean> {
-    const tokenHash = this.refreshTokenService.hashRefreshToken(refreshToken);
-    const session = await this.refreshSessionRepo.findOneBy({ tokenHash });
-    if (!session || session.revokedAt) {
-      return false;
-    }
-
-    session.revokedAt = new Date();
-    await this.refreshSessionRepo.save(session);
-    return true;
+    return this.sessionOrchestrator.revokeRefreshToken(refreshToken);
   }
 
-  async revokeAllSessionsForUser(userId: number): Promise<void> {
-    await this.refreshSessionRepo.update(
-      {
-        revokedAt: IsNull(),
-        userId,
-      },
-      {
-        revokedAt: new Date(),
-      },
-    );
-  }
-
-  private async getRoles(userId: number): Promise<string[]> {
-    const roles = await this.roleRepo.findBy({ userId });
-    return roles.map((role) => role.role);
-  }
-
-  private getRefreshTokenExpiresAt(): Date {
-    return new Date(
-      Date.now() + this.identityConfig.getRefreshTokenTtlSeconds() * 1000,
-    );
+  async revokeAllSessionsForUser(userId: string): Promise<void> {
+    await this.sessionOrchestrator.revokeAllSessionsForUser(userId);
   }
 }

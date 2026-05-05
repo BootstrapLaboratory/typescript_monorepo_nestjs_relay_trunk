@@ -1,5 +1,5 @@
 import { type ComponentPropsWithoutRef } from "react";
-import { cx } from "./classNames";
+import { cx } from "@omgjs/labkit-webapp-ui";
 import { surface, type SurfaceVariants } from "./Surface.css";
 
 type SurfaceProps = ComponentPropsWithoutRef<"div"> & SurfaceVariants;

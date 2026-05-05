@@ -6,18 +6,14 @@ import {
   useAuthState,
 } from "../shared/auth/session";
 import { setThemeName, useThemeName } from "../shared/theme/theme-store";
-import { cx } from "../ui/classNames";
+import { cx } from "@omgjs/labkit-webapp-ui";
 import { SelectField, type SelectFieldOption } from "../ui/SelectField";
 import * as styles from "./AppShell.css";
 import { PendingState } from "../ui/StatusState";
-import {
-  THEME_NAMES,
-  themeLabelByName,
-  type ThemeName,
-} from "../ui/themes.css";
+import { themeNames, themeLabelByName, type ThemeName } from "../ui/themes.css";
 
 const themeOptions: ReadonlyArray<SelectFieldOption<ThemeName>> =
-  THEME_NAMES.map((name) => ({
+  themeNames.map((name) => ({
     value: name,
     label: themeLabelByName[name],
   }));

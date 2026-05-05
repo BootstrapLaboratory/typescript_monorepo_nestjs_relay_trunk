@@ -43,7 +43,7 @@ export type ArtifactRegistryRepositoryDependency = Pick<
 >;
 
 export function createGoogleArtifactRegistryRepositoryDependency(
-  client: ArtifactRegistryClientLike = new v1.ArtifactRegistryClient() as ArtifactRegistryClientLike,
+  client: ArtifactRegistryClientLike = new v1.ArtifactRegistryClient(),
 ): ArtifactRegistryRepositoryDependency {
   return {
     async ensureDockerRepository(input) {

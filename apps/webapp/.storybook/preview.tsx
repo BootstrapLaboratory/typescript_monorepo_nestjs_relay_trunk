@@ -2,16 +2,16 @@ import type { Decorator, Preview } from "@storybook/react-vite";
 import "../src/ui/theme.css.ts";
 import "../src/index.css";
 import {
-  THEME_NAMES,
   defaultThemeName,
   type ThemeName,
   themeClassByName,
   themeLabelByName,
+  themeNames,
 } from "../src/ui/themes.css";
 import { vars } from "../src/ui/tokens.css";
 
 function isThemeName(value: unknown): value is ThemeName {
-  return THEME_NAMES.some((name) => name === value);
+  return themeNames.some((name) => name === value);
 }
 
 const withTheme: Decorator = (Story, context) => {
@@ -49,7 +49,7 @@ const preview: Preview = {
       toolbar: {
         title: "Theme",
         icon: "paintbrush",
-        items: THEME_NAMES.map((name) => ({
+        items: themeNames.map((name) => ({
           value: name,
           title: themeLabelByName[name],
         })),

@@ -6,9 +6,13 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import fastifyCookie from '@fastify/cookie';
+import {
+  readServerCorsOptions,
+  readServerRuntimeOptions,
+  summarizeServerCorsOrigin,
+} from '@omgjs/labkit-server-config';
+import { logStructuredEvent } from '@omgjs/labkit-server-observability';
 import { AppModule } from './app.module';
-import { parseList, parseNumber } from './config/env.utils';
-import { logStructuredEvent } from './logging/structured-log';
 
 const bootstrapLogger = new Logger('Bootstrap');
 
@@ -26,21 +30,9 @@ async function bootstrap() {
     const configService = app.get(ConfigService);
     await app.register(fastifyCookie);
 
-    const corsOrigins = parseList(configService.get<string>('CORS_ORIGIN'));
-    const corsOrigin =
-      corsOrigins.length === 0 || corsOrigins.includes('*')
-        ? true
-        : corsOrigins;
-    const usesCookieRefreshTransport =
-      configService
-        .get<string>('AUTH_REFRESH_TOKEN_TRANSPORT')
-        ?.trim()
-        .toLowerCase() !== 'response_body';
+    const corsOptions = readServerCorsOptions(configService);
 
-    app.enableCors({
-      credentials: usesCookieRefreshTransport,
-      origin: corsOrigin,
-    });
+    app.enableCors(corsOptions);
     app.useGlobalPipes(
       new ValidationPipe({
         transform: true,
@@ -50,28 +42,23 @@ async function bootstrap() {
 
     app.enableShutdownHooks();
 
-    const port = parseNumber(configService.get<string>('PORT'), 3000);
-    const host = configService.get<string>('HOST') ?? '0.0.0.0';
-    const graphqlPath = configService.get<string>('GRAPHQL_PATH') ?? '/graphql';
-    const pubsubDriver =
-      configService.get<string>('PUBSUB_DRIVER')?.trim().toLowerCase() ??
-      'memory';
+    const runtimeOptions = readServerRuntimeOptions(configService);
 
     logStructuredEvent(bootstrapLogger, 'log', 'app_bootstrap_configured', {
-      host,
-      port,
-      graphqlPath,
-      pubsubDriver,
-      corsCredentials: usesCookieRefreshTransport,
-      corsOrigin: corsOrigin === true ? '*' : corsOrigins,
+      host: runtimeOptions.host,
+      port: runtimeOptions.port,
+      graphqlPath: runtimeOptions.graphqlPath,
+      pubsubDriver: runtimeOptions.pubsubDriver,
+      corsCredentials: corsOptions.credentials,
+      corsOrigin: summarizeServerCorsOrigin(corsOptions.origin),
     });
 
-    await app.listen(port, host);
+    await app.listen(runtimeOptions.port, runtimeOptions.host);
 
     logStructuredEvent(bootstrapLogger, 'log', 'app_listening', {
-      host,
-      port,
-      graphqlPath,
+      host: runtimeOptions.host,
+      port: runtimeOptions.port,
+      graphqlPath: runtimeOptions.graphqlPath,
       healthPath: '/health',
     });
   } catch (error) {

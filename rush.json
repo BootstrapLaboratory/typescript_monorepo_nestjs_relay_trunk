@@ -36,6 +36,12 @@
       "versionPolicyName": "apps"
     },
     {
+      "packageName": "@repo/eslint-config",
+      "projectFolder": "tools/eslint-config",
+      "reviewCategory": "tools",
+      "versionPolicyName": "apps"
+    },
+    {
       "packageName": "deploy-scenario-engine",
       "projectFolder": "deploy/scenario-engine",
       "reviewCategory": "tools",

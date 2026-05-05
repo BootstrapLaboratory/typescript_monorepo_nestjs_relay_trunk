@@ -1,6 +1,6 @@
 {
-  "src": "./src",
-  "schema": "../../libs/api/schema.gql",
+  "src": "src",
+  "schema": "node_modules/api-contract/schema.gql",
   "language": "typescript",
   "eagerEsModules": true
 }

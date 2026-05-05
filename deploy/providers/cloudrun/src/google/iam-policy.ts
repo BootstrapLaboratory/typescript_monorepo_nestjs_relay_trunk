@@ -1,5 +1,5 @@
 export type IamPolicyBindingLike = {
-  condition?: null | unknown;
+  condition?: unknown;
   members?: null | string[];
   role?: null | string;
 };

@@ -1,6 +1,6 @@
 import { graphql } from "react-relay";
 
-export const ChatPageQuery = graphql`
+export const ChatQueryNode = graphql`
   query ChatQuery {
     getMessages {
       id

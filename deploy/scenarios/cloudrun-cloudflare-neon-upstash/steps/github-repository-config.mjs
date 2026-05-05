@@ -211,6 +211,7 @@ async function resolveCloudRunServiceUrlWithGcloud(input) {
         "If this is the first rollout, run the server deploy first, then rerun this scenario step.",
         "Alternatively pass WEBAPP_VITE_GRAPHQL_HTTP and WEBAPP_VITE_GRAPHQL_WS explicitly.",
       ].join("\n") + cause,
+      { cause: error },
     );
   }
 }
@@ -377,8 +378,9 @@ async function loadDefaultProvider() {
       [
         "Unable to load deploy-provider-github.",
         "Build it with `npm --prefix deploy/providers/github run build` before running this action, or inject provider functions in tests.",
-        `Cause: ${error.message}`,
+        `Cause: ${error instanceof Error ? error.message : "unknown error"}`,
       ].join(" "),
+      { cause: error },
     );
   }
 }

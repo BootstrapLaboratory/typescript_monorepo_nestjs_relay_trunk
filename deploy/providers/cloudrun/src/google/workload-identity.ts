@@ -173,8 +173,7 @@ function createDefaultWorkloadIdentityPoolsClient(): WorkloadIdentityPoolsClient
   return iam({
     auth: googleAuth,
     version: "v1",
-  }).projects.locations
-    .workloadIdentityPools as WorkloadIdentityPoolsClientLike;
+  }).projects.locations.workloadIdentityPools;
 }
 
 function workloadIdentityProjectNumberLocationParent(input: {

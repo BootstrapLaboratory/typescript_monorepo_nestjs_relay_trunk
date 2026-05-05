@@ -15,7 +15,7 @@ import {
   type GraphqlWsConnectionStatus,
   useRealtimeConnectionState,
 } from "../../../shared/realtime/realtime-connection";
-import { ChatPageQuery } from "../relay/Chat.query";
+import { ChatQueryNode } from "../relay/Chat.query";
 import { ChatMessageAddedSubscriptionNode } from "../relay/ChatMessageAdded.subscription";
 import { ChatView, type ChatStatusTone } from "./ChatView";
 
@@ -38,7 +38,7 @@ function getChatStatusTone(
 }
 
 export default function Chat({ queryRef }: ChatProps) {
-  const data = usePreloadedQuery<ChatQuery>(ChatPageQuery, queryRef);
+  const data = usePreloadedQuery<ChatQuery>(ChatQueryNode, queryRef);
   const messagesRef = useRef<HTMLUListElement>(null);
 
   const messages = data.getMessages?.filter((m) => m != null) ?? [];

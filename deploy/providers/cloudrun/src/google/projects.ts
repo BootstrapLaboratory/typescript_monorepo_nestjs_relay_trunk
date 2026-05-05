@@ -23,7 +23,7 @@ export type ProjectsClientLike = {
 };
 
 export function createGoogleProjectsDependency(
-  client: ProjectsClientLike = new v3.ProjectsClient() as ProjectsClientLike,
+  client: ProjectsClientLike = new v3.ProjectsClient(),
 ): CloudRunProviderDeps["projects"] {
   return {
     async ensureProject(input) {
@@ -74,6 +74,7 @@ export function createGoogleProjectsDependency(
                 ]
                   .filter((line) => line !== undefined)
                   .join("\n"),
+            { cause: error },
           );
         }
 
@@ -87,6 +88,7 @@ export function createGoogleProjectsDependency(
             ]
               .filter((line) => line !== undefined)
               .join("\n"),
+            { cause: error },
           );
         }
 

@@ -17,7 +17,7 @@ export type CloudBillingClientLike = {
 };
 
 export function createGoogleBillingDependency(
-  client: CloudBillingClientLike = new CloudBillingClient() as CloudBillingClientLike,
+  client: CloudBillingClientLike = new CloudBillingClient(),
 ): CloudRunProviderDeps["billing"] {
   return {
     async linkProject(input) {

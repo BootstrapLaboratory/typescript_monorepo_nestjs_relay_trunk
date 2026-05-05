@@ -18,8 +18,21 @@ ordering, and lockfile ownership.
   the `docs` Rush project so assistant rule changes do not affect the
   Docusaurus/webapp release graph.
 - `libs/api`: generated GraphQL schema contract consumed by the webapp.
+- Labkit framework helpers are consumed from npm under the
+  `@omgjs/labkit-*` package family. They are no longer Rush projects in this
+  repository. Cross-boundary packages stay framework-light so both the Nest
+  server and the Vite webapp can consume shared constraints without importing
+  app code. Browser-specific packages keep auth session, Relay network,
+  realtime connection, UI helper, and external store patterns reusable without
+  depending on application modules. Server-specific packages keep auth, auth
+  TypeORM persistence, config, database, GraphQL, and observability rules
+  reusable without depending on application modules. Server feature modules own
+  their database manifests and the app composes them through Labkit database
+  helpers.
 - `.dagger`: app-owned Rush Delivery metadata for validation, package, deploy,
   toolchain images, and Rush install cache.
+- `tools/eslint-config`: shared flat ESLint configuration helpers consumed by
+  Rush projects that do not need fully bespoke app-specific ESLint configs.
 - `deploy`: provider-specific scripts for Cloud Run and Cloudflare Pages.
   `deploy/scenario-engine` is a small Rush project for the deployment scenario
   engine spike. It uses the XState-backed runner as the default execution

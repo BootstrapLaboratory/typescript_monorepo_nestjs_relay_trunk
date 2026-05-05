@@ -1,5 +1,5 @@
 import { forwardRef, type ComponentPropsWithoutRef } from "react";
-import { cx } from "./classNames";
+import { cx } from "@omgjs/labkit-webapp-ui";
 import { textField } from "./TextField.css";
 
 type TextFieldProps = ComponentPropsWithoutRef<"input">;

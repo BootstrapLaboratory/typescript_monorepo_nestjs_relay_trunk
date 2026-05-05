@@ -7,11 +7,17 @@
     "deploy-scenario-engine": "src/cli.mjs"
   },
   "scripts": {
+    "build": "find src -name '*.mjs' -exec node --check {} \\;",
     "demo": "node src/cli.mjs demo",
+    "lint": "eslint .",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run test"
   },
   "dependencies": {
     "xstate": "^5.30.0"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "0.0.1",
+    "eslint": "^10.3.0"
   }
 }

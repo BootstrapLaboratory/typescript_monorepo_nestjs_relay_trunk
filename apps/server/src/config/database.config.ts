@@ -2,106 +2,34 @@ import { Logger } from '@nestjs/common';
 import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import type { DataSourceOptions } from 'typeorm';
-import { CreateIdentityTables20260429143000 } from '../database/migrations/20260429143000-CreateIdentityTables';
-import { CreateMessageTable20260415190000 } from '../database/migrations/20260415190000-CreateMessageTable';
-import { IdentityAccountEntity } from '../modules/identity/entities/identity-account.entity';
-import { IdentityRefreshSessionEntity } from '../modules/identity/entities/identity-refresh-session.entity';
-import { IdentityUserRoleEntity } from '../modules/identity/entities/identity-user-role.entity';
-import { IdentityUserEntity } from '../modules/identity/entities/identity-user.entity';
-import { MessageEntity } from '../modules/chat/entities/message.entity';
-import { parseBoolean, parseNumber } from './env.utils';
-import { logStructuredEvent } from '../logging/structured-log';
+import { serverAuthTypeormDatabaseManifest } from '@omgjs/labkit-server-auth-typeorm';
+import { chatDatabaseManifest } from '../modules/chat/chat.database-manifest';
+import {
+  assertDatabaseMigrationSafety,
+  composeServerDatabaseManifests,
+  readDatabaseRuntimeFlags,
+  readPostgresConnectionUrl,
+  readPostgresDiscreteConnectionOptions,
+  readPostgresSslConfig,
+  summarizePostgresConnection,
+} from '@omgjs/labkit-server-database';
+import { createEnvironmentConfigReader } from '@omgjs/labkit-server-config';
+import { logStructuredEvent } from '@omgjs/labkit-server-observability';
 
-const DEFAULT_DATABASE_PORT = 5432;
 const databaseLogger = new Logger('Database');
-
-function buildSslConfig() {
-  const sslEnabled = parseBoolean(
-    process.env.DATABASE_SSL,
-    process.env.NODE_ENV === 'production',
-  );
-
-  if (!sslEnabled) {
-    return false;
-  }
-
-  return {
-    rejectUnauthorized: parseBoolean(
-      process.env.DATABASE_SSL_REJECT_UNAUTHORIZED,
-      false,
-    ),
-  };
-}
-
-function normalizeDatabaseUrl(databaseUrl: string): string {
-  try {
-    const parsedUrl = new URL(databaseUrl);
-
-    // `pg-connection-string` warns that `sslmode=require` will change
-    // semantics in the next major release. Pinning to `verify-full` keeps the
-    // current behavior explicit without requiring secret rotation.
-    if (
-      parsedUrl.searchParams.get('sslmode') === 'require' &&
-      !parsedUrl.searchParams.has('uselibpqcompat')
-    ) {
-      parsedUrl.searchParams.set('sslmode', 'verify-full');
-      return parsedUrl.toString();
-    }
-  } catch {
-    return databaseUrl;
-  }
-
-  return databaseUrl;
-}
-
-function getDatabaseUrl(preferDirectUrl = false): string | undefined {
-  if (preferDirectUrl && process.env.DATABASE_URL_DIRECT) {
-    return normalizeDatabaseUrl(process.env.DATABASE_URL_DIRECT);
-  }
-
-  return process.env.DATABASE_URL
-    ? normalizeDatabaseUrl(process.env.DATABASE_URL)
-    : undefined;
-}
-
-function getDatabaseConnectionSummary(
-  options: DataSourceOptions,
-): Record<string, unknown> {
-  const databaseUrl = (options as DataSourceOptions & { url?: string }).url;
-
-  if (databaseUrl) {
-    try {
-      const parsedUrl = new URL(databaseUrl);
-
-      return {
-        connectionSource: 'url',
-        host: parsedUrl.hostname || null,
-        port: parsedUrl.port ? Number(parsedUrl.port) : DEFAULT_DATABASE_PORT,
-        database: parsedUrl.pathname.replace(/^\/+/, '') || null,
-        sslMode: parsedUrl.searchParams.get('sslmode'),
-        pooledConnection: parsedUrl.hostname.includes('-pooler'),
-        synchronize: options.synchronize ?? null,
-      };
-    } catch {
-      return {
-        connectionSource: 'url',
-        synchronize: options.synchronize ?? null,
-      };
-    }
-  }
-
-  return {
-    connectionSource: 'discrete_fields',
-    host:
-      (options as DataSourceOptions & { host?: string }).host ?? 'localhost',
-    port:
-      (options as DataSourceOptions & { port?: number }).port ??
-      DEFAULT_DATABASE_PORT,
-    database:
-      (options as DataSourceOptions & { database?: string }).database ?? null,
-    synchronize: options.synchronize ?? null,
-  };
-}
+const envConfigReader = createEnvironmentConfigReader(process.env);
+type TypeOrmEntity = Extract<
+  NonNullable<DataSourceOptions['entities']>,
+  readonly unknown[]
+>[number];
+type TypeOrmMigration = Extract<
+  NonNullable<DataSourceOptions['migrations']>,
+  readonly unknown[]
+>[number];
+const serverDatabaseManifest = composeServerDatabaseManifests<
+  TypeOrmEntity,
+  TypeOrmMigration
+>([chatDatabaseManifest, serverAuthTypeormDatabaseManifest]);
 
 function getBaseDatabaseOptions(options: {
   preferDirectUrl?: boolean;
@@ -113,28 +41,21 @@ function getBaseDatabaseOptions(options: {
     options.includeMigrations || options.migrationsRun === true;
   const baseConfig: DataSourceOptions = {
     type: 'postgres',
-    entities: [
-      IdentityAccountEntity,
-      IdentityRefreshSessionEntity,
-      IdentityUserEntity,
-      IdentityUserRoleEntity,
-      MessageEntity,
-    ],
+    entities: serverDatabaseManifest.entities,
     synchronize: options.synchronize,
     migrationsRun: options.migrationsRun,
-    ssl: buildSslConfig(),
+    ssl: readPostgresSslConfig(envConfigReader, {
+      nodeEnv: process.env.NODE_ENV,
+    }),
     migrationsTableName: 'typeorm_migrations',
   };
   const migrationConfig = includeMigrations
-    ? {
-        migrations: [
-          CreateMessageTable20260415190000,
-          CreateIdentityTables20260429143000,
-        ],
-      }
+    ? { migrations: serverDatabaseManifest.migrations }
     : {};
 
-  const databaseUrl = getDatabaseUrl(options.preferDirectUrl);
+  const databaseUrl = readPostgresConnectionUrl(envConfigReader, {
+    preferDirectUrl: options.preferDirectUrl,
+  });
   if (databaseUrl) {
     return {
       ...baseConfig,
@@ -146,34 +67,20 @@ function getBaseDatabaseOptions(options: {
   return {
     ...baseConfig,
     ...migrationConfig,
-    host: process.env.DATABASE_HOST ?? 'localhost',
-    port: parseNumber(process.env.DATABASE_PORT, DEFAULT_DATABASE_PORT),
-    username: process.env.DATABASE_USER ?? 'chatuser',
-    password: process.env.DATABASE_PASSWORD ?? 'chatpass',
-    database: process.env.DATABASE_NAME ?? 'chatdb',
+    ...readPostgresDiscreteConnectionOptions(envConfigReader),
   };
 }
 
 export function getDatabaseConfig(): TypeOrmModuleOptions {
-  const synchronize = parseBoolean(
-    process.env.DATABASE_SYNCHRONIZE,
-    process.env.NODE_ENV !== 'production',
-  );
-  const runMigrationsOnStart = parseBoolean(
-    process.env.DATABASE_RUN_MIGRATIONS_ON_START,
-    false,
-  );
-
-  if (synchronize && runMigrationsOnStart) {
-    throw new Error(
-      'DATABASE_SYNCHRONIZE=true cannot be used with DATABASE_RUN_MIGRATIONS_ON_START=true',
-    );
-  }
+  const runtimeFlags = readDatabaseRuntimeFlags(envConfigReader, {
+    nodeEnv: process.env.NODE_ENV,
+  });
+  assertDatabaseMigrationSafety(runtimeFlags);
 
   return getBaseDatabaseOptions({
-    synchronize,
-    includeMigrations: runMigrationsOnStart,
-    migrationsRun: runMigrationsOnStart,
+    synchronize: runtimeFlags.synchronize,
+    includeMigrations: runtimeFlags.runMigrationsOnStart,
+    migrationsRun: runtimeFlags.runMigrationsOnStart,
   });
 }
 
@@ -194,7 +101,7 @@ export async function createLoggedDataSource(
     );
   }
 
-  const summary = getDatabaseConnectionSummary(options);
+  const summary = summarizePostgresConnection(options);
   logStructuredEvent(databaseLogger, 'log', 'database_connect_start', summary);
 
   const dataSource = new DataSource(options);

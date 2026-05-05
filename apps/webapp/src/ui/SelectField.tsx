@@ -1,5 +1,5 @@
 import * as Select from "@radix-ui/react-select";
-import { cx } from "./classNames";
+import { cx } from "@omgjs/labkit-webapp-ui";
 import * as styles from "./SelectField.css";
 
 export type SelectFieldOption<Value extends string> = {

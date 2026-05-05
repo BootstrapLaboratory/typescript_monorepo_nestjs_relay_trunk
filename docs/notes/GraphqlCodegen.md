@@ -12,12 +12,13 @@ The important build rule is:
 ## Source Of Truth
 
 The GraphQL contract originates from the backend code-first definitions under
-[apps/server/src](../../apps/server/src), especially:
+[apps/server/src](../../apps/server/src) plus reusable backend GraphQL helpers
+from the `@omgjs/labkit-server-graphql` package, especially:
 
 - [apps/server/src/modules/chat/chat.resolver.ts](../../apps/server/src/modules/chat/chat.resolver.ts)
 - [apps/server/src/modules/chat/dto/message.model.ts](../../apps/server/src/modules/chat/dto/message.model.ts)
 - [apps/server/src/modules/chat/dto/new-message.input.ts](../../apps/server/src/modules/chat/dto/new-message.input.ts)
-- [apps/server/src/modules/common/scalars/date.scalar.ts](../../apps/server/src/modules/common/scalars/date.scalar.ts)
+- `DateScalar` from `@omgjs/labkit-server-graphql`
 
 The committed contract package lives at:
 
@@ -104,6 +105,7 @@ same ahead-of-time contract model.
 When you add a new GraphQL resolver or scalar class, update:
 
 - [apps/server/src/modules/chat/chat.module.ts](../../apps/server/src/modules/chat/chat.module.ts) if it belongs to that module
+- the `@omgjs/labkit-server-graphql` package if it is a reusable GraphQL helper
 - [apps/server/src/graphql/schema-manifest.ts](../../apps/server/src/graphql/schema-manifest.ts) if a new module or orphaned type needs to be included in SDL generation
 
 If the public GraphQL contract changes, rerun:

@@ -1,6 +1,6 @@
 import { Slot } from "@radix-ui/react-slot";
 import { forwardRef, type ComponentPropsWithoutRef } from "react";
-import { cx } from "./classNames";
+import { cx } from "@omgjs/labkit-webapp-ui";
 import { button, type ButtonVariants } from "./Button.css";
 
 type ButtonProps = ComponentPropsWithoutRef<"button"> &

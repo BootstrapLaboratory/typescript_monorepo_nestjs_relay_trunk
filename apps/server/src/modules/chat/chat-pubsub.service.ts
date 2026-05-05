@@ -7,11 +7,15 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { PubSub } from 'graphql-subscriptions';
 import Redis from 'ioredis';
-import { Message } from './dto/message.model';
 import {
   isVerbosePubSubLoggingEnabled,
   logStructuredEvent,
-} from '../../logging/structured-log';
+} from '@omgjs/labkit-server-observability';
+import {
+  readConfigLowercaseString,
+  readConfigString,
+} from '@omgjs/labkit-server-config';
+import { Message } from './dto/message.model';
 
 const MESSAGE_ADDED_EVENT = 'MessageAdded';
 const MESSAGE_ADDED_CHANNEL = 'chat.message-added';
@@ -32,10 +36,11 @@ export class ChatPubSubService implements OnModuleInit, OnModuleDestroy {
   private subscriber?: Redis;
 
   constructor(private readonly configService: ConfigService) {
-    const configuredDriver = this.configService
-      .get<string>('PUBSUB_DRIVER')
-      ?.trim()
-      .toLowerCase();
+    const configuredDriver = readConfigLowercaseString(
+      this.configService,
+      'PUBSUB_DRIVER',
+      'memory',
+    );
 
     this.driver = configuredDriver === 'redis' ? 'redis' : 'memory';
   }
@@ -48,7 +53,7 @@ export class ChatPubSubService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    const redisUrl = this.configService.get<string>('REDIS_URL');
+    const redisUrl = readConfigString(this.configService, 'REDIS_URL');
     if (!redisUrl) {
       const error = new Error('REDIS_URL is required when PUBSUB_DRIVER=redis');
       logStructuredEvent(

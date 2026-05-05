@@ -161,11 +161,11 @@ function createDefaultIamServiceAccountsClient(): IamServiceAccountsClientLike {
   return iam({
     auth: googleAuth,
     version: "v1",
-  }).projects.serviceAccounts as IamServiceAccountsClientLike;
+  }).projects.serviceAccounts;
 }
 
 function createDefaultIamProjectsClient(): IamProjectsClientLike {
-  return new v3.ProjectsClient() as IamProjectsClientLike;
+  return new v3.ProjectsClient();
 }
 
 export function projectResourceName(projectId: string): string {

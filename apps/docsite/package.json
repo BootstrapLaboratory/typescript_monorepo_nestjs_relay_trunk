@@ -8,6 +8,7 @@
     "build": "docusaurus build",
     "serve": "DOCS_SITE_URL=http://localhost:3001 DOCS_APP_URL=http://localhost:5173 docusaurus serve --host 0.0.0.0 --port 3001",
     "clear": "docusaurus clear",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm run build"
   },
@@ -25,10 +26,12 @@
     "@docusaurus/plugin-content-docs": "^3.10.1",
     "@docusaurus/tsconfig": "^3.10.1",
     "@docusaurus/types": "^3.10.1",
+    "@repo/eslint-config": "0.0.1",
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "docs": "0.0.1",
+    "eslint": "^10.3.0",
     "typescript": "~6.0.3"
   }
 }

@@ -27,7 +27,7 @@
       "description": "Runs each selected project's lint script from its own project folder.",
       "safeForSimultaneousRushProcesses": true,
       "shellCommand": "npm run lint --if-present",
-      "enableParallelism": true,
+      "enableParallelism": false,
       "ignoreDependencyOrder": true,
       "ignoreMissingScript": true,
       "allowWarningsInSuccessfulBuild": true,

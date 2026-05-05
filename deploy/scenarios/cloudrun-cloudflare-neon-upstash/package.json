@@ -4,10 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "find scenario.mjs steps -name '*.mjs' -exec node --check {} \\;",
+    "lint": "eslint .",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run test"
   },
   "dependencies": {
     "deploy-scenario-engine": "0.0.1"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "0.0.1",
+    "eslint": "^10.3.0"
   }
 }

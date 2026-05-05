@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
-import { getEnvFilePaths } from './env-paths';
+import { getEnvFilePaths } from '@omgjs/labkit-server-config';
 
 function stripWrappingQuotes(value: string): string {
   if (

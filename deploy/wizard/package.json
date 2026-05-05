@@ -4,12 +4,18 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "find src -name '*.mjs' -exec node --check {} \\;",
     "cloudrun-cloudflare-neon-upstash": "node src/cli.mjs cloudrun-cloudflare-neon-upstash",
+    "lint": "eslint .",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run test"
   },
   "dependencies": {
     "deploy-scenario-cloudrun-cloudflare-neon-upstash": "0.0.1",
     "deploy-scenario-engine": "0.0.1"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "0.0.1",
+    "eslint": "^10.3.0"
   }
 }

@@ -22,13 +22,23 @@ export function scenario(definition) {
 }
 
 function inputDefinition(kind, options) {
-  return {
+  const definition = {
     ...options,
     kind,
-    optional: options.optional === true,
+  };
+
+  if (options.optional === true) {
+    return {
+      ...definition,
+      optional: true,
+    };
+  }
+
+  return {
+    ...definition,
     optional() {
       return {
-        ...this,
+        ...definition,
         optional: true,
       };
     },

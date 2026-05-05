@@ -57,7 +57,7 @@ importers:
         version: 3.3.5
       '@eslint/js':
         specifier: ^10.0.1
-        version: 10.0.1(eslint@10.2.1(jiti@1.21.7))
+        version: 10.0.1(eslint@10.3.0(jiti@1.21.7))
       '@fastify/cookie':
         specifier: ^11.0.2
         version: 11.0.2
@@ -115,6 +115,48 @@ importers:
       '@nestjs/typeorm':
         specifier: ^11.0.1
         version: 11.0.1(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.28(ioredis@5.10.1)(pg@8.20.0)(ts-node@10.9.2(@swc/core@1.15.30)(@types/node@25.6.0)(typescript@6.0.3)))
+      '@omgjs/labkit-auth-contract':
+        specifier: 0.1.1
+        version: 0.1.1
+      '@omgjs/labkit-runtime-config':
+        specifier: 0.1.1
+        version: 0.1.1
+      '@omgjs/labkit-server-auth':
+        specifier: 0.1.1
+        version: 0.1.1(@as-integrations/fastify@3.1.0(@apollo/server@5.5.0(graphql@16.13.2))(fastify@5.8.5))(class-transformer@0.5.1)(class-validator@0.15.1)
+      '@omgjs/labkit-server-auth-typeorm':
+        specifier: 0.1.1
+        version: 0.1.1(@as-integrations/fastify@3.1.0(@apollo/server@5.5.0(graphql@16.13.2))(fastify@5.8.5))(@nestjs/core@11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(class-transformer@0.5.1)(class-validator@0.15.1)(ioredis@5.10.1)(pg@8.20.0)(ts-node@10.9.2(@swc/core@1.15.30)(@types/node@25.6.0)(typescript@6.0.3))
+      '@omgjs/labkit-server-config':
+        specifier: 0.1.1
+        version: 0.1.1
+      '@omgjs/labkit-server-database':
+        specifier: 0.1.1
+        version: 0.1.1
+      '@omgjs/labkit-server-graphql':
+        specifier: 0.1.1
+        version: 0.1.1(@as-integrations/fastify@3.1.0(@apollo/server@5.5.0(graphql@16.13.2))(fastify@5.8.5))(class-transformer@0.5.1)(class-validator@0.15.1)
+      '@omgjs/labkit-server-observability':
+        specifier: 0.1.1
+        version: 0.1.1
+      '@omgjs/labkit-webapp-auth':
+        specifier: 0.1.1
+        version: 0.1.1
+      '@omgjs/labkit-webapp-build-config':
+        specifier: 0.1.1
+        version: 0.1.1
+      '@omgjs/labkit-webapp-external-store':
+        specifier: 0.1.1
+        version: 0.1.1
+      '@omgjs/labkit-webapp-graphql-relay':
+        specifier: 0.1.1
+        version: 0.1.1(graphql@16.13.2)(react@19.2.5)(ws@8.20.0)
+      '@omgjs/labkit-webapp-realtime':
+        specifier: 0.1.1
+        version: 0.1.1(graphql@16.13.2)(ws@8.20.0)
+      '@omgjs/labkit-webapp-ui':
+        specifier: 0.1.1
+        version: 0.1.1
       '@radix-ui/react-select':
         specifier: ^2.2.6
         version: 2.2.6(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -129,28 +171,31 @@ importers:
         version: file:projects/api-contract.tgz
       '@rush-temp/deploy-provider-cloudflare-pages':
         specifier: file:./projects/deploy-provider-cloudflare-pages.tgz
-        version: file:projects/deploy-provider-cloudflare-pages.tgz
+        version: file:projects/deploy-provider-cloudflare-pages.tgz(jiti@1.21.7)
       '@rush-temp/deploy-provider-cloudrun':
         specifier: file:./projects/deploy-provider-cloudrun.tgz
-        version: file:projects/deploy-provider-cloudrun.tgz
+        version: file:projects/deploy-provider-cloudrun.tgz(jiti@1.21.7)
       '@rush-temp/deploy-provider-github':
         specifier: file:./projects/deploy-provider-github.tgz
-        version: file:projects/deploy-provider-github.tgz
+        version: file:projects/deploy-provider-github.tgz(jiti@1.21.7)
       '@rush-temp/deploy-scenario-cloudrun-cloudflare-neon-upstash':
         specifier: file:./projects/deploy-scenario-cloudrun-cloudflare-neon-upstash.tgz
-        version: file:projects/deploy-scenario-cloudrun-cloudflare-neon-upstash.tgz
+        version: file:projects/deploy-scenario-cloudrun-cloudflare-neon-upstash.tgz(jiti@1.21.7)
       '@rush-temp/deploy-scenario-engine':
         specifier: file:./projects/deploy-scenario-engine.tgz
-        version: file:projects/deploy-scenario-engine.tgz
+        version: file:projects/deploy-scenario-engine.tgz(jiti@1.21.7)
       '@rush-temp/deploy-wizard':
         specifier: file:./projects/deploy-wizard.tgz
-        version: file:projects/deploy-wizard.tgz
+        version: file:projects/deploy-wizard.tgz(jiti@1.21.7)
       '@rush-temp/docs':
         specifier: file:./projects/docs.tgz
         version: file:projects/docs.tgz
       '@rush-temp/docs-site':
         specifier: file:./projects/docs-site.tgz
-        version: file:projects/docs-site.tgz(@algolia/client-search@5.52.0)(@swc/core@1.15.30)(esbuild@0.28.0)
+        version: file:projects/docs-site.tgz(@algolia/client-search@5.52.0)(@swc/core@1.15.30)(esbuild@0.28.0)(jiti@1.21.7)
+      '@rush-temp/eslint-config':
+        specifier: file:./projects/eslint-config.tgz
+        version: file:projects/eslint-config.tgz(jiti@1.21.7)(typescript@6.0.3)
       '@rush-temp/server':
         specifier: file:./projects/server.tgz
         version: file:projects/server.tgz(@babel/core@7.29.0)(@jest/transform@30.3.0)(@jest/types@30.3.0)(@types/eslint@9.6.1)(babel-jest@30.3.0(@babel/core@7.29.0))(esbuild@0.28.0)(fastify@5.8.5)(jest-util@30.3.0)(jiti@1.21.7)(webpack@5.106.0(@swc/core@1.15.30)(esbuild@0.28.0))
@@ -235,21 +280,18 @@ importers:
       cross-env:
         specifier: ^10.1.0
         version: 10.1.0
-      eslint:
-        specifier: ^10.2.1
-        version: 10.2.1(jiti@1.21.7)
       eslint-config-prettier:
         specifier: ^10.1.8
-        version: 10.1.8(eslint@10.2.1(jiti@1.21.7))
+        version: 10.1.8(eslint@10.3.0(jiti@1.21.7))
       eslint-plugin-prettier:
         specifier: ^5.5.5
-        version: 5.5.5(@types/eslint@9.6.1)(eslint-config-prettier@10.1.8(eslint@10.2.1(jiti@1.21.7)))(eslint@10.2.1(jiti@1.21.7))(prettier@3.8.3)
+        version: 5.5.5(@types/eslint@9.6.1)(eslint-config-prettier@10.1.8(eslint@10.3.0(jiti@1.21.7)))(eslint@10.3.0(jiti@1.21.7))(prettier@3.8.3)
       eslint-plugin-react-hooks:
         specifier: ^7.1.1
-        version: 7.1.1(eslint@10.2.1(jiti@1.21.7))
+        version: 7.1.1(eslint@10.3.0(jiti@1.21.7))
       eslint-plugin-react-refresh:
         specifier: ^0.5.2
-        version: 0.5.2(eslint@10.2.1(jiti@1.21.7))
+        version: 0.5.2(eslint@10.3.0(jiti@1.21.7))
       globals:
         specifier: ^17.5.0
         version: 17.5.0
@@ -345,7 +387,7 @@ importers:
         version: 0.3.28(ioredis@5.10.1)(pg@8.20.0)(ts-node@10.9.2(@swc/core@1.15.30)(@types/node@25.6.0)(typescript@6.0.3))
       typescript-eslint:
         specifier: ^8.59.0
-        version: 8.59.0(eslint@10.2.1(jiti@1.21.7))(typescript@6.0.3)
+        version: 8.59.0(eslint@10.3.0(jiti@1.21.7))(typescript@6.0.3)
       vite:
         specifier: ^8.0.10
         version: 8.0.10(@types/node@25.6.0)(esbuild@0.28.0)(jiti@1.21.7)(terser@5.46.2)(yaml@2.8.3)
@@ -2983,6 +3025,50 @@ packages:
     engines: {node: ^14.18.0 || >=16.10.0, npm: '>=5.10.0'}
     hasBin: true
 
+  '@omgjs/labkit-auth-contract@0.1.1':
+    resolution: {integrity: sha512-jh5s92thiJJnFJ2rJhFQ/DHl+SW7O6tHLRrzUrMl/ZiqjkBqq320++TATytaP592/E5vWx44GZiE+FgCQDgePw==}
+
+  '@omgjs/labkit-runtime-config@0.1.1':
+    resolution: {integrity: sha512-iFZgKJCTeEVER7kJT1x7MOOs4HPaSHR1HqpNlIKXdrFT+EuXU0bafJT0D/pquKAbLt3aSliKRVHcmVCUFphAag==}
+
+  '@omgjs/labkit-server-auth-typeorm@0.1.1':
+    resolution: {integrity: sha512-Rjy/47ozdWan4T7KbhDD4BTTVzy1YhktBr0ZwZLC39HsHufkg5yIzvUHtNqJkYDD25nrjaSdelaQst3flRLQFg==}
+
+  '@omgjs/labkit-server-auth@0.1.1':
+    resolution: {integrity: sha512-o1DJleusZDbPg7zOxQj9ufewUN/vx+ax4uFFsNv0CX1vJucTpXlAz6u1hl2NujV/9pXy469emXOttKQH2MNI/Q==}
+
+  '@omgjs/labkit-server-config@0.1.1':
+    resolution: {integrity: sha512-Twmom5DBtt1ZvDJ12bmO5uqBD4CWmwhBYqNPRVaqWbO5q+AcpyLMW3Mq67LivEQBXsfDrg8cVLzCgWhSgkHzow==}
+
+  '@omgjs/labkit-server-database@0.1.1':
+    resolution: {integrity: sha512-1XMxfzbLl/SfMLnp9Z2Ot5Y1i3A+mct2Gu9nJ72fqGWv97KYjwO+DRVfnm9mETW4AkMf9xfeeIhDFi4amovcGA==}
+
+  '@omgjs/labkit-server-graphql@0.1.1':
+    resolution: {integrity: sha512-na++pGgA/wG/7J4nlKCcEVxyKxjqlL8+8/UWpwdhruKxFSfjaOaqPo3Epoq9Bbait2FRGjgvF/uCyoLVftppYg==}
+
+  '@omgjs/labkit-server-observability@0.1.1':
+    resolution: {integrity: sha512-UeTdUcntQoDbrJeQutZBSQErqc20H/IRAubDbVA+PfBtR31nDD0oLSWdPk+U/fQvGPlHXVmBK5vesI2qXhOQKA==}
+
+  '@omgjs/labkit-webapp-auth@0.1.1':
+    resolution: {integrity: sha512-4wai5Coi9bRmtR/lc3p93jJQBKOqrWe88bA8c5ZQs/Sy9Xuekv0IiMxKJ4qosgUquFXzaumF4zT2+/F4bek/1g==}
+
+  '@omgjs/labkit-webapp-build-config@0.1.1':
+    resolution: {integrity: sha512-4zRWEUcHNW/1t8ooCfooNmrFB++DW9W+QiuGDDenuoqQt6ua9m+jii+RFEsR4bnHgLNhHmY8UDAXF4kKIG/8Yw==}
+
+  '@omgjs/labkit-webapp-external-store@0.1.1':
+    resolution: {integrity: sha512-s8XJeVaI1MbvOs2hers49QTvXgtbhd0+rnLpONUmBeVY3efzDLxpUUxUK8gm9rk0KQ0QMiddL2ENbecDN/8cGg==}
+
+  '@omgjs/labkit-webapp-graphql-relay@0.1.1':
+    resolution: {integrity: sha512-2SLpSams/CHHtbsKv3j6R/m/+/s0nIIGqAWORnjvJ3Z40Axl6AFmpq+EqTcz9suT5vNyFiZURz6oykCe4C8hOA==}
+    peerDependencies:
+      react: ^16.9.0 || ^17 || ^18 || ^19
+
+  '@omgjs/labkit-webapp-realtime@0.1.1':
+    resolution: {integrity: sha512-zPqZEWpZ2BVEQUdzX0ULITL2dn8iWTIcitzzmVgSgolTDnd/Vs+26k1JfZKoYYXPZScQdAElzHR9zHJDNm2XMA==}
+
+  '@omgjs/labkit-webapp-ui@0.1.1':
+    resolution: {integrity: sha512-NZ3pcawSYvN+TdXzIQBf+tH7TTj5b3BVNZZF4QNbGEbqSCIXWDPYWJGGki6Ck9d2rPRpqlJpFj/pPAZJsj76ag==}
+
   '@oxc-project/types@0.127.0':
     resolution: {integrity: sha512-aIYXQBo4lCbO4z0R3FHeucQHpF46l2LbMdxRvqvuRuW2OxdnSkcng5B8+K12spgLDj93rtN3+J2Vac/TIO+ciQ==}
 
@@ -3488,43 +3574,47 @@ packages:
     version: 0.0.0
 
   '@rush-temp/deploy-provider-cloudflare-pages@file:projects/deploy-provider-cloudflare-pages.tgz':
-    resolution: {integrity: sha512-bTR7x3NOx9KxF5BpO43rnNolPFqNo96gyEjh6hyPEtJv/UwYL5EboA7jM4fgOKxhAPVyBPmCxdBSsZwKsXtN4A==, tarball: file:projects/deploy-provider-cloudflare-pages.tgz}
+    resolution: {integrity: sha512-oNJAuTpcJpHKRgW+0M5+8KfyeYV70YSWYI+3M86ut7JUTncCwKoM59L1It03iEejBkCpc6+iDMHKmsPV1yfmCQ==, tarball: file:projects/deploy-provider-cloudflare-pages.tgz}
     version: 0.0.0
 
   '@rush-temp/deploy-provider-cloudrun@file:projects/deploy-provider-cloudrun.tgz':
-    resolution: {integrity: sha512-WPKqHakvUOpFNenksvbxyS7wYUEQ2dqo7prIJWcrXdTBKJ1AS/sl1TKy0fq8yknPgGfxM5IQcGuhPOgWrZ8Tkg==, tarball: file:projects/deploy-provider-cloudrun.tgz}
+    resolution: {integrity: sha512-yswI58TrqaIB/jLrJvb47QcF/na3rgoznWvsV2HFWAnFwJZjx7sYJe/N+EU+FVeiEPyYr04mCY3jphUmHqG7Pg==, tarball: file:projects/deploy-provider-cloudrun.tgz}
     version: 0.0.0
 
   '@rush-temp/deploy-provider-github@file:projects/deploy-provider-github.tgz':
-    resolution: {integrity: sha512-jUhJoImu0SQu1XgoKL64eBx7JRFJJsV7qAAdwoQn1pPZ+vwHmDnAuXfGDWkOaKYcMeZaoSUaze4RRIRRwtUNKQ==, tarball: file:projects/deploy-provider-github.tgz}
+    resolution: {integrity: sha512-NAeTj2D416DwYweic/e12DFxdQHgv65Q12Tn739vH8c3weTDYO076phWgruaMFh8CuU2qUhpBo8hlMi7tYZ+nQ==, tarball: file:projects/deploy-provider-github.tgz}
     version: 0.0.0
 
   '@rush-temp/deploy-scenario-cloudrun-cloudflare-neon-upstash@file:projects/deploy-scenario-cloudrun-cloudflare-neon-upstash.tgz':
-    resolution: {integrity: sha512-btFxD14eAS4PGONWrHErwuA+5SM5cHa5fpfveVWY/fitVJeZJl9u3oSVphY8z+PDdhzWPeiPDFRaeLZQ9qYccA==, tarball: file:projects/deploy-scenario-cloudrun-cloudflare-neon-upstash.tgz}
+    resolution: {integrity: sha512-giTn7IR2uSaS4Q8pDNbHdTGDfBSeDDgDSXfwL350xzFvsk8ZjbV5v+Do8SCQGuJ8MACW/2sgFZVh9rzMBWxdww==, tarball: file:projects/deploy-scenario-cloudrun-cloudflare-neon-upstash.tgz}
     version: 0.0.0
 
   '@rush-temp/deploy-scenario-engine@file:projects/deploy-scenario-engine.tgz':
-    resolution: {integrity: sha512-CLmIpHmqirTSeMsE7arLlKS01geCDWGZCjj1SOT/vBGPLPNIcl472gOJYxSbPuo+PM8TWp+FrsnDLRZOjr8MaA==, tarball: file:projects/deploy-scenario-engine.tgz}
+    resolution: {integrity: sha512-U3Q+3rqMpIqMRUKmPIE+5oQUh1N97kvAqiF3a5bYER4jW9naQm4WynuXNJFG2O7GxCisKqe8s2ZQV/gV/YF8bg==, tarball: file:projects/deploy-scenario-engine.tgz}
     version: 0.0.0
 
   '@rush-temp/deploy-wizard@file:projects/deploy-wizard.tgz':
-    resolution: {integrity: sha512-F6gl9oyt895PhEfwuQ65U9QWI9uQ9nkA9E+uxPOtFOTP+vn4ySxvJsGNRlhkxo74AvVBwJfhMw4KrgOiKTbVxg==, tarball: file:projects/deploy-wizard.tgz}
+    resolution: {integrity: sha512-zfFxem3RTL/R8x72Hcn6nDXJhjmdafj0ZETLWK2FKU7R9gveOtMazZTL+7f1dhD59XRK+cFNQNwh1sdhlBDR/A==, tarball: file:projects/deploy-wizard.tgz}
     version: 0.0.0
 
   '@rush-temp/docs-site@file:projects/docs-site.tgz':
-    resolution: {integrity: sha512-TenlHEhNHA5vMsNoQtYYp69V+VXDSBWxDtKlyISMKhPYngkqR2hBQKIx02TrVwblqIUY+YeqEzuwZTTXlW351w==, tarball: file:projects/docs-site.tgz}
+    resolution: {integrity: sha512-kCp4LCoJf6CZZ+6wd/q4hpT8dB90D4LtAKMiGaY1pCIeill6C2gEnLbQB9Pul0J711Cz5vPas791P2UnWx19+Q==, tarball: file:projects/docs-site.tgz}
     version: 0.0.0
 
   '@rush-temp/docs@file:projects/docs.tgz':
     resolution: {integrity: sha512-myXBWmkgsua1MrXxOzMAJRAUYS/H1EXuJIlm2inlqMCl6iimNEoreqzywYotzl4it7MG2i68/SV9VfjhgK0GVQ==, tarball: file:projects/docs.tgz}
     version: 0.0.0
 
+  '@rush-temp/eslint-config@file:projects/eslint-config.tgz':
+    resolution: {integrity: sha512-gF0aFEka+6SHamkFPFlImQkDfmZrnkqtzrDu1Vuc+dTvCAHkNA21+bBU7r+io8qjKO6yJQWWhDjBsqcSrQyBaw==, tarball: file:projects/eslint-config.tgz}
+    version: 0.0.0
+
   '@rush-temp/server@file:projects/server.tgz':
-    resolution: {integrity: sha512-tT9lMv2UYCXE+tRoMOmKT8zMpPn5BuOMf+ii1O4ytJm7YZlPsBBvpa3+vJ0/5+dLWaRhVwtHAnJS9KAMffUv9w==, tarball: file:projects/server.tgz}
+    resolution: {integrity: sha512-lNwY0xGITrts2h9uE/0cZdnCvIq5d4bnsNQzgkZAsoGjpTw7hGKvorwFJChflJYcEnLbNJva7/9wlsk8lsM4Aw==, tarball: file:projects/server.tgz}
     version: 0.0.0
 
   '@rush-temp/webapp@file:projects/webapp.tgz':
-    resolution: {integrity: sha512-kAzA2T4AMP7oj5VHRY2og0NRHaOZx4owNDNlskK69PymY0qyDFxBcFVhX1emXBRSzuwymUDeGWGVtAhWksiDtA==, tarball: file:projects/webapp.tgz}
+    resolution: {integrity: sha512-v2/Ng2vupM7fh2hi3cX0s6dEOfbBwMShl+eJLhanYWt6N9L2ZUpcqqhixPhA2BHvUpTdsLuetDo4Secay8ez3w==, tarball: file:projects/webapp.tgz}
     version: 0.0.0
 
   '@sec-ant/readable-stream@0.4.1':
@@ -5767,6 +5857,16 @@ packages:
 
   eslint@10.2.1:
     resolution: {integrity: sha512-wiyGaKsDgqXvF40P8mDwiUp/KQjE1FdrIEJsM8PZ3XCiniTMXS3OHWWUe5FI5agoCnr8x4xPrTDZuxsBlNHl+Q==}
+    engines: {node: ^20.19.0 || ^22.13.0 || >=24}
+    hasBin: true
+    peerDependencies:
+      jiti: '*'
+    peerDependenciesMeta:
+      jiti:
+        optional: true
+
+  eslint@10.3.0:
+    resolution: {integrity: sha512-XbEXaRva5cF0ZQB8w6MluHA0kZZfV2DuCMJ3ozyEOHLwDpZX2Lmm/7Pp0xdJmI0GL1W05VH5VwIFHEm1Vcw2gw==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
     hasBin: true
     peerDependencies:
@@ -12612,6 +12712,11 @@ snapshots:
       eslint: 10.2.1(jiti@1.21.7)
       eslint-visitor-keys: 3.4.3
 
+  '@eslint-community/eslint-utils@4.9.1(eslint@10.3.0(jiti@1.21.7))':
+    dependencies:
+      eslint: 10.3.0(jiti@1.21.7)
+      eslint-visitor-keys: 3.4.3
+
   '@eslint-community/regexpp@4.12.2': {}
 
   '@eslint/config-array@0.23.5':
@@ -12647,6 +12752,10 @@ snapshots:
   '@eslint/js@10.0.1(eslint@10.2.1(jiti@1.21.7))':
     optionalDependencies:
       eslint: 10.2.1(jiti@1.21.7)
+
+  '@eslint/js@10.0.1(eslint@10.3.0(jiti@1.21.7))':
+    optionalDependencies:
+      eslint: 10.3.0(jiti@1.21.7)
 
   '@eslint/object-schema@3.0.5': {}
 
@@ -13661,6 +13770,164 @@ snapshots:
     dependencies:
       consola: 3.4.2
 
+  '@omgjs/labkit-auth-contract@0.1.1': {}
+
+  '@omgjs/labkit-runtime-config@0.1.1': {}
+
+  '@omgjs/labkit-server-auth-typeorm@0.1.1(@as-integrations/fastify@3.1.0(@apollo/server@5.5.0(graphql@16.13.2))(fastify@5.8.5))(@nestjs/core@11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(class-transformer@0.5.1)(class-validator@0.15.1)(ioredis@5.10.1)(pg@8.20.0)(ts-node@10.9.2(@swc/core@1.15.30)(@types/node@25.6.0)(typescript@6.0.3))':
+    dependencies:
+      '@nestjs/common': 11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/typeorm': 11.0.1(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.28(ioredis@5.10.1)(pg@8.20.0)(ts-node@10.9.2(@swc/core@1.15.30)(@types/node@25.6.0)(typescript@6.0.3)))
+      '@omgjs/labkit-server-auth': 0.1.1(@as-integrations/fastify@3.1.0(@apollo/server@5.5.0(graphql@16.13.2))(fastify@5.8.5))(class-transformer@0.5.1)(class-validator@0.15.1)
+      '@omgjs/labkit-server-database': 0.1.1
+      reflect-metadata: 0.2.2
+      rxjs: 7.8.2
+      typeorm: 0.3.28(ioredis@5.10.1)(pg@8.20.0)(ts-node@10.9.2(@swc/core@1.15.30)(@types/node@25.6.0)(typescript@6.0.3))
+    transitivePeerDependencies:
+      - '@apollo/gateway'
+      - '@apollo/subgraph'
+      - '@as-integrations/express5'
+      - '@as-integrations/fastify'
+      - '@fastify/websocket'
+      - '@google-cloud/spanner'
+      - '@nestjs/core'
+      - '@nestjs/microservices'
+      - '@nestjs/platform-express'
+      - '@nestjs/websockets'
+      - '@sap/hana-client'
+      - babel-plugin-macros
+      - better-sqlite3
+      - bufferutil
+      - class-transformer
+      - class-validator
+      - crossws
+      - ioredis
+      - mongodb
+      - mssql
+      - mysql2
+      - oracledb
+      - pg
+      - pg-native
+      - pg-query-stream
+      - redis
+      - sql.js
+      - sqlite3
+      - supports-color
+      - ts-morph
+      - ts-node
+      - typeorm-aurora-data-api-driver
+      - utf-8-validate
+
+  '@omgjs/labkit-server-auth@0.1.1(@as-integrations/fastify@3.1.0(@apollo/server@5.5.0(graphql@16.13.2))(fastify@5.8.5))(class-transformer@0.5.1)(class-validator@0.15.1)':
+    dependencies:
+      '@nestjs/common': 11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/core': 11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/graphql': 13.3.0(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(class-transformer@0.5.1)(class-validator@0.15.1)(graphql@16.13.2)(reflect-metadata@0.2.2)
+      '@omgjs/labkit-auth-contract': 0.1.1
+      '@omgjs/labkit-server-graphql': 0.1.1(@as-integrations/fastify@3.1.0(@apollo/server@5.5.0(graphql@16.13.2))(fastify@5.8.5))(class-transformer@0.5.1)(class-validator@0.15.1)
+      graphql: 16.13.2
+      reflect-metadata: 0.2.2
+      rxjs: 7.8.2
+    transitivePeerDependencies:
+      - '@apollo/gateway'
+      - '@apollo/subgraph'
+      - '@as-integrations/express5'
+      - '@as-integrations/fastify'
+      - '@fastify/websocket'
+      - '@nestjs/microservices'
+      - '@nestjs/platform-express'
+      - '@nestjs/websockets'
+      - bufferutil
+      - class-transformer
+      - class-validator
+      - crossws
+      - supports-color
+      - ts-morph
+      - utf-8-validate
+
+  '@omgjs/labkit-server-config@0.1.1':
+    dependencies:
+      '@omgjs/labkit-auth-contract': 0.1.1
+      '@omgjs/labkit-runtime-config': 0.1.1
+
+  '@omgjs/labkit-server-database@0.1.1':
+    dependencies:
+      '@omgjs/labkit-server-config': 0.1.1
+
+  '@omgjs/labkit-server-graphql@0.1.1(@as-integrations/fastify@3.1.0(@apollo/server@5.5.0(graphql@16.13.2))(fastify@5.8.5))(class-transformer@0.5.1)(class-validator@0.15.1)':
+    dependencies:
+      '@apollo/server': 5.5.0(graphql@16.13.2)
+      '@graphql-tools/utils': 11.1.0(graphql@16.13.2)
+      '@nestjs/apollo': 13.3.0(@apollo/server@5.5.0(graphql@16.13.2))(@as-integrations/fastify@3.1.0(@apollo/server@5.5.0(graphql@16.13.2))(fastify@5.8.5))(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/graphql@13.3.0(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(class-transformer@0.5.1)(class-validator@0.15.1)(graphql@16.13.2)(reflect-metadata@0.2.2))(graphql@16.13.2)
+      '@nestjs/common': 11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/core': 11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/graphql': 13.3.0(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(class-transformer@0.5.1)(class-validator@0.15.1)(graphql@16.13.2)(reflect-metadata@0.2.2)
+      '@omgjs/labkit-auth-contract': 0.1.1
+      '@omgjs/labkit-server-config': 0.1.1
+      '@omgjs/labkit-server-observability': 0.1.1
+      graphql: 16.13.2
+      graphql-query-complexity: 1.1.0(graphql@16.13.2)
+      reflect-metadata: 0.2.2
+      rxjs: 7.8.2
+    transitivePeerDependencies:
+      - '@apollo/gateway'
+      - '@apollo/subgraph'
+      - '@as-integrations/express5'
+      - '@as-integrations/fastify'
+      - '@fastify/websocket'
+      - '@nestjs/microservices'
+      - '@nestjs/platform-express'
+      - '@nestjs/websockets'
+      - bufferutil
+      - class-transformer
+      - class-validator
+      - crossws
+      - supports-color
+      - ts-morph
+      - utf-8-validate
+
+  '@omgjs/labkit-server-observability@0.1.1':
+    dependencies:
+      '@omgjs/labkit-runtime-config': 0.1.1
+
+  '@omgjs/labkit-webapp-auth@0.1.1':
+    dependencies:
+      '@omgjs/labkit-auth-contract': 0.1.1
+      '@omgjs/labkit-webapp-external-store': 0.1.1
+
+  '@omgjs/labkit-webapp-build-config@0.1.1': {}
+
+  '@omgjs/labkit-webapp-external-store@0.1.1': {}
+
+  '@omgjs/labkit-webapp-graphql-relay@0.1.1(graphql@16.13.2)(react@19.2.5)(ws@8.20.0)':
+    dependencies:
+      '@omgjs/labkit-auth-contract': 0.1.1
+      graphql-ws: 6.0.8(graphql@16.13.2)(ws@8.20.0)
+      react: 19.2.5
+      react-relay: 20.1.1(react@19.2.5)
+      relay-runtime: 20.1.1
+    transitivePeerDependencies:
+      - '@fastify/websocket'
+      - crossws
+      - encoding
+      - graphql
+      - ws
+
+  '@omgjs/labkit-webapp-realtime@0.1.1(graphql@16.13.2)(ws@8.20.0)':
+    dependencies:
+      '@omgjs/labkit-runtime-config': 0.1.1
+      '@omgjs/labkit-webapp-external-store': 0.1.1
+      graphql-ws: 6.0.8(graphql@16.13.2)(ws@8.20.0)
+    transitivePeerDependencies:
+      - '@fastify/websocket'
+      - crossws
+      - graphql
+      - ws
+
+  '@omgjs/labkit-webapp-ui@0.1.1':
+    dependencies:
+      '@omgjs/labkit-webapp-external-store': 0.1.1
+
   '@oxc-project/types@0.127.0': {}
 
   '@paralleldrive/cuid2@2.3.1':
@@ -14109,15 +14376,18 @@ snapshots:
 
   '@rush-temp/api-contract@file:projects/api-contract.tgz': {}
 
-  '@rush-temp/deploy-provider-cloudflare-pages@file:projects/deploy-provider-cloudflare-pages.tgz':
+  '@rush-temp/deploy-provider-cloudflare-pages@file:projects/deploy-provider-cloudflare-pages.tgz(jiti@1.21.7)':
     dependencies:
       '@types/node': 25.6.0
       cloudflare: 6.0.0
+      eslint: 10.3.0(jiti@1.21.7)
       typescript: 6.0.3
     transitivePeerDependencies:
       - encoding
+      - jiti
+      - supports-color
 
-  '@rush-temp/deploy-provider-cloudrun@file:projects/deploy-provider-cloudrun.tgz':
+  '@rush-temp/deploy-provider-cloudrun@file:projects/deploy-provider-cloudrun.tgz(jiti@1.21.7)':
     dependencies:
       '@google-cloud/artifact-registry': 4.7.0
       '@google-cloud/billing': 5.1.1
@@ -14126,24 +14396,44 @@ snapshots:
       '@google-cloud/service-usage': 4.2.2
       '@googleapis/iam': 36.0.0
       '@types/node': 25.6.0
+      eslint: 10.3.0(jiti@1.21.7)
       typescript: 6.0.3
     transitivePeerDependencies:
+      - jiti
       - supports-color
 
-  '@rush-temp/deploy-provider-github@file:projects/deploy-provider-github.tgz':
+  '@rush-temp/deploy-provider-github@file:projects/deploy-provider-github.tgz(jiti@1.21.7)':
     dependencies:
       '@types/node': 25.6.0
+      eslint: 10.3.0(jiti@1.21.7)
       typescript: 6.0.3
+    transitivePeerDependencies:
+      - jiti
+      - supports-color
 
-  '@rush-temp/deploy-scenario-cloudrun-cloudflare-neon-upstash@file:projects/deploy-scenario-cloudrun-cloudflare-neon-upstash.tgz': {}
-
-  '@rush-temp/deploy-scenario-engine@file:projects/deploy-scenario-engine.tgz':
+  '@rush-temp/deploy-scenario-cloudrun-cloudflare-neon-upstash@file:projects/deploy-scenario-cloudrun-cloudflare-neon-upstash.tgz(jiti@1.21.7)':
     dependencies:
+      eslint: 10.3.0(jiti@1.21.7)
+    transitivePeerDependencies:
+      - jiti
+      - supports-color
+
+  '@rush-temp/deploy-scenario-engine@file:projects/deploy-scenario-engine.tgz(jiti@1.21.7)':
+    dependencies:
+      eslint: 10.3.0(jiti@1.21.7)
       xstate: 5.31.0
+    transitivePeerDependencies:
+      - jiti
+      - supports-color
 
-  '@rush-temp/deploy-wizard@file:projects/deploy-wizard.tgz': {}
+  '@rush-temp/deploy-wizard@file:projects/deploy-wizard.tgz(jiti@1.21.7)':
+    dependencies:
+      eslint: 10.3.0(jiti@1.21.7)
+    transitivePeerDependencies:
+      - jiti
+      - supports-color
 
-  '@rush-temp/docs-site@file:projects/docs-site.tgz(@algolia/client-search@5.52.0)(@swc/core@1.15.30)(esbuild@0.28.0)':
+  '@rush-temp/docs-site@file:projects/docs-site.tgz(@algolia/client-search@5.52.0)(@swc/core@1.15.30)(esbuild@0.28.0)(jiti@1.21.7)':
     dependencies:
       '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@19.2.5))(@swc/core@1.15.30)(esbuild@0.28.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.3)
       '@docusaurus/module-type-aliases': 3.10.1(@swc/core@1.15.30)(esbuild@0.28.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -14155,6 +14445,7 @@ snapshots:
       '@types/node': 25.6.0
       '@types/react': 19.2.14
       '@types/react-dom': 19.2.3(@types/react@19.2.14)
+      eslint: 10.3.0(jiti@1.21.7)
       prism-react-renderer: 2.4.1(react@19.2.5)
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
@@ -14171,6 +14462,7 @@ snapshots:
       - csso
       - debug
       - esbuild
+      - jiti
       - lightningcss
       - supports-color
       - uglify-js
@@ -14178,6 +14470,18 @@ snapshots:
       - webpack-cli
 
   '@rush-temp/docs@file:projects/docs.tgz': {}
+
+  '@rush-temp/eslint-config@file:projects/eslint-config.tgz(jiti@1.21.7)(typescript@6.0.3)':
+    dependencies:
+      '@eslint/js': 10.0.1(eslint@10.3.0(jiti@1.21.7))
+      eslint: 10.3.0(jiti@1.21.7)
+      eslint-config-prettier: 10.1.8(eslint@10.3.0(jiti@1.21.7))
+      globals: 17.5.0
+      typescript-eslint: 8.59.0(eslint@10.3.0(jiti@1.21.7))(typescript@6.0.3)
+    transitivePeerDependencies:
+      - jiti
+      - supports-color
+      - typescript
 
   '@rush-temp/server@file:projects/server.tgz(@babel/core@7.29.0)(@jest/transform@30.3.0)(@jest/types@30.3.0)(@types/eslint@9.6.1)(babel-jest@30.3.0(@babel/core@7.29.0))(esbuild@0.28.0)(fastify@5.8.5)(jest-util@30.3.0)(jiti@1.21.7)(webpack@5.106.0(@swc/core@1.15.30)(esbuild@0.28.0))':
     dependencies:
@@ -14200,6 +14504,14 @@ snapshots:
       '@nestjs/schematics': 11.1.0(prettier@3.8.3)(typescript@6.0.3)
       '@nestjs/testing': 11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))
       '@nestjs/typeorm': 11.0.1(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.28(ioredis@5.10.1)(pg@8.20.0)(ts-node@10.9.2(@swc/core@1.15.30)(@types/node@25.6.0)(typescript@6.0.3)))
+      '@omgjs/labkit-auth-contract': 0.1.1
+      '@omgjs/labkit-runtime-config': 0.1.1
+      '@omgjs/labkit-server-auth': 0.1.1(@as-integrations/fastify@3.1.0(@apollo/server@5.5.0(graphql@16.13.2))(fastify@5.8.5))(class-transformer@0.5.1)(class-validator@0.15.1)
+      '@omgjs/labkit-server-auth-typeorm': 0.1.1(@as-integrations/fastify@3.1.0(@apollo/server@5.5.0(graphql@16.13.2))(fastify@5.8.5))(@nestjs/core@11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(class-transformer@0.5.1)(class-validator@0.15.1)(ioredis@5.10.1)(pg@8.20.0)(ts-node@10.9.2(@swc/core@1.15.30)(@types/node@25.6.0)(typescript@6.0.3))
+      '@omgjs/labkit-server-config': 0.1.1
+      '@omgjs/labkit-server-database': 0.1.1
+      '@omgjs/labkit-server-graphql': 0.1.1(@as-integrations/fastify@3.1.0(@apollo/server@5.5.0(graphql@16.13.2))(fastify@5.8.5))(class-transformer@0.5.1)(class-validator@0.15.1)
+      '@omgjs/labkit-server-observability': 0.1.1
       '@swc/cli': 0.8.1(@swc/core@1.15.30)
       '@swc/core': 1.15.30
       '@types/express': 5.0.6
@@ -14213,7 +14525,7 @@ snapshots:
       cross-env: 10.1.0
       eslint: 10.2.1(jiti@1.21.7)
       eslint-config-prettier: 10.1.8(eslint@10.2.1(jiti@1.21.7))
-      eslint-plugin-prettier: 5.5.5(@types/eslint@9.6.1)(eslint-config-prettier@10.1.8(eslint@10.2.1(jiti@1.21.7)))(eslint@10.2.1(jiti@1.21.7))(prettier@3.8.3)
+      eslint-plugin-prettier: 5.5.5(@types/eslint@9.6.1)(eslint-config-prettier@10.1.8(eslint@10.3.0(jiti@1.21.7)))(eslint@10.2.1(jiti@1.21.7))(prettier@3.8.3)
       globals: 17.5.0
       graphql: 16.13.2
       graphql-query-complexity: 1.1.0(graphql@16.13.2)
@@ -14288,6 +14600,14 @@ snapshots:
     dependencies:
       '@babel/core': 7.29.0
       '@eslint/js': 10.0.1(eslint@10.2.1(jiti@1.21.7))
+      '@omgjs/labkit-auth-contract': 0.1.1
+      '@omgjs/labkit-runtime-config': 0.1.1
+      '@omgjs/labkit-webapp-auth': 0.1.1
+      '@omgjs/labkit-webapp-build-config': 0.1.1
+      '@omgjs/labkit-webapp-external-store': 0.1.1
+      '@omgjs/labkit-webapp-graphql-relay': 0.1.1(graphql@16.13.2)(react@19.2.5)(ws@8.20.0)
+      '@omgjs/labkit-webapp-realtime': 0.1.1(graphql@16.13.2)(ws@8.20.0)
+      '@omgjs/labkit-webapp-ui': 0.1.1
       '@radix-ui/react-select': 2.2.6(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@radix-ui/react-slot': 1.2.4(@types/react@19.2.14)(react@19.2.5)
       '@rolldown/plugin-babel': 0.2.3(@babel/core@7.29.0)(@babel/plugin-transform-runtime@7.29.0(@babel/core@7.29.0))(@babel/runtime@7.29.2)(rolldown@1.0.0-rc.17)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.28.0)(jiti@1.21.7)(terser@5.46.2)(yaml@2.8.3))
@@ -15026,6 +15346,22 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@typescript-eslint/eslint-plugin@8.59.0(@typescript-eslint/parser@8.59.0(eslint@10.3.0(jiti@1.21.7))(typescript@6.0.3))(eslint@10.3.0(jiti@1.21.7))(typescript@6.0.3)':
+    dependencies:
+      '@eslint-community/regexpp': 4.12.2
+      '@typescript-eslint/parser': 8.59.0(eslint@10.3.0(jiti@1.21.7))(typescript@6.0.3)
+      '@typescript-eslint/scope-manager': 8.59.0
+      '@typescript-eslint/type-utils': 8.59.0(eslint@10.3.0(jiti@1.21.7))(typescript@6.0.3)
+      '@typescript-eslint/utils': 8.59.0(eslint@10.3.0(jiti@1.21.7))(typescript@6.0.3)
+      '@typescript-eslint/visitor-keys': 8.59.0
+      eslint: 10.3.0(jiti@1.21.7)
+      ignore: 7.0.5
+      natural-compare: 1.4.0
+      ts-api-utils: 2.5.0(typescript@6.0.3)
+      typescript: 6.0.3
+    transitivePeerDependencies:
+      - supports-color
+
   '@typescript-eslint/parser@8.59.0(eslint@10.2.1(jiti@1.21.7))(typescript@6.0.3)':
     dependencies:
       '@typescript-eslint/scope-manager': 8.59.0
@@ -15034,6 +15370,18 @@ snapshots:
       '@typescript-eslint/visitor-keys': 8.59.0
       debug: 4.4.3
       eslint: 10.2.1(jiti@1.21.7)
+      typescript: 6.0.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/parser@8.59.0(eslint@10.3.0(jiti@1.21.7))(typescript@6.0.3)':
+    dependencies:
+      '@typescript-eslint/scope-manager': 8.59.0
+      '@typescript-eslint/types': 8.59.0
+      '@typescript-eslint/typescript-estree': 8.59.0(typescript@6.0.3)
+      '@typescript-eslint/visitor-keys': 8.59.0
+      debug: 4.4.3
+      eslint: 10.3.0(jiti@1.21.7)
       typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
@@ -15068,6 +15416,18 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@typescript-eslint/type-utils@8.59.0(eslint@10.3.0(jiti@1.21.7))(typescript@6.0.3)':
+    dependencies:
+      '@typescript-eslint/types': 8.59.0
+      '@typescript-eslint/typescript-estree': 8.59.0(typescript@6.0.3)
+      '@typescript-eslint/utils': 8.59.0(eslint@10.3.0(jiti@1.21.7))(typescript@6.0.3)
+      debug: 4.4.3
+      eslint: 10.3.0(jiti@1.21.7)
+      ts-api-utils: 2.5.0(typescript@6.0.3)
+      typescript: 6.0.3
+    transitivePeerDependencies:
+      - supports-color
+
   '@typescript-eslint/types@8.59.0': {}
 
   '@typescript-eslint/typescript-estree@8.59.0(typescript@6.0.3)':
@@ -15092,6 +15452,17 @@ snapshots:
       '@typescript-eslint/types': 8.59.0
       '@typescript-eslint/typescript-estree': 8.59.0(typescript@6.0.3)
       eslint: 10.2.1(jiti@1.21.7)
+      typescript: 6.0.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/utils@8.59.0(eslint@10.3.0(jiti@1.21.7))(typescript@6.0.3)':
+    dependencies:
+      '@eslint-community/eslint-utils': 4.9.1(eslint@10.3.0(jiti@1.21.7))
+      '@typescript-eslint/scope-manager': 8.59.0
+      '@typescript-eslint/types': 8.59.0
+      '@typescript-eslint/typescript-estree': 8.59.0(typescript@6.0.3)
+      eslint: 10.3.0(jiti@1.21.7)
       typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
@@ -16827,7 +17198,11 @@ snapshots:
     dependencies:
       eslint: 10.2.1(jiti@1.21.7)
 
-  eslint-plugin-prettier@5.5.5(@types/eslint@9.6.1)(eslint-config-prettier@10.1.8(eslint@10.2.1(jiti@1.21.7)))(eslint@10.2.1(jiti@1.21.7))(prettier@3.8.3):
+  eslint-config-prettier@10.1.8(eslint@10.3.0(jiti@1.21.7)):
+    dependencies:
+      eslint: 10.3.0(jiti@1.21.7)
+
+  eslint-plugin-prettier@5.5.5(@types/eslint@9.6.1)(eslint-config-prettier@10.1.8(eslint@10.3.0(jiti@1.21.7)))(eslint@10.2.1(jiti@1.21.7))(prettier@3.8.3):
     dependencies:
       eslint: 10.2.1(jiti@1.21.7)
       prettier: 3.8.3
@@ -16835,7 +17210,17 @@ snapshots:
       synckit: 0.11.12
     optionalDependencies:
       '@types/eslint': 9.6.1
-      eslint-config-prettier: 10.1.8(eslint@10.2.1(jiti@1.21.7))
+      eslint-config-prettier: 10.1.8(eslint@10.3.0(jiti@1.21.7))
+
+  eslint-plugin-prettier@5.5.5(@types/eslint@9.6.1)(eslint-config-prettier@10.1.8(eslint@10.3.0(jiti@1.21.7)))(eslint@10.3.0(jiti@1.21.7))(prettier@3.8.3):
+    dependencies:
+      eslint: 10.3.0(jiti@1.21.7)
+      prettier: 3.8.3
+      prettier-linter-helpers: 1.0.1
+      synckit: 0.11.12
+    optionalDependencies:
+      '@types/eslint': 9.6.1
+      eslint-config-prettier: 10.1.8(eslint@10.3.0(jiti@1.21.7))
 
   eslint-plugin-react-hooks@7.1.1(eslint@10.2.1(jiti@1.21.7)):
     dependencies:
@@ -16848,9 +17233,24 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  eslint-plugin-react-hooks@7.1.1(eslint@10.3.0(jiti@1.21.7)):
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/parser': 7.29.2
+      eslint: 10.3.0(jiti@1.21.7)
+      hermes-parser: 0.25.1
+      zod: 4.3.6
+      zod-validation-error: 4.0.2(zod@4.3.6)
+    transitivePeerDependencies:
+      - supports-color
+
   eslint-plugin-react-refresh@0.5.2(eslint@10.2.1(jiti@1.21.7)):
     dependencies:
       eslint: 10.2.1(jiti@1.21.7)
+
+  eslint-plugin-react-refresh@0.5.2(eslint@10.3.0(jiti@1.21.7)):
+    dependencies:
+      eslint: 10.3.0(jiti@1.21.7)
 
   eslint-scope@5.1.1:
     dependencies:
@@ -16873,6 +17273,43 @@ snapshots:
   eslint@10.2.1(jiti@1.21.7):
     dependencies:
       '@eslint-community/eslint-utils': 4.9.1(eslint@10.2.1(jiti@1.21.7))
+      '@eslint-community/regexpp': 4.12.2
+      '@eslint/config-array': 0.23.5
+      '@eslint/config-helpers': 0.5.5
+      '@eslint/core': 1.2.1
+      '@eslint/plugin-kit': 0.7.1
+      '@humanfs/node': 0.16.8
+      '@humanwhocodes/module-importer': 1.0.1
+      '@humanwhocodes/retry': 0.4.3
+      '@types/estree': 1.0.8
+      ajv: 6.15.0
+      cross-spawn: 7.0.6
+      debug: 4.4.3
+      escape-string-regexp: 4.0.0
+      eslint-scope: 9.1.2
+      eslint-visitor-keys: 5.0.1
+      espree: 11.2.0
+      esquery: 1.7.0
+      esutils: 2.0.3
+      fast-deep-equal: 3.1.3
+      file-entry-cache: 8.0.0
+      find-up: 5.0.0
+      glob-parent: 6.0.2
+      ignore: 5.3.2
+      imurmurhash: 0.1.4
+      is-glob: 4.0.3
+      json-stable-stringify-without-jsonify: 1.0.1
+      minimatch: 10.2.5
+      natural-compare: 1.4.0
+      optionator: 0.9.4
+    optionalDependencies:
+      jiti: 1.21.7
+    transitivePeerDependencies:
+      - supports-color
+
+  eslint@10.3.0(jiti@1.21.7):
+    dependencies:
+      '@eslint-community/eslint-utils': 4.9.1(eslint@10.3.0(jiti@1.21.7))
       '@eslint-community/regexpp': 4.12.2
       '@eslint/config-array': 0.23.5
       '@eslint/config-helpers': 0.5.5
@@ -21573,6 +22010,17 @@ snapshots:
       '@typescript-eslint/typescript-estree': 8.59.0(typescript@6.0.3)
       '@typescript-eslint/utils': 8.59.0(eslint@10.2.1(jiti@1.21.7))(typescript@6.0.3)
       eslint: 10.2.1(jiti@1.21.7)
+      typescript: 6.0.3
+    transitivePeerDependencies:
+      - supports-color
+
+  typescript-eslint@8.59.0(eslint@10.3.0(jiti@1.21.7))(typescript@6.0.3):
+    dependencies:
+      '@typescript-eslint/eslint-plugin': 8.59.0(@typescript-eslint/parser@8.59.0(eslint@10.3.0(jiti@1.21.7))(typescript@6.0.3))(eslint@10.3.0(jiti@1.21.7))(typescript@6.0.3)
+      '@typescript-eslint/parser': 8.59.0(eslint@10.3.0(jiti@1.21.7))(typescript@6.0.3)
+      '@typescript-eslint/typescript-estree': 8.59.0(typescript@6.0.3)
+      '@typescript-eslint/utils': 8.59.0(eslint@10.3.0(jiti@1.21.7))(typescript@6.0.3)
+      eslint: 10.3.0(jiti@1.21.7)
       typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color

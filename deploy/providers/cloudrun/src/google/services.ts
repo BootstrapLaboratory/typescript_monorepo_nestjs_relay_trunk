@@ -19,7 +19,7 @@ export type ServiceUsageClientLike = {
 };
 
 export function createGoogleServicesDependency(
-  client: ServiceUsageClientLike = new v1.ServiceUsageClient() as ServiceUsageClientLike,
+  client: ServiceUsageClientLike = new v1.ServiceUsageClient(),
 ): CloudRunProviderDeps["services"] {
   return {
     async enableServices(input) {

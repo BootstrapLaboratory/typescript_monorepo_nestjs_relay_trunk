@@ -9,7 +9,7 @@ import apolloLogo from "../assets/apollo.svg";
 import viteLogo from "/vite.svg";
 import rushStackLogo from "../assets/rushstack.svg";
 import { HTTP_ENDPOINT } from "../../../shared/graphql/endpoints";
-import { cx } from "../../../ui/classNames";
+import { cx } from "@omgjs/labkit-webapp-ui";
 import { Link } from "../../../ui/Link";
 import * as styles from "./ChatPage.css";
 

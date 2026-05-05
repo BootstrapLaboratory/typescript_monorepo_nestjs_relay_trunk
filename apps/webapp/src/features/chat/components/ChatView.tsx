@@ -1,6 +1,6 @@
 import { type ReactNode, type Ref } from "react";
 import { Surface } from "../../../ui/Surface";
-import { cx } from "../../../ui/classNames";
+import { cx } from "@omgjs/labkit-webapp-ui";
 import * as styles from "./Chat.css";
 
 export type ChatStatusTone = "warning" | "danger";

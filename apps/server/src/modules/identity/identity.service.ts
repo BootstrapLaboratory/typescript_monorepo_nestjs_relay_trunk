@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { IdentityProviderRegistry } from './identity-provider-registry.service';
+import { IdentityProviderRegistry } from '@omgjs/labkit-server-auth';
 import { AuthSessionResult, Principal } from './identity.types';
 import { IdentitySessionService } from './session.service';
 
@@ -57,8 +57,6 @@ export class IdentityService {
   }
 
   revokeAllForPrincipal(principal: Principal): Promise<void> {
-    return this.sessionService.revokeAllSessionsForUser(
-      Number(principal.userId),
-    );
+    return this.sessionService.revokeAllSessionsForUser(principal.userId);
   }
 }

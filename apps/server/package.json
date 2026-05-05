@@ -38,6 +38,14 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@omgjs/labkit-auth-contract": "0.1.1",
+    "@omgjs/labkit-runtime-config": "0.1.1",
+    "@omgjs/labkit-server-auth": "0.1.1",
+    "@omgjs/labkit-server-auth-typeorm": "0.1.1",
+    "@omgjs/labkit-server-config": "0.1.1",
+    "@omgjs/labkit-server-database": "0.1.1",
+    "@omgjs/labkit-server-graphql": "0.1.1",
+    "@omgjs/labkit-server-observability": "0.1.1",
     "@apollo/server": "^5.5.0",
     "@as-integrations/fastify": "^3.1.0",
     "@automapper/classes": "^8.8.1",
@@ -104,7 +112,7 @@
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": [
+      "^.+\\.ts$": [
         "ts-jest",
         {
           "tsconfig": "tsconfig.spec.json"

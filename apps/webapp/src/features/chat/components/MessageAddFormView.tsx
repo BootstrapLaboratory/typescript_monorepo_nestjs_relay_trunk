@@ -1,7 +1,7 @@
 import { type FormEvent } from "react";
 import { Button } from "../../../ui/Button";
 import { TextField } from "../../../ui/TextField";
-import { cx } from "../../../ui/classNames";
+import { cx } from "@omgjs/labkit-webapp-ui";
 import * as styles from "./MessageAddForm.css";
 
 export type MessageAddFormViewProps = {
