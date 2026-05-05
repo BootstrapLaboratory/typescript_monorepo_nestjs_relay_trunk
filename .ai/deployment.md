@@ -125,6 +125,11 @@ Use this checklist as the high-level deployment preparation path.
   pub/sub and multi-instance subscription fanout.
 - Configure server auth. Use a strong `AUTH_ACCESS_TOKEN_SECRET`, keep browser
   refresh flow on HttpOnly cookie transport, and align cookie/CORS settings.
+  Generated Cloudflare Pages to Cloud Run deployments are cross-site and need
+  `SERVER_AUTH_REFRESH_COOKIE_SAME_SITE=none` plus
+  `SERVER_AUTH_REFRESH_COOKIE_SECURE=true` in GitHub repository variables.
+  When the frontend and backend later move under one registrable domain, switch
+  back to the more restrictive `lax` policy after validating the browser flow.
 - Configure CORS. Production `CORS_ORIGIN` should be the real webapp origin,
   not wildcard CORS.
 - Configure webapp GraphQL endpoints. `WEBAPP_VITE_GRAPHQL_HTTP` and
@@ -156,6 +161,10 @@ Backend Cloud Run variables:
 - `CLOUD_RUN_SERVICE`
 - `CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT`
 - `CLOUD_RUN_CORS_ORIGIN`
+- `SERVER_AUTH_REFRESH_TOKEN_TRANSPORT`
+- `SERVER_AUTH_REFRESH_COOKIE_SECURE`
+- `SERVER_AUTH_REFRESH_COOKIE_SAME_SITE`
+- `SERVER_AUTH_REFRESH_COOKIE_PATH`
 
 Cloudflare Pages variables and secrets:
 
@@ -183,6 +192,13 @@ For browser production, the preferred auth setup is:
 - `AUTH_REFRESH_COOKIE_SECURE=true`
 - `AUTH_REFRESH_COOKIE_SAME_SITE=lax` unless cross-site cookies require
   `none`
+
+Generated `pages.dev` to `run.app` deployments are cross-site, so use
+`SERVER_AUTH_REFRESH_COOKIE_SAME_SITE=none` and
+`SERVER_AUTH_REFRESH_COOKIE_SECURE=true` for that topology. Once the webapp and
+API share one registrable domain, prefer
+`SERVER_AUTH_REFRESH_COOKIE_SAME_SITE=lax`; consider `strict` only after
+testing all intended navigation and auth flows.
 
 Avoid recommending local storage for access or refresh tokens in browser
 production. The webapp may store a non-secret session hint for first paint, but

@@ -86,10 +86,29 @@ The Cloud Run deployment workflow expects these GitHub repository variables:
 - `CLOUD_RUN_SERVICE`
 - `CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT`
 - `CLOUD_RUN_CORS_ORIGIN`
+- `SERVER_AUTH_REFRESH_TOKEN_TRANSPORT`
+- `SERVER_AUTH_REFRESH_COOKIE_SECURE`
+- `SERVER_AUTH_REFRESH_COOKIE_SAME_SITE`
+- `SERVER_AUTH_REFRESH_COOKIE_PATH`
 
 The workflow uses `europe-west4` by default for both the Cloud Run region and
 the Artifact Registry hostname. If you later change regions, update the
 workflow to match.
+
+For generated Cloudflare Pages to Cloud Run URLs, use these browser session
+values:
+
+```text
+SERVER_AUTH_REFRESH_TOKEN_TRANSPORT=cookie
+SERVER_AUTH_REFRESH_COOKIE_SECURE=true
+SERVER_AUTH_REFRESH_COOKIE_SAME_SITE=none
+SERVER_AUTH_REFRESH_COOKIE_PATH=/graphql
+```
+
+That topology is cross-site, so `SameSite=None` is needed for the refresh
+cookie to survive page reloads. After moving the frontend and backend under one
+registrable domain, switch `SERVER_AUTH_REFRESH_COOKIE_SAME_SITE` back to
+`lax` and keep `SERVER_AUTH_REFRESH_COOKIE_SECURE=true`.
 
 ## Secret Manager expectations
 
@@ -128,6 +147,8 @@ If you adopt this stack for a real project and own a backend domain such as
 - map the custom backend domain to Cloud Run
 - point the frontend `VITE_GRAPHQL_HTTP` and `VITE_GRAPHQL_WS` values at that custom domain
 - keep `CLOUD_RUN_CORS_ORIGIN` aligned with the real frontend origin
+- if the frontend and backend share one registrable domain, change
+  `SERVER_AUTH_REFRESH_COOKIE_SAME_SITE` from `none` to `lax`
 - verify `https://<your-api-domain>/health` and `https://<your-api-domain>/graphql`
 - verify GraphQL subscriptions over `wss://<your-api-domain>/graphql`
 - if the frontend also moves to a custom domain, coordinate that change with [deploy/cloudflare-pages/README.md](../cloudflare-pages/README.md)

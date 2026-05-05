@@ -293,6 +293,10 @@ The workflow expects these repository variables:
 - `CLOUD_RUN_SERVICE`
 - `CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT`
 - `CLOUD_RUN_CORS_ORIGIN`
+- `SERVER_AUTH_REFRESH_TOKEN_TRANSPORT`
+- `SERVER_AUTH_REFRESH_COOKIE_SECURE`
+- `SERVER_AUTH_REFRESH_COOKIE_SAME_SITE`
+- `SERVER_AUTH_REFRESH_COOKIE_PATH`
 
 For the first backend-only rollout, a practical `CLOUD_RUN_CORS_ORIGIN` in
 `deploy/cloudrun/config/.env` is:
@@ -312,6 +316,22 @@ You can set the variables manually in GitHub repository settings, or by CLI:
 ```bash
 bash deploy/cloudrun/scripts/configure-github-vars.sh
 ```
+
+Until `configure-github-vars.sh` is extended for auth-cookie policy, set the
+server refresh-cookie variables manually in GitHub repository settings. For
+generated Cloudflare Pages to Cloud Run URLs, use:
+
+```text
+SERVER_AUTH_REFRESH_TOKEN_TRANSPORT=cookie
+SERVER_AUTH_REFRESH_COOKIE_SECURE=true
+SERVER_AUTH_REFRESH_COOKIE_SAME_SITE=none
+SERVER_AUTH_REFRESH_COOKIE_PATH=/graphql
+```
+
+This is needed because `pages.dev` and `run.app` are cross-site. When the
+frontend and backend later share one registrable domain, switch
+`SERVER_AUTH_REFRESH_COOKIE_SAME_SITE` back to `lax` and keep secure cookies
+enabled.
 
 ## Step 7: Trigger the First Backend Deploy
 

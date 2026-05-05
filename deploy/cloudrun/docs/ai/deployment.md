@@ -112,14 +112,20 @@ Start from [../../config/.env.example](../../config/.env.example). Copy it to
 
 6. Configure GitHub repository variables.
    Run [../../scripts/configure-github-vars.sh](../../scripts/configure-github-vars.sh).
-   It sets the Cloud Run GitHub variables used by Rush Delivery.
+   It sets the Cloud Run GitHub variables used by Rush Delivery. Until the
+   GitHub helper is extended for refresh-cookie policy, also set the
+   `SERVER_AUTH_REFRESH_*` variables manually in GitHub repository variables.
 
 7. Configure production auth before claiming authenticated production readiness.
    Browser production should use memory-only access tokens plus an HttpOnly
    refresh cookie. The deploy path injects `AUTH_ACCESS_TOKEN_SECRET` from
    Secret Manager; keep that value stable unless intentionally rotating active
    access-token sessions. Confirm refresh-cookie settings are aligned with the
-   frontend/backend origin shape.
+   frontend/backend origin shape. Generated Cloudflare Pages to Cloud Run
+   deployments are cross-site, so they need `SERVER_AUTH_REFRESH_COOKIE_SAME_SITE=none`
+   and `SERVER_AUTH_REFRESH_COOKIE_SECURE=true`. When both sides later move
+   under one registrable domain, prefer `lax` again after testing the browser
+   auth flow.
 
 8. Configure monitoring when the environment is ready.
    Use [../../scripts/create-monitoring-email-channel.sh](../../scripts/create-monitoring-email-channel.sh)
@@ -181,7 +187,11 @@ GitHub manual setup:
 - Set repository variables `GCP_PROJECT_ID`,
   `GCP_WORKLOAD_IDENTITY_PROVIDER`, `GCP_SERVICE_ACCOUNT`,
   `GCP_ARTIFACT_REGISTRY_REPOSITORY`, `CLOUD_RUN_SERVICE`,
-  `CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT`, and `CLOUD_RUN_CORS_ORIGIN`.
+  `CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT`, `CLOUD_RUN_CORS_ORIGIN`,
+  `SERVER_AUTH_REFRESH_TOKEN_TRANSPORT`,
+  `SERVER_AUTH_REFRESH_COOKIE_SECURE`,
+  `SERVER_AUTH_REFRESH_COOKIE_SAME_SITE`, and
+  `SERVER_AUTH_REFRESH_COOKIE_PATH`.
 - Confirm `.github/workflows/main-workflow.yaml` still maps those variables into
   Rush Delivery deploy environment values.
 - Trigger `main-workflow` by pushing to `main`, or manually run
@@ -198,6 +208,10 @@ The backend deployment expects:
 - `CLOUD_RUN_SERVICE`
 - `CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT`
 - `CLOUD_RUN_CORS_ORIGIN`
+- `SERVER_AUTH_REFRESH_TOKEN_TRANSPORT`
+- `SERVER_AUTH_REFRESH_COOKIE_SECURE`
+- `SERVER_AUTH_REFRESH_COOKIE_SAME_SITE`
+- `SERVER_AUTH_REFRESH_COOKIE_PATH`
 
 `CLOUD_RUN_REGION` currently comes from `.github/workflows/main-workflow.yaml`
 and defaults to `europe-west4`.
@@ -214,6 +228,10 @@ The current Cloud Run deploy script sets these production runtime values:
 - `DATABASE_SSL=true`
 - `DATABASE_SSL_REJECT_UNAUTHORIZED=false`
 - `CORS_ORIGIN=${CLOUD_RUN_CORS_ORIGIN}`
+- `AUTH_REFRESH_TOKEN_TRANSPORT=${SERVER_AUTH_REFRESH_TOKEN_TRANSPORT}`
+- `AUTH_REFRESH_COOKIE_SECURE=${SERVER_AUTH_REFRESH_COOKIE_SECURE}`
+- `AUTH_REFRESH_COOKIE_SAME_SITE=${SERVER_AUTH_REFRESH_COOKIE_SAME_SITE}`
+- `AUTH_REFRESH_COOKIE_PATH=${SERVER_AUTH_REFRESH_COOKIE_PATH}`
 - `LOG_VERBOSE_PUBSUB=false`
 - `LOG_GRAPHQL_SUBSCRIPTIONS=false`
 
@@ -250,6 +268,10 @@ Cloud Run and Cloudflare Pages settings must agree:
 
 - `CLOUD_RUN_CORS_ORIGIN` must include the deployed webapp origin, usually
   `https://<CLOUDFLARE_PAGES_PROJECT_NAME>.pages.dev`.
+- Generated `pages.dev` to `run.app` deployments require
+  `SERVER_AUTH_REFRESH_COOKIE_SAME_SITE=none` and
+  `SERVER_AUTH_REFRESH_COOKIE_SECURE=true` so browser refresh cookies are sent
+  on cross-site GraphQL requests.
 - `WEBAPP_VITE_GRAPHQL_HTTP` must point to the deployed backend
   `https://.../graphql` URL.
 - `WEBAPP_VITE_GRAPHQL_WS` must point to the deployed backend
@@ -258,6 +280,9 @@ Cloud Run and Cloudflare Pages settings must agree:
   frontend GraphQL path.
 - If either side moves to a custom domain, update and redeploy the other side
   when its configuration depends on that origin or endpoint.
+- If both sides move under one registrable domain, switch
+  `SERVER_AUTH_REFRESH_COOKIE_SAME_SITE` back to `lax` and keep
+  `SERVER_AUTH_REFRESH_COOKIE_SECURE=true`.
 
 ## Validation
 
@@ -284,6 +309,8 @@ After backend deployment:
 - Treating local script output as a finished production deployment instead of
   ending with GitHub Actions.
 - Leaving `CLOUD_RUN_CORS_ORIGIN` at `http://localhost:5173` for production.
+- Leaving refresh cookies at `SameSite=Lax` while the webapp and API are on
+  generated cross-site domains.
 - Forgetting `/graphql` in frontend endpoint variables.
 - Swapping `DATABASE_URL` and `DATABASE_URL_DIRECT`.
 - Running production with `DATABASE_SYNCHRONIZE=true`.
