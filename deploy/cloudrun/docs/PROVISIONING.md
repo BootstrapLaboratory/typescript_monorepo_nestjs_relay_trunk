@@ -247,6 +247,8 @@ Fill these values in [deploy/cloudrun/config/.env](../config/.env):
 - `DATABASE_URL`
 - `DATABASE_URL_DIRECT`
 - `REDIS_URL`
+- `AUTH_ACCESS_TOKEN_SECRET` is optional; leave it empty to generate the Secret
+  Manager value when missing
 
 Then run:
 
@@ -265,9 +267,15 @@ What this does:
   - `DATABASE_URL`
   - `DATABASE_URL_DIRECT`
   - `REDIS_URL`
+  - `AUTH_ACCESS_TOKEN_SECRET`
 - grants `roles/secretmanager.secretAccessor` to:
-  - deployer service account for all three secrets
-  - runtime service account for `DATABASE_URL` and `REDIS_URL`
+  - deployer service account for all runtime secrets
+  - runtime service account for `DATABASE_URL`, `REDIS_URL`, and
+    `AUTH_ACCESS_TOKEN_SECRET`
+
+Existing `AUTH_ACCESS_TOKEN_SECRET` values are preserved by default. Rotating
+that secret invalidates active access tokens, so only answer yes to rotation
+when you mean to start a new signing-secret generation.
 
 ## Step 6: Set GitHub Repository Variables
 

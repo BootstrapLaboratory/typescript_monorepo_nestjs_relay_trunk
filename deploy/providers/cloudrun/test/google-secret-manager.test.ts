@@ -73,6 +73,28 @@ describe("Google Secret Manager dependency", () => {
     assert.deepEqual(client.addSecretVersionCalls, []);
   });
 
+  it("checks whether a secret exists", async () => {
+    const client = new FakeSecretManagerClient({
+      DATABASE_URL: {},
+    });
+    const secretManager = createGoogleSecretManagerDependency(client);
+
+    assert.equal(
+      await secretManager.secretExists({
+        projectId: "demo-project",
+        secretName: "DATABASE_URL",
+      }),
+      true,
+    );
+    assert.equal(
+      await secretManager.secretExists({
+        projectId: "demo-project",
+        secretName: "REDIS_URL",
+      }),
+      false,
+    );
+  });
+
   it("adds a secret IAM member to an existing binding", async () => {
     const client = new FakeSecretManagerClient({
       DATABASE_URL: {},

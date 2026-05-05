@@ -48,9 +48,11 @@ ordering, and lockfile ownership.
   billing-enabled Google Cloud project ID. It does not create Google Cloud
   projects. It executes the Cloud Run bootstrap step, prints a structured
   backend GitHub variable handoff, and collects Neon database URLs plus the
-  Upstash Redis URL as transient secret inputs before syncing them into Google
-  Secret Manager. It then prepares the Cloudflare Pages project while keeping
-  the Cloudflare API token transient, and configures GitHub repository
+  Upstash Redis URL as transient secret inputs before syncing runtime secrets
+  into Google Secret Manager. The auth access-token signing secret is generated
+  when missing and preserved when present unless rotation is explicitly
+  requested. It then prepares the Cloudflare Pages project while keeping the
+  Cloudflare API token transient, and configures GitHub repository
   variables and Cloudflare secrets for the production workflow. The GitHub step
   uses explicit webapp GraphQL URLs when provided, otherwise it resolves the
   live Cloud Run service URL from Google Cloud and appends `/graphql`. The

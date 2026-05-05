@@ -49,6 +49,9 @@ function createMarkerDeps(): CloudRunProviderDeps {
     },
     secretManager: {
       async ensureSecretIamBinding() {},
+      async secretExists() {
+        return false;
+      },
       async upsertSecretVersion() {},
     },
     services: {

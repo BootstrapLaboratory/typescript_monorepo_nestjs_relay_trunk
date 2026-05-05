@@ -81,6 +81,12 @@ The returned output mirrors the values currently printed by
 }
 ```
 
+`syncCloudRunRuntimeSecrets(input, deps)` manages the backend runtime Secret
+Manager entries. It writes database and Redis values, generates
+`AUTH_ACCESS_TOKEN_SECRET` when missing, preserves an existing auth signing
+secret by default, and rotates it only when the caller explicitly requests
+rotation.
+
 ## SDK Policy
 
 Use official Google SDKs as far as they reasonably go:

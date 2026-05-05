@@ -41,6 +41,8 @@ const subscriptionQuery = "subscription { MessageAdded { id author body } }";
 const getMessagesQuery = "query { getMessages { id author body } }";
 const addMessageMutation =
   "mutation($input: NewMessageInput!) { addMessage(newMessageData: $input) { id author body } }";
+const registerMutation =
+  "mutation($input: RegisterInput!) { register(input: $input) { accessToken principal { userId subject roles } } }";
 const WebSocketCtor = globalThis.WebSocket;
 
 if (typeof WebSocketCtor !== "function") {
@@ -283,6 +285,27 @@ async function main() {
     `[smoke] Query succeeded with ${queryData.getMessages.length} messages currently in the store.`,
   );
 
+  const authEmail = `smoke-${uniqueId}@example.invalid`;
+  const authData = await postGraphql(registerMutation, {
+    input: {
+      displayName: "Post-deploy Smoke",
+      email: authEmail,
+      password: `smoke-password-${uniqueId}`,
+    },
+  });
+  const authPayload = authData?.register;
+  if (
+    typeof authPayload?.accessToken !== "string" ||
+    authPayload.accessToken.length === 0 ||
+    authPayload.principal?.subject !== authEmail
+  ) {
+    throw new Error(
+      `Expected register to issue an access token: ${JSON.stringify(authData)}`,
+    );
+  }
+
+  console.log("[smoke] Auth registration succeeded.");
+
   const deliveredMessage = await waitForSubscriptionDelivery();
 
   appendStepSummary([
@@ -291,6 +314,7 @@ async function main() {
     `- Service URL: \`${serviceUrl}\``,
     `- Health check: passed`,
     `- GraphQL query: passed`,
+    `- Auth registration: passed`,
     `- GraphQL mutation: passed`,
     `- GraphQL subscription delivery: passed`,
     `- Smoke test message body: \`${deliveredMessage.body}\``,

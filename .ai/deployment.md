@@ -103,9 +103,10 @@ Use this checklist as the high-level deployment preparation path.
   run through `deploy/wizard`, requires an existing, billing-enabled Google
   Cloud project ID. It can prepare the Cloud Run backend project path, collect
   Neon and Upstash connection URLs, sync backend runtime secrets into Secret
-  Manager, prepare the Cloudflare Pages project, and write GitHub repository
-  variables/secrets for the production workflow. The provider scripts remain
-  the provider-specific fallback and repair path.
+  Manager, generate the auth access-token signing secret when missing while
+  preserving existing values by default, prepare the Cloudflare Pages project,
+  and write GitHub repository variables/secrets for the production workflow.
+  The provider scripts remain the provider-specific fallback and repair path.
 - Also explain the manual equivalent when the human is using a restricted
   environment, debugging automation, or only adopting part of the deployment
   stack.
@@ -169,6 +170,7 @@ Runtime secrets expected by the server deployment:
 - `DATABASE_URL`
 - `DATABASE_URL_DIRECT`
 - `REDIS_URL`
+- `AUTH_ACCESS_TOKEN_SECRET`
 
 ## Auth And Security Pre-Deployment Notes
 

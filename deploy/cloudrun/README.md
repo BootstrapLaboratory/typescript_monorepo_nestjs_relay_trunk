@@ -99,15 +99,23 @@ Secret Manager with these names:
 - `DATABASE_URL`
 - `DATABASE_URL_DIRECT`
 - `REDIS_URL`
+- `AUTH_ACCESS_TOKEN_SECRET`
 
 The workflow uses `DATABASE_URL_DIRECT` to run TypeORM migrations before the
-deploy. The runtime service receives `DATABASE_URL` and `REDIS_URL` as injected
-environment variables from Secret Manager.
+deploy. The runtime service receives `DATABASE_URL`, `REDIS_URL`, and
+`AUTH_ACCESS_TOKEN_SECRET` as injected environment variables from Secret
+Manager.
 
 That split is intentional:
 
 - `DATABASE_URL` should be the pooled low-privilege runtime user
 - `DATABASE_URL_DIRECT` should remain the direct higher-privilege migration user
+- `AUTH_ACCESS_TOKEN_SECRET` signs access tokens and should stay stable unless
+  you intentionally rotate sessions
+
+`sync-secrets.sh` creates a strong `AUTH_ACCESS_TOKEN_SECRET` when the Secret
+Manager entry is missing. If it already exists, the script preserves it by
+default and asks before rotation in interactive runs.
 
 ## Optional For Adopters With Their Own Domain
 

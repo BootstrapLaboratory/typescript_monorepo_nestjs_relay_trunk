@@ -59,6 +59,7 @@ npm --prefix deploy/wizard run cloudrun-cloudflare-neon-upstash -- \
   --var DATABASE_URL="postgres://..." \
   --var DATABASE_URL_DIRECT="postgres://..." \
   --var REDIS_URL="rediss://..." \
+  --var AUTH_ACCESS_TOKEN_SECRET_ROTATE="no" \
   --var CLOUDFLARE_ACCOUNT_ID="..." \
   --var CLOUDFLARE_API_TOKEN="..." \
   --var CLOUDFLARE_PAGES_PROJECT_NAME="your-pages-project"
@@ -67,9 +68,11 @@ npm --prefix deploy/wizard run cloudrun-cloudflare-neon-upstash -- \
 Pass `--var CLOUD_RUN_CORS_ORIGIN=https://your-webapp.example.com` when using
 a custom frontend domain. Otherwise the GitHub configuration step uses the
 Cloudflare Pages URL. Pass `--var WEBAPP_VITE_GRAPHQL_HTTP=...` and
-`--var WEBAPP_VITE_GRAPHQL_WS=...` when the backend URL is already known or
-uses a custom domain. If those values are omitted, the scenario asks Google
-Cloud for the live Cloud Run service URL and appends `/graphql`.
+`--var WEBAPP_VITE_GRAPHQL_WS=...` when the backend URL is already known, uses
+a custom domain, or should override discovery. If those values are omitted, the
+scenario asks Google Cloud for the live Cloud Run service URL and appends
+`/graphql`. Pass `--var AUTH_ACCESS_TOKEN_SECRET=...` only when you want to
+provide the signing secret yourself; otherwise it is generated when missing.
 
 For a brand-new environment, Cloud Run may not have a public service URL until
 after the first server deploy. In that case, run the server deploy first, rerun
@@ -82,9 +85,10 @@ If Google reports that billing is not enabled, the scenario pauses, asks you to
 enable billing for the project manually, and retries Cloud Run bootstrap after
 you press Enter.
 
-The Neon database URL and Upstash Redis URL inputs are secrets. They are
-validated and stay available to later steps in the same run, but are not printed
-in CLI summaries or written to the scenario state file.
+The Neon database URL, Upstash Redis URL, and optional explicit
+`AUTH_ACCESS_TOKEN_SECRET` inputs are secrets. They are validated and stay
+available to later steps in the same run, but are not printed in CLI summaries
+or written to the scenario state file.
 
 The Cloudflare API token is also a secret. It is used to prepare the Pages
 project and to write the GitHub repository secret during the current run, but is
@@ -99,10 +103,20 @@ The Cloud Run runtime secrets step writes these Secret Manager entries:
 - `DATABASE_URL`
 - `DATABASE_URL_DIRECT`
 - `REDIS_URL`
+- `AUTH_ACCESS_TOKEN_SECRET`
 
-It grants the deployer service account access to all three secrets, and grants
-the Cloud Run runtime service account access to `DATABASE_URL` and `REDIS_URL`.
-Only `CLOUD_RUN_RUNTIME_SECRETS_SYNCED=true` is written to scenario state.
+It grants the deployer service account access to all runtime secrets, and
+grants the Cloud Run runtime service account access to `DATABASE_URL`,
+`REDIS_URL`, and `AUTH_ACCESS_TOKEN_SECRET`.
+
+`AUTH_ACCESS_TOKEN_SECRET` is generated when its Secret Manager entry is
+missing. Existing values are preserved unless you answer yes to the rotation
+prompt. Rotating this secret invalidates currently active access tokens, but it
+does not change stored passwords or database credentials.
+
+Secret values are not written to scenario state. The non-secret rotation answer
+and `AUTH_ACCESS_TOKEN_SECRET_STATUS` may appear in state for resume and audit
+clarity.
 
 The Cloudflare Pages step ensures the project exists, sets the production
 branch, and disables Cloudflare Git automatic deployments when the project has

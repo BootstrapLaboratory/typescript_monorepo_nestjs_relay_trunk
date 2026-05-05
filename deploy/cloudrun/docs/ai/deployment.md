@@ -21,8 +21,10 @@ currently implemented combined flow. It requires the human to create or choose
 an existing billing-enabled Google Cloud project and paste its `PROJECT_ID`;
 the scenario does not create Google Cloud projects. It can run Cloud Run
 backend bootstrap, collect already-provisioned Neon and Upstash connection
-URLs, and sync `DATABASE_URL`, `DATABASE_URL_DIRECT`, and `REDIS_URL` into
-Secret Manager without persisting the secret values. It also prepares the
+URLs, and sync `DATABASE_URL`, `DATABASE_URL_DIRECT`, `REDIS_URL`, and
+`AUTH_ACCESS_TOKEN_SECRET` into Secret Manager without persisting the secret
+values. The auth signing secret is generated when missing and preserved when
+present unless rotation is explicitly requested. It also prepares the
 Cloudflare Pages project and configures GitHub repository variables/secrets for
 the production workflow, but it does not replace the final GitHub Actions
 deployment trigger.
@@ -76,6 +78,9 @@ Start from [../../config/.env.example](../../config/.env.example). Copy it to
    - `DATABASE_URL`: pooled runtime PostgreSQL URL.
    - `DATABASE_URL_DIRECT`: direct migration/admin PostgreSQL URL.
    - `REDIS_URL`: production Redis URL for distributed pub/sub.
+   - `AUTH_ACCESS_TOKEN_SECRET`: optional explicit access-token signing secret.
+     Leave empty to generate it when missing. Preserve existing Secret Manager
+     values unless intentionally rotating sessions.
 
 2. Bootstrap Google Cloud.
    Run [../../scripts/bootstrap-gcp.sh](../../scripts/bootstrap-gcp.sh).
@@ -98,9 +103,12 @@ Start from [../../config/.env.example](../../config/.env.example). Copy it to
 5. Sync runtime secrets.
    Run [../../scripts/sync-secrets.sh](../../scripts/sync-secrets.sh) if the
    previous step did not already sync secrets. It creates or updates
-   `DATABASE_URL`, `DATABASE_URL_DIRECT`, and `REDIS_URL` in Secret Manager. The
-   deployer service account receives access to all three; the Cloud Run runtime
-   service account receives access to `DATABASE_URL` and `REDIS_URL`.
+   `DATABASE_URL`, `DATABASE_URL_DIRECT`, `REDIS_URL`, and
+   `AUTH_ACCESS_TOKEN_SECRET` in Secret Manager. Missing auth signing secrets
+   are generated automatically; existing values are preserved unless rotation
+   is requested. The deployer service account receives access to all runtime
+   secrets; the Cloud Run runtime service account receives access to
+   `DATABASE_URL`, `REDIS_URL`, and `AUTH_ACCESS_TOKEN_SECRET`.
 
 6. Configure GitHub repository variables.
    Run [../../scripts/configure-github-vars.sh](../../scripts/configure-github-vars.sh).
@@ -108,10 +116,10 @@ Start from [../../config/.env.example](../../config/.env.example). Copy it to
 
 7. Configure production auth before claiming authenticated production readiness.
    Browser production should use memory-only access tokens plus an HttpOnly
-   refresh cookie. The server needs a strong `AUTH_ACCESS_TOKEN_SECRET` and
-   aligned refresh-cookie settings. If the active deploy script or metadata does
-   not inject these settings yet, add them to the deployment path before saying
-   production auth is complete.
+   refresh cookie. The deploy path injects `AUTH_ACCESS_TOKEN_SECRET` from
+   Secret Manager; keep that value stable unless intentionally rotating active
+   access-token sessions. Confirm refresh-cookie settings are aligned with the
+   frontend/backend origin shape.
 
 8. Configure monitoring when the environment is ready.
    Use [../../scripts/create-monitoring-email-channel.sh](../../scripts/create-monitoring-email-channel.sh)
@@ -158,11 +166,15 @@ Google Cloud manual setup:
 
 Secret Manager manual setup:
 
-- Create `DATABASE_URL`, `DATABASE_URL_DIRECT`, and `REDIS_URL`.
-- Grant the deployer service account access to all three secrets.
-- Grant the runtime service account access to `DATABASE_URL` and `REDIS_URL`.
+- Create `DATABASE_URL`, `DATABASE_URL_DIRECT`, `REDIS_URL`, and
+  `AUTH_ACCESS_TOKEN_SECRET`.
+- Grant the deployer service account access to all runtime secrets.
+- Grant the runtime service account access to `DATABASE_URL`, `REDIS_URL`, and
+  `AUTH_ACCESS_TOKEN_SECRET`.
 - Keep `DATABASE_URL` as the pooled low-privilege runtime URL.
 - Keep `DATABASE_URL_DIRECT` as the direct higher-privilege migration URL.
+- Keep `AUTH_ACCESS_TOKEN_SECRET` stable unless intentionally rotating active
+  access-token sessions.
 
 GitHub manual setup:
 
@@ -209,6 +221,7 @@ The script injects these Secret Manager secrets into the runtime:
 
 - `DATABASE_URL`
 - `REDIS_URL`
+- `AUTH_ACCESS_TOKEN_SECRET`
 
 The script reads `DATABASE_URL_DIRECT` before deploy to run TypeORM migrations
 from the packaged backend artifact.

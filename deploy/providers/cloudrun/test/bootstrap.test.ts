@@ -131,6 +131,9 @@ function createRecordingDeps(calls: string[]): CloudRunProviderDeps {
     },
     secretManager: {
       async ensureSecretIamBinding() {},
+      async secretExists() {
+        return false;
+      },
       async upsertSecretVersion() {},
     },
     services: {

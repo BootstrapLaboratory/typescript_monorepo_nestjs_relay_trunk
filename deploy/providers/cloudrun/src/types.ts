@@ -41,6 +41,8 @@ export type BootstrapCloudRunOutput = {
 };
 
 export type SyncCloudRunRuntimeSecretsInput = {
+  AUTH_ACCESS_TOKEN_SECRET?: string;
+  AUTH_ACCESS_TOKEN_SECRET_ROTATE?: boolean | string;
   CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT?: string;
   DATABASE_URL: string;
   DATABASE_URL_DIRECT: string;
@@ -54,6 +56,8 @@ export type SyncCloudRunRuntimeSecretsInput = {
 };
 
 export type ResolvedSyncCloudRunRuntimeSecretsInput = {
+  AUTH_ACCESS_TOKEN_SECRET?: string;
+  AUTH_ACCESS_TOKEN_SECRET_ROTATE: boolean;
   DATABASE_URL: string;
   DATABASE_URL_DIRECT: string;
   DEPLOYER_SERVICE_ACCOUNT_EMAIL: string;
@@ -63,6 +67,7 @@ export type ResolvedSyncCloudRunRuntimeSecretsInput = {
 };
 
 export type SyncCloudRunRuntimeSecretsOutput = {
+  AUTH_ACCESS_TOKEN_SECRET_STATUS: "created" | "preserved" | "rotated";
   CLOUD_RUN_RUNTIME_SECRETS_SYNCED: "true";
 };
 
@@ -132,6 +137,10 @@ export type CloudRunProviderDeps = {
       role: string;
       secretName: string;
     }): Promise<void>;
+    secretExists(input: {
+      projectId: string;
+      secretName: string;
+    }): Promise<boolean>;
     upsertSecretVersion(input: {
       projectId: string;
       secretName: string;

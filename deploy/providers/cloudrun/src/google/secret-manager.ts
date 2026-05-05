@@ -59,6 +59,25 @@ export function createGoogleSecretManagerDependency(
         resource,
       });
     },
+    async secretExists(input) {
+      const resource = secretResourceName({
+        projectId: input.projectId,
+        secretName: input.secretName,
+      });
+
+      try {
+        await client.getSecret({
+          name: resource,
+        });
+        return true;
+      } catch (error) {
+        if (isNotFoundError(error)) {
+          return false;
+        }
+
+        throw error;
+      }
+    },
     async upsertSecretVersion(input) {
       const resource = secretResourceName({
         projectId: input.projectId,

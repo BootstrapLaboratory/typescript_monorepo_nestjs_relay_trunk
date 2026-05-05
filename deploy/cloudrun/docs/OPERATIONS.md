@@ -218,23 +218,26 @@ Then redeploy the backend:
 gh workflow run deploy-server.yaml --ref main
 ```
 
-### Rotate `DATABASE_URL_DIRECT` Or `REDIS_URL`
+### Rotate `DATABASE_URL_DIRECT`, `REDIS_URL`, Or `AUTH_ACCESS_TOKEN_SECRET`
 
 1. Update the real value in `deploy/cloudrun/config/.env`.
 2. If you use a machine-local override, update `deploy/cloudrun/config/.env.local`.
-3. Sync secrets:
+3. For `AUTH_ACCESS_TOKEN_SECRET`, set `AUTH_ACCESS_TOKEN_SECRET_ROTATE=yes`.
+   Rotating it invalidates active access tokens but does not change stored
+   passwords or database credentials.
+4. Sync secrets:
 
 ```bash
 bash deploy/cloudrun/scripts/sync-secrets.sh
 ```
 
-4. Redeploy the backend:
+5. Redeploy the backend:
 
 ```bash
 gh workflow run deploy-server.yaml --ref main
 ```
 
-5. Validate the running service:
+6. Validate the running service:
 
 ```bash
 SERVICE_URL="$(

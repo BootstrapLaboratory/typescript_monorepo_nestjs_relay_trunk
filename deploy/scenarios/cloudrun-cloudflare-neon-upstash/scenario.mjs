@@ -85,9 +85,10 @@ export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
       createCloudRunRuntimeSecretsStep({
         ...(options.runtimeSecrets ?? {}),
         guide: [
-          "Write DATABASE_URL, DATABASE_URL_DIRECT, and REDIS_URL to Google Secret Manager.",
-          "The deployer service account receives access to all three secrets.",
-          "The Cloud Run runtime service account receives access to DATABASE_URL and REDIS_URL.",
+          "Write DATABASE_URL, DATABASE_URL_DIRECT, REDIS_URL, and AUTH_ACCESS_TOKEN_SECRET to Google Secret Manager.",
+          "AUTH_ACCESS_TOKEN_SECRET is generated when missing and preserved when it already exists unless rotation is requested.",
+          "The deployer service account receives access to all runtime secrets.",
+          "The Cloud Run runtime service account receives access to DATABASE_URL, REDIS_URL, and AUTH_ACCESS_TOKEN_SECRET.",
         ].join("\n"),
         title: "Sync Cloud Run runtime secrets",
       }),

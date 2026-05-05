@@ -7,6 +7,7 @@ import {
   createNeonDatabaseStep,
   createUpstashRedisStep,
 } from "../scenario.mjs";
+import { createCloudRunRuntimeSecretsStep } from "../steps/cloudrun-runtime-secrets.mjs";
 import { formatCompletionSections } from "deploy-scenario-engine/src/completion-summary.mjs";
 import { redactScenarioValues } from "deploy-scenario-engine/src/runtime.mjs";
 import { runScenarioXState } from "deploy-scenario-engine/src/xstate-runner.mjs";
@@ -75,6 +76,47 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     );
   });
 
+  it("validates Cloud Run auth secret rotation inputs", async () => {
+    const step = createCloudRunRuntimeSecretsStep({
+      provider: {
+        createGoogleCloudRunProviderDeps: () => ({}),
+        syncCloudRunRuntimeSecrets: async () => ({
+          AUTH_ACCESS_TOKEN_SECRET_STATUS: "preserved",
+          CLOUD_RUN_RUNTIME_SECRETS_SYNCED: "true",
+        }),
+      },
+      skipCredentialPreflight: true,
+    });
+
+    await assert.rejects(
+      () =>
+        step.run({
+          AUTH_ACCESS_TOKEN_SECRET_ROTATE: "maybe",
+          DATABASE_URL:
+            "postgres://app:secret@example.test/app?sslmode=require",
+          DATABASE_URL_DIRECT:
+            "postgresql://owner:secret@example.test/app?sslmode=require",
+          PROJECT_ID: "demo-project",
+          REDIS_URL: "rediss://default:secret@example.upstash.io:6379",
+        }),
+      /AUTH_ACCESS_TOKEN_SECRET_ROTATE must be yes\/no/,
+    );
+    await assert.rejects(
+      () =>
+        step.run({
+          AUTH_ACCESS_TOKEN_SECRET: "too-short",
+          AUTH_ACCESS_TOKEN_SECRET_ROTATE: "no",
+          DATABASE_URL:
+            "postgres://app:secret@example.test/app?sslmode=require",
+          DATABASE_URL_DIRECT:
+            "postgresql://owner:secret@example.test/app?sslmode=require",
+          PROJECT_ID: "demo-project",
+          REDIS_URL: "rediss://default:secret@example.upstash.io:6379",
+        }),
+      /AUTH_ACCESS_TOKEN_SECRET must be configured with at least 32 characters/,
+    );
+  });
+
   it("runs project setup, Cloud Run bootstrap, credentials, secret sync, Pages, and GitHub config slices", async () => {
     const cloudRunCalls = [];
     const cloudflareCalls = [];
@@ -106,6 +148,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
         cloudRunCalls.push({ deps: receivedDeps, input });
 
         return {
+          AUTH_ACCESS_TOKEN_SECRET_STATUS: "created",
           CLOUD_RUN_RUNTIME_SECRETS_SYNCED: "true",
         };
       },
@@ -168,6 +211,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
       GITHUB_REPOSITORY: "BeltOrg/beltapp",
       PROJECT_ID: "demo-project",
       REDIS_URL: "rediss://default:secret@example.upstash.io:6379",
+      AUTH_ACCESS_TOKEN_SECRET_ROTATE: "no",
     });
 
     const result = await runScenarioXState(scenario, {
@@ -196,6 +240,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
         "DATABASE_URL",
         "DATABASE_URL_DIRECT",
         "REDIS_URL",
+        "AUTH_ACCESS_TOKEN_SECRET_ROTATE",
         "CLOUDFLARE_ACCOUNT_ID",
         "CLOUDFLARE_API_TOKEN",
         "CLOUDFLARE_PAGES_PROJECT_NAME",
@@ -212,6 +257,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
       {
         deps,
         input: {
+          AUTH_ACCESS_TOKEN_SECRET_ROTATE: "no",
           CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT:
             "cloud-run-runtime@demo-project.iam.gserviceaccount.com",
           DATABASE_URL:
@@ -290,6 +336,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
       result.values.CLOUD_RUN_PUBLIC_URL,
       "https://api-live.run.app",
     );
+    assert.equal(result.values.AUTH_ACCESS_TOKEN_SECRET_ROTATE, "no");
     assert.equal(
       result.values.WEBAPP_VITE_GRAPHQL_HTTP,
       "https://api-live.run.app/graphql",
@@ -334,6 +381,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
           UPSTASH_REDIS_URL_READY: "true",
         },
         {
+          AUTH_ACCESS_TOKEN_SECRET_STATUS: "created",
           CLOUD_RUN_RUNTIME_SECRETS_SYNCED: "true",
         },
         {
@@ -354,6 +402,8 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
       ],
     );
     assert.deepEqual(redactScenarioValues(scenario, result.values), {
+      AUTH_ACCESS_TOKEN_SECRET_ROTATE: "no",
+      AUTH_ACCESS_TOKEN_SECRET_STATUS: "created",
       CLOUD_RUN_REGION: "europe-west4",
       CLOUD_RUN_CORS_ORIGIN: "https://demo-webapp.pages.dev",
       CLOUD_RUN_PUBLIC_URL: "https://api-live.run.app",

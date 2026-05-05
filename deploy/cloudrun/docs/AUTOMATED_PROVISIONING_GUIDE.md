@@ -58,6 +58,10 @@ export RUNTIME_SERVICE_ACCOUNT_EMAIL="cloud-run-runtime@${PROJECT_ID}.iam.gservi
 
 export DATABASE_URL="replace-with-neon-pooled-url"
 export DATABASE_URL_DIRECT="replace-with-neon-direct-url"
+# Optional. Leave empty to generate it when missing; preserve existing values
+# unless intentionally rotating active access-token sessions.
+export AUTH_ACCESS_TOKEN_SECRET=""
+export AUTH_ACCESS_TOKEN_SECRET_ROTATE="no"
 
 bash deploy/cloudrun/scripts/sync-secrets.sh
 ```

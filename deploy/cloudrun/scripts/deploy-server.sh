@@ -42,7 +42,7 @@ cd "${REPO_ROOT}"
 service_url=""
 
 if [[ ${DRY_RUN} == "1" ]]; then
-	for secret_name in DATABASE_URL DATABASE_URL_DIRECT REDIS_URL; do
+	for secret_name in DATABASE_URL DATABASE_URL_DIRECT REDIS_URL AUTH_ACCESS_TOKEN_SECRET; do
 		printf 'DRY_RUN: gcloud secrets versions access latest --secret %s --project %s\n' "${secret_name}" "${GCP_PROJECT_ID}"
 	done
 
@@ -54,7 +54,7 @@ if [[ ${DRY_RUN} == "1" ]]; then
 	printf 'DRY_RUN: run smoke tests against deployed service URL\n'
 	service_url="https://dry-run.invalid/${CLOUD_RUN_SERVICE}"
 else
-	for secret_name in DATABASE_URL DATABASE_URL_DIRECT REDIS_URL; do
+	for secret_name in DATABASE_URL DATABASE_URL_DIRECT REDIS_URL AUTH_ACCESS_TOKEN_SECRET; do
 		gcloud secrets versions access latest \
 			--secret "${secret_name}" \
 			--project "${GCP_PROJECT_ID}" \
@@ -88,7 +88,7 @@ else
 		--project "${GCP_PROJECT_ID}" \
 		--image "${IMAGE_NAME}" \
 		--set-env-vars "NODE_ENV=production,HOST=0.0.0.0,GRAPHQL_PATH=/graphql,PUBSUB_DRIVER=redis,DATABASE_SYNCHRONIZE=false,DATABASE_SSL=true,DATABASE_SSL_REJECT_UNAUTHORIZED=false,CORS_ORIGIN=${CLOUD_RUN_CORS_ORIGIN},LOG_VERBOSE_PUBSUB=false,LOG_GRAPHQL_SUBSCRIPTIONS=false" \
-		--set-secrets "DATABASE_URL=DATABASE_URL:latest,REDIS_URL=REDIS_URL:latest" \
+		--set-secrets "DATABASE_URL=DATABASE_URL:latest,REDIS_URL=REDIS_URL:latest,AUTH_ACCESS_TOKEN_SECRET=AUTH_ACCESS_TOKEN_SECRET:latest" \
 		--port 3000 \
 		--service-account "${CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT}" \
 		--no-invoker-iam-check \
