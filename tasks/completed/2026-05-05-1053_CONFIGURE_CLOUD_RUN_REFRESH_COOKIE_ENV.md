@@ -22,10 +22,10 @@ the browser flow.
 
 ## Phase 2: Preparation Automation
 
-- [ ] Extend `deploy/scenarios/cloudrun-cloudflare-neon-upstash` so the guided flow writes the server refresh-cookie GitHub variables.
-- [ ] Update `deploy/cloudrun/scripts/configure-github-vars.sh` to set the same variables from local deploy config.
-- [ ] Add or update tests for the guided scenario and GitHub variable helper.
-- [ ] Document the Phase 2 preparation flow in the provider runbooks.
+- [x] Extend `deploy/scenarios/cloudrun-cloudflare-neon-upstash` so the guided flow writes the server refresh-cookie GitHub variables.
+- [x] Update `deploy/cloudrun/scripts/configure-github-vars.sh` to set the same variables from local deploy config.
+- [x] Add or update tests for the guided scenario and GitHub variable helper.
+- [x] Document the Phase 2 preparation flow in the provider runbooks.
 
 ## Proposed GitHub Repository Variables
 

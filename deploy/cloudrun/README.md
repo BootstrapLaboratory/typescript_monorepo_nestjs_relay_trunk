@@ -58,7 +58,7 @@ Quick automation map:
 - Cloud Run uptime checks, log-based metrics, and alert policies: [setup-monitoring-alerts.sh](scripts/setup-monitoring-alerts.sh)
 - Secret Manager secrets and secret access bindings: [sync-secrets.sh](scripts/sync-secrets.sh)
 - GitHub repository variables: [configure-github-vars.sh](scripts/configure-github-vars.sh)
-- Unified build, backend deploy, and webapp deploy orchestration: [../../.github/workflows/ci-release.yaml](../../.github/workflows/ci-release.yaml)
+- Unified build, backend deploy, and webapp deploy orchestration: [../../.github/workflows/main-workflow.yaml](../../.github/workflows/main-workflow.yaml)
 - Neon and Upstash resource creation: still manual, documented in [NEON-UPSTASH-GUIDE.md](docs/NEON-UPSTASH-GUIDE.md)
 - Post-deploy health/query/mutation/subscription smoke validation: [tests/validate-post-deploy-smoke.sh](tests/validate-post-deploy-smoke.sh)
 - Temporary scale-up and cross-instance fanout validation: [tests/validate-multi-instance.sh](tests/validate-multi-instance.sh)

@@ -53,7 +53,8 @@ ordering, and lockfile ownership.
   when missing and preserved when present unless rotation is explicitly
   requested. It then prepares the Cloudflare Pages project while keeping the
   Cloudflare API token transient, and configures GitHub repository
-  variables and Cloudflare secrets for the production workflow. The GitHub step
+  variables and Cloudflare secrets for the production workflow, including the
+  server refresh-cookie policy used by browser session restore. The GitHub step
   uses explicit webapp GraphQL URLs when provided, otherwise it resolves the
   live Cloud Run service URL from Google Cloud and appends `/graphql`. The
   Cloud Run step can pause for manual billing enablement and retry when Google

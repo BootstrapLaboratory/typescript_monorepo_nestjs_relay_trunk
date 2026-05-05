@@ -74,6 +74,20 @@ scenario asks Google Cloud for the live Cloud Run service URL and appends
 `/graphql`. Pass `--var AUTH_ACCESS_TOKEN_SECRET=...` only when you want to
 provide the signing secret yourself; otherwise it is generated when missing.
 
+Generated Cloudflare Pages to Cloud Run URLs are cross-site, so the GitHub
+configuration step defaults browser refresh sessions to:
+
+```text
+SERVER_AUTH_REFRESH_TOKEN_TRANSPORT=cookie
+SERVER_AUTH_REFRESH_COOKIE_SECURE=true
+SERVER_AUTH_REFRESH_COOKIE_SAME_SITE=none
+SERVER_AUTH_REFRESH_COOKIE_PATH=/graphql
+```
+
+When the frontend and backend later share one registrable domain, pass
+`--var SERVER_AUTH_REFRESH_COOKIE_SAME_SITE=lax` and rerun the GitHub
+repository configuration step. Keep secure cookies enabled for HTTPS.
+
 For a brand-new environment, Cloud Run may not have a public service URL until
 after the first server deploy. In that case, run the server deploy first, rerun
 this scenario so the GitHub repository configuration step can resolve the live
@@ -131,6 +145,10 @@ The GitHub repository configuration step writes these repository variables:
 - `CLOUD_RUN_SERVICE`
 - `CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT`
 - `CLOUD_RUN_CORS_ORIGIN`
+- `SERVER_AUTH_REFRESH_TOKEN_TRANSPORT`
+- `SERVER_AUTH_REFRESH_COOKIE_SECURE`
+- `SERVER_AUTH_REFRESH_COOKIE_SAME_SITE`
+- `SERVER_AUTH_REFRESH_COOKIE_PATH`
 - `CLOUDFLARE_PAGES_PROJECT_NAME`
 - `WEBAPP_VITE_GRAPHQL_HTTP`
 - `WEBAPP_VITE_GRAPHQL_WS`
@@ -165,6 +183,10 @@ When GitHub repository configuration finishes, the CLI prints:
 - `GITHUB_REPOSITORY_CONFIGURED`
 - `CLOUD_RUN_PUBLIC_URL`
 - `CLOUD_RUN_CORS_ORIGIN`
+- `SERVER_AUTH_REFRESH_TOKEN_TRANSPORT`
+- `SERVER_AUTH_REFRESH_COOKIE_SECURE`
+- `SERVER_AUTH_REFRESH_COOKIE_SAME_SITE`
+- `SERVER_AUTH_REFRESH_COOKIE_PATH`
 - `WEBAPP_VITE_GRAPHQL_HTTP`
 - `WEBAPP_VITE_GRAPHQL_WS`
 

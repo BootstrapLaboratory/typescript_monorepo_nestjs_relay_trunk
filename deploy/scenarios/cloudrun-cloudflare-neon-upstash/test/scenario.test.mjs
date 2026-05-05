@@ -307,6 +307,10 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
           GCP_WORKLOAD_IDENTITY_PROVIDER:
             "projects/123456789/locations/global/workloadIdentityPools/github-actions/providers/github",
           GITHUB_REPOSITORY: "BeltOrg/beltapp",
+          SERVER_AUTH_REFRESH_COOKIE_PATH: "/graphql",
+          SERVER_AUTH_REFRESH_COOKIE_SAME_SITE: "none",
+          SERVER_AUTH_REFRESH_COOKIE_SECURE: "true",
+          SERVER_AUTH_REFRESH_TOKEN_TRANSPORT: "cookie",
           WEBAPP_VITE_GRAPHQL_HTTP: "https://api-live.run.app/graphql",
           WEBAPP_VITE_GRAPHQL_WS: "wss://api-live.run.app/graphql",
         },
@@ -345,6 +349,10 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
       result.values.WEBAPP_VITE_GRAPHQL_WS,
       "wss://api-live.run.app/graphql",
     );
+    assert.equal(result.values.SERVER_AUTH_REFRESH_COOKIE_PATH, "/graphql");
+    assert.equal(result.values.SERVER_AUTH_REFRESH_COOKIE_SAME_SITE, "none");
+    assert.equal(result.values.SERVER_AUTH_REFRESH_COOKIE_SECURE, "true");
+    assert.equal(result.values.SERVER_AUTH_REFRESH_TOKEN_TRANSPORT, "cookie");
     assert.equal(
       result.values.DATABASE_URL,
       "postgres://app:secret@example.test/app?sslmode=require",
@@ -396,6 +404,10 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
           CLOUD_RUN_PUBLIC_URL: "https://api-live.run.app",
           CLOUD_RUN_CORS_ORIGIN: "https://demo-webapp.pages.dev",
           GITHUB_REPOSITORY_CONFIGURED: "true",
+          SERVER_AUTH_REFRESH_COOKIE_PATH: "/graphql",
+          SERVER_AUTH_REFRESH_COOKIE_SAME_SITE: "none",
+          SERVER_AUTH_REFRESH_COOKIE_SECURE: "true",
+          SERVER_AUTH_REFRESH_TOKEN_TRANSPORT: "cookie",
           WEBAPP_VITE_GRAPHQL_HTTP: "https://api-live.run.app/graphql",
           WEBAPP_VITE_GRAPHQL_WS: "wss://api-live.run.app/graphql",
         },
@@ -427,6 +439,10 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
       NEON_DATABASE_URLS_READY: "true",
       PROJECT_ID: "demo-project",
       PROJECT_NUMBER: "123456789",
+      SERVER_AUTH_REFRESH_COOKIE_PATH: "/graphql",
+      SERVER_AUTH_REFRESH_COOKIE_SAME_SITE: "none",
+      SERVER_AUTH_REFRESH_COOKIE_SECURE: "true",
+      SERVER_AUTH_REFRESH_TOKEN_TRANSPORT: "cookie",
       UPSTASH_REDIS_URL_READY: "true",
       WEBAPP_URL: "https://demo-webapp.pages.dev",
       WEBAPP_VITE_GRAPHQL_HTTP: "https://api-live.run.app/graphql",
@@ -442,6 +458,7 @@ describe("Cloud Run + Cloudflare + Neon + Upstash scenario", () => {
     assert.match(completion, /GitHub repository configuration/);
     assert.match(completion, /GITHUB_REPOSITORY_CONFIGURED=true/);
     assert.match(completion, /CLOUD_RUN_PUBLIC_URL=https:\/\/api-live.run.app/);
+    assert.match(completion, /SERVER_AUTH_REFRESH_COOKIE_SAME_SITE=none/);
     assert.match(
       completion,
       /WEBAPP_VITE_GRAPHQL_HTTP=https:\/\/api-live.run.app\/graphql/,

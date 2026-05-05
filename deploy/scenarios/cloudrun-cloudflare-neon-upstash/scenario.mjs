@@ -34,6 +34,10 @@ export const GITHUB_REPOSITORY_CONFIG_VARIABLES = [
   "GITHUB_REPOSITORY_CONFIGURED",
   "CLOUD_RUN_PUBLIC_URL",
   "CLOUD_RUN_CORS_ORIGIN",
+  "SERVER_AUTH_REFRESH_TOKEN_TRANSPORT",
+  "SERVER_AUTH_REFRESH_COOKIE_SECURE",
+  "SERVER_AUTH_REFRESH_COOKIE_SAME_SITE",
+  "SERVER_AUTH_REFRESH_COOKIE_PATH",
   "WEBAPP_VITE_GRAPHQL_HTTP",
   "WEBAPP_VITE_GRAPHQL_WS",
 ];
@@ -106,6 +110,8 @@ export function createCloudRunCloudflareNeonUpstashScenario(options = {}) {
         guide: [
           "Configure GitHub repository variables and secrets for the production workflow.",
           "The Cloud Run CORS origin defaults to the Pages URL.",
+          "Generated Pages-to-Cloud-Run deployments default to cookie refresh with SameSite=None and Secure=true.",
+          "For a same-site custom-domain rollout, override SERVER_AUTH_REFRESH_COOKIE_SAME_SITE with lax.",
           "The webapp GraphQL endpoints default to the live Cloud Run service URL when it exists and can be overridden with WEBAPP_VITE_GRAPHQL_HTTP and WEBAPP_VITE_GRAPHQL_WS.",
         ].join("\n"),
         title: "Configure GitHub repository",

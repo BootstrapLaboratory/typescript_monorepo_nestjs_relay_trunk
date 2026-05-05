@@ -9,9 +9,18 @@ export const GITHUB_REPOSITORY_CONFIG_OUTPUTS = [
   "CLOUD_RUN_PUBLIC_URL",
   "CLOUD_RUN_CORS_ORIGIN",
   "GITHUB_REPOSITORY_CONFIGURED",
+  "SERVER_AUTH_REFRESH_COOKIE_PATH",
+  "SERVER_AUTH_REFRESH_COOKIE_SAME_SITE",
+  "SERVER_AUTH_REFRESH_COOKIE_SECURE",
+  "SERVER_AUTH_REFRESH_TOKEN_TRANSPORT",
   "WEBAPP_VITE_GRAPHQL_HTTP",
   "WEBAPP_VITE_GRAPHQL_WS",
 ];
+
+const DEFAULT_SERVER_AUTH_REFRESH_COOKIE_PATH = "/graphql";
+const DEFAULT_SERVER_AUTH_REFRESH_COOKIE_SAME_SITE = "none";
+const DEFAULT_SERVER_AUTH_REFRESH_COOKIE_SECURE = "true";
+const DEFAULT_SERVER_AUTH_REFRESH_TOKEN_TRANSPORT = "cookie";
 
 export function createGitHubRepositoryConfigStep(options = {}) {
   return step({
@@ -52,6 +61,18 @@ export function createGitHubRepositoryConfigStep(options = {}) {
       GITHUB_REPOSITORY: text({
         label: "GitHub repository (ex: owner/repo)",
       }),
+      SERVER_AUTH_REFRESH_COOKIE_PATH: text({
+        label: "Server refresh cookie path (optional, default /graphql)",
+      }).optional(),
+      SERVER_AUTH_REFRESH_COOKIE_SAME_SITE: text({
+        label: "Server refresh cookie SameSite policy (optional, default none)",
+      }).optional(),
+      SERVER_AUTH_REFRESH_COOKIE_SECURE: text({
+        label: "Server refresh cookie Secure flag (optional, default true)",
+      }).optional(),
+      SERVER_AUTH_REFRESH_TOKEN_TRANSPORT: text({
+        label: "Server refresh token transport (optional, default cookie)",
+      }).optional(),
       WEBAPP_URL: text({ label: "Webapp URL" }),
       WEBAPP_VITE_GRAPHQL_HTTP: text({
         label: "Webapp GraphQL HTTP URL (optional)",
@@ -73,6 +94,14 @@ export function createGitHubRepositoryConfigStep(options = {}) {
         ...(await provider.configureGitHubRepository(resolved, deps)),
         CLOUD_RUN_PUBLIC_URL: resolved.CLOUD_RUN_PUBLIC_URL,
         CLOUD_RUN_CORS_ORIGIN: resolved.CLOUD_RUN_CORS_ORIGIN,
+        SERVER_AUTH_REFRESH_COOKIE_PATH:
+          resolved.SERVER_AUTH_REFRESH_COOKIE_PATH,
+        SERVER_AUTH_REFRESH_COOKIE_SAME_SITE:
+          resolved.SERVER_AUTH_REFRESH_COOKIE_SAME_SITE,
+        SERVER_AUTH_REFRESH_COOKIE_SECURE:
+          resolved.SERVER_AUTH_REFRESH_COOKIE_SECURE,
+        SERVER_AUTH_REFRESH_TOKEN_TRANSPORT:
+          resolved.SERVER_AUTH_REFRESH_TOKEN_TRANSPORT,
         WEBAPP_VITE_GRAPHQL_HTTP: resolved.WEBAPP_VITE_GRAPHQL_HTTP,
         WEBAPP_VITE_GRAPHQL_WS: resolved.WEBAPP_VITE_GRAPHQL_WS,
       };
@@ -111,6 +140,10 @@ export async function resolveGitHubRepositoryConfigInput(input, options = {}) {
 
   assertHttpGraphqlUrl(graphqlHttp, "WEBAPP_VITE_GRAPHQL_HTTP");
   assertWebSocketGraphqlUrl(graphqlWs, "WEBAPP_VITE_GRAPHQL_WS");
+  const refreshCookiePath = refreshCookiePathFromInput(
+    trimOptional(input.SERVER_AUTH_REFRESH_COOKIE_PATH) ??
+      DEFAULT_SERVER_AUTH_REFRESH_COOKIE_PATH,
+  );
 
   return {
     CLOUDFLARE_ACCOUNT_ID: trimRequired(
@@ -151,6 +184,20 @@ export async function resolveGitHubRepositoryConfigInput(input, options = {}) {
     GITHUB_REPOSITORY: trimRequired(
       input.GITHUB_REPOSITORY,
       "GITHUB_REPOSITORY",
+    ),
+    SERVER_AUTH_REFRESH_COOKIE_PATH: refreshCookiePath,
+    SERVER_AUTH_REFRESH_COOKIE_SAME_SITE: refreshCookieSameSiteFromInput(
+      trimOptional(input.SERVER_AUTH_REFRESH_COOKIE_SAME_SITE) ??
+        DEFAULT_SERVER_AUTH_REFRESH_COOKIE_SAME_SITE,
+    ),
+    SERVER_AUTH_REFRESH_COOKIE_SECURE: booleanStringFromInput(
+      trimOptional(input.SERVER_AUTH_REFRESH_COOKIE_SECURE) ??
+        DEFAULT_SERVER_AUTH_REFRESH_COOKIE_SECURE,
+      "SERVER_AUTH_REFRESH_COOKIE_SECURE",
+    ),
+    SERVER_AUTH_REFRESH_TOKEN_TRANSPORT: refreshTokenTransportFromInput(
+      trimOptional(input.SERVER_AUTH_REFRESH_TOKEN_TRANSPORT) ??
+        DEFAULT_SERVER_AUTH_REFRESH_TOKEN_TRANSPORT,
     ),
     WEBAPP_VITE_GRAPHQL_HTTP: graphqlHttp,
     WEBAPP_VITE_GRAPHQL_WS: graphqlWs,
@@ -345,6 +392,50 @@ function originFromUrl(value, name) {
   }
 
   return parsed.origin;
+}
+
+function booleanStringFromInput(value, name) {
+  const normalized = value.toLowerCase();
+
+  if (normalized !== "true" && normalized !== "false") {
+    throw new Error(`${name} must be true or false.`);
+  }
+
+  return normalized;
+}
+
+function refreshCookiePathFromInput(value) {
+  const trimmed = trimRequired(value, "SERVER_AUTH_REFRESH_COOKIE_PATH");
+
+  if (!trimmed.startsWith("/")) {
+    throw new Error("SERVER_AUTH_REFRESH_COOKIE_PATH must start with /.");
+  }
+
+  return trimmed;
+}
+
+function refreshCookieSameSiteFromInput(value) {
+  const normalized = value.toLowerCase();
+
+  if (!["lax", "none", "strict"].includes(normalized)) {
+    throw new Error(
+      "SERVER_AUTH_REFRESH_COOKIE_SAME_SITE must be lax, none, or strict.",
+    );
+  }
+
+  return normalized;
+}
+
+function refreshTokenTransportFromInput(value) {
+  const normalized = value.toLowerCase();
+
+  if (normalized !== "cookie" && normalized !== "response_body") {
+    throw new Error(
+      "SERVER_AUTH_REFRESH_TOKEN_TRANSPORT must be cookie or response_body.",
+    );
+  }
+
+  return normalized;
 }
 
 function trimOptional(value) {

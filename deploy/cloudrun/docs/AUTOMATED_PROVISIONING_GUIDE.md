@@ -77,9 +77,17 @@ export GCP_ARTIFACT_REGISTRY_REPOSITORY="${ARTIFACT_REGISTRY_REPOSITORY}"
 export CLOUD_RUN_SERVICE="${CLOUD_RUN_SERVICE}"
 export CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT="${RUNTIME_SERVICE_ACCOUNT_EMAIL}"
 export CLOUD_RUN_CORS_ORIGIN="http://localhost:5173"
+export SERVER_AUTH_REFRESH_TOKEN_TRANSPORT="cookie"
+export SERVER_AUTH_REFRESH_COOKIE_SECURE="true"
+export SERVER_AUTH_REFRESH_COOKIE_SAME_SITE="none"
+export SERVER_AUTH_REFRESH_COOKIE_PATH="/graphql"
 
 bash deploy/cloudrun/scripts/configure-github-vars.sh
 ```
+
+Use `SERVER_AUTH_REFRESH_COOKIE_SAME_SITE=none` for generated Cloudflare Pages
+to Cloud Run URLs. When the frontend and backend later share one registrable
+domain, change it to `lax` and rerun the GitHub variable helper.
 
 7. Trigger the GitHub Actions workflow:
 

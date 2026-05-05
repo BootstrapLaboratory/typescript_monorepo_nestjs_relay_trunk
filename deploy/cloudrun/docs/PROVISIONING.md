@@ -17,7 +17,7 @@ gets the real cloud side ready for them.
 - Steps `3` and `4`: manual provider setup using [NEON-UPSTASH-GUIDE.md](NEON-UPSTASH-GUIDE.md)
 - Step `5`: automated by [create-neon-app-user.sh](../scripts/create-neon-app-user.sh) and [sync-secrets.sh](../scripts/sync-secrets.sh)
 - Step `6`: automated by [configure-github-vars.sh](../scripts/configure-github-vars.sh), or manual in GitHub UI if preferred
-- Step `7`: automated by GitHub Actions in [../../.github/workflows/ci-release.yaml](../../.github/workflows/ci-release.yaml)
+- Step `7`: automated by GitHub Actions in [../../.github/workflows/main-workflow.yaml](../../.github/workflows/main-workflow.yaml)
 - Step `8`: manual verification after deploy
 
 ## Chosen Stack
@@ -317,9 +317,8 @@ You can set the variables manually in GitHub repository settings, or by CLI:
 bash deploy/cloudrun/scripts/configure-github-vars.sh
 ```
 
-Until `configure-github-vars.sh` is extended for auth-cookie policy, set the
-server refresh-cookie variables manually in GitHub repository settings. For
-generated Cloudflare Pages to Cloud Run URLs, use:
+`configure-github-vars.sh` also sets the server refresh-cookie GitHub
+variables. For generated Cloudflare Pages to Cloud Run URLs, use:
 
 ```text
 SERVER_AUTH_REFRESH_TOKEN_TRANSPORT=cookie
@@ -337,12 +336,11 @@ enabled.
 
 Automation status:
 
-- handled by GitHub Actions in [../../.github/workflows/ci-release.yaml](../../.github/workflows/ci-release.yaml) and [../../.github/workflows/deploy-server.yaml](../../.github/workflows/deploy-server.yaml)
+- handled by GitHub Actions in [../../.github/workflows/main-workflow.yaml](../../.github/workflows/main-workflow.yaml) and [../../.github/workflows/force-deploy-server.yaml](../../.github/workflows/force-deploy-server.yaml)
 - this step is about starting the workflow and watching the result
 
-From GitHub Actions:
-
-- run `deploy-server`
+From GitHub Actions, push to `main` for the normal workflow or run
+`force-deploy-server` for a targeted backend deploy.
 
 What should happen:
 

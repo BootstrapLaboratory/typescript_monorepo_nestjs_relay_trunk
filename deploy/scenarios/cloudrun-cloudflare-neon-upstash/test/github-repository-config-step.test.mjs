@@ -46,6 +46,10 @@ describe("GitHub repository configuration scenario action", () => {
         CLOUD_RUN_PUBLIC_URL: "https://api-live.run.app",
         CLOUD_RUN_CORS_ORIGIN: "https://demo-webapp.pages.dev",
         GITHUB_REPOSITORY_CONFIGURED: "true",
+        SERVER_AUTH_REFRESH_COOKIE_PATH: "/graphql",
+        SERVER_AUTH_REFRESH_COOKIE_SAME_SITE: "none",
+        SERVER_AUTH_REFRESH_COOKIE_SECURE: "true",
+        SERVER_AUTH_REFRESH_TOKEN_TRANSPORT: "cookie",
         WEBAPP_VITE_GRAPHQL_HTTP: "https://api-live.run.app/graphql",
         WEBAPP_VITE_GRAPHQL_WS: "wss://api-live.run.app/graphql",
       },
@@ -68,6 +72,10 @@ describe("GitHub repository configuration scenario action", () => {
           GCP_WORKLOAD_IDENTITY_PROVIDER:
             "projects/123/locations/global/workloadIdentityPools/github-actions/providers/github",
           GITHUB_REPOSITORY: "BeltOrg/beltapp",
+          SERVER_AUTH_REFRESH_COOKIE_PATH: "/graphql",
+          SERVER_AUTH_REFRESH_COOKIE_SAME_SITE: "none",
+          SERVER_AUTH_REFRESH_COOKIE_SECURE: "true",
+          SERVER_AUTH_REFRESH_TOKEN_TRANSPORT: "cookie",
           WEBAPP_VITE_GRAPHQL_HTTP: "https://api-live.run.app/graphql",
           WEBAPP_VITE_GRAPHQL_WS: "wss://api-live.run.app/graphql",
         },
@@ -97,6 +105,10 @@ describe("GitHub repository configuration scenario action", () => {
     });
 
     assert.equal(resolved.CLOUD_RUN_CORS_ORIGIN, "https://app.example.com");
+    assert.equal(resolved.SERVER_AUTH_REFRESH_COOKIE_PATH, "/graphql");
+    assert.equal(resolved.SERVER_AUTH_REFRESH_COOKIE_SAME_SITE, "none");
+    assert.equal(resolved.SERVER_AUTH_REFRESH_COOKIE_SECURE, "true");
+    assert.equal(resolved.SERVER_AUTH_REFRESH_TOKEN_TRANSPORT, "cookie");
     assert.equal(
       resolved.WEBAPP_VITE_GRAPHQL_HTTP,
       "https://api.example.com/graphql",
@@ -135,6 +147,36 @@ describe("GitHub repository configuration scenario action", () => {
       resolved.WEBAPP_VITE_GRAPHQL_WS,
       "wss://api-live.run.app/graphql",
     );
+  });
+
+  it("accepts explicit refresh-cookie policy overrides", async () => {
+    const resolved = await resolveGitHubRepositoryConfigInput({
+      CLOUDFLARE_ACCOUNT_ID: "cloudflare-account",
+      CLOUDFLARE_API_TOKEN: "cloudflare-token",
+      CLOUDFLARE_PAGES_PROJECT_NAME: "demo-webapp",
+      CLOUD_RUN_REGION: "europe-west4",
+      CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT:
+        "runtime@demo-project.iam.gserviceaccount.com",
+      CLOUD_RUN_SERVICE: "api",
+      GCP_ARTIFACT_REGISTRY_REPOSITORY: "cloud-run-backend",
+      GCP_PROJECT_ID: "demo-project",
+      GCP_SERVICE_ACCOUNT: "deployer@demo-project.iam.gserviceaccount.com",
+      GCP_WORKLOAD_IDENTITY_PROVIDER:
+        "projects/123/locations/global/workloadIdentityPools/github-actions/providers/github",
+      GITHUB_REPOSITORY: "BeltOrg/beltapp",
+      SERVER_AUTH_REFRESH_COOKIE_PATH: "/graphql",
+      SERVER_AUTH_REFRESH_COOKIE_SAME_SITE: "Lax",
+      SERVER_AUTH_REFRESH_COOKIE_SECURE: "TRUE",
+      SERVER_AUTH_REFRESH_TOKEN_TRANSPORT: "Cookie",
+      WEBAPP_URL: "https://demo-webapp.pages.dev",
+      WEBAPP_VITE_GRAPHQL_HTTP: "https://api.example.com/graphql",
+      WEBAPP_VITE_GRAPHQL_WS: "wss://api.example.com/graphql",
+    });
+
+    assert.equal(resolved.SERVER_AUTH_REFRESH_COOKIE_PATH, "/graphql");
+    assert.equal(resolved.SERVER_AUTH_REFRESH_COOKIE_SAME_SITE, "lax");
+    assert.equal(resolved.SERVER_AUTH_REFRESH_COOKIE_SECURE, "true");
+    assert.equal(resolved.SERVER_AUTH_REFRESH_TOKEN_TRANSPORT, "cookie");
   });
 
   it("replaces legacy deterministic Cloud Run URLs from old scenario state", async () => {
@@ -196,6 +238,32 @@ describe("GitHub repository configuration scenario action", () => {
           WEBAPP_VITE_GRAPHQL_HTTP: "https://api.example.com/not-graphql",
         }),
       /WEBAPP_VITE_GRAPHQL_HTTP must end with \/graphql/,
+    );
+  });
+
+  it("validates refresh-cookie policy values", async () => {
+    await assert.rejects(
+      () =>
+        resolveGitHubRepositoryConfigInput({
+          CLOUDFLARE_ACCOUNT_ID: "cloudflare-account",
+          CLOUDFLARE_API_TOKEN: "cloudflare-token",
+          CLOUDFLARE_PAGES_PROJECT_NAME: "demo-webapp",
+          CLOUD_RUN_REGION: "europe-west4",
+          CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT:
+            "runtime@demo-project.iam.gserviceaccount.com",
+          CLOUD_RUN_SERVICE: "api",
+          GCP_ARTIFACT_REGISTRY_REPOSITORY: "cloud-run-backend",
+          GCP_PROJECT_ID: "demo-project",
+          GCP_SERVICE_ACCOUNT: "deployer@demo-project.iam.gserviceaccount.com",
+          GCP_WORKLOAD_IDENTITY_PROVIDER:
+            "projects/123/locations/global/workloadIdentityPools/github-actions/providers/github",
+          GITHUB_REPOSITORY: "BeltOrg/beltapp",
+          SERVER_AUTH_REFRESH_COOKIE_SAME_SITE: "maybe",
+          WEBAPP_URL: "https://demo-webapp.pages.dev",
+          WEBAPP_VITE_GRAPHQL_HTTP: "https://api.example.com/graphql",
+          WEBAPP_VITE_GRAPHQL_WS: "wss://api.example.com/graphql",
+        }),
+      /SERVER_AUTH_REFRESH_COOKIE_SAME_SITE must be lax, none, or strict/,
     );
   });
 });

@@ -112,9 +112,8 @@ Start from [../../config/.env.example](../../config/.env.example). Copy it to
 
 6. Configure GitHub repository variables.
    Run [../../scripts/configure-github-vars.sh](../../scripts/configure-github-vars.sh).
-   It sets the Cloud Run GitHub variables used by Rush Delivery. Until the
-   GitHub helper is extended for refresh-cookie policy, also set the
-   `SERVER_AUTH_REFRESH_*` variables manually in GitHub repository variables.
+   It sets the Cloud Run GitHub variables used by Rush Delivery, including
+   the server refresh-cookie variables.
 
 7. Configure production auth before claiming authenticated production readiness.
    Browser production should use memory-only access tokens plus an HttpOnly
