@@ -9,11 +9,11 @@ source "${TEST_SCRIPT_DIR}/../scripts/lib/paths.sh"
 source "${SCRIPTS_DIR}/load-env.sh"
 
 require_env() {
-  local name="$1"
-  if [[ -z "${!name:-}" ]]; then
-    echo "Missing required environment variable: ${name}" >&2
-    exit 1
-  fi
+	local name="$1"
+	if [[ -z ${!name-} ]]; then
+		echo "Missing required environment variable: ${name}" >&2
+		exit 1
+	fi
 }
 
 require_env PROJECT_ID
@@ -32,20 +32,20 @@ SUMMARY_FILE="$(mktemp)"
 LOGS_FILE="$(mktemp)"
 
 cleanup_files() {
-  rm -f "${SUMMARY_FILE}" "${LOGS_FILE}"
+	rm -f "${SUMMARY_FILE}" "${LOGS_FILE}"
 }
 
 read_service_json() {
-  gcloud run services describe "${CLOUD_RUN_SERVICE}" \
-    --project "${PROJECT_ID}" \
-    --region "${CLOUD_RUN_REGION}" \
-    --format=json
+	gcloud run services describe "${CLOUD_RUN_SERVICE}" \
+		--project "${PROJECT_ID}" \
+		--region "${CLOUD_RUN_REGION}" \
+		--format=json
 }
 
 extract_service_field() {
-  local service_json="$1"
-  local field="$2"
-  node -e '
+	local service_json="$1"
+	local field="$2"
+	node -e '
     const data = JSON.parse(process.argv[1]);
     const field = process.argv[2];
     const annotations = data.spec?.template?.metadata?.annotations ?? {};
@@ -79,29 +79,29 @@ extract_service_field() {
 }
 
 wait_for_service_ready() {
-  local description_json=""
-  local attempt=0
+	local description_json=""
+	local attempt=0
 
-  while (( attempt < SERVICE_READY_ATTEMPTS )); do
-    description_json="$(read_service_json)"
-    local ready_status
-    ready_status="$(extract_service_field "${description_json}" ready)"
-    local latest_ready
-    latest_ready="$(extract_service_field "${description_json}" latestReadyRevision)"
-    local latest_created
-    latest_created="$(extract_service_field "${description_json}" latestCreatedRevision)"
+	while ((attempt < SERVICE_READY_ATTEMPTS)); do
+		description_json="$(read_service_json)"
+		local ready_status
+		ready_status="$(extract_service_field "${description_json}" ready)"
+		local latest_ready
+		latest_ready="$(extract_service_field "${description_json}" latestReadyRevision)"
+		local latest_created
+		latest_created="$(extract_service_field "${description_json}" latestCreatedRevision)"
 
-    if [[ "${ready_status}" == "True" ]] && [[ -n "${latest_ready}" ]] && [[ "${latest_ready}" == "${latest_created}" ]]; then
-      printf '%s' "${description_json}"
-      return 0
-    fi
+		if [[ ${ready_status} == "True" ]] && [[ -n ${latest_ready} ]] && [[ ${latest_ready} == "${latest_created}" ]]; then
+			printf '%s' "${description_json}"
+			return 0
+		fi
 
-    sleep "${SERVICE_READY_SLEEP_SECONDS}"
-    ((attempt += 1))
-  done
+		sleep "${SERVICE_READY_SLEEP_SECONDS}"
+		((attempt += 1))
+	done
 
-  echo "Timed out waiting for Cloud Run service ${CLOUD_RUN_SERVICE} to become ready." >&2
-  return 1
+	echo "Timed out waiting for Cloud Run service ${CLOUD_RUN_SERVICE} to become ready." >&2
+	return 1
 }
 
 ORIGINAL_SERVICE_JSON="$(read_service_json)"
@@ -109,36 +109,36 @@ ORIGINAL_MIN_INSTANCES="$(extract_service_field "${ORIGINAL_SERVICE_JSON}" min)"
 SERVICE_URL="$(extract_service_field "${ORIGINAL_SERVICE_JSON}" url)"
 CONCURRENCY_LIMIT="$(extract_service_field "${ORIGINAL_SERVICE_JSON}" concurrency)"
 
-if [[ -z "${SERVICE_URL}" ]]; then
-  echo "Could not determine the Cloud Run service URL." >&2
-  exit 1
+if [[ -z ${SERVICE_URL} ]]; then
+	echo "Could not determine the Cloud Run service URL." >&2
+	exit 1
 fi
 
-SUBSCRIBER_COUNT="${SUBSCRIBER_COUNT:-$(( CONCURRENCY_LIMIT + 5 ))}"
+SUBSCRIBER_COUNT="${SUBSCRIBER_COUNT:-$((CONCURRENCY_LIMIT + 5))}"
 
 restore_original_min_instances() {
-  if [[ "${RESTORE_SKIPPED:-0}" == "1" ]]; then
-    return 0
-  fi
+	if [[ ${RESTORE_SKIPPED:-0} == "1" ]]; then
+		return 0
+	fi
 
-  if [[ "${ORIGINAL_MIN_INSTANCES}" == "${TARGET_MIN_INSTANCES}" ]]; then
-    return 0
-  fi
+	if [[ ${ORIGINAL_MIN_INSTANCES} == "${TARGET_MIN_INSTANCES}" ]]; then
+		return 0
+	fi
 
-  echo "Restoring min instances to ${ORIGINAL_MIN_INSTANCES}..."
-  gcloud run services update "${CLOUD_RUN_SERVICE}" \
-    --project "${PROJECT_ID}" \
-    --region "${CLOUD_RUN_REGION}" \
-    --min-instances "${ORIGINAL_MIN_INSTANCES}" \
-    --quiet >/dev/null
-  wait_for_service_ready >/dev/null
+	echo "Restoring min instances to ${ORIGINAL_MIN_INSTANCES}..."
+	gcloud run services update "${CLOUD_RUN_SERVICE}" \
+		--project "${PROJECT_ID}" \
+		--region "${CLOUD_RUN_REGION}" \
+		--min-instances "${ORIGINAL_MIN_INSTANCES}" \
+		--quiet >/dev/null
+	wait_for_service_ready >/dev/null
 }
 
 cleanup() {
-  local exit_code=$?
-  restore_original_min_instances || true
-  cleanup_files
-  exit "${exit_code}"
+	local exit_code=$?
+	restore_original_min_instances || true
+	cleanup_files
+	exit "${exit_code}"
 }
 
 trap cleanup EXIT
@@ -153,13 +153,13 @@ echo "  target min instances: ${TARGET_MIN_INSTANCES}"
 echo "  subscriber count: ${SUBSCRIBER_COUNT}"
 echo "  probe run id: ${RUN_ID}"
 
-if [[ "${ORIGINAL_MIN_INSTANCES}" != "${TARGET_MIN_INSTANCES}" ]]; then
-  echo "Scaling service to min instances = ${TARGET_MIN_INSTANCES}..."
-  gcloud run services update "${CLOUD_RUN_SERVICE}" \
-    --project "${PROJECT_ID}" \
-    --region "${CLOUD_RUN_REGION}" \
-    --min-instances "${TARGET_MIN_INSTANCES}" \
-    --quiet >/dev/null
+if [[ ${ORIGINAL_MIN_INSTANCES} != "${TARGET_MIN_INSTANCES}" ]]; then
+	echo "Scaling service to min instances = ${TARGET_MIN_INSTANCES}..."
+	gcloud run services update "${CLOUD_RUN_SERVICE}" \
+		--project "${PROJECT_ID}" \
+		--region "${CLOUD_RUN_REGION}" \
+		--min-instances "${TARGET_MIN_INSTANCES}" \
+		--quiet >/dev/null
 fi
 
 READY_SERVICE_JSON="$(wait_for_service_ready)"
@@ -348,15 +348,16 @@ EOF
 echo "Waiting for Cloud Logging request entries..."
 
 for ((attempt = 1; attempt <= LOG_POLL_ATTEMPTS; attempt += 1)); do
-  gcloud logging read \
-    "timestamp >= \"${START_TIMESTAMP}\" AND resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${CLOUD_RUN_SERVICE}\" AND resource.labels.location=\"${CLOUD_RUN_REGION}\" AND logName=\"projects/${PROJECT_ID}/logs/run.googleapis.com%2Frequests\" AND httpRequest.requestUrl:\"probe=${RUN_ID}\"" \
-    --project "${PROJECT_ID}" \
-    --limit 200 \
-    --format=json > "${LOGS_FILE}"
+	gcloud logging read \
+		"timestamp >= \"${START_TIMESTAMP}\" AND resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${CLOUD_RUN_SERVICE}\" AND resource.labels.location=\"${CLOUD_RUN_REGION}\" AND logName=\"projects/${PROJECT_ID}/logs/run.googleapis.com%2Frequests\" AND httpRequest.requestUrl:\"probe=${RUN_ID}\"" \
+		--project "${PROJECT_ID}" \
+		--limit 200 \
+		--format=json >"${LOGS_FILE}"
 
-  if [[ -s "${LOGS_FILE}" ]]; then
-    export LOGS_FILE SUMMARY_FILE
-    UNIQUE_INSTANCE_COUNT="$(node --input-type=module <<'EOF'
+	if [[ -s ${LOGS_FILE} ]]; then
+		export LOGS_FILE SUMMARY_FILE
+		UNIQUE_INSTANCE_COUNT="$(
+			node --input-type=module <<'EOF'
 import { readFileSync, writeFileSync } from "node:fs";
 
 const logs = JSON.parse(readFileSync(process.env.LOGS_FILE, "utf8"));
@@ -386,9 +387,10 @@ summary.logAnalysis = {
 writeFileSync(process.env.SUMMARY_FILE, `${JSON.stringify(summary, null, 2)}\n`);
 process.stdout.write(String(bucket.size));
 EOF
-)"
+		)"
 
-    SUBSCRIBER_INSTANCE_COUNT="$(node --input-type=module <<'EOF'
+		SUBSCRIBER_INSTANCE_COUNT="$(
+			node --input-type=module <<'EOF'
 import { readFileSync } from "node:fs";
 
 const summary = JSON.parse(readFileSync(process.env.SUMMARY_FILE, "utf8"));
@@ -397,14 +399,14 @@ const subscriberInstances = new Set(
 );
 process.stdout.write(String(subscriberInstances.size));
 EOF
-)"
+		)"
 
-    if (( UNIQUE_INSTANCE_COUNT >= 2 )) && (( SUBSCRIBER_INSTANCE_COUNT >= 2 )); then
-      break
-    fi
-  fi
+		if ((UNIQUE_INSTANCE_COUNT >= 2)) && ((SUBSCRIBER_INSTANCE_COUNT >= 2)); then
+			break
+		fi
+	fi
 
-  sleep "${LOG_POLL_SLEEP_SECONDS}"
+	sleep "${LOG_POLL_SLEEP_SECONDS}"
 done
 
 node --input-type=module <<'EOF'

@@ -8,71 +8,71 @@ source "${SCRIPT_DIR}/lib/paths.sh"
 source "${SCRIPT_DIR}/load-env.sh"
 
 require_env() {
-  local name="$1"
-  if [[ -z "${!name:-}" ]]; then
-    echo "Missing required environment variable: ${name}" >&2
-    exit 1
-  fi
+	local name="$1"
+	if [[ -z ${!name-} ]]; then
+		echo "Missing required environment variable: ${name}" >&2
+		exit 1
+	fi
 }
 
 ensure_command() {
-  local name="$1"
-  if ! command -v "${name}" >/dev/null 2>&1; then
-    echo "${name} is required for this helper." >&2
-    exit 1
-  fi
+	local name="$1"
+	if ! command -v "${name}" >/dev/null 2>&1; then
+		echo "${name} is required for this helper." >&2
+		exit 1
+	fi
 }
 
 resolve_cloud_run_service_url() {
-  if [[ -n "${CLOUD_RUN_PUBLIC_URL:-}" ]]; then
-    printf '%s\n' "${CLOUD_RUN_PUBLIC_URL%/}"
-    return
-  fi
+	if [[ -n ${CLOUD_RUN_PUBLIC_URL-} ]]; then
+		printf '%s\n' "${CLOUD_RUN_PUBLIC_URL%/}"
+		return
+	fi
 
-  ensure_command gcloud
-  require_env PROJECT_ID
-  require_env CLOUD_RUN_SERVICE
+	ensure_command gcloud
+	require_env PROJECT_ID
+	require_env CLOUD_RUN_SERVICE
 
-  local region="${CLOUD_RUN_REGION:-europe-west4}"
+	local region="${CLOUD_RUN_REGION:-europe-west4}"
 
-  gcloud run services describe "${CLOUD_RUN_SERVICE}" \
-    --project "${PROJECT_ID}" \
-    --region "${region}" \
-    --format='value(status.url)'
+	gcloud run services describe "${CLOUD_RUN_SERVICE}" \
+		--project "${PROJECT_ID}" \
+		--region "${region}" \
+		--format='value(status.url)'
 }
 
 resolve_webapp_graphql_http() {
-  if [[ -n "${WEBAPP_VITE_GRAPHQL_HTTP:-}" ]]; then
-    printf '%s\n' "${WEBAPP_VITE_GRAPHQL_HTTP}"
-    return
-  fi
+	if [[ -n ${WEBAPP_VITE_GRAPHQL_HTTP-} ]]; then
+		printf '%s\n' "${WEBAPP_VITE_GRAPHQL_HTTP}"
+		return
+	fi
 
-  local service_url
-  service_url="$(resolve_cloud_run_service_url)"
-  printf '%s/graphql\n' "${service_url%/}"
+	local service_url
+	service_url="$(resolve_cloud_run_service_url)"
+	printf '%s/graphql\n' "${service_url%/}"
 }
 
 resolve_webapp_graphql_ws() {
-  if [[ -n "${WEBAPP_VITE_GRAPHQL_WS:-}" ]]; then
-    printf '%s\n' "${WEBAPP_VITE_GRAPHQL_WS}"
-    return
-  fi
+	if [[ -n ${WEBAPP_VITE_GRAPHQL_WS-} ]]; then
+		printf '%s\n' "${WEBAPP_VITE_GRAPHQL_WS}"
+		return
+	fi
 
-  local http_url
-  http_url="$(resolve_webapp_graphql_http)"
+	local http_url
+	http_url="$(resolve_webapp_graphql_http)"
 
-  if [[ "${http_url}" == https://* ]]; then
-    printf 'wss://%s\n' "${http_url#https://}"
-    return
-  fi
+	if [[ ${http_url} == https://* ]]; then
+		printf 'wss://%s\n' "${http_url#https://}"
+		return
+	fi
 
-  if [[ "${http_url}" == http://* ]]; then
-    printf 'ws://%s\n' "${http_url#http://}"
-    return
-  fi
+	if [[ ${http_url} == http://* ]]; then
+		printf 'ws://%s\n' "${http_url#http://}"
+		return
+	fi
 
-  echo "Unable to derive WEBAPP_VITE_GRAPHQL_WS from ${http_url}" >&2
-  exit 1
+	echo "Unable to derive WEBAPP_VITE_GRAPHQL_WS from ${http_url}" >&2
+	exit 1
 }
 
 ensure_command gh

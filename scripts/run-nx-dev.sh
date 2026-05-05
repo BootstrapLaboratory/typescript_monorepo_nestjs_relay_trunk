@@ -10,41 +10,44 @@ NX_INSTALL_DIR="${REPO_ROOT}/.nx/installation"
 NX_BIN="${NX_INSTALL_DIR}/node_modules/nx/bin/nx.js"
 NX_PACKAGE_JSON="${NX_INSTALL_DIR}/node_modules/nx/package.json"
 DEV_PROJECTS=(api-contract webapp server docs-site)
-DEV_PROJECT_LIST="$(IFS=,; printf '%s' "${DEV_PROJECTS[*]}")"
+DEV_PROJECT_LIST="$(
+	IFS=,
+	printf '%s' "${DEV_PROJECTS[*]}"
+)"
 
 installed_nx_version() {
-  if [[ ! -f "${NX_PACKAGE_JSON}" ]]; then
-    return 1
-  fi
+	if [[ ! -f ${NX_PACKAGE_JSON} ]]; then
+		return 1
+	fi
 
-  node -p "require(process.argv[1]).version" "${NX_PACKAGE_JSON}"
+	node -p "require(process.argv[1]).version" "${NX_PACKAGE_JSON}"
 }
 
 ensure_nx() {
-  local current_version=""
+	local current_version=""
 
-  if current_version="$(installed_nx_version 2>/dev/null)"; then
-    if [[ "${current_version}" == "${NX_VERSION}" && -f "${NX_BIN}" ]]; then
-      return 0
-    fi
-  fi
+	if current_version="$(installed_nx_version 2>/dev/null)"; then
+		if [[ ${current_version} == "${NX_VERSION}" && -f ${NX_BIN} ]]; then
+			return 0
+		fi
+	fi
 
-  mkdir -p "${NX_INSTALL_DIR}"
+	mkdir -p "${NX_INSTALL_DIR}"
 
-  npm install \
-    --prefix "${NX_INSTALL_DIR}" \
-    --no-save \
-    --package-lock=false \
-    --no-fund \
-    --no-audit \
-    "nx@${NX_VERSION}"
+	npm install \
+		--prefix "${NX_INSTALL_DIR}" \
+		--no-save \
+		--package-lock=false \
+		--no-fund \
+		--no-audit \
+		"nx@${NX_VERSION}"
 }
 
 ensure_nx
 
 cd "${REPO_ROOT}"
 exec node "${NX_BIN}" run-many \
-  --target=start:dev \
-  --projects="${DEV_PROJECT_LIST}" \
-  --parallel="${#DEV_PROJECTS[@]}" \
-  "$@"
+	--target=start:dev \
+	--projects="${DEV_PROJECT_LIST}" \
+	--parallel="${#DEV_PROJECTS[@]}" \
+	"$@"

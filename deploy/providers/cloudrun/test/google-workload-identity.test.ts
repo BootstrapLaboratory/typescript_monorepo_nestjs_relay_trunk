@@ -242,9 +242,7 @@ type GoogleOperation = Awaited<
   ReturnType<WorkloadIdentityPoolOperationsClientLike["get"]>
 >["data"];
 
-class FakeWorkloadIdentityPoolsClient
-  implements WorkloadIdentityPoolsClientLike
-{
+class FakeWorkloadIdentityPoolsClient implements WorkloadIdentityPoolsClientLike {
   createCalls: Array<{
     parent: string;
     requestBody: WorkloadIdentityPool;
@@ -298,9 +296,7 @@ class FakeWorkloadIdentityPoolsClient
   }
 }
 
-class FakeWorkloadIdentityPoolProvidersClient
-  implements WorkloadIdentityPoolProvidersClientLike
-{
+class FakeWorkloadIdentityPoolProvidersClient implements WorkloadIdentityPoolProvidersClientLike {
   createCalls: Array<{
     parent: string;
     requestBody: WorkloadIdentityPoolProvider;
@@ -350,9 +346,7 @@ class FakeWorkloadIdentityPoolProvidersClient
   }
 }
 
-class FakeWorkloadIdentityOperationsClient
-  implements WorkloadIdentityPoolOperationsClientLike
-{
+class FakeWorkloadIdentityOperationsClient implements WorkloadIdentityPoolOperationsClientLike {
   getCalls: Array<{ name: string }> = [];
   operationResponses: Record<string, GoogleOperation[]> = {};
 

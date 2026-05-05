@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SERVICE_URL="${1:-${SERVICE_URL:-}}"
+SERVICE_URL="${1:-${SERVICE_URL-}}"
 
-if [[ -z "${SERVICE_URL}" ]]; then
-  echo "Usage: validate-post-deploy-smoke.sh <service-url>" >&2
-  echo "Or set SERVICE_URL in the environment." >&2
-  exit 1
+if [[ -z ${SERVICE_URL} ]]; then
+	echo "Usage: validate-post-deploy-smoke.sh <service-url>" >&2
+	echo "Or set SERVICE_URL in the environment." >&2
+	exit 1
 fi
 
 SERVICE_URL="${SERVICE_URL%/}"

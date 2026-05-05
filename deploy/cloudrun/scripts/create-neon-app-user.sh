@@ -8,40 +8,40 @@ source "${SCRIPT_DIR}/lib/paths.sh"
 source "${SCRIPT_DIR}/load-env.sh"
 
 require_env() {
-  local name="$1"
-  if [[ -z "${!name:-}" ]]; then
-    echo "Missing required environment variable: ${name}" >&2
-    exit 1
-  fi
+	local name="$1"
+	if [[ -z ${!name-} ]]; then
+		echo "Missing required environment variable: ${name}" >&2
+		exit 1
+	fi
 }
 
 escape_env_value() {
-  printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'
+	printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'
 }
 
 upsert_env_local() {
-  local key="$1"
-  local value="$2"
-  local env_local_file="${CONFIG_DIR}/.env.local"
-  local temp_file
-  temp_file="$(mktemp)"
+	local key="$1"
+	local value="$2"
+	local env_local_file="${CONFIG_DIR}/.env.local"
+	local temp_file
+	temp_file="$(mktemp)"
 
-  if [[ -f "${env_local_file}" ]]; then
-    grep -v -E "^${key}=" "${env_local_file}" >"${temp_file}" || true
-  else
-    cat <<'EOF' >"${temp_file}"
+	if [[ -f ${env_local_file} ]]; then
+		grep -v -E "^${key}=" "${env_local_file}" >"${temp_file}" || true
+	else
+		cat <<'EOF' >"${temp_file}"
 # Local overrides for deploy/cloudrun/config/.env
 # This file is safe to keep machine-local and is loaded after config/.env.
 
 EOF
-  fi
+	fi
 
-  printf '%s="%s"\n' "${key}" "$(escape_env_value "${value}")" >>"${temp_file}"
-  mv "${temp_file}" "${env_local_file}"
+	printf '%s="%s"\n' "${key}" "$(escape_env_value "${value}")" >>"${temp_file}"
+	mv "${temp_file}" "${env_local_file}"
 }
 
 show_help() {
-  cat <<'EOF'
+	cat <<'EOF'
 Usage:
   bash deploy/cloudrun/scripts/create-neon-app-user.sh [--no-sync-secrets]
 
@@ -61,20 +61,20 @@ EOF
 SYNC_SECRETS=1
 
 for arg in "$@"; do
-  case "${arg}" in
-    --no-sync-secrets)
-      SYNC_SECRETS=0
-      ;;
-    --help|-h)
-      show_help
-      exit 0
-      ;;
-    *)
-      echo "Unknown argument: ${arg}" >&2
-      show_help >&2
-      exit 1
-      ;;
-  esac
+	case "${arg}" in
+	--no-sync-secrets)
+		SYNC_SECRETS=0
+		;;
+	--help | -h)
+		show_help
+		exit 0
+		;;
+	*)
+		echo "Unknown argument: ${arg}" >&2
+		show_help >&2
+		exit 1
+		;;
+	esac
 done
 
 require_env DATABASE_URL
@@ -87,14 +87,14 @@ export NEON_APP_ROLE
 export NEON_APP_PASSWORD
 
 RUNTIME_DATABASE_URL="$(
-  node "${SCRIPT_DIR}/create-neon-app-user.mjs"
+	node "${SCRIPT_DIR}/create-neon-app-user.mjs"
 )"
 
 upsert_env_local "NEON_APP_ROLE" "${NEON_APP_ROLE}"
 upsert_env_local "DATABASE_URL" "${RUNTIME_DATABASE_URL}"
 
-if [[ "${SYNC_SECRETS}" == "1" ]]; then
-  bash "${SCRIPT_DIR}/sync-secrets.sh"
+if [[ ${SYNC_SECRETS} == "1" ]]; then
+	bash "${SCRIPT_DIR}/sync-secrets.sh"
 fi
 
 cat <<EOF
@@ -107,10 +107,10 @@ Updated files:
   ${CONFIG_DIR}/.env.local
 
 Secrets:
-$(if [[ "${SYNC_SECRETS}" == "1" ]]; then
-  printf '  DATABASE_URL synced to Secret Manager.\n'
+$(if [[ ${SYNC_SECRETS} == "1" ]]; then
+	printf '  DATABASE_URL synced to Secret Manager.\n'
 else
-  printf '  Secret Manager sync skipped.\n'
+	printf '  Secret Manager sync skipped.\n'
 fi)
 
 Notes:

@@ -8,37 +8,37 @@ source "${SCRIPT_DIR}/lib/paths.sh"
 source "${SCRIPT_DIR}/load-env.sh"
 
 require_env() {
-  local name="$1"
-  if [[ -z "${!name:-}" ]]; then
-    echo "Missing required environment variable: ${name}" >&2
-    exit 1
-  fi
+	local name="$1"
+	if [[ -z ${!name-} ]]; then
+		echo "Missing required environment variable: ${name}" >&2
+		exit 1
+	fi
 }
 
 upsert_secret() {
-  local name="$1"
-  local value="$2"
+	local name="$1"
+	local value="$2"
 
-  if gcloud secrets describe "${name}" --project="${PROJECT_ID}" >/dev/null 2>&1; then
-    printf '%s' "${value}" | gcloud secrets versions add "${name}" \
-      --project="${PROJECT_ID}" \
-      --data-file=-
-  else
-    printf '%s' "${value}" | gcloud secrets create "${name}" \
-      --project="${PROJECT_ID}" \
-      --replication-policy="automatic" \
-      --data-file=-
-  fi
+	if gcloud secrets describe "${name}" --project="${PROJECT_ID}" >/dev/null 2>&1; then
+		printf '%s' "${value}" | gcloud secrets versions add "${name}" \
+			--project="${PROJECT_ID}" \
+			--data-file=-
+	else
+		printf '%s' "${value}" | gcloud secrets create "${name}" \
+			--project="${PROJECT_ID}" \
+			--replication-policy="automatic" \
+			--data-file=-
+	fi
 }
 
 grant_secret_accessor() {
-  local secret_name="$1"
-  local member="$2"
+	local secret_name="$1"
+	local member="$2"
 
-  gcloud secrets add-iam-policy-binding "${secret_name}" \
-    --project="${PROJECT_ID}" \
-    --member="${member}" \
-    --role="roles/secretmanager.secretAccessor" >/dev/null
+	gcloud secrets add-iam-policy-binding "${secret_name}" \
+		--project="${PROJECT_ID}" \
+		--member="${member}" \
+		--role="roles/secretmanager.secretAccessor" >/dev/null
 }
 
 require_env PROJECT_ID
@@ -54,11 +54,11 @@ upsert_secret "DATABASE_URL_DIRECT" "${DATABASE_URL_DIRECT}"
 upsert_secret "REDIS_URL" "${REDIS_URL}"
 
 for secret_name in DATABASE_URL DATABASE_URL_DIRECT REDIS_URL; do
-  grant_secret_accessor "${secret_name}" "serviceAccount:${DEPLOYER_SERVICE_ACCOUNT_EMAIL}"
+	grant_secret_accessor "${secret_name}" "serviceAccount:${DEPLOYER_SERVICE_ACCOUNT_EMAIL}"
 done
 
 for secret_name in DATABASE_URL REDIS_URL; do
-  grant_secret_accessor "${secret_name}" "serviceAccount:${RUNTIME_SERVICE_ACCOUNT_EMAIL}"
+	grant_secret_accessor "${secret_name}" "serviceAccount:${RUNTIME_SERVICE_ACCOUNT_EMAIL}"
 done
 
 cat <<EOF

@@ -8,15 +8,15 @@ source "${SCRIPT_DIR}/lib/paths.sh"
 source "${SCRIPT_DIR}/load-env.sh"
 
 require_env() {
-  local name="$1"
-  if [[ -z "${!name:-}" ]]; then
-    echo "Missing required environment variable: ${name}" >&2
-    exit 1
-  fi
+	local name="$1"
+	if [[ -z ${!name-} ]]; then
+		echo "Missing required environment variable: ${name}" >&2
+		exit 1
+	fi
 }
 
 show_help() {
-  cat <<'EOF'
+	cat <<'EOF'
 Usage:
   bash deploy/cloudrun/scripts/create-monitoring-email-channel.sh [--email=you@example.com] [--print-name-only]
 
@@ -36,43 +36,43 @@ EOF
 }
 
 PRINT_NAME_ONLY=0
-MONITORING_EMAIL="${MONITORING_EMAIL_ADDRESS:-}"
+MONITORING_EMAIL="${MONITORING_EMAIL_ADDRESS-}"
 
 for arg in "$@"; do
-  case "${arg}" in
-    --email=*)
-      MONITORING_EMAIL="${arg#*=}"
-      ;;
-    --print-name-only)
-      PRINT_NAME_ONLY=1
-      ;;
-    --help|-h)
-      show_help
-      exit 0
-      ;;
-    *)
-      echo "Unknown argument: ${arg}" >&2
-      show_help >&2
-      exit 1
-      ;;
-  esac
+	case "${arg}" in
+	--email=*)
+		MONITORING_EMAIL="${arg#*=}"
+		;;
+	--print-name-only)
+		PRINT_NAME_ONLY=1
+		;;
+	--help | -h)
+		show_help
+		exit 0
+		;;
+	*)
+		echo "Unknown argument: ${arg}" >&2
+		show_help >&2
+		exit 1
+		;;
+	esac
 done
 
 require_env PROJECT_ID
 
-if [[ -z "${MONITORING_EMAIL}" ]]; then
-  echo "Missing monitoring email. Set MONITORING_EMAIL_ADDRESS or pass --email=..." >&2
-  exit 1
+if [[ -z ${MONITORING_EMAIL} ]]; then
+	echo "Missing monitoring email. Set MONITORING_EMAIL_ADDRESS or pass --email=..." >&2
+	exit 1
 fi
 
 CHANNEL_DISPLAY_NAME="${MONITORING_CHANNEL_DISPLAY_NAME:-${CLOUD_RUN_SERVICE:-cloud-run} monitoring email}"
 CHANNEL_DESCRIPTION="${MONITORING_CHANNEL_DESCRIPTION:-Email notifications for Cloud Run monitoring incidents}"
 
 CHANNEL_NAME="$(
-  gcloud beta monitoring channels list \
-    --project "${PROJECT_ID}" \
-    --format=json \
-  | node -e '
+	gcloud beta monitoring channels list \
+		--project "${PROJECT_ID}" \
+		--format=json |
+		node -e '
       const fs = require("fs");
       const channels = JSON.parse(fs.readFileSync(0, "utf8"));
       const email = process.argv[1];
@@ -87,27 +87,27 @@ CHANNEL_NAME="$(
     ' "${MONITORING_EMAIL}"
 )"
 
-if [[ -z "${CHANNEL_NAME}" ]]; then
-  CHANNEL_NAME="$(
-    gcloud beta monitoring channels create \
-      --project "${PROJECT_ID}" \
-      --display-name "${CHANNEL_DISPLAY_NAME}" \
-      --description "${CHANNEL_DESCRIPTION}" \
-      --type=email \
-      --channel-labels "email_address=${MONITORING_EMAIL}" \
-      --format='value(name)'
-  )"
+if [[ -z ${CHANNEL_NAME} ]]; then
+	CHANNEL_NAME="$(
+		gcloud beta monitoring channels create \
+			--project "${PROJECT_ID}" \
+			--display-name "${CHANNEL_DISPLAY_NAME}" \
+			--description "${CHANNEL_DESCRIPTION}" \
+			--type=email \
+			--channel-labels "email_address=${MONITORING_EMAIL}" \
+			--format='value(name)'
+	)"
 fi
 
 VERIFICATION_STATUS="$(
-  gcloud beta monitoring channels describe "${CHANNEL_NAME}" \
-    --project "${PROJECT_ID}" \
-    --format='value(verificationStatus)'
+	gcloud beta monitoring channels describe "${CHANNEL_NAME}" \
+		--project "${PROJECT_ID}" \
+		--format='value(verificationStatus)'
 )"
 
-if [[ "${PRINT_NAME_ONLY}" == "1" ]]; then
-  printf '%s\n' "${CHANNEL_NAME}"
-  exit 0
+if [[ ${PRINT_NAME_ONLY} == "1" ]]; then
+	printf '%s\n' "${CHANNEL_NAME}"
+	exit 0
 fi
 
 cat <<EOF

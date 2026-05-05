@@ -8,37 +8,37 @@ source "${SCRIPT_DIR}/lib/paths.sh"
 source "${SCRIPT_DIR}/load-env.sh"
 
 require_env() {
-  local name="$1"
-  if [[ -z "${!name:-}" ]]; then
-    echo "Missing required environment variable: ${name}" >&2
-    exit 1
-  fi
+	local name="$1"
+	if [[ -z ${!name-} ]]; then
+		echo "Missing required environment variable: ${name}" >&2
+		exit 1
+	fi
 }
 
 create_project_if_missing() {
-  if gcloud projects describe "${PROJECT_ID}" >/dev/null 2>&1; then
-    return
-  fi
+	if gcloud projects describe "${PROJECT_ID}" >/dev/null 2>&1; then
+		return
+	fi
 
-  gcloud projects create "${PROJECT_ID}" --name="${PROJECT_NAME}"
+	gcloud projects create "${PROJECT_ID}" --name="${PROJECT_NAME}"
 }
 
 create_service_account_if_missing() {
-  local account_id="$1"
-  local display_name="$2"
+	local account_id="$1"
+	local display_name="$2"
 
-  if gcloud iam service-accounts describe \
-    "${account_id}@${PROJECT_ID}.iam.gserviceaccount.com" \
-    --project="${PROJECT_ID}" >/dev/null 2>&1; then
-    return
-  fi
+	if gcloud iam service-accounts describe \
+		"${account_id}@${PROJECT_ID}.iam.gserviceaccount.com" \
+		--project="${PROJECT_ID}" >/dev/null 2>&1; then
+		return
+	fi
 
-  gcloud iam service-accounts create "${account_id}" \
-    --project="${PROJECT_ID}" \
-    --display-name="${display_name}"
+	gcloud iam service-accounts create "${account_id}" \
+		--project="${PROJECT_ID}" \
+		--display-name="${display_name}"
 }
 
-PROJECT_NAME="${PROJECT_NAME:-${PROJECT_ID:-}}"
+PROJECT_NAME="${PROJECT_NAME:-${PROJECT_ID-}}"
 CLOUD_RUN_REGION="${CLOUD_RUN_REGION:-europe-west4}"
 ARTIFACT_REGISTRY_REPOSITORY="${ARTIFACT_REGISTRY_REPOSITORY:-cloud-run-backend}"
 CLOUD_RUN_SERVICE="${CLOUD_RUN_SERVICE:-api}"
@@ -55,31 +55,31 @@ GITHUB_OWNER="${GITHUB_OWNER:-${GITHUB_REPOSITORY%%/*}}"
 
 create_project_if_missing
 
-if [[ -n "${BILLING_ACCOUNT_ID:-}" ]]; then
-  gcloud beta billing projects link "${PROJECT_ID}" \
-    --billing-account="${BILLING_ACCOUNT_ID}" >/dev/null
+if [[ -n ${BILLING_ACCOUNT_ID-} ]]; then
+	gcloud beta billing projects link "${PROJECT_ID}" \
+		--billing-account="${BILLING_ACCOUNT_ID}" >/dev/null
 fi
 
 gcloud config set project "${PROJECT_ID}" >/dev/null
 
 gcloud services enable \
-  artifactregistry.googleapis.com \
-  cloudresourcemanager.googleapis.com \
-  iam.googleapis.com \
-  iamcredentials.googleapis.com \
-  run.googleapis.com \
-  secretmanager.googleapis.com \
-  serviceusage.googleapis.com \
-  sts.googleapis.com
+	artifactregistry.googleapis.com \
+	cloudresourcemanager.googleapis.com \
+	iam.googleapis.com \
+	iamcredentials.googleapis.com \
+	run.googleapis.com \
+	secretmanager.googleapis.com \
+	serviceusage.googleapis.com \
+	sts.googleapis.com
 
 if ! gcloud artifacts repositories describe "${ARTIFACT_REGISTRY_REPOSITORY}" \
-  --project="${PROJECT_ID}" \
-  --location="${CLOUD_RUN_REGION}" >/dev/null 2>&1; then
-  gcloud artifacts repositories create "${ARTIFACT_REGISTRY_REPOSITORY}" \
-    --project="${PROJECT_ID}" \
-    --location="${CLOUD_RUN_REGION}" \
-    --repository-format=docker \
-    --description="Cloud Run backend images"
+	--project="${PROJECT_ID}" \
+	--location="${CLOUD_RUN_REGION}" >/dev/null 2>&1; then
+	gcloud artifacts repositories create "${ARTIFACT_REGISTRY_REPOSITORY}" \
+		--project="${PROJECT_ID}" \
+		--location="${CLOUD_RUN_REGION}" \
+		--repository-format=docker \
+		--description="Cloud Run backend images"
 fi
 
 create_service_account_if_missing "${DEPLOYER_SERVICE_ACCOUNT_ID}" "GitHub Actions deployer"
@@ -89,58 +89,58 @@ DEPLOYER_SERVICE_ACCOUNT_EMAIL="${DEPLOYER_SERVICE_ACCOUNT_ID}@${PROJECT_ID}.iam
 RUNTIME_SERVICE_ACCOUNT_EMAIL="${RUNTIME_SERVICE_ACCOUNT_ID}@${PROJECT_ID}.iam.gserviceaccount.com"
 
 if ! gcloud iam workload-identity-pools describe "${WIF_POOL_ID}" \
-  --project="${PROJECT_ID}" \
-  --location="global" >/dev/null 2>&1; then
-  gcloud iam workload-identity-pools create "${WIF_POOL_ID}" \
-    --project="${PROJECT_ID}" \
-    --location="global" \
-    --display-name="GitHub Actions Pool"
+	--project="${PROJECT_ID}" \
+	--location="global" >/dev/null 2>&1; then
+	gcloud iam workload-identity-pools create "${WIF_POOL_ID}" \
+		--project="${PROJECT_ID}" \
+		--location="global" \
+		--display-name="GitHub Actions Pool"
 fi
 
 if ! gcloud iam workload-identity-pools providers describe "${WIF_PROVIDER_ID}" \
-  --project="${PROJECT_ID}" \
-  --location="global" \
-  --workload-identity-pool="${WIF_POOL_ID}" >/dev/null 2>&1; then
-  gcloud iam workload-identity-pools providers create-oidc "${WIF_PROVIDER_ID}" \
-    --project="${PROJECT_ID}" \
-    --location="global" \
-    --workload-identity-pool="${WIF_POOL_ID}" \
-    --display-name="GitHub repository provider" \
-    --attribute-mapping="google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.repository=assertion.repository,attribute.repository_owner=assertion.repository_owner,attribute.ref=assertion.ref" \
-    --attribute-condition="assertion.repository == '${GITHUB_REPOSITORY}'" \
-    --issuer-uri="https://token.actions.githubusercontent.com"
+	--project="${PROJECT_ID}" \
+	--location="global" \
+	--workload-identity-pool="${WIF_POOL_ID}" >/dev/null 2>&1; then
+	gcloud iam workload-identity-pools providers create-oidc "${WIF_PROVIDER_ID}" \
+		--project="${PROJECT_ID}" \
+		--location="global" \
+		--workload-identity-pool="${WIF_POOL_ID}" \
+		--display-name="GitHub repository provider" \
+		--attribute-mapping="google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.repository=assertion.repository,attribute.repository_owner=assertion.repository_owner,attribute.ref=assertion.ref" \
+		--attribute-condition="assertion.repository == '${GITHUB_REPOSITORY}'" \
+		--issuer-uri="https://token.actions.githubusercontent.com"
 fi
 
 PROJECT_NUMBER="$(gcloud projects describe "${PROJECT_ID}" --format='value(projectNumber)')"
 WORKLOAD_IDENTITY_POOL_NAME="$(gcloud iam workload-identity-pools describe "${WIF_POOL_ID}" \
-  --project="${PROJECT_ID}" \
-  --location="global" \
-  --format='value(name)')"
+	--project="${PROJECT_ID}" \
+	--location="global" \
+	--format='value(name)')"
 WORKLOAD_IDENTITY_PROVIDER_NAME="$(gcloud iam workload-identity-pools providers describe "${WIF_PROVIDER_ID}" \
-  --project="${PROJECT_ID}" \
-  --location="global" \
-  --workload-identity-pool="${WIF_POOL_ID}" \
-  --format='value(name)')"
+	--project="${PROJECT_ID}" \
+	--location="global" \
+	--workload-identity-pool="${WIF_POOL_ID}" \
+	--format='value(name)')"
 
 gcloud iam service-accounts add-iam-policy-binding "${DEPLOYER_SERVICE_ACCOUNT_EMAIL}" \
-  --project="${PROJECT_ID}" \
-  --role="roles/iam.workloadIdentityUser" \
-  --member="principalSet://iam.googleapis.com/${WORKLOAD_IDENTITY_POOL_NAME}/attribute.repository/${GITHUB_REPOSITORY}" >/dev/null
+	--project="${PROJECT_ID}" \
+	--role="roles/iam.workloadIdentityUser" \
+	--member="principalSet://iam.googleapis.com/${WORKLOAD_IDENTITY_POOL_NAME}/attribute.repository/${GITHUB_REPOSITORY}" >/dev/null
 
 gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
-  --member="serviceAccount:${DEPLOYER_SERVICE_ACCOUNT_EMAIL}" \
-  --role="roles/run.admin" >/dev/null
+	--member="serviceAccount:${DEPLOYER_SERVICE_ACCOUNT_EMAIL}" \
+	--role="roles/run.admin" >/dev/null
 
 gcloud iam service-accounts add-iam-policy-binding "${RUNTIME_SERVICE_ACCOUNT_EMAIL}" \
-  --project="${PROJECT_ID}" \
-  --member="serviceAccount:${DEPLOYER_SERVICE_ACCOUNT_EMAIL}" \
-  --role="roles/iam.serviceAccountUser" >/dev/null
+	--project="${PROJECT_ID}" \
+	--member="serviceAccount:${DEPLOYER_SERVICE_ACCOUNT_EMAIL}" \
+	--role="roles/iam.serviceAccountUser" >/dev/null
 
 gcloud artifacts repositories add-iam-policy-binding "${ARTIFACT_REGISTRY_REPOSITORY}" \
-  --project="${PROJECT_ID}" \
-  --location="${CLOUD_RUN_REGION}" \
-  --member="serviceAccount:${DEPLOYER_SERVICE_ACCOUNT_EMAIL}" \
-  --role="roles/artifactregistry.writer" >/dev/null
+	--project="${PROJECT_ID}" \
+	--location="${CLOUD_RUN_REGION}" \
+	--member="serviceAccount:${DEPLOYER_SERVICE_ACCOUNT_EMAIL}" \
+	--role="roles/artifactregistry.writer" >/dev/null
 
 cat <<EOF
 GCP bootstrap complete.

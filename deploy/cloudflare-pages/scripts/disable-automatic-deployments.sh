@@ -8,21 +8,21 @@ source "${SCRIPT_DIR}/lib/paths.sh"
 source "${SCRIPT_DIR}/load-env.sh"
 
 require_env() {
-  local name="$1"
-  if [[ -z "${!name:-}" ]]; then
-    echo "Missing required environment variable: ${name}" >&2
-    exit 1
-  fi
+	local name="$1"
+	if [[ -z ${!name-} ]]; then
+		echo "Missing required environment variable: ${name}" >&2
+		exit 1
+	fi
 }
 
 if ! command -v curl >/dev/null 2>&1; then
-  echo "curl is required for this helper." >&2
-  exit 1
+	echo "curl is required for this helper." >&2
+	exit 1
 fi
 
 if ! command -v node >/dev/null 2>&1; then
-  echo "node is required for this helper." >&2
-  exit 1
+	echo "node is required for this helper." >&2
+	exit 1
 fi
 
 require_env CLOUDFLARE_ACCOUNT_ID
@@ -35,43 +35,44 @@ verify_file="$(mktemp)"
 trap 'rm -f "${response_file}" "${verify_file}"' EXIT
 
 http_status="$(
-  curl \
-    --silent \
-    --show-error \
-    --write-out '%{http_code}' \
-    --output "${response_file}" \
-    --request PATCH \
-    "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${CLOUDFLARE_PAGES_PROJECT_NAME}" \
-    --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
-    --header "Content-Type: application/json" \
-    --data "$(cat <<EOF
+	curl \
+		--silent \
+		--show-error \
+		--write-out '%{http_code}' \
+		--output "${response_file}" \
+		--request PATCH \
+		"https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${CLOUDFLARE_PAGES_PROJECT_NAME}" \
+		--header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+		--header "Content-Type: application/json" \
+		--data "$(
+			cat <<EOF
 {"production_branch":"${production_branch}","source":{"config":{"deployments_enabled":false,"production_deployments_enabled":false,"preview_deployment_setting":"none"}}}
 EOF
-)"
+		)"
 )"
 
-if [[ ! "${http_status}" =~ ^2 ]]; then
-  echo "Cloudflare API request failed with status ${http_status}." >&2
-  cat "${response_file}" >&2
-  exit 1
+if [[ ! ${http_status} =~ ^2 ]]; then
+	echo "Cloudflare API request failed with status ${http_status}." >&2
+	cat "${response_file}" >&2
+	exit 1
 fi
 
 verify_status="$(
-  curl \
-    --silent \
-    --show-error \
-    --write-out '%{http_code}' \
-    --output "${verify_file}" \
-    --request GET \
-    "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${CLOUDFLARE_PAGES_PROJECT_NAME}" \
-    --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
-    --header "Content-Type: application/json"
+	curl \
+		--silent \
+		--show-error \
+		--write-out '%{http_code}' \
+		--output "${verify_file}" \
+		--request GET \
+		"https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${CLOUDFLARE_PAGES_PROJECT_NAME}" \
+		--header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+		--header "Content-Type: application/json"
 )"
 
-if [[ ! "${verify_status}" =~ ^2 ]]; then
-  echo "Cloudflare verification request failed with status ${verify_status}." >&2
-  cat "${verify_file}" >&2
-  exit 1
+if [[ ! ${verify_status} =~ ^2 ]]; then
+	echo "Cloudflare verification request failed with status ${verify_status}." >&2
+	cat "${verify_file}" >&2
+	exit 1
 fi
 
 node - "${verify_file}" "${CLOUDFLARE_PAGES_PROJECT_NAME}" <<'NODE'
