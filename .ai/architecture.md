@@ -115,8 +115,11 @@ ordering, and lockfile ownership.
   dependencies belong in each Rush project.
 
 Rush custom bulk commands live in `common/config/rush/command-line.json`:
-`verify`, `lint`, `test`, and `dev`. Rush Delivery uses these project scripts
-instead of hardcoded per-project CI steps.
+`build-dev`, `verify`, `lint`, `test`, and `dev`. Rush Delivery uses these
+project scripts instead of hardcoded per-project CI steps. Root `build:dev`
+is a local developer confidence build and may use development-mode environment
+defaults; production packaging remains strict and goes through Rush Delivery
+or explicit Rush build/package commands.
 
 ## CI And Release
 

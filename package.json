@@ -6,6 +6,8 @@
     "node": ">=24"
   },
   "scripts": {
+    "build:dev": "node common/scripts/install-run-rush.js build-dev",
+    "test": "node common/scripts/install-run-rush.js test",
     "dev": "bash scripts/run-nx-dev.sh",
     "dev:rush": "node common/scripts/install-run-rush.js dev",
     "deps:upgrade": "bash scripts/upgrade-package-json-deps.sh --target all",

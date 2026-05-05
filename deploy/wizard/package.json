@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "find src -name '*.mjs' -exec node --check {} \\;",
+    "build:dev": "npm run build",
     "cloudrun-cloudflare-neon-upstash": "node src/cli.mjs cloudrun-cloudflare-neon-upstash",
     "lint": "eslint .",
     "test": "node --test test/*.test.mjs",

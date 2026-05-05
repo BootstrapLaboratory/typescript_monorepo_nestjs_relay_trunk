@@ -19,6 +19,8 @@ This repository is meant to be opened in a Dev Container.
 
 Dependency upgrades: run `npm run deps:upgrade` from the repo root to update dependency ranges across the Rush-managed app packages. For a single package, use `npm run deps:upgrade:webapp` or `npm run deps:upgrade:server`. `npm run deps:upgrade:root` is retained as a compatibility no-op because the repo root is intentionally dependency-free.
 
+After dependency upgrades, run `npm run build:dev` and `npm run test` from the repo root. `build:dev` runs each Rush project's local build script and lets the webapp use `apps/webapp/.env.development`, so local validation does not require production `VITE_GRAPHQL_HTTP` or `VITE_GRAPHQL_WS` values.
+
 Local URLs:
 
 - Frontend: <http://localhost:5173>

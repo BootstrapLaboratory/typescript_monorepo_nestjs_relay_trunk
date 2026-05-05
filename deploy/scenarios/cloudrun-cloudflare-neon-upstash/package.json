@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "find scenario.mjs steps -name '*.mjs' -exec node --check {} \\;",
+    "build:dev": "npm run build",
     "lint": "eslint .",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run test"

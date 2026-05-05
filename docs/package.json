@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "build": "node -e \"require('node:fs').accessSync('tutorial')\"",
+    "build:dev": "npm run build",
     "start:dev": "npm run build",
     "verify": "npm run build"
   }
