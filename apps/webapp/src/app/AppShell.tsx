@@ -65,6 +65,37 @@ function AuthNavigationAction() {
   );
 }
 
+function AppFooter() {
+  return (
+    <footer className={styles.footer}>
+      <div className={styles.footerInner}>
+        <p className={styles.footerLine}>
+          Copyright &copy; 2026 Bootstrap Laboratory
+        </p>
+        <p className={styles.footerLine}>
+          GraphQL is built on top of{" "}
+          <a
+            className={styles.footerLink}
+            href="https://bootstraplaboratory.github.io/labkit/"
+            rel="noreferrer"
+          >
+            Labkit
+          </a>{" "}
+          and deployed using{" "}
+          <a
+            className={styles.footerLink}
+            href="https://bootstraplaboratory.github.io/rush-delivery/"
+            rel="noreferrer"
+          >
+            Rush Delivery
+          </a>
+          .
+        </p>
+      </div>
+    </footer>
+  );
+}
+
 export function AppShell() {
   const themeName = useThemeName();
 
@@ -125,6 +156,7 @@ export function AppShell() {
             <Outlet />
           </Suspense>
         </main>
+        <AppFooter />
       </div>
     </div>
   );

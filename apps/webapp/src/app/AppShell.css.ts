@@ -11,6 +11,7 @@ export const shell = style({
 
 export const shellInner = style({
   width: "100%",
+  minHeight: "100vh",
   margin: 0,
   padding: 0,
   display: "flex",
@@ -119,12 +120,57 @@ export const themePickerLabel = style({
 
 export const content = style({
   width: "min(72rem, 100%)",
+  flex: 1,
   margin: "0 auto",
   padding: `${vars.space[8]} ${vars.space[8]}`,
   minWidth: 0,
   "@media": {
     "screen and (max-width: 720px)": {
       padding: `${vars.space[5]} ${vars.space[4]} ${vars.space[8]}`,
+    },
+  },
+});
+
+export const footer = style({
+  borderTop: `1px solid ${vars.color.border}`,
+  background: `color-mix(in oklab, ${vars.color.surface} 72%, transparent)`,
+  color: vars.color.textMuted,
+  ...themeColorTransition,
+});
+
+export const footerInner = style({
+  width: "min(72rem, 100%)",
+  margin: "0 auto",
+  padding: `${vars.space[5]} ${vars.space[8]} ${vars.space[6]}`,
+  display: "grid",
+  gap: vars.space[1],
+  fontSize: "0.875rem",
+  lineHeight: 1.6,
+  textAlign: "center",
+  "@media": {
+    "screen and (max-width: 720px)": {
+      padding: `${vars.space[4]} ${vars.space[4]} ${vars.space[5]}`,
+    },
+  },
+});
+
+export const footerLine = style({
+  margin: 0,
+});
+
+export const footerLink = style({
+  color: vars.color.link,
+  fontWeight: 600,
+  textUnderlineOffset: "4px",
+  ...themeColorTransition,
+  selectors: {
+    "&:hover": {
+      color: vars.color.accentHover,
+      textDecoration: "underline",
+    },
+    "&:focus-visible": {
+      outline: `2px solid ${vars.color.accent}`,
+      outlineOffset: "2px",
     },
   },
 });
