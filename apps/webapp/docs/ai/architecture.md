@@ -99,13 +99,14 @@ preserving a single Cloudflare Pages deploy artifact.
   supplies the GraphQL endpoint, exports the React auth hook, and keeps existing
   app import paths stable while Labkit owns the reusable browser auth policy.
 - `src/shared/relay` is the app-local adapter over
-  `@omgjs/labkit-webapp-graphql-relay`. It supplies the resolved HTTP/WS endpoints,
-  auth adapter, and realtime adapter while Labkit owns the reusable Relay
-  network and store-helper behavior.
+  `@omgjs/labkit-webapp-graphql-relay`. It supplies the resolved HTTP endpoint,
+  auth adapter, and the shared realtime instance while Labkit owns the reusable
+  Relay network and store-helper behavior.
 - `src/shared/realtime` is the app-local adapter over
-  `@omgjs/labkit-webapp-realtime`. It supplies Vite environment options, exports the
-  React realtime connection hook, and keeps existing app import paths stable
-  while Labkit owns the reusable GraphQL WS reconnect policy.
+  `@omgjs/labkit-webapp-realtime`. It supplies the resolved WS endpoint,
+  GraphQL WS auth connection params, the shared realtime instance, Vite
+  environment options, and the React realtime connection hook while Labkit owns
+  the reusable GraphQL WS reconnect policy.
 - `src/shared/theme` is the app-local adapter over `@omgjs/labkit-webapp-ui` theme
   controller helpers. It supplies the app theme names, classes, storage key, and
   React hook while Labkit owns persisted theme selection, document root class

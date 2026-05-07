@@ -1,11 +1,12 @@
 import { useSyncExternalStore } from "react";
-import type { Client } from "graphql-ws";
 import {
-  createWebappRealtimeConnection,
+  DefaultWebappRealtimeConnection,
   parseRealtimeReconnectWatchdogMs,
-  type GraphqlWsConnectionParamsFactory,
   type GraphqlWsConnectionState,
 } from "@omgjs/labkit-webapp-realtime";
+import { createRelayGraphqlWsConnectionParams } from "@omgjs/labkit-webapp-graphql-relay";
+import { getAccessToken } from "../auth/session";
+import { WS_ENDPOINT } from "../graphql/endpoints";
 
 export {
   getRealtimeConnectionMessage,
@@ -13,27 +14,24 @@ export {
   type GraphqlWsConnectionStatus,
 } from "@omgjs/labkit-webapp-realtime";
 
-const realtimeConnection = createWebappRealtimeConnection({
+export const realtimeConnection = new DefaultWebappRealtimeConnection({
+  wsEndpoint: WS_ENDPOINT,
+  connectionParams: () => createRelayGraphqlWsConnectionParams(getAccessToken),
   logReconnects: import.meta.env.VITE_GRAPHQL_LOG_RECONNECTS === "true",
   reconnectWatchdogMs: parseRealtimeReconnectWatchdogMs(
     import.meta.env.VITE_GRAPHQL_RECONNECT_WATCHDOG_MS,
   ),
 });
 
-export function createRealtimeGraphqlWsClient(
-  url: string,
-  connectionParams?: GraphqlWsConnectionParamsFactory,
-): Client {
-  return realtimeConnection.createRealtimeGraphqlWsClient(
-    url,
-    connectionParams,
-  );
+export function subscribeToRealtimeConnectionState(
+  listener: (state: GraphqlWsConnectionState) => void,
+) {
+  return realtimeConnection.subscribeToConnectionState(listener);
 }
 
-export const subscribeToRealtimeConnectionState =
-  realtimeConnection.subscribeToRealtimeConnectionState;
-export const getRealtimeConnectionState =
-  realtimeConnection.getRealtimeConnectionState;
+export function getRealtimeConnectionState(): GraphqlWsConnectionState {
+  return realtimeConnection.getConnectionState();
+}
 
 export function useRealtimeConnectionState(): GraphqlWsConnectionState {
   return useSyncExternalStore(
