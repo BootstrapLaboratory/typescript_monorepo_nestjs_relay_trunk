@@ -24,8 +24,8 @@
     "@omgjs/labkit-runtime-config": "0.1.1",
     "@omgjs/labkit-webapp-auth": "0.1.1",
     "@omgjs/labkit-webapp-external-store": "0.1.1",
-    "@omgjs/labkit-webapp-graphql-relay": "1.0.0",
-    "@omgjs/labkit-webapp-realtime": "1.0.0",
+    "@omgjs/labkit-webapp-graphql-relay": "1.0.1",
+    "@omgjs/labkit-webapp-realtime": "1.0.1",
     "@omgjs/labkit-webapp-ui": "0.1.1",
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.4",
@@ -67,6 +67,6 @@
     "storybook": "^10.3.6",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.59.2",
-    "vite": "^8.0.10"
+    "vite": "^8.0.11"
   }
 }
