@@ -24,7 +24,7 @@
     "@omgjs/labkit-runtime-config": "0.1.1",
     "@omgjs/labkit-webapp-auth": "0.1.1",
     "@omgjs/labkit-webapp-external-store": "0.1.1",
-    "@omgjs/labkit-webapp-graphql-relay": "1.0.3",
+    "@omgjs/labkit-webapp-graphql-relay": "2.0.0",
     "@omgjs/labkit-webapp-realtime": "1.0.3",
     "@omgjs/labkit-webapp-ui": "0.1.1",
     "@radix-ui/react-select": "^2.2.6",

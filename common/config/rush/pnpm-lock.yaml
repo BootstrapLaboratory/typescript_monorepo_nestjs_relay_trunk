@@ -279,8 +279,8 @@ importers:
         specifier: 0.1.1
         version: 0.1.1
       '@omgjs/labkit-webapp-graphql-relay':
-        specifier: 1.0.3
-        version: 1.0.3(graphql@16.14.0)(react@19.2.6)(ws@8.20.0)
+        specifier: 2.0.0
+        version: 2.0.0(graphql@16.14.0)(react@19.2.6)(ws@8.20.0)
       '@omgjs/labkit-webapp-realtime':
         specifier: 1.0.3
         version: 1.0.3(graphql@16.14.0)(ws@8.20.0)
@@ -3180,8 +3180,8 @@ packages:
   '@omgjs/labkit-webapp-external-store@0.1.1':
     resolution: {integrity: sha512-s8XJeVaI1MbvOs2hers49QTvXgtbhd0+rnLpONUmBeVY3efzDLxpUUxUK8gm9rk0KQ0QMiddL2ENbecDN/8cGg==}
 
-  '@omgjs/labkit-webapp-graphql-relay@1.0.3':
-    resolution: {integrity: sha512-E5WiTiKGFglJp4xXqhqhcBhPTB1WH19of6rh4a5JHcukamFbsb3xZBKfNlG5nlosgJApaVcoPLiBaTFDMgHz+w==}
+  '@omgjs/labkit-webapp-graphql-relay@2.0.0':
+    resolution: {integrity: sha512-pRuN16xwxXEn+DpJH+9hSSIQCk8PLJspOqokke2KxupkCTb3wijXdgw7GXBrrg0UlgWCg3+e67KnEY9vpgnEjQ==}
     peerDependencies:
       react: ^16.9.0 || ^17 || ^18 || ^19
 
@@ -13933,7 +13933,7 @@ snapshots:
 
   '@omgjs/labkit-webapp-external-store@0.1.1': {}
 
-  '@omgjs/labkit-webapp-graphql-relay@1.0.3(graphql@16.14.0)(react@19.2.6)(ws@8.20.0)':
+  '@omgjs/labkit-webapp-graphql-relay@2.0.0(graphql@16.14.0)(react@19.2.6)(ws@8.20.0)':
     dependencies:
       '@omgjs/labkit-auth-contract': 0.1.1
       '@omgjs/labkit-webapp-realtime': 1.0.3(graphql@16.14.0)(ws@8.20.0)
