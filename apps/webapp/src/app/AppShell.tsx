@@ -79,9 +79,9 @@ function AppFooter() {
             href="https://bootstraplaboratory.github.io/labkit/"
             rel="noreferrer"
           >
-            Labkit
+            Labkit.
           </a>{" "}
-          and deployed using{" "}
+          Project is deployed using{" "}
           <a
             className={styles.footerLink}
             href="https://bootstraplaboratory.github.io/rush-delivery/"
